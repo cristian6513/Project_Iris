@@ -1,0 +1,27 @@
+{
+  "name": "iris-desktop-companion",
+  "version": "0.1.8",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --config vite.config.js",
+    "build": "vite build --config vite.config.js && node scripts/build.mjs",
+    "tauri": "tauri"
+  },
+  "dependencies": {
+    "@fontsource/jetbrains-mono": "5.2.8",
+    "@mediapipe/tasks-vision": "0.10.35",
+    "@pixiv/three-vrm": "3.5.5",
+    "@pixiv/three-vrm-animation": "3.5.5",
+    "@pixiv/three-vrm-springbone": "3.5.5",
+    "@tauri-apps/api": "2.11.1",
+    "qrcode-generator": "1.4.4",
+    "three": "0.170.0"
+  },
+  "devDependencies": {
+    "@fontsource/outfit": "5.3.0",
+    "@fontsource/syne": "5.3.0",
+    "@tauri-apps/cli": "2.11.4",
+    "vite": "8.2.1"
+  }
+}

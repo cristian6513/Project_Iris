@@ -1,0 +1,36 @@
+.os-transition-studio { min-width: 0; container-type: inline-size; }
+.os-theme-main > .os-transition-studio { grid-column: 1 / -1; }
+.os-transition-studio .motion-overview { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(140px, 1fr); gap: 14px; align-items: center; }
+.os-transition-studio p { color: var(--os-muted); font: 400 .78rem/1.5 var(--font-main); margin: 10px 0; overflow-wrap: anywhere; }
+.os-transition-studio label { display: grid; gap: 6px; margin: 12px 0; color: var(--os-text); font: 500 .78rem/1.4 var(--font-main); }
+.os-transition-studio input, .os-transition-studio select, .os-transition-studio textarea { box-sizing: border-box; width: 100%; min-width: 0; border: 1px solid var(--os-line); border-radius: 9px; padding: 9px; color: var(--os-text); background: var(--os-panel-strong); font: inherit; }
+.os-transition-studio option { background: var(--os-panel-strong, #101722); color: var(--os-text); }
+.os-transition-studio textarea { resize: vertical; max-height: 240px; font-family: monospace; }
+.os-transition-studio input[type=file] { white-space: normal; }
+.os-transition-studio input[type=file]::file-selector-button { margin-right: 10px; min-height: 36px; border: 1px solid var(--os-line); border-radius: 8px; padding: 7px 11px; color: var(--os-text); background: color-mix(in srgb, var(--iris-os-accent) 12%, var(--os-panel-strong)); font: inherit; cursor: pointer; }
+.os-transition-studio input[type=file]::file-selector-button:hover { border-color: var(--iris-os-accent); }
+.os-transition-studio .motion-actions { display: flex; flex-wrap: wrap; gap: 7px; margin: 12px 0; }
+.os-transition-studio button { min-height: 38px; border: 1px solid var(--os-line); border-radius: 9px; background: var(--os-panel-strong); color: var(--os-text); padding: 8px 10px; font: 500 .74rem/1.3 var(--font-main); cursor: pointer; }
+.os-transition-studio button:hover:not(:disabled) { border-color: var(--iris-os-accent); }
+.os-transition-studio .motion-primary { background: color-mix(in srgb, var(--iris-os-accent) 18%, var(--os-panel-strong)); border-color: var(--iris-os-accent); }
+.os-transition-studio :is(button,input,select,textarea,summary):focus-visible { outline: 2px solid var(--iris-os-accent); outline-offset: 3px; }
+.os-transition-studio button:disabled { opacity: .45; cursor: default; }
+.os-transition-studio details { border-top: 1px solid var(--os-line); padding-top: 12px; }
+.os-transition-studio summary { color: var(--iris-os-accent); cursor: pointer; font: 600 .8rem/1.5 var(--font-main); padding: 5px 0; }
+.os-transition-studio pre { max-height: 140px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; font: 400 .7rem/1.5 monospace; color: var(--os-muted); }
+.os-transition-studio .motion-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+.os-transition-studio .motion-status { color: var(--iris-os-accent); }
+.os-transition-studio .motion-status[data-error=true] { color: #ff8ed7; }
+.os-transition-studio .motion-stage { overflow: hidden; display: grid; place-items: center; min-height: 132px; border: 1px solid var(--os-line); border-radius: 12px; background: color-mix(in srgb, var(--iris-os-accent) 4%, transparent); }
+.os-transition-studio .motion-sample { width: min(150px, 65%); padding: 13px; border: 1px solid color-mix(in srgb, var(--iris-os-accent) 45%, transparent); border-radius: 10px; background: var(--os-panel-strong); color: var(--os-text); }
+.os-transition-studio .motion-sample span { display: block; color: var(--iris-os-accent); font: 600 .55rem var(--font-display); letter-spacing: .12em; }
+.os-transition-studio .motion-sample strong { display: block; font: 600 .8rem var(--font-main); margin: 9px 0; }
+.os-transition-studio .motion-sample i { display: block; width: 85%; height: 4px; margin-top: 7px; border-radius: 4px; background: color-mix(in srgb, var(--iris-os-accent) 18%, transparent); }
+.os-transition-studio .motion-sample i:last-child { width: 60%; }
+.os-transition-studio [hidden] { display: none !important; }
+@container (max-width: 240px) { .os-transition-studio .motion-fields { grid-template-columns: 1fr; gap: 0; } }
+@container (max-width: 420px) { .os-transition-studio .motion-overview { grid-template-columns: 1fr; } }
+@media (prefers-reduced-motion: reduce) {
+    .os-transition-studio .motion-sample, .hermes-workbench .os-window { animation: none !important; }
+}
+.hermes-workbench[data-reduced-motion=true] .os-transition-studio .motion-sample { animation: none !important; }

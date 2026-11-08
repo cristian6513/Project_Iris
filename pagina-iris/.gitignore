@@ -1,0 +1,6 @@
+# Salida de scripts/build.mjs: se regenera en cada compilación.
+build/
+
+# Ajustes y notas privadas del VPS.
+/deploy.local.json
+/deploy/README.local.md

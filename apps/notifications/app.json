@@ -1,0 +1,22 @@
+{
+  "schema": "iris.app-manifest/v1",
+  "sdkVersion": 1,
+  "id": "notifications",
+  "name": "Notificaciones",
+  "version": "1.0.0",
+  "description": "Avisos y notificaciones de Iris",
+  "icon": "notifications",
+  "accent": "cyan",
+  "presentation": "window",
+  "window": {
+    "width": 1120,
+    "height": 680
+  },
+  "launcher": {
+    "visible": true,
+    "order": 100
+  },
+  "ui": {
+    "adapter": "legacy"
+  }
+}

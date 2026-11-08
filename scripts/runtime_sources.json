@@ -1,0 +1,331 @@
+{
+  "schema": 1,
+  "platform": "windows",
+  "arch": "x86_64",
+  "python": {
+    "version": "3.11.16",
+    "build": "20260901",
+    "filename": "cpython-3.11.16+20260901-x86_64-pc-windows-msvc-install_only_stripped.tar.gz",
+    "url": "https://github.com/astral-sh/python-build-standalone/releases/download/20260901/cpython-3.11.16%2B20260901-x86_64-pc-windows-msvc-install_only_stripped.tar.gz",
+    "sha256": "06cbe479e039f5b9cb5640c286d790074d63f549f92a32d599a3748293bd4510",
+    "archive_prefix": "python/",
+    "license": "Python-2.0"
+  },
+  "iris": {
+    "version": "0.9.2",
+    "pyproject_sha256": "c6a5d661ed5c6a528404f55566ae8670d5bedcd541dff92f5908ba69424280e0",
+    "uv_lock_sha256": "e6bab5e7c5ee9fd4ad2d30c3643deec27cc07e4a2e71d6dd20eeaa33da4b4725",
+    "wheel_sha256": "23498b43b97acbf6c6ea6f573a5105e4bb4adf2f6dfd312e380d30ef35a1e8c9",
+    "wheel_filename": "iris_os-0.9.2-py3-none-any.whl"
+  },
+  "hermes": {
+    "version": "0.21.6",
+    "revision": "818c13be1dc4fd28987e1e881a9408224afd4535",
+    "source_archive_filename": "hermes-818c13b.tar.gz",
+    "source_archive_sha256": "9deddf1d5325361b18f2281f21c4229fe699a62eec6fb809b3a5a83e0a1e88da",
+    "source_url": "https://codeload.github.com/NousResearch/hermes-agent/tar.gz/818c13be1dc4fd28987e1e881a9408224afd4535",
+    "pyproject_sha256": "cadde2f6a92574d292103f43abf66408b1d841cd9ea332ca7f3e3dfc5dcc87fd",
+    "lock_sha256": "2bc4db483e9cba927cd7147f9ccbb09635f85bb3f1f36d6e9d51d06b65d1c67e",
+    "source_hashes": {
+      "LICENSE": "821556e6336796450ab852d375117b48a4887e71d255794fd6318d99982a5ab6",
+      "pyproject.toml": "cadde2f6a92574d292103f43abf66408b1d841cd9ea332ca7f3e3dfc5dcc87fd",
+      "uv.lock": "2bc4db483e9cba927cd7147f9ccbb09635f85bb3f1f36d6e9d51d06b65d1c67e",
+      "hermes_cli/__init__.py": "6a4ab05b8621ec1cd66a5abbe30fa32ed5bddddea95903036da01f0af1af94ce"
+    },
+    "extras": [
+      "voice",
+      "wake",
+      "messaging",
+      "mcp",
+      "anthropic",
+      "edge-tts",
+      "bedrock",
+      "azure-identity",
+      "vertex",
+      "google",
+      "mistral"
+    ],
+    "license": "MIT",
+    "windows_overlays": [],
+    "archive_prefix": "hermes-agent-818c13be1dc4fd28987e1e881a9408224afd4535",
+    "install_stamp": {
+      "distribution": "iris",
+      "update_mechanism": "external"
+    }
+  },
+  "audio": {
+    "version": "8.1.3+9.g29e619e767",
+    "filename": "iris-native-messaging-audio.zip",
+    "url": "https://github.com/FFmpeg/FFmpeg/tree/29e619e767cde9045a75c29bc9a8278ae7b3a98b",
+    "sha256": "1c7bb74fc546f3a76d9a8bd9e3471319e0e022d01eef5d7c58f0fa7c3a365a3c",
+    "license": "LGPL-2.1-or-later AND LGPL-2.0-or-later AND BSD-3-Clause",
+    "producer": "scripts/build_messaging_audio.py",
+    "build_sources_sha256": "b254e140561ebb022ecdf1676ec0c08dfe7da77ae3c97ba654a368264eb4b1a5",
+    "source_pin": {
+      "schema": 1,
+      "platform": "windows",
+      "arch": "x86_64",
+      "base_sources_sha256": "876092c157cd65b47cd315600333de0db65190b35f31aaf94564e96bc12ec997",
+      "codecs": {
+        "opus": {
+          "version": "1.6.1",
+          "url": "https://downloads.xiph.org/releases/opus/opus-1.6.1.tar.gz",
+          "sha256": "6ffcb593207be92584df15b32466ed64bbec99109f007c82205f0194572411a1",
+          "license": "BSD-3-Clause",
+          "notices": [
+            "COPYING"
+          ],
+          "configure": [
+            "--prefix=/codecs",
+            "--build=x86_64-w64-mingw32",
+            "--host=x86_64-w64-mingw32",
+            "--disable-shared",
+            "--enable-static",
+            "--disable-doc",
+            "--disable-extra-programs",
+            "--disable-asm",
+            "--disable-rtcd",
+            "--disable-intrinsics",
+            "--disable-dred",
+            "--disable-deep-plc",
+            "--disable-osce",
+            "--disable-maintainer-mode",
+            "--disable-dependency-tracking"
+          ]
+        },
+        "lame": {
+          "version": "4.0",
+          "url": "https://downloads.sourceforge.net/project/lame/lame/4.0/lame-4.0.tar.gz",
+          "sha256": "3df5124d5ad3a98312ffd7ba6a9b36230e4f8a3e66d3ce0f425e336c32d216eb",
+          "license": "LGPL-2.0-or-later",
+          "notices": [
+            "COPYING",
+            "LICENSE"
+          ],
+          "configure": [
+            "--prefix=/codecs",
+            "--build=x86_64-w64-mingw32",
+            "--host=x86_64-w64-mingw32",
+            "--disable-shared",
+            "--enable-static",
+            "--disable-frontend",
+            "--disable-decoder",
+            "--disable-gtktest",
+            "--disable-analyzer-hooks",
+            "--disable-rpath",
+            "--disable-dependency-tracking"
+          ]
+        }
+      },
+      "configure": [
+        "--prefix=../package",
+        "--target-os=mingw32",
+        "--arch=x86_64",
+        "--cc=gcc",
+        "--cxx=g++",
+        "--ln_s=cp -f",
+        "--disable-autodetect",
+        "--disable-everything",
+        "--disable-network",
+        "--disable-ffplay",
+        "--disable-doc",
+        "--disable-debug",
+        "--disable-x86asm",
+        "--disable-pthreads",
+        "--enable-w32threads",
+        "--enable-shared",
+        "--disable-static",
+        "--disable-gpl",
+        "--disable-version3",
+        "--disable-nonfree",
+        "--enable-ffmpeg",
+        "--enable-ffprobe",
+        "--enable-avcodec",
+        "--enable-avformat",
+        "--enable-avfilter",
+        "--enable-swresample",
+        "--disable-avdevice",
+        "--disable-swscale",
+        "--enable-decoder=aac,aac_fixed,aac_latm,mp3,mp3float,mp3adu,mp3adufloat,mp3on4,mp3on4float,vorbis,opus,flac,pcm_s16le,pcm_s16be,pcm_s24le,pcm_s24be,pcm_s32le,pcm_s32be,pcm_f32le,pcm_f32be,pcm_f64le,pcm_f64be,pcm_u8,pcm_alaw,pcm_mulaw",
+        "--enable-parser=aac,aac_latm,mpegaudio,vorbis,opus,flac",
+        "--enable-demuxer=concat,wav,mp3,ogg,mov,aac,flac,matroska",
+        "--enable-muxer=ogg,opus,mp3,flac,adts,ipod,mp4,wav,pcm_s16le,pcm_s16be,pcm_f32le,null",
+        "--enable-encoder=libopus,libmp3lame,aac,flac,pcm_s16le,pcm_s16be,pcm_s24le,pcm_f32le",
+        "--enable-protocol=file,pipe",
+        "--enable-filter=abuffer,abuffersink,aformat,anull,aresample,atrim,asetpts,volume",
+        "--extra-ldflags=-L../codecs/lib -static-libgcc -Wl,--no-insert-timestamp",
+        "--extra-version=iris-messaging-audio-29e619e767",
+        "--enable-bsf=aac_adtstoasc",
+        "--enable-libopus",
+        "--enable-libmp3lame",
+        "--extra-cflags=-I../codecs/include"
+      ]
+    }
+  },
+  "locks": {
+    "iris": {
+      "path": "locks/iris.txt",
+      "sha256": "a9c41a756ad0442603bfb72d912f695dc427235dad42113b0f2ddbf844067bc0"
+    },
+    "hermes": {
+      "path": "locks/hermes.txt",
+      "sha256": "9f8509f79ec66f2a879142d114110a7a197d35829ce3bf7cb97bccabf08234ba"
+    }
+  },
+  "license_sources_sha256": "f19dce4ab43e802b4094945d4265b0c706ba09e3d8215e53a7a00cfe35a612bb",
+  "native_licenses": {
+    "pending": [],
+    "records": [
+      {
+        "component": "hermes-runtime",
+        "package": "ConPTY",
+        "version": "1.24.260512001",
+        "license": "MIT",
+        "files": [
+          "licenses/native/conpty-1.24.260512001/LICENSE",
+          "licenses/native/conpty-1.24.260512001/NOTICE.Microsoft.Windows.Console.ConPTY.nuspec"
+        ],
+        "source": "https://api.nuget.org/v3-flatcontainer/microsoft.windows.console.conpty/1.24.260512001/microsoft.windows.console.conpty.1.24.260512001.nupkg"
+      },
+      {
+        "component": "hermes-runtime",
+        "package": "FFmpeg",
+        "version": "8.1.3",
+        "license": "LGPL-2.1-or-later",
+        "files": [
+          "licenses/native/ffmpeg-8.1.3/LICENSE.FFmpeg-COPYING.LGPLv2.1",
+          "licenses/native/ffmpeg-8.1.3/LICENSE.MinGW-w64-runtime.txt",
+          "licenses/native/ffmpeg-8.1.3/LICENSE.gcc-15.2.0-COPYING.RUNTIME",
+          "licenses/native/ffmpeg-8.1.3/LICENSE.gcc-15.2.0-COPYING3",
+          "licenses/native/ffmpeg-8.1.3/NOTICE.BUILD-ffmpeg-sdk.md",
+          "licenses/native/ffmpeg-8.1.3/NOTICE.BUILD-pyav-wheel.md",
+          "licenses/native/ffmpeg-8.1.3/NOTICE.FFmpeg-buildconf.txt",
+          "licenses/native/ffmpeg-8.1.3/NOTICE.FFmpeg-license-output.txt"
+        ],
+        "source": "https://codeload.github.com/FFmpeg/FFmpeg/tar.gz/29e619e767cde9045a75c29bc9a8278ae7b3a98b"
+      },
+      {
+        "component": "hermes-runtime",
+        "package": "Intel-OpenMP",
+        "version": "2025.3.0",
+        "license": "LicenseRef-Intel-Simplified-Software-License AND LicenseRef-Intel-OpenMP-ThirdPartyNotices",
+        "files": [
+          "licenses/native/intel-openmp-2025.3.0/LICENSE.Intel-redist.txt",
+          "licenses/native/intel-openmp-2025.3.0/LICENSE.oneTBB.txt",
+          "licenses/native/intel-openmp-2025.3.0/LICENSE.publisher-wheel.txt",
+          "licenses/native/intel-openmp-2025.3.0/NOTICE.oneTBB-third-party-programs.txt",
+          "licenses/native/intel-openmp-2025.3.0/NOTICE.third-party-programs.txt"
+        ],
+        "source": "https://www.nuget.org/packages/intelopenmp.redist.win/2025.3.0.640"
+      },
+      {
+        "component": "hermes-runtime",
+        "package": "NVIDIA-cuDNN",
+        "version": "9.10.2.21",
+        "license": "LicenseRef-NVIDIA-Proprietary",
+        "files": [
+          "licenses/native/nvidia-cudnn-9.10.2.21/LICENSE.publisher-wheel.txt",
+          "licenses/native/nvidia-cudnn-9.10.2.21/LICENSE.versioned-documentation.html",
+          "licenses/native/nvidia-cudnn-9.10.2.21/LICENSE.versioned-documentation.txt"
+        ],
+        "source": "https://docs.nvidia.com/deeplearning/cudnn/backend/v9.10.2/reference/eula.html"
+      },
+      {
+        "component": "hermes-runtime",
+        "package": "oneDNN",
+        "version": "3.1.1",
+        "license": "Apache-2.0 AND LicenseRef-oneDNN-ThirdPartyPrograms",
+        "files": [
+          "licenses/native/onednn-3.1.1/LICENSE",
+          "licenses/native/onednn-3.1.1/NOTICE.THIRD-PARTY-PROGRAMS"
+        ],
+        "source": "https://github.com/uxlfoundation/oneDNN/tree/v3.1.1"
+      },
+      {
+        "component": "hermes-runtime",
+        "package": "oneMKL",
+        "version": "2025.3.0",
+        "license": "LicenseRef-Intel-Simplified-Software-License AND LicenseRef-Intel-oneMKL-ThirdPartyPrograms",
+        "files": [
+          "licenses/native/onemkl-2025.3.0/NOTICE.third-party-programs-IntelMPI.txt",
+          "licenses/native/onemkl-2025.3.0/NOTICE.third-party-programs-benchmarks.txt",
+          "licenses/native/onemkl-2025.3.0/NOTICE.third-party-programs-level-zero.txt",
+          "licenses/native/onemkl-2025.3.0/NOTICE.third-party-programs-oneMath.txt",
+          "licenses/native/onemkl-2025.3.0/NOTICE.third-party-programs-oneTBB.txt",
+          "licenses/native/onemkl-2025.3.0/NOTICE.third-party-programs-openmp.txt",
+          "licenses/native/onemkl-2025.3.0/NOTICE.third-party-programs-safestring.txt",
+          "licenses/native/onemkl-2025.3.0/NOTICE.third-party-programs.txt",
+          "licenses/native/onemkl-2025.3.0/license.txt"
+        ],
+        "source": "https://www.nuget.org/packages/intelmkl.static.win-x64/2025.3.0.453"
+      },
+      {
+        "component": "hermes-runtime",
+        "package": "ONNXRuntime",
+        "version": "1.28.2",
+        "license": "MIT AND LicenseRef-ONNXRuntime-ThirdPartyNotices",
+        "files": [
+          "licenses/native/onnxruntime-1.28.2/LICENSE",
+          "licenses/native/onnxruntime-1.28.2/ThirdPartyNotices.txt"
+        ],
+        "source": "https://github.com/csukuangfj/onnxruntime-libs/releases/download/v1.28.2/onnxruntime-win-x64-MT-Release-1.28.2.tar.bz2"
+      }
+    ]
+  },
+  "native_license_sources_sha256": "12cf7b994bed93e784cfceb331f5db5ee4cf5f9a39e471ff1f049d04693b7d26",
+  "local_wheels": [
+    {
+      "package": "av",
+      "version": "18.1.0",
+      "lock": "hermes",
+      "filename": "av-18.1.0-cp311-abi3-win_amd64.whl",
+      "sha256": "16652dba0b1924a27d69c041fa803fce445c1e404dde85873cacad7570fd42ad",
+      "producer": "scripts/build_pyav_wheel.py",
+      "build_sources_sha256": "43ec9c2bc3816d842f1e2cd59dd4b411c455643b9165582f4f096f74a223de4c",
+      "sdk_sources_sha256": "6549e5e62c2d9f79364fa79d4c7965efdef1cef09a1880e90671f226ee9a9660",
+      "reason": "The official av 18.1.0 Windows wheel bundles FFmpeg with GPL x264/x265 and other components without their notices or sources; this wheel is built from the official sdist against the pinned LGPL FFmpeg SDK and ships the corresponding sources."
+    }
+  ],
+  "hermes_python": {
+    "version": "3.14.8",
+    "build": "20261003",
+    "filename": "cpython-3.14.8+20261003-x86_64-pc-windows-msvc-install_only_stripped.tar.gz",
+    "url": "https://github.com/astral-sh/python-build-standalone/releases/download/20261003/cpython-3.14.8%2B20261003-x86_64-pc-windows-msvc-install_only_stripped.tar.gz",
+    "sha256": "10e5705e44938ee78de35c62b30fdfe2945b53438343d04c0f53548cdd8e91b6",
+    "archive_prefix": "python/",
+    "license": "Python-2.0"
+  },
+  "local_exclusions": [
+    {
+      "package": "fetch-use",
+      "version": "0.4.0",
+      "lock": "hermes",
+      "reason": "fetch-use publishes no license text (only 'MIT' in its metadata; no public repository). browser-harness 0.1.13 imports it only for the Browser Use cloud proxy (BROWSER_USE_API_KEY): plain urllib HTTP keeps working without it, but that proxy (bot detection, residential proxies, managed retries) is not shipped."
+    }
+  ],
+  "dependency_overrides": [
+    {
+      "runtime": "hermes",
+      "package": "edge-tts",
+      "replaces": "7.2.7",
+      "version": "7.3.1",
+      "hermes_version": "0.21.6",
+      "hermes_revision": "818c13be1dc4fd28987e1e881a9408224afd4535",
+      "upstream_lock_sha256": "551c49cdcf829421870a4c9886211ad966923e8e08b14d85710180c50778abea",
+      "lock_sha256": "9f8509f79ec66f2a879142d114110a7a197d35829ce3bf7cb97bccabf08234ba",
+      "wheel_filename": "edge_tts-7.3.1-py3-none-any.whl",
+      "wheel_sha256": "2a3c79d6235a7a736d681233823ce5492e829b43eb47beae49aa181237a8f9a4",
+      "reason": "Microsoft rejects the pinned Edge-TTS client with HTTP 403; 7.3.1 is reviewed for Hermes voice generation on Windows CPython 3.14.8."
+    }
+  ],
+  "shell": {
+    "version": "2.56.0.2",
+    "filename": "iris-private-shell.zip",
+    "url": "https://github.com/git-for-windows/git/releases/tag/v2.56.0.windows.2",
+    "sha256": "1fb8aef10d34f79c64cf7981333f0a8481b84cbb09b801ea3d9b7cb64af8ee9b",
+    "producer": "scripts/build_shell_runtime.py",
+    "build_sources_sha256": "33b4d02363ccb0ff26c79128ab64dd787b20ad03ae767c94010b653bb78baa05",
+    "source_filename": "iris-private-shell-sources.zip",
+    "source_sha256": "4b1554321b910acdc4395a6f575e56db6786bda0403569fd6076b57acb639f8c"
+  }
+}

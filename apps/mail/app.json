@@ -1,0 +1,14 @@
+{
+  "schema": "iris.app-manifest/v1",
+  "sdkVersion": 1,
+  "id": "mail",
+  "name": "Correo",
+  "version": "0.1.0",
+  "description": "Tu bandeja de Gmail, con lectura local y segura",
+  "icon": "mail",
+  "accent": "magenta",
+  "presentation": "window",
+  "window": { "width": 1180, "height": 720 },
+  "launcher": { "visible": true, "order": 117 },
+  "ui": { "entry": "main.js", "style": "style.css" }
+}

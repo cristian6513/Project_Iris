@@ -1,0 +1,23 @@
+{
+  "schema": "iris.app-manifest/v1",
+  "sdkVersion": 1,
+  "id": "mi-app",
+  "name": "Mi app",
+  "version": "0.1.0",
+  "description": "Plantilla de una app de IRIS OS",
+  "icon": "sparkle",
+  "accent": "cyan",
+  "presentation": "window",
+  "window": {
+    "width": 780,
+    "height": 560
+  },
+  "launcher": {
+    "visible": true,
+    "order": 900
+  },
+  "ui": {
+    "entry": "main.js",
+    "style": "style.css"
+  }
+}

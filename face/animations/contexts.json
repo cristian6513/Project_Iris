@@ -1,0 +1,62 @@
+{
+    "version": 1,
+    "_comment": "Post-transport animation adaptations by presentation surface. This does not alter the LLM animacion_virtual contract.",
+    "contexts": {
+        "desktop_companion": {
+            "greet": {
+                "animation": "wave",
+                "reason": "use-universal-greeting"
+            },
+            "go_computer": {
+                "animation": "think",
+                "reason": "no-room-desk"
+            },
+            "pc_focus_idle": {
+                "animation": "think",
+                "reason": "no-room-desk"
+            },
+            "pc_seated_idle": {
+                "animation": "think",
+                "reason": "no-chair"
+            },
+            "pc_seated_idle_v2": {
+                "animation": "think",
+                "reason": "no-chair"
+            },
+            "sit": {
+                "animation": "idle_casual",
+                "reason": "no-chair"
+            },
+            "sit_chair": {
+                "animation": "idle_casual",
+                "reason": "no-chair"
+            },
+            "go_bed": {
+                "animation": "idle_casual",
+                "reason": "no-room-bed"
+            },
+            "lie": {
+                "animation": "idle_casual",
+                "reason": "no-bed"
+            },
+            "lie_bed": {
+                "animation": "idle_casual",
+                "reason": "no-bed"
+            },
+            "touch_books": {
+                "animation": "look_around",
+                "reason": "no-bookshelf"
+            },
+            "walk_tour": {
+                "animation": "walk_in_place",
+                "movement": "window-walk",
+                "reason": "replace-room-tour"
+            },
+            "walk_in_place": {
+                "animation": "walk_in_place",
+                "movement": "window-walk",
+                "reason": "move-native-window"
+            }
+        }
+    }
+}

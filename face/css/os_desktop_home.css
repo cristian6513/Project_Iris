@@ -1,0 +1,115 @@
+/* Home, drawer and app manager share Iris tokens; no new theme or window system. */
+.personalized-home > .os-home-welcome { display: none; }
+.os-home-personalized .os-widgets-list { left: 0; right: 0; width: auto; top: 84px; display: grid;
+    grid-template-columns: repeat(auto-fill, 112px); justify-content: start; align-content: start; align-items: start;
+    gap: 14px; padding: 5px 5px 20px; }
+/* Cells the size of a dock button (112 px); a widget takes three of them. */
+.os-home-personalized .os-widgets-card { grid-column: span 3; position: relative; width: 100%; }
+.os-home-toolbar { position: absolute; left: 0; top: 0; display: flex; gap: 8px; pointer-events: auto; }
+.os-home-personalized .os-widgets-toolbar { top: 0; }
+.os-home-personalized .os-widgets-editor { top: 0; z-index: 4; }
+.os-home-personalized.choosing-widgets, .os-home-personalized.editing-home { z-index: 8; }
+.os-home-personalized.choosing-widgets .os-widgets-list { pointer-events: none; }
+.os-home-message { position: absolute; top: 38px; left: 0; right: 0; margin: 0; max-height: 72px; overflow: auto;
+    pointer-events: auto; color: var(--os-text, #edf3fc); font: 400 12px/1.5 var(--font-main, system-ui); }
+.os-home-empty-state { position: absolute; top: 145px; left: 0; right: 0; text-align: center; margin: 20px;
+    color: var(--os-text, #edf3fc); pointer-events: auto; font: 400 14px/1.7 var(--font-main, system-ui); }
+.os-home-tile, .os-drawer-tile { position: relative; min-width: 0; border: 1px solid color-mix(in srgb, var(--iris-os-accent) 24%, transparent);
+    border-radius: 17px; background: rgba(5,9,20,var(--iris-card-opacity,.88)); backdrop-filter: blur(var(--iris-blur-intensity,20px)); overflow-wrap: anywhere; }
+.os-home-launch { width: 100%; min-height: 120px; padding: 22px 22px 18px; display: flex; align-items: center; flex-direction: column;
+    gap: 12px; color: var(--os-text, #edf3fc); background: transparent; border: 0; border-radius: inherit; cursor: pointer;
+    font: 500 13px/1.4 var(--font-main, system-ui); }
+.os-home-glyph { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 13px;
+    color: var(--iris-os-accent); background: color-mix(in srgb, var(--iris-os-accent) 10%, transparent); }
+.os-home-glyph svg { width: 26px; height: 26px; }
+.os-home-launch:hover { background: color-mix(in srgb, var(--iris-os-accent) 8%, transparent); }
+.os-home-launch { -webkit-touch-callout: none; user-select: none; }
+/* Home icons share the dock's look and size, so both rows read as one family (QA 2026-10-20). */
+.os-widgets-list .os-home-tile { border-radius: 16px; border-color: color-mix(in srgb, var(--iris-os-accent) 22%, rgba(255,255,255,.08));
+    background: radial-gradient(circle at 50% 18%, color-mix(in srgb, var(--iris-os-accent) 16%, transparent), transparent 42%),
+        linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.014)), rgba(1,7,15,calc(var(--iris-card-opacity,.88) * .72));
+    transition: border-color 160ms ease; }
+.os-widgets-list .os-home-tile:hover { border-color: color-mix(in srgb, var(--iris-os-accent) 44%, rgba(255,255,255,.1)); }
+.os-widgets-list .os-home-launch { min-height: 88px; padding: 12px 8px 10px; gap: 7px; justify-content: center; }
+.os-widgets-list .os-home-launch:hover { background: transparent; }
+.os-widgets-list .os-home-glyph { width: 40px; height: 40px; border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--iris-os-accent) 34%, transparent);
+    background: color-mix(in srgb, var(--iris-os-accent) 10%, rgba(255,255,255,.035)); }
+.os-widgets-list .os-home-glyph svg { width: 18px; height: 18px; filter: drop-shadow(0 0 7px color-mix(in srgb, currentColor 46%, transparent)); }
+.os-widgets-list .os-home-launch strong { text-align: center; overflow-wrap: break-word; hyphens: auto; color: rgba(248,253,255,.94);
+    font: 900 .68rem/1.2 var(--font-body, var(--font-main, system-ui)); }
+.os-home-gesture-hint { align-self: center; color: var(--os-muted, #a9b4c6); font: 400 11px/1.4 var(--font-main, system-ui); }
+.os-home-toolbar { align-items: center; }
+.editing-home .os-home-tile, .editing-home .os-widgets-card { outline: 1px dashed color-mix(in srgb, var(--iris-os-accent) 50%, transparent); outline-offset: 3px; }
+.editing-home .os-home-toolbar > button { color: #080e1a; background: var(--iris-os-accent); font-weight: 700; min-width: 75px; }
+.os-home-button, .os-drawer-manage { border: 1px solid color-mix(in srgb, var(--iris-os-accent) 28%, transparent); border-radius: 9px;
+    color: var(--os-text, #edf3fc); background: color-mix(in srgb, var(--iris-os-accent) 8%, #080e1a); padding: 8px 10px;
+    font: 500 12px/1.4 var(--font-main, system-ui); cursor: pointer; }
+.os-home-button:hover, .os-home-button[aria-pressed="true"] { background: color-mix(in srgb, var(--iris-os-accent) 20%, #080e1a); }
+.os-home-button:disabled { opacity: .5; cursor: default; }
+.os-home-item-controls { display: flex; justify-content: center; gap: 4px; padding: 6px; border-top: 1px solid color-mix(in srgb, var(--iris-os-accent) 15%, transparent); }
+.os-home-control { display: grid; place-items: center; width: 30px; height: 30px; padding: 0; border-radius: 999px; }
+.os-home-control svg { width: 16px; height: 16px; }
+.os-home-control-back svg { transform: rotate(180deg); }
+.os-home-reordering, .os-home-reordering * { cursor: grabbing !important; user-select: none; }
+/* The lifted item follows the pointer above the rest; the gap it leaves is where it lands. */
+.os-home-dragging { position: relative; z-index: 6; pointer-events: none; box-shadow: 0 18px 44px rgba(0,0,0,.5);
+    border-color: color-mix(in srgb, var(--iris-os-accent) 60%, transparent) !important; }
+.editing-home .os-widgets-card > .os-home-item-controls { order: -1; border-top: 0; border-bottom: 1px solid color-mix(in srgb, var(--iris-os-accent) 15%, transparent); }
+.hermes-workbench .os-home-launcher { max-height: calc(100% - 108px); display: flex; flex-direction: column; gap: 10px; }
+.hermes-workbench .os-home-launcher:not(.open) { visibility: hidden; }
+.os-drawer-search { flex: 0 0 auto; width: 100%; box-sizing: border-box; padding: 11px 13px; border-radius: 11px;
+    border: 1px solid color-mix(in srgb, var(--iris-os-accent) 30%, transparent); background: rgba(0,0,0,.25); color: var(--os-text, #edf3fc);
+    font: 400 14px/1.5 var(--font-main, system-ui); }
+.hermes-workbench .os-home-launcher header { margin-bottom: 0; flex: 0 0 auto; }
+.hermes-workbench .os-launcher-grid { max-height: none; min-height: 80px; overflow: auto; padding: 4px; }
+.hermes-workbench .os-launcher-grid .os-home-launch { display: flex; min-height: 145px; padding: 22px 16px 12px; text-align: center; justify-content: center; }
+.hermes-workbench .os-launcher-grid .os-home-glyph { align-self: center; }
+.hermes-workbench .os-launcher-grid .os-home-launch strong { width: 100%; text-align: center; }
+.os-drawer-tile small { font: 400 11px/1.4 var(--font-main, system-ui); color: var(--os-muted, #a9b4c6); }
+.hermes-workbench .os-launcher-grid .os-drawer-manage { display: block; grid-column: 1/-1; min-height: 40px; }
+.os-home-empty { grid-column: 1/-1; color: var(--os-text, #edf3fc); }
+.os-home-context { position: absolute; z-index: 2500; width: min(300px, calc(100% - 16px)); max-height: calc(100% - 16px); overflow: auto;
+    padding: 7px; box-sizing: border-box; border-radius: 15px; color: var(--os-text, #edf3fc); background: #0b101d;
+    border: 1px solid color-mix(in srgb, var(--iris-os-accent) 38%, transparent); box-shadow: 0 20px 65px rgba(0,0,0,.6); }
+.os-home-menu-action { display: flex; gap: 12px; align-items: center; width: 100%; text-align: left; padding: 12px 10px; border: 0; border-radius: 9px;
+    color: inherit; background: transparent; font: 500 13px/1.4 var(--font-main, system-ui); cursor: pointer; }
+.os-home-menu-action small { display: block; margin-top: 4px; font-size: 11px; font-weight: 400; color: var(--os-muted, #a9b4c6); }
+.os-home-menu-action:hover { background: color-mix(in srgb, var(--iris-os-accent) 13%, transparent); }
+.os-home-menu-action:disabled { opacity: .5; cursor: default; }
+.os-home-menu-icon { display: grid; place-items: center; flex: 0 0 34px; width: 34px; height: 34px; border-radius: 10px;
+    color: var(--iris-os-accent); background: color-mix(in srgb, var(--iris-os-accent) 10%, transparent); }
+.os-home-menu-icon svg { width: 21px; height: 21px; }
+.os-home-menu-label { min-width: 0; }
+.os-home-manager { padding: 20px; color: var(--os-text, #edf3fc); font-family: var(--font-main, system-ui); }
+.os-home-manager h2 { margin: 0; font: 700 23px/1.3 var(--font-display, system-ui); }
+.os-home-manager-hint { font-size: 13px; line-height: 1.6; }
+.os-home-manager-list { display: grid; gap: 12px; margin-top: 14px; }
+.os-home-manager-row { padding: 16px; border-radius: 13px; border: 1px solid color-mix(in srgb, var(--iris-os-accent) 22%, transparent); background: rgba(0,0,0,.15); }
+.os-home-manager-row h3 { margin: 0 0 5px; font-size: 16px; }
+.os-home-manager-row p { font-size: 12px; line-height: 1.6; }
+.os-home-manager-origin { color: var(--os-muted, #a9b4c6); }
+.os-home-manager-row > span { display: block; margin-bottom: 8px; font-size: 12px; color: var(--iris-os-accent); }
+.os-home-manager-row button { margin: 3px; }
+/* An installed app's notices: a labelled choice under its buttons. */
+.os-home-manager-notices { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 8px 3px 0; font-size: 12px; }
+.os-home-manager-notices select { min-width: 0; max-width: 100%; padding: 6px 10px; border-radius: 10px; font: inherit; color: inherit;
+    border: 1px solid color-mix(in srgb, var(--iris-os-accent) 35%, transparent); background: rgba(0,0,0,.25); }
+.os-home-manager-notices select:focus-visible { outline: 2px solid var(--iris-os-accent); outline-offset: 2px; }
+.os-home-personalized :focus-visible, .os-home-launcher :focus-visible, .os-home-context :focus-visible, .os-home-manager :focus-visible {
+    outline: 2px solid var(--iris-os-accent); outline-offset: 2px; }
+@container (max-width: 580px) {
+    .os-home-personalized .os-widgets-list { top: 115px; gap: 9px; grid-template-columns: repeat(auto-fill, minmax(68px, 1fr)); }
+    .os-home-personalized .os-widgets-card { grid-column: 1/-1; max-width: none; }
+    .os-home-toolbar { right: 0; flex-wrap: wrap; gap: 6px; }
+    .os-home-gesture-hint { font-size: 10px; max-width: 180px; }
+    .os-home-message { top: 72px; max-height: 40px; }
+    .os-widgets-list .os-home-launch { min-height: 74px; padding: 8px 4px; gap: 5px; }
+    .os-widgets-list .os-home-glyph { width: 34px; height: 34px; }
+}
+@media (max-width: 640px) {
+    .hermes-workbench .personalized-home .os-home-dock { grid-template-columns: repeat(4,minmax(0,1fr)); grid-auto-flow: row; gap: 4px; }
+    .hermes-workbench .personalized-home .os-home-dock button { min-width: 0; min-height: 72px; padding: 8px 4px; }
+    .hermes-workbench .os-launcher-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+    .hermes-workbench .os-home-launcher { padding: 12px; width: calc(100% - 24px); }
+}

@@ -1,0 +1,6 @@
+{
+  "schema": "iris.app-intent/v1",
+  "app": "player",
+  "action": "pause",
+  "args": {}
+}

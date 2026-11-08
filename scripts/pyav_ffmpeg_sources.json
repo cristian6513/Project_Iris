@@ -1,0 +1,73 @@
+{
+  "schema": 1,
+  "component": "iris-pyav-ffmpeg-sdk",
+  "platform": "windows",
+  "arch": "x86_64",
+  "profile": "native-lgpl-cpu",
+  "base_sources_sha256": "876092c157cd65b47cd315600333de0db65190b35f31aaf94564e96bc12ec997",
+  "source": {
+    "version": "8.1.3",
+    "revision": "29e619e767cde9045a75c29bc9a8278ae7b3a98b",
+    "url": "https://codeload.github.com/FFmpeg/FFmpeg/tar.gz/29e619e767cde9045a75c29bc9a8278ae7b3a98b",
+    "sha256": "8e4699bcb6a311772e8f513cc72ce27328891b82a598b82e7cff3dfe580875a0",
+    "source_date_epoch": 1790713770
+  },
+  "toolchain": {
+    "version": "2.6.0",
+    "gcc": "15.2.0",
+    "mingw": "13.0.0",
+    "url": "https://github.com/skeeto/w64devkit/releases/download/v2.6.0/w64devkit-x64-2.6.0.7z.exe",
+    "sha256": "bb212f0012a9324b8cf4104a76c07199d9c17607b4c5755632108d0432359beb",
+    "tree_sha256": "0a57738e773646a9609a34caa38da2373d4f4dbf4637494333938fe91c087183",
+    "source_url": "https://github.com/skeeto/w64devkit/releases/download/v2.6.0/source.tar",
+    "source_sha256": "a22bc83e20b3a80e02f3b1f3624c64bff2b60cf38e232078ad9932d9e0e01720"
+  },
+  "notices": [
+    {
+      "filename": "gcc-15.2.0-COPYING.RUNTIME",
+      "url": "https://raw.githubusercontent.com/gcc-mirror/gcc/releases/gcc-15.2.0/COPYING.RUNTIME",
+      "sha256": "9d6b43ce4d8de0c878bf16b54d8e7a10d9bd42b75178153e3af6a815bdc90f74"
+    },
+    {
+      "filename": "gcc-15.2.0-COPYING3",
+      "url": "https://raw.githubusercontent.com/gcc-mirror/gcc/releases/gcc-15.2.0/COPYING3",
+      "sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903"
+    }
+  ],
+  "configure": [
+    "--prefix=../package",
+    "--target-os=mingw32",
+    "--arch=x86_64",
+    "--cc=gcc",
+    "--cxx=g++",
+    "--ln_s=cp -f",
+    "--disable-autodetect",
+    "--disable-network",
+    "--disable-ffplay",
+    "--disable-doc",
+    "--disable-debug",
+    "--disable-x86asm",
+    "--disable-inline-asm",
+    "--disable-pthreads",
+    "--enable-w32threads",
+    "--enable-shared",
+    "--disable-static",
+    "--disable-gpl",
+    "--disable-version3",
+    "--disable-nonfree",
+    "--disable-indevs",
+    "--disable-outdevs",
+    "--disable-hwaccels",
+    "--enable-ffmpeg",
+    "--enable-ffprobe",
+    "--enable-avcodec",
+    "--enable-avformat",
+    "--enable-avdevice",
+    "--enable-avutil",
+    "--enable-avfilter",
+    "--enable-swscale",
+    "--enable-swresample",
+    "--extra-ldflags=-static-libgcc -Wl,--no-insert-timestamp",
+    "--extra-version=iris-pyav-29e619e767"
+  ]
+}

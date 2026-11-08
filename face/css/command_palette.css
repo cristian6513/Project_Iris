@@ -1,0 +1,435 @@
+/* IRIS OS command deck — slash autocomplete + Ctrl/Cmd+K palette. */
+
+.slash-command-menu[hidden],
+.iris-command-overlay[hidden] {
+    display: none !important;
+}
+
+.slash-command-menu {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    max-height: min(320px, 46vh);
+    border-bottom: 1px solid color-mix(in srgb, var(--os-cyan, #8defff) 20%, transparent);
+    background:
+        linear-gradient(140deg, color-mix(in srgb, var(--os-cyan, #8defff) 8%, transparent), transparent 44%),
+        rgba(2, 5, 13, 0.97);
+    box-shadow: 0 -24px 60px rgba(0, 0, 0, 0.38);
+    animation: command-menu-in 150ms ease-out both;
+}
+
+.command-menu-head,
+.command-menu-foot,
+.command-palette-meta,
+.command-palette-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    color: rgba(216, 232, 244, 0.56);
+    font: 700 9px/1.2 var(--font-main, system-ui);
+    letter-spacing: .065em;
+    text-transform: uppercase;
+}
+
+.command-menu-head {
+    padding: 10px 12px 7px;
+}
+
+.command-menu-head b {
+    color: var(--os-cyan, #8defff);
+    font: 800 15px/1 var(--font-display, system-ui);
+    margin-right: 5px;
+}
+
+.command-menu-key {
+    color: rgba(255, 255, 255, 0.32);
+    font-weight: 500;
+    letter-spacing: .02em;
+    text-transform: none;
+}
+
+.command-menu-list,
+.command-palette-list {
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--os-cyan, #8defff) 38%, transparent) transparent;
+}
+
+.command-menu-list {
+    padding: 2px 7px 6px;
+}
+
+.command-menu-foot {
+    justify-content: flex-start;
+    padding: 7px 12px 9px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    font-size: 8px;
+}
+
+.command-menu-item {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 32px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 10px;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    background: transparent;
+    color: rgba(241, 247, 255, 0.86);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: 120ms ease;
+}
+
+.command-menu-item + .command-menu-item {
+    margin-top: 2px;
+}
+
+.command-menu-item:hover,
+.command-menu-item.is-selected {
+    border-color: color-mix(in srgb, var(--os-cyan, #8defff) 27%, transparent);
+    background:
+        linear-gradient(90deg, color-mix(in srgb, var(--os-cyan, #8defff) 11%, transparent), transparent 70%),
+        rgba(255, 255, 255, 0.025);
+    transform: translateX(2px);
+}
+
+.command-menu-item[data-available="false"] {
+    opacity: .68;
+}
+
+.command-item-glyph {
+    width: 30px;
+    height: 30px;
+    display: grid;
+    place-items: center;
+    border: 1px solid color-mix(in srgb, var(--os-cyan, #8defff) 24%, transparent);
+    border-radius: 9px;
+    background: color-mix(in srgb, var(--os-cyan, #8defff) 8%, transparent);
+    color: var(--os-cyan, #8defff);
+    font: 800 10px/1 var(--font-display, system-ui);
+    letter-spacing: .04em;
+}
+
+.command-menu-item[data-source="iris"] .command-item-glyph {
+    border-color: color-mix(in srgb, var(--os-magenta, #ff74d4) 34%, transparent);
+    background: color-mix(in srgb, var(--os-magenta, #ff74d4) 9%, transparent);
+    color: var(--os-magenta, #ff74d4);
+}
+
+.command-menu-item[data-source="skill"] .command-item-glyph {
+    border-color: rgba(92, 255, 173, .28);
+    background: rgba(92, 255, 173, .07);
+    color: #5cffad;
+}
+
+.command-item-copy {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.command-item-copy strong {
+    overflow: hidden;
+    color: rgba(248, 251, 255, .96);
+    font: 700 12px/1.2 var(--font-main, system-ui);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.command-item-copy small {
+    overflow: hidden;
+    color: rgba(216, 232, 244, .52);
+    font: 400 10px/1.3 var(--font-main, system-ui);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.command-item-tags {
+    display: flex;
+    align-items: flex-end;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.command-item-tags em {
+    padding: 3px 6px;
+    border: 1px solid rgba(255, 255, 255, .08);
+    border-radius: 999px;
+    color: rgba(216, 232, 244, .48);
+    font: 700 7px/1 var(--font-main, system-ui);
+    font-style: normal;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.command-item-tags .is-ready {
+    border-color: rgba(92, 255, 173, .22);
+    color: #7fffc0;
+}
+
+.command-item-tags .is-terminal {
+    border-color: rgba(255, 184, 107, .22);
+    color: #ffb86b;
+}
+
+.command-menu-empty {
+    padding: 24px 16px;
+    color: rgba(216, 232, 244, .5);
+    font-size: 11px;
+    text-align: center;
+}
+
+.iris-command-overlay {
+    /* The Ctrl/Cmd+K palette covers the screen like a dialog: it follows the IRIS OS theme
+       (published on <html>, hermes_activity.js). The slash menu stays with the composer. */
+    --os-cyan: var(--iris-theme-accent, #8defff);
+    --os-magenta: var(--iris-theme-accent-2, #f36bce);
+    position: fixed;
+    inset: 0;
+    z-index: 12000;
+    display: grid;
+    place-items: start center;
+    padding: min(12vh, 108px) 18px 24px;
+    background:
+        radial-gradient(circle at 50% 20%, color-mix(in srgb, var(--os-cyan, #8defff) 8%, transparent), transparent 38%),
+        rgba(0, 2, 8, .72);
+    backdrop-filter: blur(14px) saturate(115%);
+    -webkit-backdrop-filter: blur(14px) saturate(115%);
+    animation: command-overlay-in 160ms ease-out both;
+}
+
+.iris-command-palette {
+    position: relative;
+    width: min(760px, 100%);
+    max-height: min(720px, 78vh);
+    display: grid;
+    grid-template-rows: auto auto auto minmax(120px, 1fr) auto;
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--os-cyan, #8defff) 26%, transparent);
+    border-radius: 20px;
+    background:
+        linear-gradient(145deg, rgba(255, 255, 255, .055), transparent 32%),
+        rgba(2, 5, 13, .96);
+    box-shadow:
+        0 40px 110px rgba(0, 0, 0, .72),
+        0 0 0 1px rgba(255, 255, 255, .035) inset,
+        0 0 64px color-mix(in srgb, var(--os-cyan, #8defff) 9%, transparent);
+}
+
+.iris-command-palette::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 24px;
+    right: 24px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--os-cyan, #8defff), transparent);
+    opacity: .74;
+}
+
+.iris-command-palette-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 24px 24px 15px;
+}
+
+.command-palette-kicker {
+    color: var(--os-cyan, #8defff);
+    font: 800 8px/1 var(--font-display, system-ui);
+    letter-spacing: .2em;
+}
+
+.iris-command-palette h2 {
+    margin-top: 8px;
+    color: #f5f9ff;
+    font: 700 clamp(20px, 4vw, 30px)/1.05 var(--font-display, system-ui);
+    letter-spacing: -.025em;
+}
+
+.command-palette-close {
+    padding: 7px 9px;
+    border: 1px solid rgba(255, 255, 255, .1);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, .035);
+    color: rgba(216, 232, 244, .58);
+    font: 700 9px/1 var(--font-main, system-ui);
+    cursor: pointer;
+}
+
+.command-palette-search {
+    margin: 0 20px;
+    min-height: 54px;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 12px;
+    padding: 0 14px;
+    border: 1px solid color-mix(in srgb, var(--os-cyan, #8defff) 22%, transparent);
+    border-radius: 13px;
+    background: rgba(0, 0, 0, .25);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--os-cyan, #8defff) 4%, transparent);
+}
+
+.command-palette-search > span {
+    color: var(--os-cyan, #8defff);
+    font: 800 12px/1 ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+
+.command-palette-search input {
+    width: 100%;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: #f6f9ff;
+    font: 500 14px/1.3 var(--font-main, system-ui);
+}
+
+.command-palette-search input::placeholder {
+    color: rgba(216, 232, 244, .35);
+}
+
+.command-palette-search kbd {
+    color: rgba(216, 232, 244, .36);
+    font: 700 8px/1 var(--font-main, system-ui);
+    letter-spacing: .05em;
+}
+
+.command-palette-meta {
+    padding: 12px 24px 8px;
+}
+
+.command-palette-meta > span:last-child {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.command-dot {
+    width: 6px;
+    height: 6px;
+    display: inline-block;
+    border-radius: 50%;
+    background: #5cffad;
+    box-shadow: 0 0 8px rgba(92, 255, 173, .45);
+}
+
+.command-dot.is-terminal {
+    margin-left: 7px;
+    background: #ffb86b;
+    box-shadow: 0 0 8px rgba(255, 184, 107, .38);
+}
+
+.command-palette-list {
+    padding: 4px 12px 12px;
+}
+
+.command-palette-list .command-menu-item {
+    grid-template-columns: 38px minmax(0, 1fr) auto;
+    padding: 11px 12px;
+}
+
+.command-palette-list .command-item-glyph {
+    width: 36px;
+    height: 36px;
+}
+
+.command-palette-list .command-item-copy strong {
+    font-size: 13px;
+}
+
+.command-palette-list .command-item-copy small {
+    font-size: 11px;
+}
+
+.command-palette-footer {
+    justify-content: flex-start;
+    padding: 11px 22px;
+    border-top: 1px solid rgba(255, 255, 255, .055);
+    background: rgba(0, 0, 0, .14);
+    text-transform: none;
+}
+
+.command-palette-footer span {
+    padding-left: 12px;
+    border-left: 1px solid rgba(255, 255, 255, .08);
+}
+
+body.command-palette-open {
+    user-select: none;
+}
+
+body.command-palette-open .iris-command-palette,
+body.command-palette-open .iris-command-palette * {
+    user-select: text;
+}
+
+@keyframes command-overlay-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes command-menu-in {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 620px) {
+    .iris-command-overlay {
+        place-items: end center;
+        padding: 12px;
+    }
+
+    .iris-command-palette {
+        max-height: 84vh;
+        border-radius: 18px;
+    }
+
+    .iris-command-palette-head {
+        padding: 20px 18px 13px;
+    }
+
+    .command-palette-search {
+        margin: 0 14px;
+    }
+
+    .command-palette-meta {
+        padding-inline: 18px;
+    }
+
+    .command-palette-meta > span:last-child,
+    .command-item-tags em:first-child,
+    .command-menu-key {
+        display: none;
+    }
+
+    .command-menu-item {
+        grid-template-columns: 32px minmax(0, 1fr) auto;
+        gap: 8px;
+    }
+
+    .command-item-copy small {
+        max-width: 55vw;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .slash-command-menu,
+    .iris-command-overlay {
+        animation: none;
+    }
+
+    .command-menu-item {
+        transition: none;
+    }
+}
+

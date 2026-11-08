@@ -1,0 +1,15 @@
+event: run.started
+data: {"user_message": {"role": "user", "content": "hola [[T-4]]"}, "runtime": {"provider": "", "model": "", "route_source": "raw_request", "requested": {"provider": "fake-z", "model": "zeta"}, "model_lock": "accepted"}, "session_id": "IRIS-fixture", "run_id": "run_6e59e7c1dfc446fdb284d34bffe4c699", "seq": 1, "ts": 1791418532.0004826}
+
+event: message.started
+data: {"message": {"id": "msg_db940531e26849b2a7d93f3dd1c57471", "role": "assistant"}, "session_id": "IRIS-fixture", "run_id": "run_6e59e7c1dfc446fdb284d34bffe4c699", "seq": 2, "ts": 1791418532.0004826}
+
+event: assistant.completed
+data: {"session_id": "IRIS-fixture", "message_id": "msg_db940531e26849b2a7d93f3dd1c57471", "content": "⚠️ Provider authentication failed: Unknown provider 'fake-z'. Check 'hermes model' for available providers, or run 'hermes doctor' to diagnose config issues.", "completed": true, "partial": false, "interrupted": false, "runtime": {"provider": "", "model": "", "route_source": "raw_request", "requested": {"provider": "fake-z", "model": "zeta"}, "model_lock": "accepted"}, "run_id": "run_6e59e7c1dfc446fdb284d34bffe4c699", "seq": 3, "ts": 1791418532.023382}
+
+event: run.completed
+data: {"session_id": "IRIS-fixture", "message_id": "msg_db940531e26849b2a7d93f3dd1c57471", "completed": true, "partial": false, "interrupted": false, "messages": [], "usage": {"input_tokens": 0, "output_tokens": 0, "total_tokens": 0}, "runtime": {"provider": "", "model": "", "route_source": "raw_request", "requested": {"provider": "fake-z", "model": "zeta"}, "model_lock": "accepted"}, "run_id": "run_6e59e7c1dfc446fdb284d34bffe4c699", "seq": 4, "ts": 1791418532.023382}
+
+event: done
+data: {"session_id": "IRIS-fixture", "run_id": "run_6e59e7c1dfc446fdb284d34bffe4c699", "seq": 5, "ts": 1791418532.023382}
+

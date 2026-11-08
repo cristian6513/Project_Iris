@@ -1,0 +1,19 @@
+.iris-draft-panel {
+    padding: 1rem;
+}
+
+.iris-draft-open {
+    min-height: 2rem;
+    padding: 0.35rem 0.75rem;
+    border: 1px solid var(--iris-os-accent);
+    border-radius: 0.6rem;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+}
+
+.iris-draft-open:focus-visible {
+    outline: 2px solid var(--iris-os-accent);
+    outline-offset: 2px;
+}

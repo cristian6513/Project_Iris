@@ -1,0 +1,259 @@
+{
+  "schema": 1,
+  "author": "Cristian Betancourt",
+  "rest_pose": "idle",
+  "clips": {
+    "idle": {
+      "filename": "iris_idle.vrma",
+      "sha256": "6670b582c79994acf083903d4152bdcefe6dc657aa56f203b1143ea2d085618c"
+    },
+    "idle_casual": {
+      "filename": "iris_idle_casual.vrma",
+      "sha256": "1826bb51ed4b17f2d63577d13019db1821d1a1cbad45c8c3070f63b5c6437e49"
+    },
+    "idle_lazy": {
+      "filename": "iris_idle_lazy.vrma",
+      "sha256": "066c1759fa63a3f834dba17a9f33a35a816f653c937d4148ac016346deeccd06"
+    },
+    "wave": {
+      "filename": "iris_wave.vrma",
+      "sha256": "0397caac6c33df5e9262954e65a6067c60953242e049afc82a0bcd68bf29ff35"
+    },
+    "wave_big": {
+      "filename": "iris_wave_big.vrma",
+      "sha256": "c7295e20eec4e3e1e8111d059900c9d159c04f109658015d465e3ece79396178"
+    },
+    "nod": {
+      "filename": "iris_nod.vrma",
+      "sha256": "602d7ecf1c88a9901383ffaca67b044f9960a39ce87198d3a278bdd436db72c9"
+    },
+    "shake": {
+      "filename": "iris_shake.vrma",
+      "sha256": "fcfb028bf94d1a5397b4a848bf31ca3f7351c811b94cd9fbd9ed32e9c53d8243"
+    },
+    "think": {
+      "filename": "iris_think.vrma",
+      "sha256": "f7d7dd285fbaa10d3ab2e60bdf2e50a65658058f5e7db9a5421635403e9c9fdc"
+    },
+    "listen": {
+      "filename": "iris_listen.vrma",
+      "sha256": "5c81f7512e64b223834220e15597fced1103c6dfbad89c368e6ee57e84727502"
+    },
+    "talk": {
+      "filename": "iris_talk.vrma",
+      "sha256": "9e1953c2a8b4a4819fcdecba335606708daf3f29cf1c4ff5ee19a067bddb7557"
+    },
+    "confirm": {
+      "filename": "iris_confirm.vrma",
+      "sha256": "ae04e462a185558bd4060d0685a4a40cafb6864bfcff6dee115af704be809256"
+    },
+    "confused": {
+      "filename": "iris_confused.vrma",
+      "sha256": "ff55da41d7a716eb5bf36c6758b1a650ff19ce38c0c2d9c439224b3b88824b1a"
+    },
+    "celebrate": {
+      "filename": "iris_celebrate.vrma",
+      "sha256": "9e585319dbd33196572b6c33e2b87a374acbdbeb9e5b29e3335b404a23efed7c"
+    },
+    "angry": {
+      "filename": "iris_angry.vrma",
+      "sha256": "4950a3699a58eae8e4e558d4e66c55917df6dade87d065237e66988083410a5a"
+    },
+    "surprised": {
+      "filename": "iris_surprised.vrma",
+      "sha256": "7fc72a937e15828c19ecbabb0fd45ed82c2a03fdff7d8c770e816adb66e10d23"
+    },
+    "attention": {
+      "filename": "iris_attention.vrma",
+      "sha256": "33f217c73c8a610fa7b375b98b2c6d4e19602a46b313a7d166da73775d88d429"
+    },
+    "point": {
+      "filename": "iris_point.vrma",
+      "sha256": "348372617a776f704db76711dc718b47bb2342d66c0a639bbf80d9c9507fb900"
+    },
+    "stretch": {
+      "filename": "iris_stretch.vrma",
+      "sha256": "6eef201d9fc10df0f1b627389b248f9951ccdfa20704ef00324c0c5ec5759360"
+    },
+    "sofa_sit_down": {
+      "filename": "iris_sofa_sit_down.vrma",
+      "sha256": "6b7b657e26898005db664c7aaebafee24d281ef7f95d6608b3d8af03583b039f"
+    },
+    "sofa_seated_idle": {
+      "filename": "iris_sofa_seated_idle.vrma",
+      "sha256": "4942d770dfc488b00bc9a5e08f4e4616785f7751bec3f34b52482de0e38b43bf"
+    },
+    "sofa_stand_up": {
+      "filename": "iris_sofa_stand_up.vrma",
+      "sha256": "dac923fd409cd47c3d9cd854a3e96d2e070ac409535f86607937af1f36dfbafe"
+    },
+    "walk": {
+      "filename": "iris_walk.vrma",
+      "sha256": "92fe541b0592a7e5185b8d13c0db56fc0d9f7227d94b516bca83533d118831f1"
+    },
+    "bed_lie_down": {
+      "filename": "iris_bed_lie_down.vrma",
+      "sha256": "79f08773403c520f9426de26d5b9387f1183c3139e4082bcef84b067d1fb0bc7"
+    },
+    "bed_lying_idle": {
+      "filename": "iris_bed_lying_idle.vrma",
+      "sha256": "ff18ebcca607b97b87904fcf2cca9429fc4645d228d4854ff141d0718d36d18e"
+    },
+    "bed_get_up": {
+      "filename": "iris_bed_get_up.vrma",
+      "sha256": "0dda72ae0352bb0925eb74a30bdc0bf30865b4a196a976e97788d4514069cf6e"
+    },
+    "bed_sit_down": {
+      "filename": "iris_bed_sit_down.vrma",
+      "sha256": "271f712df4ce1a182091913664e40c01f7dc69f97f7f42ac88d2530314c6dbe2"
+    },
+    "bed_seated_idle": {
+      "filename": "iris_bed_seated_idle.vrma",
+      "sha256": "0c8a2d548eabace62b1a7a14c39806bf950e8db035f4687bf78a998113b84782"
+    },
+    "bed_stand_up": {
+      "filename": "iris_bed_stand_up.vrma",
+      "sha256": "8d01d46c81ef3813954194789fd186d5644443f3031cc2267c878fd9a83b1ac1"
+    },
+    "bed_sit_up": {
+      "filename": "iris_bed_sit_up.vrma",
+      "sha256": "4ae6e62d73e8c481e8be5803572401c31878c7d60d09d11bdf4d39c215bb2db8"
+    },
+    "book_take": {
+      "filename": "iris_book_take.vrma",
+      "sha256": "d3a01ec07ab1af29b534b9774bcfe75976bac81e7280f07df018d05ca8dca73b"
+    },
+    "book_read_idle": {
+      "filename": "iris_book_read_idle.vrma",
+      "sha256": "0921678174dd9e069119cd4feba0799c51c3050ed80adbd1e9edb3d9357830b1"
+    },
+    "book_return": {
+      "filename": "iris_book_return.vrma",
+      "sha256": "0fee91fab5d887c23a0e3831c9e01baedebfa57083c9af8973eec14cea0509e3"
+    },
+    "sofa_read_open": {
+      "filename": "iris_sofa_read_open.vrma",
+      "sha256": "c9b43f69898414bc9a6afedde7182cce705f821d275b5be1d2ccd1215e0b7f52"
+    },
+    "sofa_read_idle": {
+      "filename": "iris_sofa_read_idle.vrma",
+      "sha256": "f1a13cdea268d02ea76a243923bc40eaa47ff9d1998e560f58f110b20d64117c"
+    },
+    "sofa_read_close": {
+      "filename": "iris_sofa_read_close.vrma",
+      "sha256": "7c2231081a75a8f8ad99e853c1f3fd4e19f4784f71bfb7bdb4573ca9ac73da40"
+    },
+    "bed_read_open": {
+      "filename": "iris_bed_read_open.vrma",
+      "sha256": "b75cd305c31160f07958c3d490450371766c92554911accf482db904bef442d4"
+    },
+    "bed_read_idle": {
+      "filename": "iris_bed_read_idle.vrma",
+      "sha256": "68aed1908564a0dbe6750bf0d75c444546cf3fc0db029d555f03fadadd736865"
+    },
+    "bed_read_close": {
+      "filename": "iris_bed_read_close.vrma",
+      "sha256": "eebdc56301c182e28326430623d2cac76807def1b227dcb98aa3969510dc0582"
+    },
+    "sofa_tablet_open": {
+      "filename": "iris_sofa_tablet_open.vrma",
+      "sha256": "caeeb5e5b4438f72e497503d776ca46df522d5f3480ee2a38d7a40a374349f77"
+    },
+    "sofa_tablet_idle": {
+      "filename": "iris_sofa_tablet_idle.vrma",
+      "sha256": "95e854ef8fe636ac217f87b5de7c91ef47fa90f5963d00174da11426f20b1ca8"
+    },
+    "sofa_tablet_close": {
+      "filename": "iris_sofa_tablet_close.vrma",
+      "sha256": "c31a77f3145de5d36bd6e293d818516e86c8a5c37200857ab50fbead2c699fc1"
+    },
+    "bed_tablet_open": {
+      "filename": "iris_bed_tablet_open.vrma",
+      "sha256": "124cb87c547e040dcb4762ebf6d6d4c30066ae49e1172491df6cf126db105773"
+    },
+    "bed_tablet_idle": {
+      "filename": "iris_bed_tablet_idle.vrma",
+      "sha256": "90ac0d96fcb1630dedbdd324fc17993936d38ca4dd84a504512cd996c01b2545"
+    },
+    "bed_tablet_close": {
+      "filename": "iris_bed_tablet_close.vrma",
+      "sha256": "8ae7f8643e6ebcf80c0577ec8e3c050c4b0ee1b5e01e46d33b49b35b043cdb39"
+    },
+    "desk_sit_down": {
+      "filename": "iris_desk_sit_down.vrma",
+      "sha256": "451a030741ad935b7fe49cea62dd5fdd4f6b04be35f3c40a55ba699daf56d7a4"
+    },
+    "desk_seated_idle": {
+      "filename": "iris_desk_seated_idle.vrma",
+      "sha256": "0e981ac3fb9a8e3363a9e2c5298597be17711c27c1c2581217998c6eaff92476"
+    },
+    "desk_stand_up": {
+      "filename": "iris_desk_stand_up.vrma",
+      "sha256": "3a65634c5f8bb0c8a2fdfdda7016e6099ea40bff0ac41f8e640ae717f9959e81"
+    },
+    "desk_type_open": {
+      "filename": "iris_desk_type_open.vrma",
+      "sha256": "1731359444bf5a535ec373c4bb603484aa2c8843522c25368f421aee4ffcfefe"
+    },
+    "desk_type_idle": {
+      "filename": "iris_desk_type_idle.vrma",
+      "sha256": "68d958326adecd10632adfb83f75b7acd10d9b3f8f64c7d84b8e3ea181e7a87e"
+    },
+    "desk_type_close": {
+      "filename": "iris_desk_type_close.vrma",
+      "sha256": "31e9df0de0c016cbeb5571ad13847fb889a8d08bb9d0f1cd2f9d9009b3f40ffb"
+    },
+    "stand_read_open": {
+      "filename": "iris_stand_read_open.vrma",
+      "sha256": "51d5b6273d3403cd1ca27cdd3a282cdd3eb7c347d6ce6e1f18ca2388e8f7a0a4"
+    },
+    "stand_read_idle": {
+      "filename": "iris_stand_read_idle.vrma",
+      "sha256": "cffa6ecf871a92809d83c1de9a0bad52d65a0190dc7b7cbad2a7a47139535e52"
+    },
+    "stand_read_close": {
+      "filename": "iris_stand_read_close.vrma",
+      "sha256": "f91daf832cc405456507878eafaa2e83180b312fc5f098744f0a723a5cdfdbb2"
+    },
+    "stand_tablet_open": {
+      "filename": "iris_stand_tablet_open.vrma",
+      "sha256": "032afd09b31dffee505e1dbcaf92cf14570431ddd1fec4a9c22fcf804d6a5f75"
+    },
+    "stand_tablet_idle": {
+      "filename": "iris_stand_tablet_idle.vrma",
+      "sha256": "c5288dc29ed0c1fcd0b7bf6472e7203afbae550e8d0c71de099f3ffb31094e9a"
+    },
+    "stand_tablet_close": {
+      "filename": "iris_stand_tablet_close.vrma",
+      "sha256": "9ec62a31292ca0444126639a9896324f61ecbaf94c47a2af3fc269c835e556e5"
+    },
+    "window_lean_in": {
+      "filename": "iris_window_lean_in.vrma",
+      "sha256": "b0e4eee26a6b3c1dd61771a952ed865ace24db1e37256fdfb17b2f7aed5b15f0"
+    },
+    "window_look_idle": {
+      "filename": "iris_window_look_idle.vrma",
+      "sha256": "a5eba5df3eca012df2e8c90654b590e2bcdd13f9bf66e1066337cbba678957d4"
+    },
+    "window_lean_out": {
+      "filename": "iris_window_lean_out.vrma",
+      "sha256": "259cd68f0a0c833d71db21fed80e56ae5a888f3b5cee7893792fe733ece4d230"
+    }
+  },
+  "avatar": {
+    "filename": "iris.vrm",
+    "sha256": "c1dc7d03e96b4e166f13bced882ae20c09e13bb3129dd2ea42b56aae0ccd3531",
+    "license": "LICENSE-IRIS-VRM.txt"
+  },
+  "procedural_actions": [
+    "look_around",
+    "walk_tour",
+    "sit_chair",
+    "go_computer",
+    "go_bed",
+    "touch_books"
+  ],
+  "context_fallbacks": {
+    "walk_in_place": "idle_casual"
+  }
+}

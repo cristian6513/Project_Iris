@@ -1,0 +1,22 @@
+{
+  "schema": "iris.app-manifest/v1",
+  "sdkVersion": 1,
+  "id": "automations",
+  "name": "Automatizaciones",
+  "version": "1.0.0",
+  "description": "Tareas al no usar Iris",
+  "icon": "automations",
+  "accent": "amber",
+  "presentation": "window",
+  "window": {
+    "width": 1120,
+    "height": 680
+  },
+  "launcher": {
+    "visible": true,
+    "order": 50
+  },
+  "ui": {
+    "module": "automation_app.js"
+  }
+}

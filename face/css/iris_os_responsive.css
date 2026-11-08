@@ -1,0 +1,271 @@
+/* Responsive IRIS OS shell.
+   Loaded after the legacy stylesheet so mobile rules cannot be undone by
+   older desktop passes lower in that file. */
+
+.os-service-list em.is-warning,
+.os-service-list em.is-stopped,
+.os-service-list em.is-error,
+.os-service-list em.is-unknown,
+.os-service-list em.is-checking {
+    color: #ffb15f !important;
+    text-shadow: 0 0 10px rgba(255, 177, 95, 0.2) !important;
+}
+
+.os-service-list em.is-stopped,
+.os-service-list em.is-error {
+    color: #ff6b88 !important;
+    text-shadow: 0 0 10px rgba(255, 107, 136, 0.2) !important;
+}
+
+.os-service-list em.is-unknown,
+.os-service-list em.is-checking {
+    color: rgba(210, 231, 240, 0.62) !important;
+    text-shadow: none !important;
+}
+
+.os-service-list em.is-warning::before,
+.os-service-list em.is-stopped::before,
+.os-service-list em.is-error::before,
+.os-service-list em.is-unknown::before,
+.os-service-list em.is-checking::before {
+    background: currentColor !important;
+    box-shadow: 0 0 10px currentColor !important;
+}
+
+.os-profile-core-status.is-ready {
+    color: #5cffad !important;
+}
+
+.os-profile-core-status.is-offline {
+    color: #ff7d96 !important;
+    text-shadow: 0 0 10px rgba(255, 125, 150, 0.2) !important;
+}
+
+.os-profile-core-status.is-checking {
+    color: rgba(210, 231, 240, 0.62) !important;
+    text-shadow: none !important;
+}
+
+/* Docked windows are narrower than the viewport, so regular media queries do
+   not describe their available space. Container queries keep dense apps such
+   as Hermes Doctor readable when they are anchored to one side. */
+.os-window {
+    container-type: inline-size;
+}
+
+/* Theme Studio responds to its window, not just the monitor's width. */
+@container (max-width: 1080px) {
+    .os-theme-main { grid-template-columns: minmax(0, 1fr); }
+}
+
+@container (max-width: 800px) {
+    .os-theme-studio { grid-template-columns: minmax(0, 1fr); grid-template-areas: "hero" "main" "side"; padding: 14px; }
+    .os-theme-preset-grid, .os-theme-background-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+.os-theme-studio .os-theme-options .os-theme-range-row { grid-template-columns: minmax(0, 1fr) auto; }
+.os-theme-studio .os-theme-options .os-theme-range-row input { grid-column: 1 / -1; grid-row: 2; width: 100%; }
+.os-theme-studio .os-theme-options .os-theme-range-row b { position: static; grid-column: 2; grid-row: 1; }
+
+@container (max-width: 560px) {
+    .os-theme-studio .os-theme-range-row { grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
+    .os-theme-studio .os-theme-range-row input { grid-column: 1 / -1; grid-row: 2; width: 100%; box-sizing: border-box; }
+    .os-theme-studio .os-theme-range-row b { grid-column: 2; grid-row: 1; }
+    .os-theme-studio .os-theme-color-row { grid-template-columns: 13px minmax(0, 1fr) 38px 54px; gap: 6px; }
+    .os-theme-studio .os-theme-color-row > span { overflow-wrap: anywhere; }
+    .os-window-titlebar {
+        gap: 6px;
+        padding-inline: 8px 6px;
+    }
+
+    .os-window-titlebar > div {
+        flex: 1 1 auto;
+        overflow: hidden;
+        gap: 6px;
+    }
+
+    .os-window-titlebar .os-icon {
+        width: 24px;
+        height: 24px;
+        flex: 0 0 24px;
+    }
+
+    .os-window-titlebar nav {
+        flex: 0 0 auto;
+        gap: 3px;
+    }
+
+    .os-window-titlebar button {
+        width: 24px;
+        height: 24px;
+        flex: 0 0 24px;
+    }
+
+    .os-doctor-layout,
+    .os-doctor-hero,
+    .os-compatibility-ribbon,
+    .os-gateway-grid,
+    .os-cron-console {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .os-doctor-hero {
+        justify-items: start;
+    }
+
+    .os-doctor-score {
+        width: 76px;
+    }
+
+    .os-compatibility-version {
+        min-width: 0;
+        padding: 9px 0 0;
+        border-top: 1px solid rgba(173, 222, 239, 0.16);
+        border-left: 0;
+    }
+
+    .os-doctor-check-panel,
+    .os-doctor-actions,
+    .os-doctor-recommendation-panel,
+    .os-gateway-manager,
+    .os-cron-jobs-panel,
+    .os-cron-detail-panel {
+        grid-column: auto;
+        grid-row: auto;
+    }
+}
+
+@media (max-width: 920px) {
+    .hermes-workbench,
+    body.IRIS-workbench-focus .hermes-workbench {
+        left: 6px;
+        right: 6px;
+        top: 8px;
+        bottom: 8px;
+        width: auto;
+        transform: none;
+    }
+
+    .hermes-workbench.hidden,
+    body.IRIS-workbench-focus .hermes-workbench.hidden {
+        transform: translateY(14px) scale(0.985);
+    }
+
+    .hermes-workbench .workbench-shell,
+    .hermes-workbench[data-active-tab="desktop"] .workbench-shell,
+    .hermes-workbench[data-active-tab="desktop"][data-desktop-mode="dashboard"] .workbench-shell {
+        grid-template-columns: 74px minmax(0, 1fr) 0;
+    }
+
+    .hermes-workbench .os-right-rail {
+        display: none !important;
+    }
+
+    .hermes-workbench .os-profile-panel {
+        padding-inline: 10px;
+    }
+
+    .hermes-workbench .os-profile-panel strong,
+    .hermes-workbench .os-profile-panel > span,
+    .hermes-workbench .os-profile-panel > small,
+    .hermes-workbench .os-profile-voice span,
+    .hermes-workbench .os-profile-voice small,
+    .hermes-workbench .workbench-tabs button span:not(.os-icon) {
+        display: none;
+    }
+
+    .hermes-workbench .os-face-slot,
+    .hermes-workbench .os-profile-voice {
+        width: 44px;
+        min-width: 44px;
+    }
+
+    .hermes-workbench .workbench-tabs {
+        padding-inline: 10px;
+    }
+
+    .hermes-workbench .workbench-tabs button {
+        justify-content: center;
+        padding-inline: 0;
+    }
+
+    .hermes-workbench .workbench-tabs button::before {
+        display: none;
+    }
+}
+
+@media (max-width: 640px) {
+    .hermes-workbench .workbench-shell,
+    .hermes-workbench[data-active-tab="desktop"] .workbench-shell,
+    .hermes-workbench[data-active-tab="desktop"][data-desktop-mode="dashboard"] .workbench-shell {
+        grid-template-columns: 62px minmax(0, 1fr) 0;
+        grid-template-rows: 68px 148px minmax(0, 1fr);
+    }
+
+    .hermes-workbench .workbench-header {
+        padding: 9px 10px;
+    }
+
+    .hermes-workbench .workbench-brand {
+        gap: 0;
+    }
+
+    .hermes-workbench .workbench-brand > div,
+    .hermes-workbench .os-top-status,
+    .hermes-workbench .os-header-metrics {
+        display: none;
+    }
+
+    .hermes-workbench .os-mark {
+        width: 40px;
+        height: 40px;
+        border-radius: 13px;
+    }
+
+    .hermes-workbench .workbench-actions {
+        margin-left: auto;
+    }
+
+    .hermes-workbench .os-home-screen {
+        padding: 12px;
+        padding-bottom: 18px;
+    }
+
+    .hermes-workbench .os-home-welcome {
+        left: 12px;
+        top: 22px;
+        width: calc(100% - 24px);
+        padding: 16px;
+    }
+
+    .hermes-workbench .os-home-dock {
+        width: 100%;
+        grid-auto-flow: row;
+        grid-auto-columns: auto;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+    }
+
+    .hermes-workbench .os-home-dock button {
+        min-height: 74px;
+        padding: 8px;
+        gap: 5px;
+    }
+
+    .hermes-workbench .os-home-dock .os-icon {
+        width: 36px;
+        height: 36px;
+    }
+
+    .hermes-workbench .os-home-launcher {
+        bottom: 118px;
+        width: calc(100% - 16px);
+        max-height: calc(100% - 132px);
+        padding: 14px;
+    }
+
+    .hermes-workbench .os-launcher-grid {
+        grid-template-columns: 1fr;
+        max-height: calc(100vh - 280px);
+    }
+}

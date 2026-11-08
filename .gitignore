@@ -1,0 +1,194 @@
+# ---------------------------------------------------------------------------
+# IRIS OS — repository hygiene
+# Keep source, lockfiles, manifests, runtime UI assets and third-party notices.
+# Keep local credentials, generated output and private art workspaces out.
+# ---------------------------------------------------------------------------
+
+# Local agent/editor state
+/.agents/
+/.claude/
+/.codex/
+# Hermes keeps private plans/session state here. Version only the product-owned
+# IRIS OS skill; every other Hermes artifact remains machine-local.
+/.hermes/*
+!/.hermes/skills/
+/.hermes/skills/*
+!/.hermes/skills/iris-os/
+!/.hermes/skills/iris-app-builder/
+!/.hermes/skills/iris-os/**
+/.vscode/
+/.idea/
+*.code-workspace
+*.swp
+*.swo
+*~
+.project
+.classpath
+
+# Secrets and machine-local configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+credentials*.json
+secrets*.json
+client_secret*.json
+
+# Personal QA captures, downloaded OAuth clients and notes are not source.
+/desktop/installer/qa/
+
+# Python environments, caches and packages
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyd
+*.so
+*.egg
+*.egg-info/
+.eggs/
+.venv/
+.venv-*/
+venv/
+env/
+.uv-cache/
+.tox/
+.nox/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.hypothesis/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+pip-wheel-metadata/
+/build/
+/dist/
+
+# Node, Vite, Rust and desktop build output (Cargo.lock stays tracked)
+node_modules/
+**/node_modules/
+/companion/dist/
+/companion/src-tauri/target/
+**/target/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-store/
+*.tsbuildinfo
+
+# IRIS runtime state (legacy names remain ignored for safe upgrades)
+/.iris/
+/.alice/
+/config.json
+/alice_memory.db
+*.sqlite
+*.sqlite3
+*.sqlite-wal
+*.sqlite-shm
+*.db-wal
+*.db-shm
+*.pid
+*.log
+/logs/
+*.ppn
+*.pv
+
+# Private/local art workspace. Runtime artwork under face/public/assets stays
+# tracked; Blender sources, references, QA renders and loose root exports do not.
+/assets/
+/Blender_Recovery_*/
+/tools/blender/
+/tools/external/
+/face/public/models/
+/*.png
+/*.svg
+/make_iris_dragon_scales.ps1
+*.blend
+*.blend1
+*.blend@
+
+# User-provided avatars are local content and can have separate licences.
+/face/avatars/*
+!/face/avatars/.gitkeep
+
+# VRMA packs often prohibit redistribution. Users add their own files through
+# IRIS; only the public contract and built-in metadata belong in the repository.
+/face/animations/*
+!/face/animations/.gitkeep
+!/face/animations/README.md
+!/face/animations/manifest.json
+!/face/animations/emotions.json
+!/face/animations/contexts.json
+# Iris gestures authored for this project by Cristian Betancourt.
+!/face/animations/iris_*.vrma
+# IRIS' default avatar, by Cristian Betancourt, under its own licence (not MIT).
+!/face/animations/iris.vrm
+!/face/animations/LICENSE-IRIS-VRM.txt
+
+# Generated from the pinned Companion runtime by scripts/prepare_face_vision.mjs
+/face/vendor/mediapipe/
+# Generated from the pinned three.js package by scripts/basis_assets.mjs (KTX2 transcoder)
+/face/vendor/basis/
+
+# Local model downloads and generated ML output
+/models/
+/checkpoints/
+/weights/
+/downloads/
+*.ckpt
+*.safetensors
+*.pth
+*.pt
+
+# QA evidence, candidate builds and private runtimes (several GB). Reports in
+# docs/audits describe them; the files themselves stay machine-local.
+/artifacts/
+/desorden/
+
+# Release workspace: a separate clone of the public repo (Project_Iris) with the
+# user documentation and finished packages. Never part of the source repo.
+/produccion/
+
+# Compiled installers and local release archives belong in a release service,
+# not in source control.
+*.exe
+*.msi
+*.msix
+*.appx
+*.dmg
+*.deb
+*.rpm
+*.zip
+*.7z
+*.rar
+*.tar
+*.tar.gz
+
+# Hardware build output
+/hardware/arduino/build/
+/hardware/esp32/build/
+*.elf
+*.hex
+*.bin
+
+# Docker, operating-system and backup noise
+/.docker/
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+*.lnk
+*.bak
+*.tmp
+*.temp
+
+# Generated desktop schema files
+/desktop/src-tauri/gen/
+
+# Página de IRIS OS: salida del build de producción (se regenera con pagina-iris/scripts/build.mjs)
+/pagina-iris/build/

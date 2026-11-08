@@ -1,0 +1,15 @@
+event: run.started
+data: {"user_message": {"role": "user", "content": "hola [[T-5SLOW]]"}, "runtime": {"provider": "", "model": "", "route_source": "raw_request", "requested": {"provider": "fake-a", "model": "alpha-1"}, "model_lock": "accepted"}, "session_id": "IRIS-fixture", "run_id": "run_f31b381b60a44d018c311dce84a408c1", "seq": 1, "ts": 1791418532.0375586}
+
+event: message.started
+data: {"message": {"id": "msg_e423e1cabebc4886badff1f4dbbb17aa", "role": "assistant"}, "session_id": "IRIS-fixture", "run_id": "run_f31b381b60a44d018c311dce84a408c1", "seq": 2, "ts": 1791418532.0375586}
+
+event: assistant.completed
+data: {"session_id": "IRIS-fixture", "message_id": "msg_e423e1cabebc4886badff1f4dbbb17aa", "content": "Operation interrupted: waiting for model response (1.5s elapsed).", "completed": false, "partial": false, "interrupted": true, "turn_exit_reason": "interrupted_during_api_call", "runtime": {"provider": "custom", "model": "alpha-1", "route_source": "raw_request", "requested": {"provider": "fake-a", "model": "alpha-1"}, "model_lock": "confirmed"}, "run_id": "run_f31b381b60a44d018c311dce84a408c1", "seq": 3, "ts": 1791418533.792578}
+
+event: run.cancelled
+data: {"session_id": "IRIS-fixture", "message_id": "msg_e423e1cabebc4886badff1f4dbbb17aa", "completed": false, "partial": false, "interrupted": true, "turn_exit_reason": "interrupted_during_api_call", "messages": [{"role": "assistant", "content": "Your request was not processed. Send it again if you still want me to carry it out.", "timestamp": 1791418533.7838197}], "usage": {"input_tokens": 0, "output_tokens": 0, "total_tokens": 0, "runtime": {"provider": "custom", "model": "alpha-1", "route_source": "raw_request", "requested": {"provider": "fake-a", "model": "alpha-1"}, "model_lock": "confirmed"}}, "runtime": {"provider": "custom", "model": "alpha-1", "route_source": "raw_request", "requested": {"provider": "fake-a", "model": "alpha-1"}, "model_lock": "confirmed"}, "run_id": "run_f31b381b60a44d018c311dce84a408c1", "seq": 4, "ts": 1791418533.792578}
+
+event: done
+data: {"session_id": "IRIS-fixture", "run_id": "run_f31b381b60a44d018c311dce84a408c1", "seq": 5, "ts": 1791418533.792578}
+

@@ -1,0 +1,26 @@
+{
+  "schema": "iris.app-manifest/v1",
+  "sdkVersion": 1,
+  "id": "mi-servicio",
+  "name": "Mi servicio",
+  "version": "0.1.0",
+  "description": "Plantilla con servicio Python de lectura",
+  "icon": "database",
+  "accent": "magenta",
+  "presentation": "window",
+  "window": {
+    "width": 780,
+    "height": 560
+  },
+  "launcher": {
+    "visible": true,
+    "order": 910
+  },
+  "ui": {
+    "entry": "main.js",
+    "style": "style.css"
+  },
+  "services": [
+    "app-backend"
+  ]
+}

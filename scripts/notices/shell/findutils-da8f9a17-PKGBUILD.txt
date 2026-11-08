@@ -1,0 +1,61 @@
+# Maintainer: Alexey Pavlov <alexpux@gmail.com>
+
+pkgname=findutils
+pkgver=4.11.0
+pkgrel=2
+pkgdesc="GNU utilities to locate files"
+arch=('i686' 'x86_64')
+license=('spdx:GPL-3.0-or-later')
+depends=('libiconv' 'libintl')
+makedepends=('libiconv-devel' 'gettext-devel' 'autotools' 'gcc')
+url="https://www.gnu.org/software/findutils"
+msys2_repository_url="https://cgit.git.savannah.gnu.org/cgit/findutils.git"
+msys2_references=(
+  "cpe: cpe:/a:gnu:findutils"
+)
+
+source=(https://ftp.gnu.org/pub/gnu/findutils/${pkgname}-${pkgver}.tar.xz{,.sig})
+sha256sums=('bfd19cb06cc71f3352d567e90284d8cdac02ac89774bbeadf0b533b0c11432fd'
+            'SKIP')
+validpgpkeys=('0CF4E8D871593224842832B888DD9E08C5DDACB9')
+
+prepare() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+
+  autoreconf -fi
+}
+
+build() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+
+  # Don't build or install locate because we use mlocate,
+  # which is a secure version of locate.
+  # sed -i '/^SUBDIRS/s/locate//' Makefile.in
+
+  local -a extra_config
+  # 32-bit cygwin only has 32-bit time_t
+  # https://github.com/msys2/MSYS2-packages/issues/4078
+  if [[ "$CARCH" == "i686" ]]; then
+    extra_config+=("--disable-year2038")
+  fi
+
+  ./configure \
+    --build=${CHOST} \
+    --prefix=/usr \
+    --without-libiconv-prefix \
+    --without-libintl-prefix \
+    "${extra_config[@]}" \
+    DEFAULT_ARG_SIZE="(32u*1024)"
+
+  make
+}
+
+check() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  make check
+}
+
+package() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  make DESTDIR=${pkgdir} install
+}

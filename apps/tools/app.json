@@ -1,0 +1,22 @@
+{
+  "schema": "iris.app-manifest/v1",
+  "sdkVersion": 1,
+  "id": "tools",
+  "name": "Herramientas MCP",
+  "version": "1.0.0",
+  "description": "Herramientas disponibles para el asistente",
+  "icon": "tools",
+  "accent": "cyan",
+  "presentation": "window",
+  "window": {
+    "width": 780,
+    "height": 560
+  },
+  "launcher": {
+    "visible": true,
+    "order": 70
+  },
+  "ui": {
+    "adapter": "legacy"
+  }
+}

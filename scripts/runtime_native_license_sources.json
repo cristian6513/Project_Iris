@@ -1,0 +1,626 @@
+{
+  "schema_version": 1,
+  "packages": {
+    "conpty==1.24.260512001": {
+      "component": "hermes-runtime",
+      "package": "ConPTY",
+      "version": "1.24.260512001",
+      "license": "MIT",
+      "source": "https://api.nuget.org/v3-flatcontainer/microsoft.windows.console.conpty/1.24.260512001/microsoft.windows.console.conpty.1.24.260512001.nupkg",
+      "provenance": [
+        {
+          "type": "archive",
+          "url": "https://api.nuget.org/v3-flatcontainer/microsoft.windows.console.conpty/1.24.260512001/microsoft.windows.console.conpty.1.24.260512001.nupkg",
+          "archive_sha256": "f889a9272a8b257dc6d5be7525626fdb0f7ca6b5ce7e13093fc4bc979d24f484",
+          "archive_sha256_verified": true,
+          "archive_sha512": "a0ea7f679325218916810a771e43fe35d9a4d829b99612e663a038444010f327d618591907863a2ee1829a20dd498bcc352edeee1bd3a0b1ffce3ead8e96c2c7",
+          "publisher_sha512_verified": true,
+          "publisher_hash_source": "https://api.nuget.org/v3/catalog0/data/2026.05.22.23.23.16/microsoft.windows.console.conpty.1.24.260512001.json",
+          "scope": "Exact byte match of winpty/conpty.dll (runtimes/win-x64/native/conpty.dll) and winpty/OpenConsole.exe (build/native/runtimes/x64/OpenConsole.exe) shipped by pywinpty 3.0.5"
+        },
+        {
+          "type": "git-revision",
+          "url": "https://github.com/microsoft/terminal",
+          "revision": "b4e69c68620a822407d45bfbba6ee10feebc70a3",
+          "tag": "v1.24.11321.0"
+        }
+      ],
+      "binaries": [
+        {
+          "path": "runtimes/hermes/Lib/site-packages/winpty/conpty.dll",
+          "size": 109880,
+          "sha256": "c46dcd04f52b97f6a8cf53e8f547c85a821660bed18de2b3344afcd4a8389ad6",
+          "evidence": {
+            "provenance_index": 0,
+            "member": "runtimes/win-x64/native/conpty.dll"
+          }
+        }
+      ],
+      "files": [
+        {
+          "path": "licenses/native/conpty-1.24.260512001/LICENSE",
+          "source_path": "runtime_native_notices/conpty-1.24.260512001/LICENSE",
+          "sha256": "5d177f23ecfeb0ea8e050b6a5a16355e1ae9a0b286436ca8f83ed08b3795be6b",
+          "evidence": {
+            "provenance_index": 1,
+            "member": "LICENSE"
+          }
+        },
+        {
+          "path": "licenses/native/conpty-1.24.260512001/NOTICE.Microsoft.Windows.Console.ConPTY.nuspec",
+          "source_path": "runtime_native_notices/conpty-1.24.260512001/NOTICE.Microsoft.Windows.Console.ConPTY.nuspec",
+          "sha256": "b061d5c3103625b8206ad8f5bc4fecb1f1568bdfb44b163de7fd309076034499",
+          "evidence": {
+            "provenance_index": 0,
+            "member": "Microsoft.Windows.Console.ConPTY.nuspec"
+          }
+        }
+      ]
+    },
+    "ffmpeg==8.1.3": {
+      "component": "hermes-runtime",
+      "package": "FFmpeg",
+      "version": "8.1.3",
+      "license": "LGPL-2.1-or-later",
+      "source": "https://codeload.github.com/FFmpeg/FFmpeg/tar.gz/29e619e767cde9045a75c29bc9a8278ae7b3a98b",
+      "provenance": [
+        {
+          "type": "local-build",
+          "url": "https://codeload.github.com/FFmpeg/FFmpeg/tar.gz/29e619e767cde9045a75c29bc9a8278ae7b3a98b",
+          "source_sha256": "8e4699bcb6a311772e8f513cc72ce27328891b82a598b82e7cff3dfe580875a0",
+          "source_sha256_verified": true,
+          "producer": "scripts/build_pyav_wheel.py",
+          "artifact": "av-18.1.0-cp311-abi3-win_amd64.whl",
+          "artifact_sha256": "16652dba0b1924a27d69c041fa803fce445c1e404dde85873cacad7570fd42ad"
+        }
+      ],
+      "binaries": [
+        {
+          "path": "runtimes/hermes/Lib/site-packages/av.libs/avcodec-62-7fcf62ab088eba5d7d2e4b610362eb16.dll",
+          "size": 16686080,
+          "sha256": "3b3d32925a6a1acdb2eb85383d4ac0c89ab1f31d71a3e80b2b1486e157636ae7",
+          "evidence": {
+            "provenance_index": 0,
+            "member": "av.libs/avcodec-62-7fcf62ab088eba5d7d2e4b610362eb16.dll"
+          }
+        },
+        {
+          "path": "runtimes/hermes/Lib/site-packages/av.libs/avdevice-62-dd5c2051b0ec7fc25b9777c11964caa3.dll",
+          "size": 15872,
+          "sha256": "5a92624df93a80bb3da6b00fe3cff8071a249b3d411c74451be7605135493405",
+          "evidence": {
+            "provenance_index": 0,
+            "member": "av.libs/avdevice-62-dd5c2051b0ec7fc25b9777c11964caa3.dll"
+          }
+        },
+        {
+          "path": "runtimes/hermes/Lib/site-packages/av.libs/avfilter-11-2a1a8d7376b5e766c9efe3b506e35082.dll",
+          "size": 5250048,
+          "sha256": "9634010a4d088188d9debd3ab13f47cee7d1edb47323f8829d624b5e69fb306b",
+          "evidence": {
+            "provenance_index": 0,
+            "member": "av.libs/avfilter-11-2a1a8d7376b5e766c9efe3b506e35082.dll"
+          }
+        },
+        {
+          "path": "runtimes/hermes/Lib/site-packages/av.libs/avformat-62-24e9cc3f61535ecf11b8992050099300.dll",
+          "size": 2429952,
+          "sha256": "8b8fb57262dadfebcdb393d27a1e4e550e2fb05ccff86b68c7c16a3f82e7567b",
+          "evidence": {
+            "provenance_index": 0,
+            "member": "av.libs/avformat-62-24e9cc3f61535ecf11b8992050099300.dll"
+          }
+        },
+        {
+          "path": "runtimes/hermes/Lib/site-packages/av.libs/avutil-60-ac72bf55320545dcaedb01086d00d349.dll",
+          "size": 916992,
+          "sha256": "ac72bf55320545dcaedb01086d00d349820f5381f87c9a0ad77e0c1156c19d66",
+          "evidence": {
+            "provenance_index": 0,
+            "member": "av.libs/avutil-60-ac72bf55320545dcaedb01086d00d349.dll"
+          }
+        },
+        {
+          "path": "runtimes/hermes/Lib/site-packages/av.libs/swresample-6-a51dbce486c3d0c810ca31145917435f.dll",
+          "size": 145920,
+          "sha256": "5becfca0fdff0be969104f185d0b9b71207260dd4190274226e033519f1f1015",
+          "evidence": {
+            "provenance_index": 0,
+            "member": "av.libs/swresample-6-a51dbce486c3d0c810ca31145917435f.dll"
+          }
+        },
+        {
+          "path": "runtimes/hermes/Lib/site-packages/av.libs/swscale-9-fc282328955ae578688aa2e656140ab5.dll",
+          "size": 1876992,
+          "sha256": "95fad88f6995953004d819053152df645a2dc444c877adfd4d5d941a2390e96d",
+          "evidence": {
+            "provenance_index": 0,
+            "member": "av.libs/swscale-9-fc282328955ae578688aa2e656140ab5.dll"
+          }
+        }
+      ],
+      "files": [
+        {
+          "path": "licenses/native/ffmpeg-8.1.3/LICENSE.FFmpeg-COPYING.LGPLv2.1",
+          "source_path": "runtime_native_notices/ffmpeg-8.1.3/LICENSE.FFmpeg-COPYING.LGPLv2.1",
+          "sha256": "246041b6ecf9bc32d718a62c57877c78b5eb397b6467e74ed7ae2626ab189c30",
+          "evidence": {
+            "provenance_index": 0,
+            "member": "av/licenses/ffmpeg/audio/FFmpeg-COPYING.LGPLv2.1"
+          }
+        },
+        {
+          "path": "licenses/native/ffmpeg-8.1.3/NOTICE.FFmpeg-buildconf.txt",
+          "source_path": "runtime_native_notices/ffmpeg-8.1.3/NOTICE.FFmpeg-buildconf.txt",
+          "sha256": "e3997a7cd6190bd752e9e26cc46efa16a099c2dcd6da5a722a2828c6e2020f64",
+          "evidence": {
+            "provenance_index": 0,
+            "member": "av/licenses/ffmpeg/audio/FFmpeg-buildconf.txt"
+          }
+        },
+        {
+          "path": "licenses/native/ffmpeg-8.1.3/NOTICE.FFmpeg-license-output.txt",
+          "source_path": "runtime_native_notices/ffmpeg-8.1.3/NOTICE.FFmpeg-license-output.txt",
+          "sha256": "5ab1b948d03b5f0aa8e96ac7121b2f41b197fbfde207152fa078280b3ec35d74",
+          "evidence": {
+            "provenance_index": 0,
+            "member": "av/licenses/ffmpeg/audio/FFmpeg-license-output.txt"
+          }
+        },
+        {
+          "path": "licenses/native/ffmpeg-8.1.3/LICENSE.MinGW-w64-runtime.txt",
+          "source_path": "runtime_native_notices/ffmpeg-8.1.3/LICENSE.MinGW-w64-runtime.txt",
+          "sha256": "9ac4176f91a5bddbaac7b57b4a981cdc3d1ad06b37e1abf5e978f98b8cf9f8c6",
+          "evidence": {
+            "provenance_index": 0,
+            "member": "av/licenses/ffmpeg/audio/MinGW-w64-runtime.txt"
+          }
+        },
+        {
+          "path": "licenses/native/ffmpeg-8.1.3/LICENSE.gcc-15.2.0-COPYING.RUNTIME",
+          "source_path": "runtime_native_notices/ffmpeg-8.1.3/LICENSE.gcc-15.2.0-COPYING.RUNTIME",
+          "sha256": "9d6b43ce4d8de0c878bf16b54d8e7a10d9bd42b75178153e3af6a815bdc90f74",
+          "evidence": {
+            "provenance_index": 0,
+            "member": "av/licenses/ffmpeg/audio/gcc-15.2.0-COPYING.RUNTIME"
+          }
+        },
+        {
+          "path": "licenses/native/ffmpeg-8.1.3/LICENSE.gcc-15.2.0-COPYING3",
+          "source_path": "runtime_native_notices/ffmpeg-8.1.3/LICENSE.gcc-15.2.0-COPYING3",
+          "sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903",
+          "evidence": {
+            "provenance_index": 0,
+            "member": "av/licenses/ffmpeg/audio/gcc-15.2.0-COPYING3"
+          }
+        },
+        {
+          "path": "licenses/native/ffmpeg-8.1.3/NOTICE.BUILD-ffmpeg-sdk.md",
+          "source_path": "runtime_native_notices/ffmpeg-8.1.3/NOTICE.BUILD-ffmpeg-sdk.md",
+          "sha256": "4df26178a8c83417a9194f9dc7254f587175fe5b359efb40e470a738e5cfc11d",
+          "evidence": {
+            "provenance_index": 0,
+            "member": "av/licenses/ffmpeg/audio/sources/BUILD.md"
+          }
+        },
+        {
+          "path": "licenses/native/ffmpeg-8.1.3/NOTICE.BUILD-pyav-wheel.md",
+          "source_path": "runtime_native_notices/ffmpeg-8.1.3/NOTICE.BUILD-pyav-wheel.md",
+          "sha256": "be587211dcd86a231604b40c4c41435c8b3f82b263ffc1ddf6a4be58d9f2939a",
+          "evidence": {
+            "provenance_index": 0,
+            "member": "av/licenses/sources/BUILD.md"
+          }
+        }
+      ]
+    },
+    "intel-openmp==2025.3.0": {
+      "component": "hermes-runtime",
+      "package": "Intel-OpenMP",
+      "version": "2025.3.0",
+      "license": "LicenseRef-Intel-Simplified-Software-License AND LicenseRef-Intel-OpenMP-ThirdPartyNotices",
+      "source": "https://www.nuget.org/packages/intelopenmp.redist.win/2025.3.0.640",
+      "provenance": [
+        {
+          "type": "wheel-range",
+          "url": "https://files.pythonhosted.org/packages/79/69/05addedd727061b61a85b4fd989754edb628b5be1cd5d161727f98cf4d86/intel_openmp-2025.3.0-py2.py3-none-win_amd64.whl",
+          "archive_size": 32083814,
+          "archive_sha256_declared": "8ff899d01a41b92ffe0e618b221ea633127d16df726086082d381c431c31339d",
+          "archive_sha256_verified": false,
+          "zip_entry_crc_verified": true,
+          "build_recipe": {
+            "url": "https://raw.githubusercontent.com/OpenNMT/CTranslate2/0d8bcd362ac75ef860ef161d6f0efad0ae439ff0/python/tools/prepare_build_environment_windows.sh",
+            "revision": "0d8bcd362ac75ef860ef161d6f0efad0ae439ff0",
+            "sha256": "413d8cec729bf4348939e5d8ce6f76195814e26e35cd406dff6100703f2a8115"
+          }
+        },
+        {
+          "type": "archive",
+          "url": "https://api.nuget.org/v3-flatcontainer/intelopenmp.redist.win/2025.3.0.640/intelopenmp.redist.win.2025.3.0.640.nupkg",
+          "archive_sha256": "a4212c4aec3e528864d56d8b0c87103cd5c21a888d1985124909a1f85624a449",
+          "archive_sha256_verified": true,
+          "archive_sha512": "2f535f80750f6f1b4365c32a3cdd2a96abe38e474403f5b5c6ec30a6941bf65967af4704a971a8164da357fa330da84ce026ab332c672b88d082155a74ec1bf2",
+          "publisher_sha512_verified": true,
+          "publisher_hash_source": "https://api.nuget.org/v3/catalog0/data/2025.10.23.10.42.02/intelopenmp.redist.win.2025.3.0.640.json",
+          "scope": "Exact libiomp5md.dll byte match; Intel redist package grants distribution under its preserved license"
+        },
+        {
+          "type": "archive",
+          "url": "https://api.nuget.org/v3-flatcontainer/inteltbb.redist.win/2022.3.0.380/inteltbb.redist.win.2022.3.0.380.nupkg",
+          "archive_sha256": "6f64f83f68ad88fcf6ae6999eabe5e1ca4341f4fd9989878638031ed0edd51a0",
+          "archive_sha256_verified": true,
+          "archive_sha512": "e9b97d0e3f5e6f5511fdeef7b26038cf9ebd54213f457cc13af695f63d50dd1ab4154d9ba6351ba7f2e914a86c997cac990069543bb81126e7352d441e75ac85",
+          "publisher_sha512_verified": true,
+          "publisher_hash_source": "https://api.nuget.org/v3/catalog0/data/2025.10.23.10.41.00/inteltbb.redist.win.2022.3.0.380.json",
+          "scope": "Nested oneTBB notices referenced by the OpenMP third-party-programs file, matching the SDK release family"
+        }
+      ],
+      "binaries": [
+        {
+          "path": "runtimes/hermes/Lib/site-packages/ctranslate2/libiomp5md.dll",
+          "size": 1614192,
+          "sha256": "982233366b0afcda1e0f55a0b134097e35b779613f54ddb69e685e6cd06b755f",
+          "evidence": {
+            "provenance_index": 1,
+            "member": "runtimes/win-x64/native/libiomp5md.dll"
+          }
+        }
+      ],
+      "files": [
+        {
+          "source_path": "runtime_native_notices/intel-openmp-2025.3.0/NOTICE.third-party-programs.txt",
+          "path": "licenses/native/intel-openmp-2025.3.0/NOTICE.third-party-programs.txt",
+          "sha256": "f8ce918fe7311ce279e68380a2e233f8a42b1cd3dda8f4c48d6de97a0255c1d7",
+          "evidence": {
+            "provenance_index": 0,
+            "member": "intel_openmp-2025.3.0.data/data/share/doc/compiler/licensing/openmp/third-party-programs.txt"
+          }
+        },
+        {
+          "source_path": "runtime_native_notices/intel-openmp-2025.3.0/LICENSE.publisher-wheel.txt",
+          "path": "licenses/native/intel-openmp-2025.3.0/LICENSE.publisher-wheel.txt",
+          "sha256": "febfb69a5b058f55892dc7f341108a9ca29d50e9fe85723a57eebbb826436958",
+          "evidence": {
+            "provenance_index": 0,
+            "member": "intel_openmp-2025.3.0.dist-info/LICENSE.txt"
+          }
+        },
+        {
+          "path": "licenses/native/intel-openmp-2025.3.0/LICENSE.Intel-redist.txt",
+          "source_path": "runtime_native_notices/intel-openmp-2025.3.0/LICENSE.Intel-redist.txt",
+          "sha256": "6c00ae54b2a610ea009e0f5c5d3aa79023eb694c7fb72857654c53c6e99d7c97",
+          "evidence": {
+            "provenance_index": 1,
+            "member": "license.txt"
+          }
+        },
+        {
+          "path": "licenses/native/intel-openmp-2025.3.0/LICENSE.oneTBB.txt",
+          "source_path": "runtime_native_notices/intel-openmp-2025.3.0/LICENSE.oneTBB.txt",
+          "sha256": "4229ebf297195a64279a99566431731c411f744a34e1213a5b1e69a8fa286ea1",
+          "evidence": {
+            "provenance_index": 2,
+            "member": "license.txt"
+          }
+        },
+        {
+          "path": "licenses/native/intel-openmp-2025.3.0/NOTICE.oneTBB-third-party-programs.txt",
+          "source_path": "runtime_native_notices/intel-openmp-2025.3.0/NOTICE.oneTBB-third-party-programs.txt",
+          "sha256": "1f6de0bd498c04c9283c6306379e2db2492e1c4e7d2b248c8de0e8fe9124cd03",
+          "evidence": {
+            "provenance_index": 2,
+            "member": "share/doc/tbb/licensing/third-party-programs.txt"
+          }
+        }
+      ]
+    },
+    "nvidia-cudnn==9.10.2.21": {
+      "component": "hermes-runtime",
+      "package": "NVIDIA-cuDNN",
+      "version": "9.10.2.21",
+      "license": "LicenseRef-NVIDIA-Proprietary",
+      "source": "https://docs.nvidia.com/deeplearning/cudnn/backend/v9.10.2/reference/eula.html",
+      "provenance": [
+        {
+          "type": "wheel-range",
+          "url": "https://files.pythonhosted.org/packages/3d/90/0bd6e586701b3a890fd38aa71c387dab4883d619d6e5ad912ccbd05bfd67/nvidia_cudnn_cu12-9.10.2.21-py3-none-win_amd64.whl",
+          "archive_size": 692992268,
+          "archive_sha256_declared": "c6288de7d63e6cf62988f0923f96dc339cea362decb1bf5b3141883392a7d65e",
+          "archive_sha256_verified": false,
+          "zip_entry_crc_verified": true,
+          "build_recipe": {
+            "url": "https://raw.githubusercontent.com/OpenNMT/CTranslate2/0d8bcd362ac75ef860ef161d6f0efad0ae439ff0/python/tools/prepare_build_environment_windows.sh",
+            "revision": "0d8bcd362ac75ef860ef161d6f0efad0ae439ff0",
+            "sha256": "413d8cec729bf4348939e5d8ce6f76195814e26e35cd406dff6100703f2a8115"
+          }
+        },
+        {
+          "type": "documentation",
+          "url": "https://docs.nvidia.com/deeplearning/cudnn/backend/v9.10.2/reference/eula.html",
+          "document_sha256": "f3763a5ae20aa135e6f0186ac64c22f61c049e5ef5b81122ea06dd4b9ce58707",
+          "document_sha256_verified": true
+        }
+      ],
+      "binaries": [
+        {
+          "path": "runtimes/hermes/Lib/site-packages/ctranslate2/cudnn64_9.dll",
+          "size": 266288,
+          "sha256": "9edbcdff73b0af070eb160b2ce66e59feca04aa017351d8eedcc5e8e149967d2",
+          "evidence": {
+            "provenance_index": 0,
+            "member": "nvidia/cudnn/bin/cudnn64_9.dll"
+          }
+        }
+      ],
+      "files": [
+        {
+          "source_path": "runtime_native_notices/nvidia-cudnn-9.10.2.21/LICENSE.publisher-wheel.txt",
+          "path": "licenses/native/nvidia-cudnn-9.10.2.21/LICENSE.publisher-wheel.txt",
+          "sha256": "49cf79bdb35734b52fe6203013b3bd759f81e998cd32aa2c65c51db9a88c61d2",
+          "evidence": {
+            "provenance_index": 0,
+            "member": "nvidia_cudnn_cu12-9.10.2.21.dist-info/licenses/License.txt"
+          }
+        },
+        {
+          "source_path": "runtime_native_notices/nvidia-cudnn-9.10.2.21/LICENSE.versioned-documentation.html",
+          "path": "licenses/native/nvidia-cudnn-9.10.2.21/LICENSE.versioned-documentation.html",
+          "sha256": "f3763a5ae20aa135e6f0186ac64c22f61c049e5ef5b81122ea06dd4b9ce58707",
+          "evidence": {
+            "provenance_index": 1,
+            "representation": "html"
+          }
+        },
+        {
+          "source_path": "runtime_native_notices/nvidia-cudnn-9.10.2.21/LICENSE.versioned-documentation.txt",
+          "path": "licenses/native/nvidia-cudnn-9.10.2.21/LICENSE.versioned-documentation.txt",
+          "sha256": "0741972dc853c544ea2ae6c44e5eb63263e141e30ca4c0f6cd6ac59e44389a28",
+          "evidence": {
+            "provenance_index": 1,
+            "representation": "text",
+            "extraction": "htmlparser-bd-article-v1"
+          }
+        }
+      ]
+    },
+    "onednn==3.1.1": {
+      "component": "hermes-runtime",
+      "package": "oneDNN",
+      "version": "3.1.1",
+      "license": "Apache-2.0 AND LicenseRef-oneDNN-ThirdPartyPrograms",
+      "source": "https://github.com/uxlfoundation/oneDNN/tree/v3.1.1",
+      "provenance": [
+        {
+          "type": "git-revision",
+          "url": "https://github.com/uxlfoundation/oneDNN",
+          "revision": "64f6bcbcbab628e96f33a62c3e975f8535a7bde4",
+          "tag": "v3.1.1",
+          "build_recipe": {
+            "url": "https://raw.githubusercontent.com/OpenNMT/CTranslate2/0d8bcd362ac75ef860ef161d6f0efad0ae439ff0/python/tools/prepare_build_environment_windows.sh",
+            "revision": "0d8bcd362ac75ef860ef161d6f0efad0ae439ff0",
+            "sha256": "413d8cec729bf4348939e5d8ce6f76195814e26e35cd406dff6100703f2a8115"
+          }
+        }
+      ],
+      "binaries": [
+        {
+          "path": "runtimes/hermes/Lib/site-packages/ctranslate2/ctranslate2.dll",
+          "size": 59294720,
+          "sha256": "a26134c47079896fc046317a3aea22a64df6b63b8c51272748cd2cc406d8d668",
+          "linkage": "static",
+          "evidence": {
+            "provenance_index": 0,
+            "member": "src/common/verbose.cpp",
+            "markers": [
+              "onednn_verbose,info,oneDNN v%d.%d.%d (commit %s)",
+              "onednn_verbose,info,cpu,isa:%s"
+            ]
+          }
+        }
+      ],
+      "files": [
+        {
+          "path": "licenses/native/onednn-3.1.1/LICENSE",
+          "source_path": "runtime_native_notices/onednn-3.1.1/LICENSE",
+          "sha256": "dd12452e1ae11e3282271aa5895d8175296b83e936a027209f9399d26a407d0f",
+          "evidence": {
+            "provenance_index": 0,
+            "member": "LICENSE"
+          }
+        },
+        {
+          "path": "licenses/native/onednn-3.1.1/NOTICE.THIRD-PARTY-PROGRAMS",
+          "source_path": "runtime_native_notices/onednn-3.1.1/NOTICE.THIRD-PARTY-PROGRAMS",
+          "sha256": "9117585dfc6b5cd0fafc063312f28a86ec82eb97bf68316dcefcaaa7fc11428e",
+          "evidence": {
+            "provenance_index": 0,
+            "member": "THIRD-PARTY-PROGRAMS"
+          }
+        }
+      ]
+    },
+    "onemkl==2025.3.0": {
+      "component": "hermes-runtime",
+      "package": "oneMKL",
+      "version": "2025.3.0",
+      "license": "LicenseRef-Intel-Simplified-Software-License AND LicenseRef-Intel-oneMKL-ThirdPartyPrograms",
+      "source": "https://www.nuget.org/packages/intelmkl.static.win-x64/2025.3.0.453",
+      "provenance": [
+        {
+          "type": "nuget-range",
+          "url": "https://api.nuget.org/v3-flatcontainer/intelmkl.static.win-x64/2025.3.0.453/intelmkl.static.win-x64.2025.3.0.453.nupkg",
+          "archive_size": 201048966,
+          "archive_sha512_declared": "c03af5e92cd31096dcc249805425d2a79c3a40b72aed03491687bcac50799406125c5a64950116c4d4acfb38b3f4a3f513dfd96ad9d7040814b92f1d351628d3",
+          "archive_sha256_verified": false,
+          "zip_entry_crc_verified": true,
+          "publisher_hash_source": "https://api.nuget.org/v3/catalog0/data/2025.10.23.10.55.07/intelmkl.static.win-x64.2025.3.0.453.json",
+          "build_recipe": {
+            "url": "https://raw.githubusercontent.com/OpenNMT/CTranslate2/0d8bcd362ac75ef860ef161d6f0efad0ae439ff0/python/tools/prepare_build_environment_windows.sh",
+            "revision": "0d8bcd362ac75ef860ef161d6f0efad0ae439ff0",
+            "sha256": "413d8cec729bf4348939e5d8ce6f76195814e26e35cd406dff6100703f2a8115"
+          }
+        },
+        {
+          "type": "nuget-range",
+          "url": "https://api.nuget.org/v3-flatcontainer/intelmkl.devel.win-x64/2025.3.0.453/intelmkl.devel.win-x64.2025.3.0.453.nupkg",
+          "archive_size": 15462387,
+          "archive_sha512_declared": "6855b57b2000b6ae64263d8d1efde02a091e45a7e5ed057dfc523ce81f882706ada519af8e096594ca3618f6ea7450cba2133abfa61f009f403267f002822b05",
+          "archive_sha256_verified": false,
+          "zip_entry_crc_verified": true,
+          "publisher_hash_source": "https://api.nuget.org/v3/catalog0/data/2025.10.23.10.52.45/intelmkl.devel.win-x64.2025.3.0.453.json"
+        }
+      ],
+      "binaries": [
+        {
+          "path": "runtimes/hermes/Lib/site-packages/ctranslate2/ctranslate2.dll",
+          "size": 59294720,
+          "sha256": "a26134c47079896fc046317a3aea22a64df6b63b8c51272748cd2cc406d8d668",
+          "linkage": "static",
+          "evidence": {
+            "provenance_index": 1,
+            "member": "build/native/include/mkl_version.h",
+            "markers": [
+              "20251007",
+              "Intel(R) oneAPI Math Kernel Library Version ",
+              "oneMKL FATAL ERROR: Cannot load %s."
+            ]
+          }
+        }
+      ],
+      "files": [
+        {
+          "path": "licenses/native/onemkl-2025.3.0/license.txt",
+          "source_path": "runtime_native_notices/onemkl-2025.3.0/license.txt",
+          "sha256": "c182e56595e59c88a2561ca442f7cb088cab5575a3f1c9fdebc09688d0748bd2",
+          "evidence": {
+            "provenance_index": 0,
+            "member": "license.txt"
+          }
+        },
+        {
+          "path": "licenses/native/onemkl-2025.3.0/NOTICE.third-party-programs-IntelMPI.txt",
+          "source_path": "runtime_native_notices/onemkl-2025.3.0/NOTICE.third-party-programs-IntelMPI.txt",
+          "sha256": "82fa46762c37662a52ab9df58781813c1dc6c268ae2b6f9cf2d83183e706aa09",
+          "evidence": {
+            "provenance_index": 0,
+            "member": "share/doc/mkl/licensing/third-party-programs-IntelMPI.txt"
+          }
+        },
+        {
+          "path": "licenses/native/onemkl-2025.3.0/NOTICE.third-party-programs-benchmarks.txt",
+          "source_path": "runtime_native_notices/onemkl-2025.3.0/NOTICE.third-party-programs-benchmarks.txt",
+          "sha256": "1f1224af12a7d3e51150ce6f762e32472076a31f6e44db41d3b651a7fa20f2f5",
+          "evidence": {
+            "provenance_index": 0,
+            "member": "share/doc/mkl/licensing/third-party-programs-benchmarks.txt"
+          }
+        },
+        {
+          "path": "licenses/native/onemkl-2025.3.0/NOTICE.third-party-programs-level-zero.txt",
+          "source_path": "runtime_native_notices/onemkl-2025.3.0/NOTICE.third-party-programs-level-zero.txt",
+          "sha256": "cfe7d2ba4b4cd53271c7f91937e906256c0f14ea62ba33ffb556664b8d39aa59",
+          "evidence": {
+            "provenance_index": 0,
+            "member": "share/doc/mkl/licensing/third-party-programs-level-zero.txt"
+          }
+        },
+        {
+          "path": "licenses/native/onemkl-2025.3.0/NOTICE.third-party-programs-oneMath.txt",
+          "source_path": "runtime_native_notices/onemkl-2025.3.0/NOTICE.third-party-programs-oneMath.txt",
+          "sha256": "2ba4e9858c253331691370f4e8e3899ca6a5baa20907f189f5970635870b860d",
+          "evidence": {
+            "provenance_index": 0,
+            "member": "share/doc/mkl/licensing/third-party-programs-oneMath.txt"
+          }
+        },
+        {
+          "path": "licenses/native/onemkl-2025.3.0/NOTICE.third-party-programs-oneTBB.txt",
+          "source_path": "runtime_native_notices/onemkl-2025.3.0/NOTICE.third-party-programs-oneTBB.txt",
+          "sha256": "d507da4fffae647ebc1bbb7e12cc5cca8087d36b0d78cc75caa96cae37688cb1",
+          "evidence": {
+            "provenance_index": 0,
+            "member": "share/doc/mkl/licensing/third-party-programs-oneTBB.txt"
+          }
+        },
+        {
+          "path": "licenses/native/onemkl-2025.3.0/NOTICE.third-party-programs-openmp.txt",
+          "source_path": "runtime_native_notices/onemkl-2025.3.0/NOTICE.third-party-programs-openmp.txt",
+          "sha256": "8fdfbbdfed13bca3641da35182e7ee1bb92a99f302ce8b0deb981ac1f18adee2",
+          "evidence": {
+            "provenance_index": 0,
+            "member": "share/doc/mkl/licensing/third-party-programs-openmp.txt"
+          }
+        },
+        {
+          "path": "licenses/native/onemkl-2025.3.0/NOTICE.third-party-programs-safestring.txt",
+          "source_path": "runtime_native_notices/onemkl-2025.3.0/NOTICE.third-party-programs-safestring.txt",
+          "sha256": "415000d1887939ffc6826e0ed3f099cebcab6aaeda2da0acb017110a456b3d42",
+          "evidence": {
+            "provenance_index": 0,
+            "member": "share/doc/mkl/licensing/third-party-programs-safestring.txt"
+          }
+        },
+        {
+          "path": "licenses/native/onemkl-2025.3.0/NOTICE.third-party-programs.txt",
+          "source_path": "runtime_native_notices/onemkl-2025.3.0/NOTICE.third-party-programs.txt",
+          "sha256": "6fb57367c2107b8b3347e0e9db10d368c7b9ea898a08132b2f841b24b86f076f",
+          "evidence": {
+            "provenance_index": 0,
+            "member": "share/doc/mkl/licensing/third-party-programs.txt"
+          }
+        }
+      ]
+    },
+    "onnxruntime==1.28.2": {
+      "component": "hermes-runtime",
+      "package": "ONNXRuntime",
+      "version": "1.28.2",
+      "license": "MIT AND LicenseRef-ONNXRuntime-ThirdPartyNotices",
+      "source": "https://github.com/csukuangfj/onnxruntime-libs/releases/download/v1.28.2/onnxruntime-win-x64-MT-Release-1.28.2.tar.bz2",
+      "provenance": [
+        {
+          "type": "archive",
+          "url": "https://github.com/csukuangfj/onnxruntime-libs/releases/download/v1.28.2/onnxruntime-win-x64-MT-Release-1.28.2.tar.bz2",
+          "archive_sha256": "cd7f757f7a38ce14238bc9198bee197a9430b42ec3ecadea3408dd2e832eb02e",
+          "archive_sha256_verified": true,
+          "build_recipe": {
+            "url": "https://raw.githubusercontent.com/k2-fsa/sherpa-onnx/11afbd009a7f8c08f4bcf2fc1b265d0df4670fbf/cmake/onnxruntime-win-x64.cmake",
+            "revision": "11afbd009a7f8c08f4bcf2fc1b265d0df4670fbf",
+            "sha256": "d80f82ef73673dd273533cd3ecb9b8844cbb6cbf20fa65012db17a3d96e2edc0"
+          }
+        }
+      ],
+      "binaries": [
+        {
+          "path": "runtimes/hermes/Lib/site-packages/sherpa_onnx/lib/onnxruntime.dll",
+          "size": 17799168,
+          "sha256": "7f66f939a881baf4f46a2216496798edf4a1429878b646d12674aa62f27d8a25",
+          "evidence": {
+            "provenance_index": 0,
+            "member": "onnxruntime-win-x64-MT-Release-1.28.2/lib/onnxruntime.dll"
+          }
+        }
+      ],
+      "files": [
+        {
+          "source_path": "runtime_native_notices/onnxruntime-1.28.2/LICENSE",
+          "path": "licenses/native/onnxruntime-1.28.2/LICENSE",
+          "sha256": "c250d6278f0b47a6439fb7592b08b58a55eb9f535aa49a1db63211c3f982b674",
+          "evidence": {
+            "provenance_index": 0,
+            "member": "onnxruntime-win-x64-MT-Release-1.28.2/LICENSE"
+          }
+        },
+        {
+          "source_path": "runtime_native_notices/onnxruntime-1.28.2/ThirdPartyNotices.txt",
+          "path": "licenses/native/onnxruntime-1.28.2/ThirdPartyNotices.txt",
+          "sha256": "fb0af774b4d7cffc5b9d046f2aaeade2f37df2f80abf8033c95dfffcc77a8866",
+          "evidence": {
+            "provenance_index": 0,
+            "member": "onnxruntime-win-x64-MT-Release-1.28.2/ThirdPartyNotices.txt"
+          }
+        }
+      ]
+    }
+  }
+}

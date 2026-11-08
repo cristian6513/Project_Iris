@@ -1,0 +1,15 @@
+Microsoft Edge WebView2 Runtime: requisito de Iris OS
+
+Iris Desktop e Iris Companion muestran su interfaz con Microsoft Edge WebView2
+Runtime, un componente de Microsoft que el instalador de Iris no incluye ni
+descarga. Windows 11 lo trae instalado. Si falta, el instalador de Iris se
+detiene y explica cómo instalarlo desde la página oficial de Microsoft:
+https://developer.microsoft.com/microsoft-edge/webview2/
+Quien lo instala acepta allí los términos de licencia de Microsoft.
+
+Aviso de privacidad de Microsoft Defender SmartScreen
+
+WebView2 incluye Microsoft Defender SmartScreen, que recopila y envía
+información del usuario a Microsoft según la Declaración de privacidad de
+Microsoft (https://aka.ms/privacy) y el documento de privacidad de Microsoft
+Edge (https://learn.microsoft.com/en-us/microsoft-edge/privacy-whitepaper#smartscreen).

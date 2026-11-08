@@ -1,0 +1,22 @@
+{
+  "schema": "iris.app-manifest/v1",
+  "sdkVersion": 1,
+  "id": "activity",
+  "name": "Actividad",
+  "version": "1.0.0",
+  "description": "Historial de actividad de Iris",
+  "icon": "activity",
+  "accent": "cyan",
+  "presentation": "window",
+  "window": {
+    "width": 780,
+    "height": 560
+  },
+  "launcher": {
+    "visible": true,
+    "order": 20
+  },
+  "ui": {
+    "adapter": "legacy"
+  }
+}

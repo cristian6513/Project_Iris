@@ -1,0 +1,268 @@
+{
+  "schema_version": 1,
+  "packages": {
+    "ctranslate2==4.8.1": {
+      "license": "MIT",
+      "source": "https://raw.githubusercontent.com/OpenNMT/CTranslate2/0d8bcd362ac75ef860ef161d6f0efad0ae439ff0/LICENSE",
+      "provenance": {
+        "type": "git",
+        "repository": "https://github.com/OpenNMT/CTranslate2",
+        "revision": "0d8bcd362ac75ef860ef161d6f0efad0ae439ff0",
+        "tag": "v4.8.1"
+      },
+      "files": [
+        {
+          "path": "licenses/python/ctranslate2-4.8.1/LICENSE",
+          "source_path": "runtime_notices/ctranslate2-4.8.1/LICENSE",
+          "sha256": "54aa79d9fe3c09e67a16dcd95b9e88676405a6ec174efda31036983cf7672ecb"
+        }
+      ]
+    },
+    "davey==0.1.6": {
+      "license": "MIT",
+      "source": "https://raw.githubusercontent.com/Snazzah/davey/a1e2e741bea06bc3b7167a5c3792844b8975993c/LICENSE",
+      "provenance": {
+        "type": "git",
+        "repository": "https://github.com/Snazzah/davey",
+        "revision": "a1e2e741bea06bc3b7167a5c3792844b8975993c",
+        "tag": "py-0.1.6"
+      },
+      "files": [
+        {
+          "path": "licenses/python/davey-0.1.6/LICENSE",
+          "source_path": "runtime_notices/davey-0.1.6/LICENSE",
+          "sha256": "90760006b6e6c76a67476de39bee25e42e584679eac5d608765355d5d54e8afa"
+        }
+      ]
+    },
+    "firecrawl-anydoc==0.2.4": {
+      "license": "MIT",
+      "source": "https://files.pythonhosted.org/packages/35/54/ee43b1661a954e53eaed85878a7ccc37ed73e02e6577bb26437ec5f9de94/firecrawl_anydoc-0.2.4.tar.gz",
+      "provenance": {
+        "type": "sdist",
+        "url": "https://files.pythonhosted.org/packages/35/54/ee43b1661a954e53eaed85878a7ccc37ed73e02e6577bb26437ec5f9de94/firecrawl_anydoc-0.2.4.tar.gz",
+        "sha256": "3e29460272fea81cde08fd5af11f6b0f1ff05919214ddc939867f72362c83032",
+        "filename": "firecrawl_anydoc-0.2.4.tar.gz"
+      },
+      "files": [
+        {
+          "path": "licenses/python/firecrawl-anydoc-0.2.4/LICENSE",
+          "source_path": "runtime_notices/firecrawl-anydoc-0.2.4/LICENSE",
+          "sha256": "03a9e7657aac6536fb6458bd220347c4e7f85bd0a51d8d9e8528530b7a682ade"
+        }
+      ]
+    },
+    "flatbuffers==25.12.19": {
+      "license": "Apache-2.0",
+      "source": "https://raw.githubusercontent.com/google/flatbuffers/7e163021e59cca4f8e1e35a7c828b5c6b7915953/LICENSE",
+      "provenance": {
+        "type": "git",
+        "repository": "https://github.com/google/flatbuffers",
+        "revision": "7e163021e59cca4f8e1e35a7c828b5c6b7915953",
+        "tag": "v25.12.19"
+      },
+      "files": [
+        {
+          "path": "licenses/python/flatbuffers-25.12.19/LICENSE",
+          "source_path": "runtime_notices/flatbuffers-25.12.19/LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+        }
+      ]
+    },
+    "mistralai==2.4.8": {
+      "license": "Apache-2.0",
+      "source": "https://files.pythonhosted.org/packages/55/1c/04119828a3da3be8c79efbe59035a621ae22af873c1ee5a4200355025aa6/mistralai-2.4.8.tar.gz",
+      "provenance": {
+        "type": "sdist",
+        "url": "https://files.pythonhosted.org/packages/55/1c/04119828a3da3be8c79efbe59035a621ae22af873c1ee5a4200355025aa6/mistralai-2.4.8.tar.gz",
+        "sha256": "4f27b9b7dfd564ae111d3d9992d2a8ad1454aaf3e7675554c686aa3bb89617e2",
+        "filename": "mistralai-2.4.8.tar.gz"
+      },
+      "files": [
+        {
+          "path": "licenses/python/mistralai-2.4.8/LICENSE",
+          "source_path": "runtime_notices/mistralai-2.4.8/LICENSE",
+          "sha256": "ad4b50ffd183d0ec8b3e56fedae59575f13cee1cee74c466b16fad4bed032bed"
+        }
+      ]
+    },
+    "resvg_py==0.4.0": {
+      "license": "MIT",
+      "source": "https://raw.githubusercontent.com/baseplate-admin/resvg-py/c72e3d164b79c0a43d719bf7613787d1c2c3beee/LICENSE",
+      "provenance": {
+        "type": "git",
+        "repository": "https://github.com/baseplate-admin/resvg-py",
+        "revision": "c72e3d164b79c0a43d719bf7613787d1c2c3beee",
+        "tag": "0.4.0"
+      },
+      "files": [
+        {
+          "path": "licenses/python/resvg_py-0.4.0/LICENSE",
+          "source_path": "runtime_notices/resvg_py-0.4.0/LICENSE",
+          "sha256": "753a9e3c09cece8584467a0f605e065005c2a5e5c6da4f0cbb0493d2d52b96f6"
+        }
+      ]
+    },
+    "sentencepiece==0.2.2": {
+      "license": "Apache-2.0",
+      "source": "https://files.pythonhosted.org/packages/cc/33/ea3cb3839607eb175da835244a798f797f478c5ddf0e8ecdf57ea85a4c70/sentencepiece-0.2.2.tar.gz",
+      "provenance": {
+        "type": "sdist",
+        "url": "https://files.pythonhosted.org/packages/cc/33/ea3cb3839607eb175da835244a798f797f478c5ddf0e8ecdf57ea85a4c70/sentencepiece-0.2.2.tar.gz",
+        "sha256": "3d2b5e824b5622038dc7b490897efe05ebbbb9e7350fc142f3ecc8789ef9bdf6",
+        "filename": "sentencepiece-0.2.2.tar.gz"
+      },
+      "files": [
+        {
+          "path": "licenses/python/sentencepiece-0.2.2/sentencepiece/LICENSE",
+          "source_path": "runtime_notices/sentencepiece-0.2.2/sentencepiece/LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+        },
+        {
+          "path": "licenses/python/sentencepiece-0.2.2/sentencepiece/third_party/abseil-cpp/AUTHORS",
+          "source_path": "runtime_notices/sentencepiece-0.2.2/sentencepiece/third_party/abseil-cpp/AUTHORS",
+          "sha256": "1fd39030c119b4c97014f59e0ad0ed65f23475bbdf55a52740f31eb82b34b4ee"
+        },
+        {
+          "path": "licenses/python/sentencepiece-0.2.2/sentencepiece/third_party/abseil-cpp/LICENSE",
+          "source_path": "runtime_notices/sentencepiece-0.2.2/sentencepiece/third_party/abseil-cpp/LICENSE",
+          "sha256": "c79a7fea0e3cac04cd43f20e7b648e5a0ff8fa5344e644b0ee09ca1162b62747"
+        },
+        {
+          "path": "licenses/python/sentencepiece-0.2.2/sentencepiece/third_party/darts_clone/LICENSE",
+          "source_path": "runtime_notices/sentencepiece-0.2.2/sentencepiece/third_party/darts_clone/LICENSE",
+          "sha256": "155f59997298ee336602c49f9c1110f268ac394ca2197eb02647a3555935ad52"
+        },
+        {
+          "path": "licenses/python/sentencepiece-0.2.2/sentencepiece/third_party/esaxx/LICENSE",
+          "source_path": "runtime_notices/sentencepiece-0.2.2/sentencepiece/third_party/esaxx/LICENSE",
+          "sha256": "7c28553d1d3312d65fe309f76a22ebaf33a3d76c8c1e3b98a88ee4654ecb53db"
+        },
+        {
+          "path": "licenses/python/sentencepiece-0.2.2/sentencepiece/third_party/protobuf-lite/LICENSE",
+          "source_path": "runtime_notices/sentencepiece-0.2.2/sentencepiece/third_party/protobuf-lite/LICENSE",
+          "sha256": "6e5e117324afd944dcf67f36cf329843bc1a92229a8cd9bb573d7a83130fea7d"
+        }
+      ]
+    },
+    "sherpa-onnx-core==1.13.8": {
+      "license": "Apache-2.0",
+      "source": "https://raw.githubusercontent.com/k2-fsa/sherpa-onnx/11afbd009a7f8c08f4bcf2fc1b265d0df4670fbf/LICENSE",
+      "provenance": {
+        "type": "git",
+        "repository": "https://github.com/k2-fsa/sherpa-onnx",
+        "revision": "11afbd009a7f8c08f4bcf2fc1b265d0df4670fbf",
+        "tag": "v1.13.8"
+      },
+      "files": [
+        {
+          "path": "licenses/python/sherpa-onnx-core-1.13.8/LICENSE",
+          "source_path": "runtime_notices/sherpa-onnx-core-1.13.8/LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+        }
+      ]
+    },
+    "tokenizers==0.23.1": {
+      "license": "Apache-2.0",
+      "source": "https://raw.githubusercontent.com/huggingface/tokenizers/7f1623b90b5adfb9bc327d4c3468d2f70bbce262/LICENSE",
+      "provenance": {
+        "type": "git",
+        "repository": "https://github.com/huggingface/tokenizers",
+        "revision": "7f1623b90b5adfb9bc327d4c3468d2f70bbce262",
+        "tag": "v0.23.1"
+      },
+      "files": [
+        {
+          "path": "licenses/python/tokenizers-0.23.1/LICENSE",
+          "source_path": "runtime_notices/tokenizers-0.23.1/LICENSE",
+          "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+        }
+      ]
+    },
+    "winrt-runtime==3.2.1": {
+      "license": "MIT",
+      "source": "https://raw.githubusercontent.com/pywinrt/pywinrt/21cbd0fd7ff91422ed76b4e3611d3fb52716e017/LICENSE",
+      "provenance": {
+        "type": "git",
+        "repository": "https://github.com/pywinrt/pywinrt",
+        "revision": "21cbd0fd7ff91422ed76b4e3611d3fb52716e017",
+        "tag": "v3.2.1"
+      },
+      "files": [
+        {
+          "path": "licenses/python/winrt-runtime-3.2.1/LICENSE",
+          "source_path": "runtime_notices/winrt-runtime-3.2.1/LICENSE",
+          "sha256": "6e898069e8b3c6d8d23dc70ac7067cc2b7c9db14c36df873026758db82c0891d"
+        }
+      ]
+    },
+    "winrt-windows.applicationmodel==3.2.1": {
+      "license": "MIT",
+      "source": "https://raw.githubusercontent.com/pywinrt/pywinrt/21cbd0fd7ff91422ed76b4e3611d3fb52716e017/LICENSE",
+      "provenance": {
+        "type": "git",
+        "repository": "https://github.com/pywinrt/pywinrt",
+        "revision": "21cbd0fd7ff91422ed76b4e3611d3fb52716e017",
+        "tag": "v3.2.1"
+      },
+      "files": [
+        {
+          "path": "licenses/python/winrt-windows.applicationmodel-3.2.1/LICENSE",
+          "source_path": "runtime_notices/winrt-windows.applicationmodel-3.2.1/LICENSE",
+          "sha256": "6e898069e8b3c6d8d23dc70ac7067cc2b7c9db14c36df873026758db82c0891d"
+        }
+      ]
+    },
+    "winrt-windows.foundation.collections==3.2.1": {
+      "license": "MIT",
+      "source": "https://raw.githubusercontent.com/pywinrt/pywinrt/21cbd0fd7ff91422ed76b4e3611d3fb52716e017/LICENSE",
+      "provenance": {
+        "type": "git",
+        "repository": "https://github.com/pywinrt/pywinrt",
+        "revision": "21cbd0fd7ff91422ed76b4e3611d3fb52716e017",
+        "tag": "v3.2.1"
+      },
+      "files": [
+        {
+          "path": "licenses/python/winrt-windows.foundation.collections-3.2.1/LICENSE",
+          "source_path": "runtime_notices/winrt-windows.foundation.collections-3.2.1/LICENSE",
+          "sha256": "6e898069e8b3c6d8d23dc70ac7067cc2b7c9db14c36df873026758db82c0891d"
+        }
+      ]
+    },
+    "winrt-windows.foundation==3.2.1": {
+      "license": "MIT",
+      "source": "https://raw.githubusercontent.com/pywinrt/pywinrt/21cbd0fd7ff91422ed76b4e3611d3fb52716e017/LICENSE",
+      "provenance": {
+        "type": "git",
+        "repository": "https://github.com/pywinrt/pywinrt",
+        "revision": "21cbd0fd7ff91422ed76b4e3611d3fb52716e017",
+        "tag": "v3.2.1"
+      },
+      "files": [
+        {
+          "path": "licenses/python/winrt-windows.foundation-3.2.1/LICENSE",
+          "source_path": "runtime_notices/winrt-windows.foundation-3.2.1/LICENSE",
+          "sha256": "6e898069e8b3c6d8d23dc70ac7067cc2b7c9db14c36df873026758db82c0891d"
+        }
+      ]
+    },
+    "winrt-windows.services.store==3.2.1": {
+      "license": "MIT",
+      "source": "https://raw.githubusercontent.com/pywinrt/pywinrt/21cbd0fd7ff91422ed76b4e3611d3fb52716e017/LICENSE",
+      "provenance": {
+        "type": "git",
+        "repository": "https://github.com/pywinrt/pywinrt",
+        "revision": "21cbd0fd7ff91422ed76b4e3611d3fb52716e017",
+        "tag": "v3.2.1"
+      },
+      "files": [
+        {
+          "path": "licenses/python/winrt-windows.services.store-3.2.1/LICENSE",
+          "source_path": "runtime_notices/winrt-windows.services.store-3.2.1/LICENSE",
+          "sha256": "6e898069e8b3c6d8d23dc70ac7067cc2b7c9db14c36df873026758db82c0891d"
+        }
+      ]
+    }
+  }
+}

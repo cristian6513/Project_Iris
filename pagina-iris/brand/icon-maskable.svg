@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Fondo a sangre y glifo dentro de la zona segura (80 % central) para iconos enmascarables. -->
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="48%" r="58%">
+      <stop offset="0" stop-color="#73f7ff" stop-opacity="0.32"/>
+      <stop offset="0.7" stop-color="#020711"/>
+    </radialGradient>
+    <linearGradient id="stroke" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#73f7ff"/>
+      <stop offset="1" stop-color="#ff74d4"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" fill="#020711"/>
+  <rect width="64" height="64" fill="url(#glow)"/>
+  <g transform="translate(15.2 15.2) scale(0.7)" fill="none" stroke="url(#stroke)" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M24 6l14 8v20l-14 8-14-8V14l14-8z"/>
+    <path d="M24 16l7 4v8l-7 4-7-4v-8l7-4z"/>
+    <path d="M24 6v10m0 16v10"/>
+  </g>
+</svg>

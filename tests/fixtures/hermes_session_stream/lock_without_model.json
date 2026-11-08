@@ -1,0 +1,11 @@
+{
+ "status": 400,
+ "body": {
+  "error": {
+   "message": "require_model_lock was set but no model/provider was provided",
+   "type": "invalid_request_error",
+   "param": null,
+   "code": "missing_model"
+  }
+ }
+}

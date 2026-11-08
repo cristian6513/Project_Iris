@@ -1,0 +1,775 @@
+<!doctype html>
+<html lang="es" class="no-js" data-theme="iris">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>IRIS OS — Asistente de IA con voz, memoria y avatar 3D</title>
+    <meta name="description" content="IRIS OS es un asistente de IA gratuito con voz, memoria, avatar 3D y escritorio propio, que funciona en tu PC. Cámara y micrófono apagados por defecto.">
+    <meta name="theme-color" content="#020711">
+    <meta name="color-scheme" content="dark">
+
+    <!-- seo:start · build.mjs convierte estas rutas relativas en URLs absolutas con siteUrl
+         y añade los perfiles de redes de site.config.json (sameAs y twitter:site) -->
+    <link rel="canonical" href="./">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="IRIS OS">
+    <meta property="og:locale" content="es_LA">
+    <meta property="og:title" content="IRIS OS — Una IA que puedes ver, escuchar y hacer tuya">
+    <meta property="og:description" content="Asistente de IA con voz, memoria, avatar 3D y un escritorio propio. Nada se enciende sin ti.">
+    <meta property="og:url" content="./">
+    <meta property="og:image" content="assets/og-image.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="IRIS OS: una IA que puedes ver, escuchar y hacer tuya.">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="assets/og-image.jpg">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "Organization",
+                "@id": "./#organization",
+                "name": "IRIS OS",
+                "alternateName": "Project IRIS",
+                "url": "./",
+                "logo": "assets/icon-512.png",
+                "sameAs": []
+            },
+            {
+                "@type": "WebSite",
+                "@id": "./#website",
+                "name": "IRIS OS",
+                "url": "./",
+                "inLanguage": "es",
+                "publisher": { "@id": "./#organization" }
+            },
+            {
+                "@type": "SoftwareApplication",
+                "@id": "./#app",
+                "name": "IRIS OS",
+                "alternateName": "IRIS",
+                "description": "Asistente de IA con voz, memoria, avatar 3D y un escritorio propio, que funciona en tu PC.",
+                "disambiguatingDescription": "Asistente de IA de escritorio con avatar VRM, voz, memoria y un escritorio propio en tu equipo; integra Hermes Agent, de Nous Research, como motor de IA.",
+                "applicationCategory": "UtilitiesApplication",
+                "operatingSystem": "Windows 10, Windows 11 (64 bits)",
+                "softwareVersion": "0.9.2",
+                "license": "https://opensource.org/licenses/MIT",
+                "isAccessibleForFree": true,
+                "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+                "featureList": [
+                    "Voz: habla con IRIS y escúchala responder",
+                    "Memoria e identidad propias",
+                    "Avatar 3D VRM y habitación",
+                    "Escritorio IRIS OS con apps y temas",
+                    "Desktop Companion para Windows",
+                    "Micrófono, cámara y red apagados hasta que tú los permitas"
+                ],
+                "inLanguage": "es",
+                "url": "./",
+                "image": "assets/og-image.jpg",
+                "publisher": { "@id": "./#organization" }
+            }
+        ]
+    }
+    </script>
+    <!-- seo:end -->
+
+    <link rel="icon" href="favicon.ico" sizes="32x32">
+    <link rel="icon" href="assets/icon-192.png" type="image/png" sizes="192x192">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <link rel="manifest" href="site.webmanifest">
+
+    <link rel="preload" href="fonts/syne-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="fonts/outfit-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="assets/wall-city.webp" as="image">
+    <link rel="stylesheet" href="css/iris-site.css">
+
+    <script src="js/boot.js"></script>
+    <script src="js/iris-site.js" defer></script>
+</head>
+<body>
+    <a class="skip-link" href="#apps" data-open="que-es">Saltar al contenido</a>
+
+    <!-- Iconos: mismo set de trazos que osIcon() en face/js/hermes_activity.js -->
+    <svg class="sprite" aria-hidden="true" focusable="false">
+        <symbol id="i-core" viewBox="0 0 24 24"><path d="M12 3l7 4v10l-7 4-7-4V7l7-4z"/><path d="M12 8l3.5 2v4L12 16l-3.5-2v-4L12 8z"/><path d="M12 3v5m0 8v5"/></symbol>
+        <symbol id="i-desktop" viewBox="0 0 24 24"><path d="M4 5h16v10H4z"/><path d="M9 19h6m-3-4v4"/><path d="M7 8h4m-4 3h7"/></symbol>
+        <symbol id="i-activity" viewBox="0 0 24 24"><path d="M4 13h3l2-6 4 10 2-5h5"/><path d="M5 19h14"/><path d="M5 5h14"/></symbol>
+        <symbol id="i-doctor" viewBox="0 0 24 24"><path d="M7 4h10l3 3v13H4V4h3z"/><path d="M8 9h8M8 13h4"/><path d="M15 15l1.3 1.3L20 12.5"/></symbol>
+        <symbol id="i-voice" viewBox="0 0 24 24"><path d="M12 4a3 3 0 0 0-3 3v4a3 3 0 0 0 6 0V7a3 3 0 0 0-3-3z"/><path d="M5 10a7 7 0 0 0 14 0M12 17v4"/></symbol>
+        <symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8h4l1.5-2h5L16 8h4v10H4z"/><circle cx="12" cy="13" r="3"/></symbol>
+        <symbol id="i-skills" viewBox="0 0 24 24"><path d="M12 3l2.2 5 5.3.5-4 3.5 1.2 5.2L12 14.5 7.3 17.2 8.5 12l-4-3.5 5.3-.5L12 3z"/></symbol>
+        <symbol id="i-gateway" viewBox="0 0 24 24"><path d="M4 12h5m6 0h5"/><circle cx="12" cy="12" r="3"/><path d="M7 7a7 7 0 0 1 10 0M7 17a7 7 0 0 0 10 0"/></symbol>
+        <symbol id="i-palette" viewBox="0 0 24 24"><path d="M12 3a9 9 0 0 0 0 18h1.4a2.1 2.1 0 0 0 1.5-3.58 1.2 1.2 0 0 1 .85-2.05H17a4 4 0 0 0 4-4C21 6.75 16.97 3 12 3z"/><circle cx="7.8" cy="10.1" r=".8"/><circle cx="10.2" cy="7.4" r=".8"/><circle cx="13.5" cy="7.3" r=".8"/><circle cx="16.2" cy="9.8" r=".8"/></symbol>
+        <symbol id="i-apps" viewBox="0 0 24 24"><rect x="4" y="4" width="6" height="6" rx="1.4"/><rect x="14" y="4" width="6" height="6" rx="1.4"/><rect x="4" y="14" width="6" height="6" rx="1.4"/><rect x="14" y="14" width="6" height="6" rx="1.4"/></symbol>
+        <symbol id="i-marketplace" viewBox="0 0 24 24"><path d="M5 8h14l-1 12H6L5 8z"/><path d="M9 9V6a3 3 0 0 1 6 0v3"/><path d="M8 13h8M10 16h4"/></symbol>
+        <symbol id="i-player" viewBox="0 0 24 24"><path d="M8 18V6l10-2v12"/><circle cx="6" cy="18" r="2.5"/><circle cx="16" cy="16" r="2.5"/><path d="M8 9l10-2"/></symbol>
+        <symbol id="i-continuity" viewBox="0 0 24 24"><circle cx="7" cy="7" r="2.5"/><circle cx="17" cy="7" r="2.5"/><circle cx="12" cy="17" r="2.5"/><path d="M9.2 8.1l2 6.3m3.6 0l2-6.3M9.5 7h5"/></symbol>
+        <symbol id="i-permissions" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.8-2.8 8.2-7 10-4.2-1.8-7-5.2-7-10V6l7-3z"/><path d="M9 12l2 2 4-5"/></symbol>
+        <symbol id="i-notifications" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></symbol>
+        <symbol id="i-routines" viewBox="0 0 24 24"><path d="M12 7v5l3 2"/><path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3"/><path d="M4 5v4h4"/></symbol>
+        <symbol id="i-tools" viewBox="0 0 24 24"><path d="M14.5 5.5l4 4-9 9H5.5v-4l9-9z"/><path d="M13 7l4 4"/><path d="M5 6h4M6 5v4"/></symbol>
+        <symbol id="i-identity" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c.8-3.6 3.6-5.5 7-5.5s6.2 1.9 7 5.5"/></symbol>
+        <symbol id="i-cube" viewBox="0 0 24 24"><path d="M4 7.5 12 3l8 4.5v9L12 21l-8-4.5v-9Z"/><path d="M12 12 4.5 7.8M12 12l7.5-4.2M12 12v8.5"/></symbol>
+        <symbol id="i-companion" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="13" rx="2"/><circle cx="15.5" cy="10.5" r="2.6"/><path d="M8 21h8M12 17v4M6.5 8.5h4M6.5 11.5h3"/></symbol>
+        <symbol id="i-terminal" viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="15" rx="2"/><path d="m7 9.5 3 2.5-3 2.5M12.5 15H17"/></symbol>
+        <symbol id="i-community" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3.5 19c.6-3 2.8-4.8 5.5-4.8s4.9 1.8 5.5 4.8"/><circle cx="17" cy="9" r="2.4"/><path d="M15.5 14.4c2.4.1 4.3 1.7 4.9 4.6"/></symbol>
+        <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></symbol>
+        <symbol id="i-share" viewBox="0 0 24 24"><circle cx="6" cy="12" r="2.5"/><circle cx="17" cy="6" r="2.5"/><circle cx="17" cy="18" r="2.5"/><path d="m8.2 10.8 6.6-3.6M8.2 13.2l6.6 3.6"/></symbol>
+        <symbol id="i-code" viewBox="0 0 24 24"><path d="m9 8-4 4 4 4M15 8l4 4-4 4M13.5 5l-3 14"/></symbol>
+        <symbol id="i-idea" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V16h5v-.1c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/></symbol>
+        <symbol id="i-vote" viewBox="0 0 24 24"><path d="M12 19V6M6.5 11.5 12 6l5.5 5.5"/></symbol>
+        <symbol id="i-video" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="3.5"/><path d="m10.5 9.5 4 2.5-4 2.5z"/></symbol>
+        <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11m-4.5-4.5L12 15l4.5-4.5"/><path d="M5 19h14"/></symbol>
+        <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.3a2.5 2.5 0 0 1 4.8 1c0 1.7-2.4 2.2-2.4 3.7"/><path d="M12 17.2h.01"/></symbol>
+        <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.2 4.2L19 7"/></symbol>
+        <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+        <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5.5A1.5 1.5 0 0 0 14.5 4h-9A1.5 1.5 0 0 0 4 5.5v9A1.5 1.5 0 0 0 5.5 16H8"/></symbol>
+        <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="m20 20-4.2-4.2"/></symbol>
+        <symbol id="i-min" viewBox="0 0 24 24"><path d="M6 12h12"/></symbol>
+        <symbol id="i-max" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="1.5"/></symbol>
+        <symbol id="i-close" viewBox="0 0 24 24"><path d="M7 7l10 10M17 7 7 17"/></symbol>
+    </svg>
+
+    <!-- Arranque: solo con JS, se omite con movimiento reducido o en la misma sesión -->
+    <div class="boot" id="boot" aria-hidden="true">
+        <div class="boot-core">
+            <div class="boot-ring"><svg class="ico"><use href="#i-core"/></svg></div>
+            <div class="boot-title">IRIS OS</div>
+            <ul class="boot-lines">
+                <li><span>› Cargando presentación de IRIS</span><b>OK</b></li>
+                <li><span>› Preparando secciones</span><b>OK</b></li>
+                <li><span>› Aplicando identidad y tema</span><b>OK</b></li>
+                <li><span>› Abriendo escritorio web</span><b>OK</b></li>
+            </ul>
+            <div class="boot-bar"><i></i></div>
+            <span class="boot-skip">Clic para omitir</span>
+        </div>
+    </div>
+
+    <div class="desktop" id="desktop">
+        <div class="wall-host" aria-hidden="true"><div class="wallpaper" data-wallpaper></div></div>
+        <div class="shade" aria-hidden="true"></div>
+        <div class="grain" aria-hidden="true"></div>
+
+        <header class="topbar">
+            <a class="brand" href="./" aria-label="IRIS OS, inicio">
+                <span class="os-mark"><svg class="ico"><use href="#i-core"/></svg></span>
+                <strong>IRIS OS</strong>
+            </a>
+
+            <div class="top-status" aria-hidden="true">
+                <span class="status-dot"></span>
+                <strong data-status-readout>En espera</strong>
+            </div>
+
+            <div class="top-actions">
+                <div class="metrics" aria-hidden="true">
+                    <small data-clock-date>—</small>
+                    <strong data-clock-time>--:--</strong>
+                </div>
+                <button class="icon-btn" type="button" data-tour-start aria-label="Cómo funciona esta página" title="Cómo funciona"><svg class="ico"><use href="#i-help"/></svg></button>
+                <button class="icon-btn" type="button" data-launcher aria-label="Abrir todas las apps" aria-controls="launcher" aria-expanded="false" title="Apps (Ctrl+K)"><svg class="ico"><use href="#i-apps"/></svg></button>
+            </div>
+        </header>
+
+        <main class="home" id="home">
+            <section class="hero" aria-labelledby="hero-title">
+                <span class="hero-kicker"><i></i>Beta en desarrollo · v0.9.2</span>
+                <h1 id="hero-title"><span class="h1-iris">IRIS</span><span class="h1-os">OS</span></h1>
+                <p class="lede">Una IA que puedes ver, escuchar y hacer tuya.</p>
+                <p class="sub">IRIS combina voz, memoria, avatar, herramientas y un escritorio propio, y funciona en tu PC. El acceso público todavía está en preparación.</p>
+                <div class="hero-actions">
+                    <a class="btn primary" href="#que-es" data-open="que-es">Conocer IRIS <svg class="ico"><use href="#i-arrow"/></svg></a>
+                    <a class="btn" href="#funciones" data-open="funciones">Ver qué puede hacer</a>
+                </div>
+                <ul class="hero-chips" aria-label="Datos técnicos">
+                    <li><b>Gratis</b></li>
+                    <li><b>Hermes</b> 0.21</li>
+                    <li><b>Windows</b> 10/11</li>
+                    <li><b>Local</b> primero</li>
+                    <li><b>MIT</b></li>
+                </ul>
+            </section>
+
+            <div class="home-side">
+                <aside class="profile" aria-label="Perfil de IRIS">
+                    <div class="face" role="img" aria-label="Retrato de IRIS"></div>
+                    <strong>IRIS</strong>
+                    <span>Copiloto digital</span>
+                    <span class="profile-status"><i></i>Lista para conocerte</span>
+                    <p>Nada se enciende sin ti: el micrófono y la cámara vienen apagados.</p>
+                    <button class="profile-link" type="button" data-open="privacidad">Ver privacidad <svg class="ico"><use href="#i-arrow"/></svg></button>
+                </aside>
+
+                <!-- Accesos del inicio: el mismo mosaico de IRIS OS -->
+                <nav class="home-tiles" aria-label="Accesos del inicio">
+                    <button type="button" data-open="estado" data-accent="cyan"><span class="os-icon"><svg><use href="#i-activity"/></svg></span><strong>Estado</strong></button>
+                    <button type="button" data-open="preguntas" data-accent="amber"><span class="os-icon"><svg><use href="#i-help"/></svg></span><strong>Preguntas</strong></button>
+                    <button type="button" data-open="arquitectura" data-accent="cyan"><span class="os-icon"><svg><use href="#i-gateway"/></svg></span><strong>Arquitectura</strong></button>
+                    <button type="button" data-open="historia" data-accent="magenta"><span class="os-icon"><svg><use href="#i-routines"/></svg></span><strong>Historia</strong></button>
+                </nav>
+            </div>
+
+            <div class="window-layer" id="window-layer"></div>
+
+            <section class="launcher" id="launcher" aria-label="Todas las apps" aria-hidden="true">
+                <header>
+                    <div>
+                        <span>Apps</span>
+                        <strong>Todo IRIS OS en un lugar</strong>
+                    </div>
+                    <button class="launcher-close" type="button" data-launcher-close aria-label="Cerrar apps"><svg class="ico"><use href="#i-close"/></svg></button>
+                </header>
+                <label class="launcher-search">
+                    <svg class="ico"><use href="#i-search"/></svg>
+                    <input type="search" placeholder="Buscar una app…" autocomplete="off" data-launcher-search aria-label="Buscar una app">
+                    <kbd>Esc</kbd>
+                </label>
+                <div class="launcher-body" data-launcher-body></div>
+                <p class="launcher-empty" data-launcher-empty hidden>Ninguna app coincide con esa búsqueda.</p>
+                <button class="store-teaser" type="button" data-open="comunidad">
+                    <span class="os-icon"><svg><use href="#i-marketplace"/></svg></span>
+                    <span><strong>Iris Store · En la beta</strong><small>Instala tus paquetes de apps. El catálogo comunitario en línea está en preparación.</small></span>
+                </button>
+            </section>
+
+            <nav class="tabstrip" id="tabstrip" aria-label="Ventanas abiertas"></nav>
+
+            <nav class="dock" aria-label="Dock de IRIS OS">
+                <button type="button" data-launcher data-accent="cyan" aria-controls="launcher" aria-expanded="false">
+                    <span class="os-icon"><svg><use href="#i-apps"/></svg></span><strong>Apps</strong>
+                </button>
+                <span class="dock-sep" aria-hidden="true"></span>
+                <div class="dock-route" role="group" aria-label="Empieza aquí: ruta recomendada">
+                    <span class="dock-route-label" aria-hidden="true">Empieza aquí</span>
+                    <button type="button" data-open="que-es" data-accent="cyan">
+                        <span class="route-badge" data-route-badge="que-es">1</span>
+                        <span class="os-icon"><svg><use href="#i-core"/></svg></span><strong>Qué es IRIS</strong>
+                    </button>
+                    <button type="button" data-open="funciones" data-accent="magenta">
+                        <span class="route-badge" data-route-badge="funciones">2</span>
+                        <span class="os-icon"><svg><use href="#i-skills"/></svg></span><strong>Funciones</strong>
+                    </button>
+                    <button type="button" data-open="instalar" data-accent="cyan">
+                        <span class="route-badge" data-route-badge="instalar">3</span>
+                        <span class="os-icon"><svg><use href="#i-terminal"/></svg></span><strong>Instalar</strong>
+                    </button>
+                </div>
+                <span class="dock-sep" aria-hidden="true"></span>
+                <button type="button" data-open="companion" data-accent="amber">
+                    <span class="os-icon"><svg><use href="#i-companion"/></svg></span><strong>Companion</strong>
+                </button>
+                <button type="button" data-open="privacidad" data-accent="amber">
+                    <span class="os-icon"><svg><use href="#i-permissions"/></svg></span><strong>Privacidad</strong>
+                </button>
+                <button type="button" data-open="temas" data-accent="magenta">
+                    <span class="os-icon"><svg><use href="#i-palette"/></svg></span><strong>Temas</strong>
+                </button>
+            </nav>
+
+            <div class="pulse" aria-hidden="true">
+                <span>Runtime Pulse</span>
+                <strong data-pulse>0 apps</strong>
+                <i></i>
+            </div>
+        </main>
+    </div>
+
+    <!-- Mini tutorial: se muestra la primera vez y se repite con el botón «?» -->
+    <div class="tour" id="tour" hidden>
+        <div class="tour-spot" aria-hidden="true"></div>
+        <section class="tour-card" role="dialog" aria-modal="true" aria-labelledby="tour-title" aria-describedby="tour-text">
+            <span class="tour-step" data-tour-step>Paso 1 de 4</span>
+            <h2 id="tour-title" data-tour-title></h2>
+            <p id="tour-text" data-tour-text></p>
+            <div class="tour-foot">
+                <div class="tour-dots" data-tour-dots aria-hidden="true"></div>
+                <div class="tour-actions">
+                    <button class="tour-skip" type="button" data-tour-skip>Saltar</button>
+                    <button class="btn primary" type="button" data-tour-next>Siguiente</button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!--
+        Contenido de las apps. Con JS cada <article> se monta dentro de una
+        ventana de IRIS OS; sin JS se muestran como una página normal.
+          data-app    slug y enlace directo (#slug)
+          data-group  sección del launcher: start, discover, deep, community
+          data-route  paso de la ruta recomendada (1–3)
+          data-next   app sugerida en el pie «Qué hago después»
+          data-tag    etiqueta opcional (p. ej. Técnico)
+    -->
+    <div class="apps-fallback" id="apps">
+
+        <article class="app" id="que-es" data-app="que-es" data-title="Qué es IRIS" data-subtitle="Entiéndela en un minuto" data-icon="core" data-accent="cyan" data-size="m" data-group="start" data-route="1" data-next="funciones">
+            <p class="kicker">IRIS OS / Qué es</p>
+            <h2 class="app-title">Un agente con un lugar propio.</h2>
+            <p class="lede">IRIS es una asistente de IA con cara, voz y memoria, que funciona en tu propio equipo.</p>
+            <blockquote>¿Qué ocurre cuando un agente también tiene un espacio, apariencia, voz, memoria e identidad?</blockquote>
+
+            <h4>Cómo funciona, en 4 piezas</h4>
+            <ol class="layers">
+                <li><span><strong>El motor de IA</strong> conecta los modelos con sus herramientas y servicios.<small>Hermes Agent · modelos · tools · skills</small></span></li>
+                <li><span><strong>IRIS Core</strong> le da identidad, memoria y voz.<small>identidad · memoria · STT/TTS · superficies</small></span></li>
+                <li><span><strong>IRIS OS</strong> la convierte en un escritorio con avatar que puedes ver.<small>escritorio · avatar VRM · apps</small></span></li>
+                <li><span><strong>El wizard</strong> lo prepara todo según tu equipo.<small>detecta SO, GPU y proveedor, y prepara el motor de IA</small></span></li>
+            </ol>
+
+            <div class="in-short">
+                <span class="kicker">En pocas palabras</span>
+                <p>El motor de IA hace el trabajo del agente. IRIS le da cara, voz, memoria y un escritorio donde convivir con él.</p>
+            </div>
+        </article>
+
+        <article class="app" id="funciones" data-app="funciones" data-title="Funciones" data-subtitle="Lo que puede hacer" data-icon="skills" data-accent="magenta" data-size="l" data-group="start" data-route="2" data-next="instalar">
+            <p class="kicker">IRIS OS / Funciones</p>
+            <h2 class="app-title">Todo lo que trae IRIS.</h2>
+            <p class="lede">Funciones incluidas en la beta, todavía en pruebas. Lo que depende de hardware, cuentas o servicios externos es opcional.</p>
+
+            <section class="feat-group" aria-labelledby="fg-exp">
+                <h3 class="feat-label" id="fg-exp"><i></i>Experiencia</h3>
+                <div class="feat-grid">
+                    <section class="card feat" data-accent="cyan">
+                        <span class="os-icon"><svg><use href="#i-desktop"/></svg></span>
+                        <h3>Escritorio IRIS OS</h3>
+                        <p>Chat, cajón de aplicaciones y un Inicio que haces tuyo: añade accesos y widgets, arrástralos y cambia el tema, la tipografía o las transiciones.</p>
+                        <button class="feat-link" type="button" data-open="temas">Probar los temas <svg class="ico"><use href="#i-arrow"/></svg></button>
+                    </section>
+                    <section class="card feat" data-accent="magenta">
+                        <span class="os-icon"><svg><use href="#i-identity"/></svg></span>
+                        <h3>Personalidad</h3>
+                        <p>Dale nombre, carácter e historia. Combina rasgos o parte de una plantilla.</p>
+                    </section>
+                    <section class="card feat" data-accent="cyan">
+                        <span class="os-icon"><svg><use href="#i-voice"/></svg></span>
+                        <h3>Voz</h3>
+                        <p>Habla con IRIS y escucha sus respuestas. La activación por voz viene apagada.</p>
+                    </section>
+                    <section class="card feat" data-accent="magenta">
+                        <span class="os-icon"><svg><use href="#i-cube"/></svg></span>
+                        <h3>Avatar y habitación</h3>
+                        <p>Un avatar 3D con emociones y gestos, en una habitación que cambia con el tema.</p>
+                    </section>
+                    <section class="card feat" data-accent="amber">
+                        <span class="os-icon"><svg><use href="#i-companion"/></svg></span>
+                        <h3>Desktop Companion</h3>
+                        <p>IRIS en una ventana flotante de Windows, presente mientras trabajas.</p>
+                        <button class="feat-link" type="button" data-open="companion">Conocerlo <svg class="ico"><use href="#i-arrow"/></svg></button>
+                    </section>
+                </div>
+            </section>
+
+            <section class="feat-group" aria-labelledby="fg-sys">
+                <h3 class="feat-label" id="fg-sys"><i></i>Tu día a día y el sistema</h3>
+                <div class="feat-grid">
+                    <section class="card feat" data-accent="magenta">
+                        <span class="os-icon"><svg><use href="#i-routines"/></svg></span>
+                        <h3>Calendario</h3>
+                        <p>Consulta tus eventos de Google y recibe recordatorios. Añade un widget al Inicio y activa la preparación de reuniones con IA si la necesitas.</p>
+                    </section>
+                    <section class="card feat" data-accent="cyan">
+                        <span class="os-icon"><svg><use href="#i-notifications"/></svg></span>
+                        <h3>Correo</h3>
+                        <p>Consulta Gmail y lee los mensajes como texto, sin cargar imágenes remotas. La clasificación con IA se activa solo si tú la eliges.</p>
+                    </section>
+                    <section class="card feat" data-accent="amber">
+                        <span class="os-icon"><svg><use href="#i-routines"/></svg></span>
+                        <h3>Automatizaciones</h3>
+                        <p>Prepara tareas para una hora o condición y revisa sus resultados en la Bandeja. Tú eliges cuáles habilitas y qué pueden hacer.</p>
+                    </section>
+                    <section class="card feat" data-accent="cyan">
+                        <span class="os-icon"><svg><use href="#i-download"/></svg></span>
+                        <h3>Instalación guiada</h3>
+                        <p>Revisa tu equipo y prepara una instalación que funcione en él, sin suposiciones.</p>
+                        <button class="feat-link" type="button" data-open="instalar">Ver cómo <svg class="ico"><use href="#i-arrow"/></svg></button>
+                    </section>
+                    <section class="card feat" data-accent="cyan">
+                        <span class="os-icon"><svg><use href="#i-doctor"/></svg></span>
+                        <h3>Diagnóstico</h3>
+                        <p>Si algo falla, te dice qué parte es y cómo repararla.</p>
+                    </section>
+                    <section class="card feat" data-accent="cyan">
+                        <span class="os-icon"><svg><use href="#i-continuity"/></svg></span>
+                        <h3>Perfiles y sesiones</h3>
+                        <p>Ordena tus perfiles y conversaciones sin mezclar contextos ni duplicar memoria.</p>
+                    </section>
+                    <section class="card feat" data-accent="magenta">
+                        <span class="os-icon"><svg><use href="#i-notifications"/></svg></span>
+                        <h3>Notificaciones</h3>
+                        <p>Avisos discretos que nunca abren el chat ni actúan por su cuenta.</p>
+                    </section>
+                    <section class="card feat" data-accent="magenta">
+                        <span class="os-icon"><svg><use href="#i-player"/></svg></span>
+                        <h3>IRIS Player</h3>
+                        <p>Tu música local, de la carpeta que elijas. Funciona incluso sin el motor de IA.</p>
+                    </section>
+                </div>
+            </section>
+
+            <section class="feat-group" aria-labelledby="fg-ext">
+                <h3 class="feat-label" id="fg-ext"><i></i>Extensiones y seguridad</h3>
+                <div class="feat-grid">
+                    <section class="card feat" data-accent="amber">
+                        <span class="os-icon"><svg><use href="#i-permissions"/></svg></span>
+                        <h3>Permisos</h3>
+                        <p>Decide qué puede usar IRIS: bloquear, preguntar o permitir cada capacidad.</p>
+                        <button class="feat-link" type="button" data-open="privacidad">Ver privacidad <svg class="ico"><use href="#i-arrow"/></svg></button>
+                    </section>
+                    <section class="card feat" data-accent="magenta">
+                        <span class="os-icon"><svg><use href="#i-marketplace"/></svg></span>
+                        <h3>Skills y MCP</h3>
+                        <p>Amplía las herramientas del agente desde su catálogo. Es distinto de Iris Store, que instala las apps del escritorio.</p>
+                    </section>
+                    <section class="card feat" data-accent="cyan">
+                        <span class="os-icon"><svg><use href="#i-gateway"/></svg></span>
+                        <h3>Conexiones de Google</h3>
+                        <p>Conecta Calendar y Gmail para consultarlos desde Iris. Usa tu propio cliente OAuth de Google Cloud y revisa o retira los permisos desde Conexiones.</p>
+                    </section>
+                    <section class="card feat" data-accent="magenta">
+                        <span class="os-icon"><svg><use href="#i-marketplace"/></svg></span>
+                        <h3>Iris Store</h3>
+                        <p>Instala, actualiza y quita paquetes de apps propias, con sus widgets y funciones para Iris. El catálogo comunitario en línea sigue en preparación.</p>
+                    </section>
+                </div>
+            </section>
+        </article>
+
+        <article class="app" id="instalar" data-app="instalar" data-title="Instalar" data-subtitle="Cómo probarla" data-icon="terminal" data-accent="cyan" data-size="m" data-group="start" data-route="3" data-next="companion">
+            <p class="kicker">IRIS OS / Instalar</p>
+            <h2 class="app-title">Prueba IRIS en tu equipo.</h2>
+            <p class="lede">El instalador para Windows está en preparación.</p>
+
+            <div class="download-card">
+                <span class="os-icon"><svg><use href="#i-download"/></svg></span>
+                <div>
+                    <h3>Descargar IRIS para Windows</h3>
+                    <p>El paquete incluye Python y el motor de IA. Requiere WebView2; si falta, el instalador te indica cómo obtenerlo de Microsoft. Después, el asistente te guía para elegir proveedor, modelo y voz.</p>
+                </div>
+                <button class="btn" type="button" disabled aria-disabled="true">Próximamente</button>
+            </div>
+            <ul class="req-list" aria-label="Requisitos">
+                <li><b>Windows</b> 10 u 11, 64 bits</li>
+                <li><b>Python y motor</b> incluidos</li>
+                <li><b>WebView2</b> necesario</li>
+                <li><b>GPU</b> opcional</li>
+            </ul>
+
+            <p class="note">La descarga pública aún no está disponible. Puedes seguir los avances mientras termina la validación de la beta.</p>
+            <button class="btn" type="button" data-open="comunidad">Seguir novedades <svg class="ico"><use href="#i-arrow"/></svg></button>
+
+            <div class="trust">
+                <span class="os-icon"><svg><use href="#i-permissions"/></svg></span>
+                <p><strong>IRIS no instala modelos locales sin tu permiso.</strong> El wizard nunca instala Ollama ni LM Studio, ni descarga modelos, sin avisarte antes.</p>
+            </div>
+        </article>
+
+        <article class="app" id="companion" data-app="companion" data-title="Desktop Companion" data-subtitle="IRIS mientras trabajas" data-icon="companion" data-accent="amber" data-size="m" data-group="discover" data-next="privacidad">
+            <p class="kicker">IRIS OS / Companion</p>
+            <h2 class="app-title">IRIS, fuera del navegador.</h2>
+            <p class="lede">Lleva a IRIS contigo mientras trabajas, sin mantener abierto el escritorio completo.</p>
+
+            <div class="companion-stage">
+                <div class="c-widget" data-companion-widget data-state="idle">
+                    <div class="c-face" role="img" aria-label="IRIS en el Companion"></div>
+                    <div class="c-fx" aria-hidden="true">
+                        <span class="c-dots"><i></i><i></i><i></i></span>
+                        <span class="c-bars"><i></i><i></i><i></i><i></i><i></i></span>
+                    </div>
+                    <span class="c-chip"><i></i><span data-companion-state>En espera</span></span>
+                    <div class="c-controls" aria-hidden="true">
+                        <span><svg class="ico"><use href="#i-voice"/></svg></span>
+                        <span><svg class="ico"><use href="#i-camera"/></svg></span>
+                    </div>
+                </div>
+                <div>
+                    <ol class="c-steps" aria-label="Estados del Companion">
+                        <li data-c-step="idle">En espera</li>
+                        <li data-c-step="listening">Escucha</li>
+                        <li data-c-step="thinking">Piensa</li>
+                        <li data-c-step="speaking">Habla</li>
+                    </ol>
+                    <ul class="check-list">
+                        <li>Visible solo cuando tú lo decides.</li>
+                        <li>Muestra en todo momento si te escucha, piensa o habla.</li>
+                        <li>Puede moverse por el escritorio, si lo activas.</li>
+                        <li>Micrófono y cámara siempre a la vista.</li>
+                        <li>Instalación recuperable si algo falla.</li>
+                    </ul>
+                </div>
+            </div>
+            <p class="note">Disponible para Windows x64. Las animaciones se adaptan al tamaño de la ventana flotante.</p>
+        </article>
+
+        <article class="app" id="privacidad" data-app="privacidad" data-title="Privacidad" data-subtitle="Tú decides qué se enciende" data-icon="permissions" data-accent="amber" data-size="m" data-group="discover" data-next="temas">
+            <p class="kicker">IRIS OS / Permisos</p>
+            <h2 class="app-title">Nada se enciende sin ti.</h2>
+            <p class="lede">IRIS trata el micrófono, la cámara y la red como permisos, no como funciones que vienen activadas. Estos son los valores por defecto.</p>
+
+            <div class="policy-list">
+                <div class="policy">
+                    <span class="os-icon"><svg><use href="#i-voice"/></svg></span>
+                    <div><h3>Palabra de activación</h3><p>Apagada. Guardar una frase no abre el micrófono.</p></div>
+                    <div class="seg" aria-label="Valor por defecto: Bloquear"><span class="on block">Bloquear</span><span>Preguntar</span><span>Permitir</span></div>
+                </div>
+                <div class="policy">
+                    <span class="os-icon"><svg><use href="#i-camera"/></svg></span>
+                    <div><h3>Cámara y Vision Assistant</h3><p>Apagado y bloqueado. <strong>Procesamiento local:</strong> el vídeo se analiza en tu equipo y nunca se envían imágenes automáticamente.</p></div>
+                    <div class="seg" aria-label="Valor por defecto: Bloquear"><span class="on block">Bloquear</span><span>Preguntar</span><span>Permitir</span></div>
+                </div>
+                <div class="policy">
+                    <span class="os-icon"><svg><use href="#i-identity"/></svg></span>
+                    <div><h3>Contexto emocional</h3><p>Desactivado por defecto. Solo se procesa o comparte si tú lo habilitas.</p></div>
+                    <div class="seg" aria-label="Valor por defecto: Bloquear"><span class="on block">Bloquear</span><span>Preguntar</span><span>Permitir</span></div>
+                </div>
+                <div class="policy">
+                    <span class="os-icon"><svg><use href="#i-gateway"/></svg></span>
+                    <div><h3>Acceso desde la red local</h3><p>IRIS escucha solo en tu equipo. Abrirlo a la LAN es opcional.</p></div>
+                    <div class="seg" aria-label="Valor por defecto: Bloquear"><span class="on block">Bloquear</span><span>Preguntar</span><span>Permitir</span></div>
+                </div>
+                <div class="policy">
+                    <span class="os-icon"><svg><use href="#i-tools"/></svg></span>
+                    <div><h3>Herramientas y MCP</h3><p>Tu política se suma a las aprobaciones del motor de IA. Permitir nunca se salta sus protecciones.</p></div>
+                    <div class="seg" aria-label="Valor por defecto: Preguntar"><span>Bloquear</span><span class="on ask">Preguntar</span><span>Permitir</span></div>
+                </div>
+            </div>
+
+            <p class="note">Para mostrar el estado de los agentes creados por el chat, IRIS consulta en modo de solo lectura el registro local de delegaciones de esa conversación. Esa consulta no importa la memoria general del motor de IA. IRIS Player solo lee la carpeta que tú eliges.</p>
+            <p class="note"><strong>Local primero también depende del modelo que elijas.</strong> Si configuras un proveedor de IA remoto, las solicitudes le envían el contenido necesario para responder. El análisis local de la cámara y el almacenamiento en tu equipo son independientes de ese envío al proveedor.</p>
+            <p class="note">Esta web no usa cookies, analítica ni rastreadores. Solo guarda en tu navegador el tema que eliges y tu avance en la ruta.</p>
+        </article>
+
+        <article class="app" id="temas" data-app="temas" data-title="Theme Studio" data-subtitle="Cambia el ambiente" data-icon="palette" data-accent="magenta" data-size="m" data-group="discover" data-next="historia">
+            <p class="kicker">IRIS OS / Theme Studio</p>
+            <h2 class="app-title">Cada tema cambia fondo, acentos, brillo y transición del escritorio.</h2>
+            <p class="lede">Cyber, Sakura, Hacker y Classic son los mismos temas de IRIS OS.<span class="interactive-only"> Toca uno y mira cómo cambia esta página entera.</span></p>
+
+            <div class="theme-grid" role="group" aria-label="Temas">
+                <button class="theme-card" type="button" data-theme-set="iris" aria-pressed="false">
+                    <span class="thumb"><span class="mini-win"><i></i><i></i><i></i></span></span>
+                    <span class="active-badge">Activo</span>
+                    <span class="apply-hint">Aplicar tema</span>
+                    <span class="theme-meta"><strong>Cyber</strong><span class="swatches"><i></i><i></i></span><small>Neón y futurista · transición directa</small></span>
+                </button>
+                <button class="theme-card" type="button" data-theme-set="rose" aria-pressed="false">
+                    <span class="thumb"><span class="mini-win"><i></i><i></i><i></i></span></span>
+                    <span class="active-badge">Activo</span>
+                    <span class="apply-hint">Aplicar tema</span>
+                    <span class="theme-meta"><strong>Sakura</strong><span class="swatches"><i></i><i></i></span><small>Suave y elegante · transición iris</small></span>
+                </button>
+                <button class="theme-card" type="button" data-theme-set="verdant" aria-pressed="false">
+                    <span class="thumb"><span class="mini-win"><i></i><i></i><i></i></span></span>
+                    <span class="active-badge">Activo</span>
+                    <span class="apply-hint">Aplicar tema</span>
+                    <span class="theme-meta"><strong>Hacker</strong><span class="swatches"><i></i><i></i></span><small>Matrix y terminal · transición glitch</small></span>
+                </button>
+                <button class="theme-card" type="button" data-theme-set="sunrise" aria-pressed="false">
+                    <span class="thumb"><span class="mini-win"><i></i><i></i><i></i></span></span>
+                    <span class="active-badge">Activo</span>
+                    <span class="apply-hint">Aplicar tema</span>
+                    <span class="theme-meta"><strong>Classic</strong><span class="swatches"><i></i><i></i></span><small>Limpio y profesional · transición slide</small></span>
+                </button>
+            </div>
+            <p class="note">En IRIS OS también puedes elegir tus propios colores, fondo y foto de perfil.</p>
+        </article>
+
+        <article class="app" id="estado" data-app="estado" data-title="Estado" data-subtitle="Beta y compatibilidad" data-icon="activity" data-accent="cyan" data-size="m" data-group="discover" data-next="comunidad">
+            <p class="kicker">IRIS OS / Estado</p>
+            <h2 class="app-title">Beta en desarrollo, camino al lanzamiento.</h2>
+            <p class="lede">La beta 0.9.2 está en pruebas. El lanzamiento público llegará cuando todo esté validado con hardware y cuentas reales.</p>
+
+            <div class="stat-row">
+                <div class="card" data-accent="cyan"><b>0.9.2</b><span>versión beta actual</span></div>
+                <div class="card" data-accent="magenta"><b>2.900+</b><span>pruebas automatizadas en Python y JavaScript</span></div>
+                <div class="card" data-accent="amber"><b>2</b><span>sistemas verificados en CI: Windows y Linux</span></div>
+            </div>
+
+            <h4>Compatibilidad</h4>
+            <table class="table">
+                <thead><tr><th>Componente</th><th>Política actual</th></tr></thead>
+                <tbody>
+                    <tr><td>Windows</td><td>Windows 10 u 11 de 64 bits (x64).</td></tr>
+                    <tr><td>Incluido</td><td>Python y el motor de IA (Hermes Agent 0.21): no tienes que instalarlos.</td></tr>
+                    <tr><td>WebView2</td><td>Suele venir con Windows. Si falta, el instalador te avisa y te lleva a la descarga de Microsoft.</td></tr>
+                    <tr><td>GPU</td><td>Opcional; sin ella se recomienda un proveedor remoto.</td></tr>
+                    <tr><td>Companion</td><td>Incluido, Windows x64.</td></tr>
+                    <tr><td>Linux y macOS</td><td>En la hoja de ruta.</td></tr>
+                </tbody>
+            </table>
+
+            <h4>Qué falta validar</h4>
+            <div class="qa-grid">
+                <div class="card" data-accent="cyan"><h3><i></i>Cubierto por pruebas</h3><p>Core, wizard y superficies web, en Windows y Linux.</p></div>
+                <div class="card" data-accent="amber"><h3><i></i>En QA real</h3><p>OAuth, proveedores, micrófono, cámara, GPU, LAN y empaquetado.</p></div>
+            </div>
+        </article>
+
+        <article class="app" id="preguntas" data-app="preguntas" data-title="Preguntas" data-subtitle="Respuestas cortas" data-icon="help" data-accent="amber" data-size="m" data-group="discover" data-next="instalar">
+            <p class="kicker">IRIS OS / Preguntas</p>
+            <h2 class="app-title">Preguntas frecuentes.</h2>
+            <p class="lede">Lo que más se pregunta sobre IRIS OS, en pocas palabras.</p>
+
+            <div class="faq">
+                <section class="card" data-accent="cyan">
+                    <h3>¿Qué es IRIS OS?</h3>
+                    <p>Una asistente de IA con cara, voz y memoria que funciona en tu propio equipo, con un avatar 3D y un escritorio propio.</p>
+                </section>
+                <section class="card" data-accent="magenta">
+                    <h3>¿Es gratis?</h3>
+                    <p>Sí. IRIS seguirá siendo gratuita; apoyarla es opcional. Algunos proveedores externos de IA y voz tienen sus propias cuotas o costes. También hay opciones gratuitas y locales.</p>
+                </section>
+                <section class="card" data-accent="amber">
+                    <h3>¿En qué sistemas funciona?</h3>
+                    <p>En Windows 10 y 11 de 64 bits. Python y el motor de IA están incluidos. WebView2 es necesario y, si falta, el instalador te indica cómo obtenerlo. Los modelos opcionales se descargan al elegirlos. Linux y macOS están en la hoja de ruta.</p>
+                </section>
+                <section class="card" data-accent="cyan">
+                    <h3>¿Necesito una tarjeta gráfica?</h3>
+                    <p>No. La GPU es opcional; sin ella se recomienda un proveedor de IA remoto. El wizard revisa tu equipo y te guía para elegir proveedor y modelo, y nunca instala Ollama ni LM Studio, ni descarga modelos, sin avisarte antes.</p>
+                </section>
+                <section class="card" data-accent="amber">
+                    <h3>¿IRIS me escucha o me ve todo el tiempo?</h3>
+                    <p>No. La palabra de activación, el micrófono y la cámara vienen apagados. Cuando activas la cámara, el vídeo se analiza en tu equipo y nunca se envían imágenes automáticamente.</p>
+                </section>
+                <section class="card" data-accent="amber">
+                    <h3>¿Mis conversaciones salen de mi equipo?</h3>
+                    <p>IRIS escucha solo en tu equipo, y abrirla a la red local es opcional. Local primero también depende del modelo que elijas: si configuras un proveedor de IA remoto, cada solicitud le envía el contenido necesario para responder.</p>
+                </section>
+                <section class="card" data-accent="magenta">
+                    <h3>¿Qué motor de IA usa IRIS?</h3>
+                    <p>IRIS OS es un proyecto independiente que integra Hermes Agent, de Nous Research, como motor de IA. Hermes ejecuta el trabajo del agente, con sus modelos, herramientas y sesiones; IRIS aporta la identidad, la voz, la memoria, el avatar y el escritorio. No es un fork de Hermes.</p>
+                </section>
+                <section class="card" data-accent="cyan">
+                    <h3>¿Cuándo puedo instalarla?</h3>
+                    <p>IRIS está en beta. El instalador para Windows está en preparación, y el lanzamiento público llegará cuando todo esté validado con hardware y cuentas reales.</p>
+                </section>
+                <section class="card" data-accent="magenta">
+                    <h3>¿Esta web me rastrea?</h3>
+                    <p>No. No usa cookies, analítica ni rastreadores; solo guarda en tu navegador el tema que eliges y tu avance en la ruta.</p>
+                </section>
+            </div>
+        </article>
+
+        <article class="app" id="arquitectura" data-app="arquitectura" data-title="Arquitectura" data-subtitle="Cómo está construida" data-icon="gateway" data-accent="cyan" data-size="l" data-group="deep" data-tag="Técnico" data-next="estado">
+            <p class="kicker">IRIS OS / Arquitectura · para desarrolladores</p>
+            <h2 class="app-title">Hermes piensa. IRIS le da presencia.</h2>
+            <p class="lede">No necesitas entender esto para usar IRIS. Si te interesa: IRIS Core es el centro local, habla con el escritorio por WebSocket y con Hermes a través de su Gateway.</p>
+
+            <ul class="arch-legend" aria-label="Leyenda del diagrama">
+                <li data-kind="exp"><i></i>Experiencia</li>
+                <li data-kind="core"><i></i>Core</li>
+                <li data-kind="agent"><i></i>Agente</li>
+                <li data-kind="prov"><i></i>Proveedores</li>
+            </ul>
+
+            <div class="arch-scroll">
+                <svg class="arch" viewBox="0 0 900 340" role="img" aria-labelledby="arch-title arch-desc">
+                    <title id="arch-title">Diagrama de arquitectura de IRIS OS</title>
+                    <desc id="arch-desc">El usuario usa el Wizard, IRIS OS o el Desktop Companion, que forman la experiencia. IRIS OS y el Companion se conectan con IRIS Core en el puerto 8765. IRIS Core habla con Hermes Agent, el agente, mediante su Gateway en el puerto 8642, y Hermes usa los proveedores de modelos y herramientas. El Wizard instala o repara Hermes.</desc>
+
+                    <path class="edge" d="M130 170 C 160 170, 160 68, 190 68"/>
+                    <path class="edge" d="M130 170 H 190"/>
+                    <path class="edge" d="M130 170 C 160 170, 160 272, 190 272"/>
+                    <path class="edge" d="M340 68 C 400 68, 430 110, 470 132"/>
+                    <path class="edge" d="M340 170 H 420"/>
+                    <path class="edge" d="M340 272 C 400 272, 430 230, 470 208"/>
+                    <path class="edge" d="M590 170 H 660"/>
+                    <path class="edge alt" d="M265 40 C 320 -6, 700 -6, 760 132"/>
+                    <path class="edge" d="M760 208 V 262"/>
+
+                    <path class="flow" d="M340 170 H 420"/>
+                    <path class="flow" d="M590 170 H 660"/>
+                    <path class="flow" d="M760 208 V 262"/>
+                    <path class="flow alt" d="M340 272 C 400 272, 430 230, 470 208"/>
+                    <path class="flow alt" d="M265 40 C 320 -6, 700 -6, 760 132"/>
+
+                    <g class="node user"><rect x="20" y="145" width="110" height="50" rx="12"/><text class="t" x="75" y="176" text-anchor="middle">Tú</text></g>
+                    <g class="node exp"><rect x="190" y="40" width="150" height="56" rx="12"/><text class="t" x="205" y="64">Wizard</text><text class="s" x="205" y="83">:8000 · instalación</text></g>
+                    <g class="node exp"><rect x="190" y="142" width="150" height="56" rx="12"/><text class="t" x="205" y="166">IRIS OS</text><text class="s" x="205" y="185">navegador · avatar</text></g>
+                    <g class="node exp"><rect x="190" y="244" width="150" height="56" rx="12"/><text class="t" x="205" y="268">Companion</text><text class="s" x="205" y="287">Tauri · Windows</text></g>
+                    <g class="node hub"><rect x="420" y="132" width="170" height="76" rx="14"/><text class="t" x="438" y="164">IRIS Core</text><text class="s" x="438" y="186">:8765 · WS + API</text></g>
+                    <g class="node agent"><rect x="660" y="132" width="200" height="76" rx="14"/><text class="t" x="678" y="164">Hermes Agent</text><text class="s" x="678" y="186">Gateway :8642</text></g>
+                    <g class="node ext"><rect x="660" y="262" width="200" height="56" rx="12"/><text class="t" x="678" y="286">Proveedor + tools</text><text class="s" x="678" y="305">modelos · MCP · skills</text></g>
+
+                    <rect class="lbl-bg" x="345" y="148" width="70" height="16" rx="4"/><text class="lbl" x="380" y="160" text-anchor="middle">WebSocket</text>
+                    <rect class="lbl-bg" x="590" y="148" width="70" height="16" rx="4"/><text class="lbl" x="625" y="160" text-anchor="middle">Gateway</text>
+                    <rect class="lbl-bg" x="458" y="6" width="112" height="16" rx="4"/><text class="lbl" x="514" y="18" text-anchor="middle">instala · repara</text>
+                </svg>
+            </div>
+
+            <h4>Componentes</h4>
+            <table class="table">
+                <thead><tr><th>Carpeta</th><th>Responsabilidad</th></tr></thead>
+                <tbody>
+                    <tr><td><code>wizard/</code></td><td>Instalación, reparación y configuración inicial.</td></tr>
+                    <tr><td><code>core/</code></td><td>Bridge de Hermes, memoria, voz, API y superficies.</td></tr>
+                    <tr><td><code>face/</code></td><td>IRIS OS, avatar, temas y aplicaciones web.</td></tr>
+                    <tr><td><code>companion/</code></td><td>Ventana flotante opcional basada en Tauri.</td></tr>
+                </tbody>
+            </table>
+            <p class="note">Todo escucha en <code>127.0.0.1</code> por defecto; el acceso desde la red local hay que activarlo de forma explícita. IRIS no es una distribución Linux ni un fork de Hermes: Hermes ejecuta el trabajo del agente e IRIS aporta la interfaz y el contexto visual.</p>
+        </article>
+
+        <article class="app" id="historia" data-app="historia" data-title="Historia" data-subtitle="De Alice a IRIS" data-icon="routines" data-accent="magenta" data-size="m" data-group="deep" data-next="comunidad">
+            <p class="kicker">IRIS OS / Historia</p>
+            <h2 class="app-title">De Alice a IRIS.</h2>
+            <p class="lede">El nombre cambió porque el proyecto creció.</p>
+
+            <ol class="timeline">
+                <li><b>Alice</b><span>Empezó como un personaje y una interfaz: una compañera digital con avatar.</span></li>
+                <li><b>Crece el alcance</b><span>Llegaron Hermes, la memoria, las herramientas, la voz, el escritorio y el Companion. El nombre ya no representaba lo que se estaba construyendo.</span></li>
+                <li><b>IRIS</b><span>Una identidad y un sistema propios. <code>alice</code> queda solo como alias para no romper instalaciones anteriores.</span></li>
+            </ol>
+
+            <h4>El nombre</h4>
+            <div class="meaning">
+                <section class="card" data-accent="cyan"><h3>Iris del ojo</h3><p>Visión, percepción y atención.</p></section>
+                <section class="card" data-accent="magenta"><h3>Iris mitológica</h3><p>Puente y mensajera entre mundos.</p></section>
+                <section class="card" data-accent="amber"><h3>IRIS OS</h3><p>Conexión entre tú, tus datos, tus herramientas y tus decisiones.</p></section>
+            </div>
+
+            <blockquote>IRIS nació para que un agente no solo responda: tenga identidad, presencia y un lugar dentro de tu equipo.</blockquote>
+        </article>
+
+        <article class="app" id="comunidad" data-app="comunidad" data-title="Comunidad" data-subtitle="Ideas, roadmap y apoyo" data-icon="community" data-accent="magenta" data-size="m" data-group="community" data-next="que-es">
+            <p class="kicker">IRIS OS / Comunidad</p>
+            <h2 class="app-title">¿Qué debería aprender IRIS después?</h2>
+            <p class="lede">IRIS crece con las ideas de quien la usa. Estas funciones ya están en la beta y se están probando antes de abrir el acceso público.</p>
+
+            <h4>Incluido en la beta · En pruebas</h4>
+            <ul class="roadmap">
+                <li><span class="rm-status" data-status="beta">En la beta</span><div><strong>Inicio y widgets</strong><p>Accesos y widgets que puedes añadir, quitar y ordenar arrastrando.</p></div></li>
+                <li><span class="rm-status" data-status="beta">En la beta</span><div><strong>Calendario y Correo</strong><p>Lectura de Google Calendar y Gmail, recordatorios y funciones de IA opcionales.</p></div></li>
+                <li><span class="rm-status" data-status="beta">En la beta</span><div><strong>Automatizaciones</strong><p>Tareas que habilitas tú y resultados que puedes revisar en la Bandeja.</p></div></li>
+                <li><span class="rm-status" data-status="beta">En la beta</span><div><strong>Iris Store y apps propias</strong><p>Instalación, actualización y retirada de paquetes locales, con widgets y funciones para Iris.</p></div></li>
+            </ul>
+
+            <h4>Lo que viene después</h4>
+            <ul class="roadmap">
+                <li><span class="rm-status" data-status="planned">Planeado</span><div><strong>Linux y macOS</strong><p>Llevar IRIS a Linux y macOS, con el mismo nivel de pruebas que Windows.</p></div></li>
+                <li><span class="rm-status" data-status="study">En estudio</span><div><strong>Tu teléfono como cámara y micrófono</strong><p>Hablar con IRIS desde el móvil mientras corre en tu PC.</p></div></li>
+                <li><span class="rm-status" data-status="planned">Planeado</span><div><strong>Catálogo comunitario de Iris Store</strong><p>Descubrir y compartir apps desde un catálogo en línea, además de instalar paquetes locales.</p></div></li>
+            </ul>
+            <p class="note">Es una hoja de ruta, no una promesa de fechas.</p>
+
+            <h4>Participa</h4>
+            <div class="mini-grid">
+                <div class="card" data-accent="magenta"><span class="os-icon"><svg><use href="#i-idea"/></svg></span><h3>Proponer una idea</h3><p>Cuéntale a IRIS qué quieres que aprenda.</p><span class="soon">Próximamente</span></div>
+                <div class="card" data-accent="cyan"><span class="os-icon"><svg><use href="#i-vote"/></svg></span><h3>Votar</h3><p>Decide qué llega primero al roadmap.</p><span class="soon">Próximamente</span></div>
+                <div class="card" data-accent="amber"><span class="os-icon"><svg><use href="#i-video"/></svg></span><h3>Seguir el desarrollo</h3><p>Los vídeos y novedades ya están en nuestras redes. El repositorio de código se abrirá más adelante.</p></div>
+            </div>
+            <!-- social:links · build.mjs pone aquí los perfiles de site.config.json → social, o nada si no hay -->
+
+            <h4>Apoya IRIS</h4>
+            <p>IRIS seguirá siendo gratuita. Apoyar es opcional.</p>
+            <div class="mini-grid">
+                <div class="card" data-accent="magenta"><span class="os-icon"><svg><use href="#i-heart"/></svg></span><h3>Donar</h3><p>Ayuda a dedicarle más horas.</p><span class="soon" data-support="kofi">Próximamente</span></div>
+                <div class="card" data-accent="cyan"><span class="os-icon"><svg><use href="#i-share"/></svg></span><h3>Compartir</h3><p>Enséñasela a alguien a quien le encantaría.</p><button class="feat-link" type="button" data-share>Compartir IRIS <svg class="ico"><use href="#i-arrow"/></svg></button></div>
+                <div class="card" data-accent="amber"><span class="os-icon"><svg><use href="#i-code"/></svg></span><h3>Contribuir</h3><p>Código, pruebas o ideas, cuando el repositorio sea público.</p><span class="soon">Próximamente</span></div>
+            </div>
+        </article>
+    </div>
+</body>
+</html>

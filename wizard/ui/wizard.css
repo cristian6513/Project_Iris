@@ -1,0 +1,4350 @@
+/* ═══════════════════════════════════════════════════════
+   IRIS Setup Wizard — Cyberpunk Luxury Design System
+   Aesthetic: Retrofuturistic control panel · Dark alchemy
+   ═══════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap');
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* ── Design Tokens ─────────────────────────────────── */
+:root {
+    --amber: #E8A020;
+    --amber-bright: #FFB733;
+    --amber-dim: rgba(232,160,32,0.18);
+    --amber-glow: rgba(232,160,32,0.08);
+    --amber-trace: rgba(232,160,32,0.04);
+    --cyan: #7DD3EA;
+    --cyan-dim: rgba(125,211,234,0.12);
+    --void: #060609;
+    --void-1: #0c0c12;
+    --void-2: #111118;
+    --void-3: #17171f;
+    --panel: rgba(12,12,18,0.95);
+    --border: rgba(232,160,32,0.12);
+    --border-bright: rgba(232,160,32,0.35);
+    --text: #ededf5;
+    --text-mid: rgba(237,237,245,0.65);
+    --text-dim: rgba(237,237,245,0.35);
+    --green: #3dcc7a;
+    --red: #e05c5c;
+    --gold: #E8A020;
+    --muted: rgba(237,237,245,0.65);
+    --surface: var(--void-1);
+    --dark: var(--void);
+    --r: 18px;
+    --r-sm: 10px;
+    --r-xs: 6px;
+    --transition: 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+    --glow-amber: 0 0 20px rgba(232,160,32,0.15), 0 0 60px rgba(232,160,32,0.05);
+    --glow-sm: 0 0 10px rgba(232,160,32,0.2);
+}
+
+/* ── Background ────────────────────────────────────── */
+body {
+    font-family: 'Syne', system-ui, sans-serif;
+    background: var(--void);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* Scan-line texture overlay */
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+        repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 2px,
+            rgba(0,0,0,0.08) 2px,
+            rgba(0,0,0,0.08) 4px
+        );
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Animated ambient mesh */
+body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+        radial-gradient(ellipse 60% 50% at 15% 40%, color-mix(in srgb, var(--installer-accent) 6%, transparent) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 60% at 85% 60%, color-mix(in srgb, var(--installer-accent) 4%, transparent) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 40% at 50% 10%, color-mix(in srgb, var(--installer-accent) 3%, transparent) 0%, transparent 60%);
+    animation: mesh-drift 20s ease-in-out infinite alternate;
+    pointer-events: none;
+    z-index: 0;
+}
+
+@keyframes mesh-drift {
+    0% { opacity: 0.7; transform: scale(1) translateX(0); }
+    100% { opacity: 1; transform: scale(1.05) translateX(-20px); }
+}
+
+/* ── Wizard Container ──────────────────────────────── */
+.wizard-container {
+    position: relative;
+    z-index: 1;
+    max-width: 620px;
+    width: 100%;
+    padding: 40px 44px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
+    box-shadow:
+        0 0 0 1px rgba(255,255,255,0.03) inset,
+        0 32px 80px rgba(0,0,0,0.6),
+        var(--glow-amber);
+    animation: container-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes container-in {
+    from { opacity: 0; transform: translateY(24px) scale(0.98); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Corner accents */
+.wizard-container::before,
+.wizard-container::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border-color: var(--amber);
+    border-style: solid;
+    opacity: 0.4;
+}
+.wizard-container::before {
+    top: -1px; left: -1px;
+    border-width: 2px 0 0 2px;
+    border-radius: 24px 0 0 0;
+}
+.wizard-container::after {
+    bottom: -1px; right: -1px;
+    border-width: 0 2px 2px 0;
+    border-radius: 0 0 24px 0;
+}
+
+/* ── Header ────────────────────────────────────────── */
+.wizard-header {
+    margin-bottom: 24px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.wizard-header > div {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.wizard-header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--amber);
+    letter-spacing: -0.02em;
+    text-shadow: 0 0 30px color-mix(in srgb, var(--installer-accent) 40%, transparent);
+}
+
+.subtitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 3px;
+    letter-spacing: 0.04em;
+}
+
+.help-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 12px;
+    background: var(--amber-trace);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text-mid);
+    text-decoration: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    transition: all var(--transition);
+    white-space: nowrap;
+}
+.help-btn:hover {
+    background: var(--amber-dim);
+    border-color: var(--amber);
+    color: var(--amber);
+}
+
+/* ── Progress Bar ──────────────────────────────────── */
+.step-indicator {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--amber);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 10px;
+    opacity: 0.85;
+}
+
+.progress-bar {
+    height: 4px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 2px;
+    margin-bottom: 30px;
+    position: relative;
+    overflow: visible;
+    box-shadow: 0 0 8px var(--cyan);
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--amber), var(--amber-bright), var(--cyan));
+    border-radius: 2px;
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 0%;
+    position: relative;
+}
+
+.progress-fill::after {
+    content: '';
+    position: absolute;
+    right: -1px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 6px; height: 6px;
+    background: var(--amber-bright);
+    border-radius: 50%;
+    box-shadow: var(--glow-sm);
+}
+
+/* ── Steps ─────────────────────────────────────────── */
+.wizard-step { display: none; }
+.wizard-step.active {
+    display: block;
+    animation: step-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes step-in {
+    from { opacity: 0; transform: translateX(12px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+.step-icon {
+    font-size: 40px;
+    text-align: center;
+    margin-bottom: 10px;
+    filter: drop-shadow(0 0 12px color-mix(in srgb, var(--installer-accent) 30%, transparent));
+}
+
+.wizard-step h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 19px;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 8px;
+    letter-spacing: -0.02em;
+    color: var(--text);
+}
+
+.wizard-step > p {
+    font-size: 13px;
+    color: var(--text-mid);
+    text-align: center;
+    margin-bottom: 18px;
+    line-height: 1.6;
+}
+
+.dim {
+    color: var(--text-dim) !important;
+    font-size: 11px !important;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+/* ── Buttons ───────────────────────────────────────── */
+.btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 11px 26px;
+    background: linear-gradient(135deg, var(--amber) 0%, var(--amber-bright) 100%);
+    color: #000;
+    border: none;
+    border-radius: var(--r-sm);
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    cursor: pointer;
+    transition: all var(--transition);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-primary::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity var(--transition);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px color-mix(in srgb, var(--installer-accent) 35%, transparent), var(--glow-sm);
+}
+.btn-primary:hover::before { opacity: 1; }
+.btn-primary:active { transform: translateY(0); }
+
+.btn-gold { font-size: 14px; padding: 13px 36px; }
+
+/* A launch that waits for the save must look unavailable, not merely ignore clicks (qa9). */
+.btn-primary:disabled {
+    cursor: wait;
+    opacity: 0.5;
+    transform: none;
+    box-shadow: none;
+}
+.btn-primary:disabled::before { opacity: 0; }
+
+#summary-retry { margin: 4px 0 12px; }
+#summary-configure-ai { margin: 0 0 14px; }
+/* QA12: the shell's `display: inline-flex` beat `hidden`, so «Configurar IA ahora» showed with AI ready. */
+button[hidden] { display: none !important; }
+.key-privacy { margin-top: 6px; line-height: 1.5; }
+
+/* The summary's state line becomes a callout when it blocks IRIS (no AI provider, failed save). */
+#summary-status[data-tone="warn"],
+#summary-status[data-tone="error"] {
+    margin: 6px 0 12px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 13px;
+    line-height: 1.5;
+}
+#summary-status[data-tone="warn"] {
+    background: rgba(245, 158, 11, 0.10);
+    border: 1px solid rgba(245, 158, 11, 0.40);
+    border-left: 3px solid #f59e0b;
+}
+#summary-status[data-tone="error"] {
+    background: rgba(248, 113, 113, 0.10);
+    border: 1px solid rgba(248, 113, 113, 0.40);
+    border-left: 3px solid #f87171;
+}
+
+/* Edge voices that could not be listed: say why and offer a way on. */
+.voice-list-error { display: grid; gap: 8px; justify-items: start; padding: 4px 2px; }
+.voice-list-error p { margin: 0; }
+
+.btn-secondary {
+    padding: 9px 18px;
+    background: var(--void-2);
+    color: var(--text-mid);
+    border: 1px solid var(--border);
+    border-radius: var(--r-sm);
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition);
+}
+.btn-secondary:hover {
+    background: var(--void-3);
+    border-color: var(--border-bright);
+    color: var(--text);
+}
+
+.btn-back {
+    padding: 8px 14px;
+    background: transparent;
+    color: var(--text-dim);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: var(--r-xs);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all var(--transition);
+}
+.btn-back:hover {
+    color: var(--text-mid);
+    border-color: rgba(255,255,255,0.15);
+}
+
+.btn-test {
+    padding: 6px 14px;
+    background: var(--amber-trace);
+    color: var(--amber);
+    border: 1px solid var(--border);
+    border-radius: var(--r-xs);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all var(--transition);
+}
+.btn-test:hover {
+    background: var(--amber-dim);
+    border-color: var(--border-bright);
+    box-shadow: var(--glow-sm);
+}
+
+.step-buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 26px;
+    padding-top: 18px;
+    border-top: 1px solid rgba(255,255,255,0.04);
+}
+.step-buttons .btn-primary { margin-left: auto; }
+
+.test-buttons { display: flex; gap: 12px; justify-content: center; margin: 16px 0; }
+
+/* ── Info Panels ───────────────────────────────────── */
+.info-panel {
+    background: var(--void-2);
+    border: 1px solid var(--border);
+    border-radius: var(--r-sm);
+    padding: 14px 16px;
+    margin: 14px 0;
+    font-size: 12px;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+/* TTS preview phrase input — sits above the result panel and lets
+ * the user edit what gets synthesized when they click "Probar". */
+.tts-test-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 14px 0 4px;
+}
+.tts-test-label {
+    font-size: 12px;
+    color: var(--text-dim);
+    flex-shrink: 0;
+}
+.tts-test-input {
+    flex: 1;
+    background: var(--void-2);
+    border: 1px solid var(--border);
+    border-radius: var(--r-sm);
+    padding: 8px 12px;
+    color: var(--text);
+    font-size: 13px;
+    font-family: inherit;
+}
+.tts-test-input:focus {
+    outline: none;
+    border-color: color-mix(in srgb, var(--installer-accent) 55%, transparent);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--installer-accent) 15%, transparent);
+}
+/* Inline audio player when a preview is ready — sits inside the
+ * result panel so it lines up with status text + replay buttons. */
+.tts-preview-player {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 8px;
+}
+.tts-preview-player audio {
+    flex: 1;
+    height: 32px;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+.info-row:last-child { border-bottom: none; }
+.label { color: var(--text-dim); font-size: 11px; }
+.value { color: var(--text); font-weight: 500; }
+
+.ok    { color: var(--green); }
+.warn  { color: #f59e0b; }
+.err   { color: var(--red); }
+.highlight { color: var(--amber); }
+
+/* ── Notes ─────────────────────────────────────────── */
+.note {
+    background: var(--cyan-dim);
+    border: 1px solid color-mix(in srgb, var(--installer-accent) 15%, transparent);
+    border-left: 3px solid var(--cyan);
+    border-radius: var(--r-xs);
+    padding: 10px 14px;
+    font-size: 12px;
+    color: var(--cyan);
+    margin: 12px 0;
+    line-height: 1.55;
+    font-family: 'JetBrains Mono', monospace;
+}
+.note code {
+    background: var(--void);
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-size: 10px;
+}
+
+/* ── Radio Cards ───────────────────────────────────── */
+.radio-group { display: flex; flex-direction: column; gap: 8px; margin: 14px 0; }
+
+.radio-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    background: var(--void-1);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: var(--r-sm);
+    cursor: pointer;
+    transition: all var(--transition);
+    position: relative;
+}
+
+.radio-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    border-radius: var(--r-sm) 0 0 var(--r-sm);
+    background: transparent;
+    transition: background var(--transition);
+}
+
+.radio-card:hover {
+    background: var(--void-2);
+    border-color: var(--border);
+}
+.radio-card:hover::before { background: color-mix(in srgb, var(--installer-accent) 30%, transparent); }
+
+.radio-card.selected {
+    border-color: var(--border-bright);
+    background: var(--amber-glow);
+    box-shadow: 0 0 0 1px var(--amber-dim) inset;
+}
+.radio-card.selected::before { background: var(--amber); }
+
+.radio-card input { display: none; }
+.radio-content { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.radio-header { display: flex; align-items: center; gap: 8px; }
+.radio-content strong { font-size: 13px; font-weight: 600; font-family: 'Syne', sans-serif; }
+.radio-content span { font-size: 11px; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; }
+
+.wake-name-editor {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    overflow: hidden;
+    margin-top: 8px;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: var(--r-xs);
+    background: rgba(0,0,0,0.22);
+    transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.wake-name-editor:focus-within {
+    border-color: var(--border-bright);
+    box-shadow: 0 0 0 3px var(--amber-trace);
+}
+
+.wake-name-editor .wake-name-prefix {
+    align-self: stretch;
+    display: grid;
+    place-items: center;
+    min-width: 48px;
+    padding: 0 10px;
+    border-right: 1px solid rgba(255,255,255,0.08);
+    color: var(--amber);
+    font-weight: 700;
+}
+
+.radio-card .wake-name-editor input#wake-custom-name {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    padding: 9px 10px;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--text);
+    font: 500 12px/1.4 'JetBrains Mono', monospace;
+}
+
+/* ── Identity profile console ───────────────────────── */
+.identity-console {
+    position: relative;
+    display: grid;
+    gap: 12px;
+    margin: 14px 0 4px;
+    padding: 14px;
+    border: 1px solid color-mix(in srgb, var(--installer-accent) 20%, transparent);
+    border-radius: 10px;
+    background:
+        linear-gradient(135deg, color-mix(in srgb, var(--installer-accent) 4.5%, transparent), transparent 44%),
+        repeating-linear-gradient(0deg, transparent 0 21px, rgba(255,255,255,0.012) 22px),
+        rgba(3, 10, 18, 0.54);
+    overflow: hidden;
+}
+
+.identity-console::after {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 68px; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--os-magenta, #ff74d4));
+    box-shadow: 0 0 12px color-mix(in srgb, var(--installer-accent-2) 55%, transparent);
+}
+
+.identity-console-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    font: 600 9px/1 'JetBrains Mono', monospace;
+    letter-spacing: 0.16em;
+    color: var(--os-cyan, var(--amber));
+}
+
+.identity-console-header small {
+    color: var(--text-dim);
+    font: 500 9px/1.2 'JetBrains Mono', monospace;
+    letter-spacing: 0;
+}
+
+.identity-mode-panel {
+    display: grid;
+    gap: 11px;
+    padding: 12px;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 8px;
+    background: rgba(255,255,255,0.018);
+}
+
+.identity-mode-title {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+}
+
+.identity-mode-title > span {
+    display: grid;
+    place-items: center;
+    width: 30px; height: 30px;
+    border: 1px solid color-mix(in srgb, var(--installer-accent) 35%, transparent);
+    border-radius: 50%;
+    color: var(--os-cyan, var(--amber));
+    box-shadow: inset 0 0 14px color-mix(in srgb, var(--installer-accent) 8%, transparent);
+}
+
+.identity-mode-title.custom > span {
+    border-color: color-mix(in srgb, var(--installer-accent-2) 40%, transparent);
+    color: var(--os-magenta, var(--amber));
+}
+
+.identity-mode-title div { display: grid; gap: 2px; }
+.identity-mode-title strong { font: 650 12px/1.2 'Syne', sans-serif; }
+.identity-mode-title small { color: var(--text-dim); font: 500 10px/1.35 'JetBrains Mono', monospace; }
+
+.identity-field { display: grid; gap: 6px; }
+.identity-field label { display: flex; flex-direction: column; gap: 2px; }
+.identity-field label strong { font: 600 11px/1.2 'Syne', sans-serif; }
+.identity-field label span { color: var(--text-dim); font: 500 9px/1.35 'JetBrains Mono', monospace; }
+.identity-field input,
+.identity-field textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 9px 10px;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 6px;
+    background: rgba(1, 7, 13, 0.72);
+    color: var(--text);
+    font: 500 11px/1.55 'Syne', sans-serif;
+    outline: none;
+    resize: vertical;
+}
+
+.identity-field input:focus,
+.identity-field textarea:focus {
+    border-color: color-mix(in srgb, var(--installer-accent) 52%, transparent);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--installer-accent) 8%, transparent), 0 0 18px color-mix(in srgb, var(--installer-accent) 8%, transparent);
+}
+
+.identity-backstory-toggle {
+    display: grid;
+    grid-template-columns: 34px 1fr;
+    align-items: center;
+    gap: 9px;
+    cursor: pointer;
+}
+.identity-backstory-toggle > input { position: absolute; opacity: 0; pointer-events: none; }
+.identity-toggle-track {
+    position: relative;
+    width: 32px; height: 17px;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 99px;
+    background: rgba(255,255,255,0.05);
+    transition: 160ms ease;
+}
+.identity-toggle-track::after {
+    content: '';
+    position: absolute;
+    top: 3px; left: 3px;
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    background: var(--text-dim);
+    transition: 160ms ease;
+}
+.identity-backstory-toggle input:checked + .identity-toggle-track {
+    border-color: color-mix(in srgb, var(--installer-accent) 48%, transparent);
+    background: color-mix(in srgb, var(--installer-accent) 14%, transparent);
+}
+.identity-backstory-toggle input:checked + .identity-toggle-track::after {
+    transform: translateX(15px);
+    background: var(--os-cyan, var(--amber));
+    box-shadow: 0 0 8px color-mix(in srgb, var(--installer-accent) 70%, transparent);
+}
+.identity-backstory-toggle > span:last-child { display: grid; gap: 2px; }
+.identity-backstory-toggle strong { font: 600 10px/1.25 'Syne', sans-serif; }
+.identity-backstory-toggle small { color: var(--text-dim); font: 500 9px/1.35 'JetBrains Mono', monospace; }
+
+.identity-example {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 12px;
+    padding: 10px;
+    border-left: 2px solid color-mix(in srgb, var(--installer-accent-2) 65%, transparent);
+    background: linear-gradient(90deg, color-mix(in srgb, var(--installer-accent-2) 7%, transparent), transparent);
+}
+.identity-example span { color: var(--os-magenta, var(--amber)); font: 600 8px/1 'JetBrains Mono', monospace; letter-spacing: 0.12em; }
+.identity-example p { margin: 4px 0 0; color: var(--text-dim); font: 500 9px/1.45 'JetBrains Mono', monospace; }
+.identity-example-btn {
+    padding: 7px 9px;
+    border: 1px solid color-mix(in srgb, var(--installer-accent-2) 28%, transparent);
+    border-radius: 5px;
+    background: color-mix(in srgb, var(--installer-accent-2) 8%, transparent);
+    color: var(--text);
+    font: 600 9px/1 'JetBrains Mono', monospace;
+    cursor: pointer;
+}
+.identity-example-btn:hover { border-color: color-mix(in srgb, var(--installer-accent-2) 60%, transparent); }
+
+.identity-profile-toolbar,
+.identity-memory-note,
+.identity-legacy-notice {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 11px;
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 7px;
+    background: rgba(255,255,255,0.018);
+}
+.identity-profile-toolbar > div:first-child,
+.identity-legacy-notice > div { display: grid; gap: 2px; }
+.identity-profile-toolbar strong,
+.identity-legacy-notice strong { font: 650 10px/1.2 'Syne', sans-serif; }
+.identity-profile-toolbar small,
+.identity-legacy-notice small { color: var(--text-dim); font: 500 8px/1.4 'JetBrains Mono', monospace; }
+.identity-profile-actions { display: flex; gap: 6px; flex: 0 0 auto; }
+.identity-profile-actions button,
+.identity-legacy-notice button,
+.identity-sample-row button,
+.identity-history-item button {
+    padding: 7px 9px;
+    border: 1px solid color-mix(in srgb, var(--installer-accent) 24%, transparent);
+    border-radius: 5px;
+    background: color-mix(in srgb, var(--installer-accent) 7%, transparent);
+    color: var(--text);
+    font: 600 8px/1 'JetBrains Mono', monospace;
+    cursor: pointer;
+    transition: border-color 160ms ease, background 160ms ease, transform 160ms ease;
+}
+.identity-profile-actions button:hover,
+.identity-legacy-notice button:hover,
+.identity-sample-row button:hover,
+.identity-history-item button:hover {
+    border-color: color-mix(in srgb, var(--installer-accent) 58%, transparent);
+    background: color-mix(in srgb, var(--installer-accent) 12%, transparent);
+    transform: translateY(-1px);
+}
+.identity-profile-actions button:disabled,
+.identity-sample-row button:disabled,
+.identity-history-item button:disabled { opacity: 0.45; cursor: wait; transform: none; }
+
+.identity-traits-panel {
+    display: grid;
+    gap: 9px;
+    padding: 11px;
+    border: 1px solid color-mix(in srgb, var(--installer-accent-2) 12%, transparent);
+    border-radius: 8px;
+    background: linear-gradient(125deg, color-mix(in srgb, var(--installer-accent-2) 3.5%, transparent), transparent 55%);
+}
+.identity-traits-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+.identity-traits-heading > div { display: grid; gap: 3px; }
+.identity-traits-heading strong { font: 650 11px/1.2 'Syne', sans-serif; }
+.identity-traits-heading small { color: var(--text-dim); font: 500 8px/1.4 'JetBrains Mono', monospace; }
+#identity-trait-count {
+    flex: 0 0 auto;
+    padding: 4px 6px;
+    border: 1px solid color-mix(in srgb, var(--installer-accent-2) 20%, transparent);
+    border-radius: 4px;
+    color: var(--os-magenta, var(--amber));
+    font: 700 8px/1 'JetBrains Mono', monospace;
+}
+.identity-trait-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+}
+.identity-trait-card {
+    position: relative;
+    display: grid;
+    grid-template-columns: 24px minmax(0, 1fr);
+    gap: 7px;
+    min-height: 58px;
+    padding: 8px;
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 6px;
+    background: rgba(1,7,13,0.48);
+    color: var(--text);
+    text-align: left;
+    cursor: pointer;
+    overflow: hidden;
+}
+.identity-trait-card::after {
+    content: '';
+    position: absolute;
+    inset: auto 8px 0;
+    height: 1px;
+    background: transparent;
+    transition: background 160ms ease, box-shadow 160ms ease;
+}
+.identity-trait-card:hover { border-color: rgba(255,255,255,0.16); }
+.identity-trait-card.selected {
+    border-color: color-mix(in srgb, var(--installer-accent-2) 42%, transparent);
+    background: color-mix(in srgb, var(--installer-accent-2) 7.5%, transparent);
+}
+.identity-trait-card.selected::after {
+    background: var(--os-magenta, var(--amber));
+    box-shadow: 0 0 9px color-mix(in srgb, var(--installer-accent-2) 75%, transparent);
+}
+.identity-trait-card:disabled { opacity: 0.38; cursor: not-allowed; }
+.identity-trait-glyph {
+    display: grid;
+    place-items: center;
+    width: 22px; height: 22px;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 50%;
+    color: var(--os-magenta, var(--amber));
+    font: 700 9px/1 'JetBrains Mono', monospace;
+}
+.identity-trait-card > span:last-child { display: grid; align-content: start; gap: 3px; min-width: 0; }
+.identity-trait-card strong { font: 650 9px/1.15 'Syne', sans-serif; }
+.identity-trait-card small { color: var(--text-dim); font: 500 7px/1.35 'JetBrains Mono', monospace; }
+.identity-traits-loading { grid-column: 1 / -1; color: var(--text-dim); font: 500 8px/1.4 'JetBrains Mono', monospace; }
+
+.identity-backstory-preview,
+.identity-preview-panel,
+.identity-history-panel {
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 7px;
+    background: rgba(1,7,13,0.36);
+    overflow: hidden;
+}
+.identity-backstory-preview summary,
+.identity-preview-panel > summary,
+.identity-history-panel > summary { list-style: none; cursor: pointer; }
+.identity-backstory-preview summary::-webkit-details-marker,
+.identity-preview-panel > summary::-webkit-details-marker,
+.identity-history-panel > summary::-webkit-details-marker { display: none; }
+.identity-backstory-preview summary {
+    padding: 8px 9px;
+    color: var(--os-cyan, var(--amber));
+    font: 600 8px/1.3 'JetBrains Mono', monospace;
+}
+.identity-backstory-preview summary::before { content: '+ '; }
+.identity-backstory-preview[open] summary::before { content: '− '; }
+.identity-backstory-preview p {
+    margin: 0;
+    padding: 0 10px 10px;
+    color: var(--text-dim);
+    font: 500 9px/1.55 'Syne', sans-serif;
+}
+.identity-memory-note { justify-content: flex-start; align-items: flex-start; border-color: color-mix(in srgb, var(--installer-accent) 12%, transparent); }
+.identity-memory-note > span { flex: 0 0 auto; color: var(--os-cyan, var(--amber)); font: 650 7px/1.3 'JetBrains Mono', monospace; letter-spacing: 0.08em; }
+.identity-memory-note p { margin: 0; color: var(--text-dim); font: 500 8px/1.5 'JetBrains Mono', monospace; }
+.identity-memory-note strong { color: var(--text); }
+.identity-legacy-notice { border-color: rgba(255,193,7,0.25); background: rgba(255,193,7,0.055); }
+.identity-legacy-notice[hidden] { display: none; }
+
+.identity-preview-panel > summary,
+.identity-history-panel > summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 11px;
+}
+.identity-preview-panel > summary > span:first-child,
+.identity-history-panel > summary > span:first-child { display: grid; gap: 2px; }
+.identity-preview-panel summary strong,
+.identity-history-panel summary strong { font: 650 10px/1.2 'Syne', sans-serif; }
+.identity-preview-panel summary small,
+.identity-history-panel summary small { color: var(--text-dim); font: 500 8px/1.35 'JetBrains Mono', monospace; }
+.identity-preview-live {
+    color: #8fffc0;
+    font: 700 7px/1 'JetBrains Mono', monospace;
+    letter-spacing: 0.12em;
+    text-shadow: 0 0 8px rgba(143,255,192,0.5);
+}
+.identity-preview-body {
+    display: grid;
+    gap: 9px;
+    padding: 0 11px 11px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+}
+.identity-preview-metrics { display: flex; flex-wrap: wrap; gap: 6px; padding-top: 9px; }
+.identity-preview-metrics span {
+    padding: 4px 6px;
+    border: 1px solid color-mix(in srgb, var(--installer-accent) 12%, transparent);
+    border-radius: 4px;
+    color: var(--text-dim);
+    font: 500 7px/1 'JetBrains Mono', monospace;
+}
+.identity-preview-metrics b { color: var(--os-cyan, var(--amber)); }
+.identity-preview-warnings { display: grid; gap: 4px; }
+.identity-preview-warnings:not(:empty) { padding: 7px 8px; border-left: 2px solid #ffc857; background: rgba(255,200,87,0.055); }
+.identity-preview-warnings p { margin: 0; color: #ffd98a; font: 500 8px/1.4 'JetBrains Mono', monospace; }
+#identity-prompt-preview {
+    margin: 0;
+    max-height: 220px;
+    overflow: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+    padding: 10px;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 5px;
+    background: rgba(0,0,0,0.28);
+    color: #b9ccd3;
+    font: 500 8px/1.55 'JetBrains Mono', monospace;
+}
+.identity-sample-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.identity-sample-row > div { display: grid; gap: 2px; }
+.identity-sample-row strong { font: 650 9px/1.2 'Syne', sans-serif; }
+.identity-sample-row small { color: var(--text-dim); font: 500 7px/1.4 'JetBrains Mono', monospace; }
+#identity-sample-output {
+    margin: 0;
+    padding: 9px 10px;
+    border-left: 2px solid var(--os-cyan, var(--amber));
+    background: color-mix(in srgb, var(--installer-accent) 4.5%, transparent);
+    color: var(--text);
+    font: 500 9px/1.5 'Syne', sans-serif;
+}
+
+.identity-history-list { display: grid; gap: 6px; padding: 0 10px 10px; border-top: 1px solid rgba(255,255,255,0.05); }
+.identity-history-list > p { margin: 9px 0 0; color: var(--text-dim); font: 500 8px/1.4 'JetBrains Mono', monospace; }
+.identity-history-item {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 10px;
+    align-items: center;
+    padding: 8px;
+    border: 1px solid rgba(255,255,255,0.055);
+    border-radius: 5px;
+    background: rgba(255,255,255,0.014);
+}
+.identity-history-item:first-child { margin-top: 9px; }
+.identity-history-item > div { display: grid; gap: 3px; min-width: 0; }
+.identity-history-item strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 650 9px/1.2 'Syne', sans-serif; }
+.identity-history-item small { color: var(--text-dim); font: 500 7px/1.35 'JetBrains Mono', monospace; }
+
+.identity-validation {
+    min-height: 0;
+    color: #ffb4c8;
+    font: 600 10px/1.4 'JetBrains Mono', monospace;
+}
+.identity-validation:not(:empty) {
+    padding: 8px 10px;
+    border: 1px solid rgba(255, 90, 130, 0.25);
+    border-radius: 6px;
+    background: rgba(255, 90, 130, 0.07);
+}
+
+.badge {
+    padding: 2px 8px;
+    background: var(--amber-dim);
+    color: var(--amber);
+    border-radius: 4px;
+    font-size: 9px !important;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+/* "🆕 Nuevo" — provider/model surfaced by Hermes that our curated
+   registry doesn't know about yet. Green to hint "bonus find". */
+.badge.badge-new {
+    background: rgba(100, 220, 140, 0.18);
+    color: #7fd89d;
+}
+/* "✓ Live" — curated provider that Hermes confirmed this session.
+   Subtle blue so it doesn't compete with "Recomendado" for attention. */
+.badge.badge-live {
+    background: rgba(138, 180, 255, 0.15);
+    color: #a5c3ff;
+}
+
+/* ── Auth-format badges ─────────────────────────────────
+   Sit on a dedicated line inside the provider card to show
+   how the user authenticates with that provider:
+
+     🔑 API Key   — paste a token (env_var hint via title=).
+     🔐 OAuth     — browser login flow.
+     🔑 API Key  o  🔐 OAuth — provider supports either.
+     🏠 Local    — no auth needed (Ollama / vLLM / LM Studio).
+
+   Visually distinct from the "Recomendado / 🆕 Nuevo / ✓ Live"
+   badges (which sit next to the provider name) so the user
+   parses "what kind of provider" and "how do I auth" as two
+   separate signals. */
+.auth-badges {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 4px 0 2px;
+    flex-wrap: wrap;
+}
+.auth-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    border: 1px solid transparent;
+    cursor: help;
+}
+.auth-badge-key {
+    background: rgba(255, 213, 79, 0.10);
+    color: #ffd54f;
+    border-color: rgba(255, 213, 79, 0.28);
+}
+.auth-badge-oauth {
+    background: rgba(138, 180, 255, 0.12);
+    color: #a5c3ff;
+    border-color: rgba(138, 180, 255, 0.28);
+}
+.auth-badge-local {
+    background: rgba(100, 220, 140, 0.12);
+    color: #7fd89d;
+    border-color: rgba(100, 220, 140, 0.28);
+}
+.auth-badge-sep {
+    color: var(--text-dim);
+    font-size: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    opacity: 0.65;
+    padding: 0 1px;
+}
+
+/* ── Provider catalog sync indicator ───────────────────
+   Small pill that sits above the provider search input.
+   Flips between "🔄 Sincronizado" and "📋 Lista estática"
+   so the user knows whether the catalog is live (Hermes
+   running, new models will auto-appear) or the baked-in
+   fallback (Hermes not installed). */
+.sync-pill {
+    display: inline-block;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    border-radius: 6px;
+    background: rgba(255,255,255,0.04);
+    color: var(--text-dim);
+    border: 1px solid rgba(255,255,255,0.06);
+}
+.sync-pill.ok {
+    background: rgba(100, 220, 140, 0.10);
+    color: #7fd89d;
+    border-color: rgba(100, 220, 140, 0.25);
+}
+.sync-pill.off {
+    background: rgba(255, 180, 100, 0.08);
+    color: #e8b070;
+    border-color: rgba(255, 180, 100, 0.20);
+}
+.sync-pill.warn {
+    /* Hermes present but slow (timed out beyond 5s). Amber-ish so the
+       user knows it's not a hard failure. */
+    background: rgba(232, 168, 56, 0.12);
+    color: #e8a838;
+    border-color: rgba(232, 168, 56, 0.32);
+}
+
+/* ── Provider sync header + refresh button ───────────────
+   Hosts the sync-pill (left) and the explicit "Actualizar catálogo"
+   button (right). Flex on one line so they stay aligned as the pill
+   text changes length. Wraps on narrow screens. */
+.provider-sync-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+}
+.sync-refresh-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text-dim);
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+.sync-refresh-btn:hover:not(:disabled) {
+    color: var(--installer-accent);
+    border-color: color-mix(in srgb, var(--installer-accent) 40%, transparent);
+    background: color-mix(in srgb, var(--installer-accent) 8%, transparent);
+}
+.sync-refresh-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+/* ── Refresh progress panel ──────────────────────────────
+   Shown while `POST /api/providers/refresh` streams SSE events.
+   Indeterminate progress bar that advances proportionally to the
+   hard 45 s deadline so the user sees wall-clock motion even
+   though Hermes emits no fine-grained progress of its own. */
+.refresh-panel {
+    margin-bottom: 14px;
+    padding: 14px 16px;
+    border: 1px solid color-mix(in srgb, var(--installer-accent) 30%, transparent);
+    border-radius: 8px;
+    background:
+        linear-gradient(180deg, color-mix(in srgb, var(--installer-accent) 6%, transparent), color-mix(in srgb, var(--installer-accent) 2%, transparent));
+}
+.refresh-panel[hidden] {
+    display: none !important;
+}
+.refresh-panel.error {
+    border-color: rgba(230, 80, 80, 0.40);
+    background:
+        linear-gradient(180deg, rgba(230, 80, 80, 0.06), rgba(230, 80, 80, 0.02));
+}
+.refresh-panel-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--installer-accent);
+    margin-bottom: 10px;
+}
+.refresh-panel.error .refresh-panel-header {
+    color: #e67676;
+}
+.refresh-panel-icon {
+    display: inline-block;
+    font-size: 15px;
+}
+.refresh-panel.in-flight .refresh-panel-icon {
+    animation: refreshSpin 1.4s linear infinite;
+}
+@keyframes refreshSpin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+.refresh-progress-wrapper {
+    position: relative;
+    height: 6px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 6px;
+}
+.refresh-progress-bar {
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
+    width: 0%;
+    background: linear-gradient(90deg, var(--installer-accent), color-mix(in srgb, var(--installer-accent) 65%, #ffffff));
+    border-radius: 3px;
+    transition: width 0.3s linear;
+}
+.refresh-panel-meta {
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+}
+.refresh-panel-hint {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin: 0 0 10px 0;
+    line-height: 1.5;
+}
+.refresh-panel-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+.refresh-panel-cancel {
+    padding: 5px 12px;
+    font-size: 11px;
+    color: var(--text-dim);
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+.refresh-panel-cancel:hover {
+    color: #e67676;
+    border-color: rgba(230, 80, 80, 0.40);
+}
+
+/* ── Upload Zone ───────────────────────────────────── */
+.upload-zone {
+    border: 1px dashed color-mix(in srgb, var(--installer-accent) 25%, transparent);
+    border-radius: var(--r);
+    padding: 36px 20px;
+    text-align: center;
+    margin: 14px 0;
+    transition: all 0.25s ease;
+    cursor: pointer;
+    background:
+        repeating-linear-gradient(
+            45deg,
+            transparent,
+            transparent 10px,
+            var(--amber-trace) 10px,
+            var(--amber-trace) 11px
+        );
+}
+.upload-zone:hover, .upload-zone.drag-active {
+    border-color: var(--amber);
+    background-color: var(--amber-glow);
+    box-shadow: var(--glow-amber);
+}
+.upload-icon { font-size: 32px; display: block; margin-bottom: 10px; }
+.upload-zone p { font-size: 12px; margin: 4px 0; color: var(--text-mid); }
+.upload-zone a { color: var(--amber); text-decoration: underline; cursor: pointer; }
+
+/* ── Launch ─────────────────────────────────────────── */
+.launch-info { text-align: center; margin: 20px 0; }
+.launch-info code {
+    display: block;
+    margin: 8px auto;
+    max-width: 320px;
+    background: var(--void);
+    padding: 12px 18px;
+    border-radius: 8px;
+    color: var(--amber);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    border: 1px solid var(--border);
+    letter-spacing: 0.02em;
+}
+
+/* ── Loading ─────────────────────────────────────────── */
+.loading-spinner {
+    width: 20px; height: 20px;
+    margin: 0 auto 10px;
+    border: 2px solid var(--border);
+    border-top-color: var(--amber);
+    border-radius: 50%;
+    animation: spin 0.65s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── API Key Fields ──────────────────────────────────── */
+.api-key-group { display: flex; flex-direction: column; gap: 12px; margin: 14px 0; }
+
+.api-key-field {
+    background: var(--void-1);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: var(--r-sm);
+    padding: 12px 14px;
+    transition: border-color var(--transition);
+}
+.api-key-field:focus-within {
+    border-color: var(--border);
+}
+
+.api-key-field label {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-bottom: 8px;
+    cursor: default;
+}
+.api-key-field label strong {
+    font-size: 12px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+}
+
+.key-row { display: flex; gap: 6px; }
+
+.key-row input {
+    flex: 1;
+    padding: 8px 10px;
+    background: var(--void);
+    color: var(--text);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: var(--r-xs);
+    font: 400 12px/1.4 'JetBrains Mono', monospace;
+    outline: none;
+    transition: border-color var(--transition), box-shadow var(--transition);
+}
+.key-row input:focus {
+    border-color: var(--amber);
+    box-shadow: 0 0 0 3px var(--amber-trace);
+}
+.key-row input::placeholder { color: var(--text-dim); font-family: 'JetBrains Mono', monospace; }
+
+.btn-eye {
+    padding: 6px 10px;
+    background: var(--void);
+    color: var(--text-dim);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: var(--r-xs);
+    cursor: pointer;
+    font-size: 13px;
+    transition: all var(--transition);
+}
+.btn-eye:hover { color: var(--text); border-color: rgba(255,255,255,0.15); }
+
+.key-sub-input {
+    display: block; width: 100%; margin-top: 6px;
+    padding: 7px 10px;
+    background: var(--void);
+    color: var(--text);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: var(--r-xs);
+    font: 400 12px 'JetBrains Mono', monospace;
+    outline: none;
+    transition: border-color var(--transition);
+}
+.key-sub-input:focus { border-color: var(--amber); }
+
+.key-link {
+    display: inline-block;
+    margin-top: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--amber);
+    text-decoration: none;
+    opacity: 0.6;
+    transition: opacity var(--transition);
+}
+.key-link:hover { opacity: 1; text-decoration: underline; }
+
+/* ── Voice Browser ────────────────────────────────── */
+.voice-browser {
+    margin-top: 16px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    padding-top: 14px;
+}
+.voice-browser-header {
+    display: flex; align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+.voice-browser-header h3 {
+    font-size: 13px; font-weight: 600;
+    margin: 0; color: var(--text);
+    font-family: 'Syne', sans-serif;
+}
+.voice-filters { display: flex; gap: 6px; }
+
+.voice-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 6px;
+    max-height: 220px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+.voice-list::-webkit-scrollbar { width: 3px; }
+.voice-list::-webkit-scrollbar-thumb {
+    background: var(--amber-dim);
+    border-radius: 2px;
+}
+
+.voice-card {
+    display: flex; align-items: center;
+    justify-content: space-between;
+    padding: 8px 10px;
+    background: var(--void);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: var(--r-xs);
+    cursor: pointer;
+    transition: all var(--transition);
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+}
+.voice-card:hover {
+    border-color: color-mix(in srgb, var(--installer-accent) 25%, transparent);
+    background: var(--amber-trace);
+}
+.voice-card.selected {
+    border-color: var(--amber);
+    background: var(--amber-glow);
+    box-shadow: var(--glow-sm);
+}
+.voice-info { display: flex; align-items: center; gap: 6px; flex: 1; min-width: 0; }
+.voice-info strong { color: var(--text); font-weight: 500; white-space: nowrap; }
+.badge.mini { font-size: 8px; padding: 1px 4px; line-height: 1.2; }
+
+.btn-preview {
+    background: var(--amber-dim);
+    border: none; border-radius: 3px;
+    color: var(--amber); cursor: pointer;
+    padding: 3px 8px; font-size: 11px;
+    transition: background var(--transition);
+    flex-shrink: 0;
+}
+.btn-preview:hover { background: color-mix(in srgb, var(--installer-accent) 30%, transparent); }
+
+.voice-selected {
+    margin-top: 8px; padding: 8px 12px;
+    background: var(--amber-glow);
+    border: 1px solid var(--amber-dim);
+    border-radius: var(--r-xs);
+    font-size: 11px; color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+}
+.voice-selected strong { color: var(--amber); }
+
+/* ── Help Tooltips ─────────────────────────────────── */
+.help-tip {
+    display: inline-flex; align-items: center;
+    justify-content: center;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: var(--amber-trace);
+    color: var(--amber);
+    font-size: 9px; font-weight: 700;
+    cursor: help; position: relative;
+    margin-left: 4px; vertical-align: middle;
+    border: 1px solid var(--border);
+    transition: all var(--transition);
+    flex-shrink: 0;
+    font-family: 'JetBrains Mono', monospace;
+}
+.help-tip:hover {
+    background: var(--amber-dim);
+    border-color: var(--amber);
+    box-shadow: var(--glow-sm);
+    transform: scale(1.1);
+}
+.help-tip .tip-content {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 10px);
+    left: 50%;
+    transform: translateX(-50%);
+    width: 240px;
+    padding: 12px 14px;
+    background: var(--void-1);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: 0 16px 48px rgba(0,0,0,0.7), var(--glow-amber);
+    font-size: 11px;
+    font-weight: 400;
+    line-height: 1.55;
+    color: var(--text-mid);
+    z-index: 100;
+    text-align: left;
+    cursor: default;
+    font-family: 'JetBrains Mono', monospace;
+}
+.help-tip .tip-content::after {
+    content: '';
+    position: absolute;
+    top: 100%; left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: var(--border);
+}
+.help-tip:hover .tip-content,
+.help-tip.active .tip-content {
+    display: block;
+    animation: tip-in 0.15s ease;
+}
+@keyframes tip-in {
+    from { opacity: 0; transform: translateX(-50%) translateY(6px); }
+    to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+.tip-content .tip-title {
+    font-weight: 700;
+    color: var(--amber);
+    margin-bottom: 6px;
+    font-size: 10px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    font-family: 'Syne', sans-serif;
+}
+.tip-content .tip-cost {
+    display: inline-block;
+    padding: 2px 7px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: 600;
+    margin-top: 6px;
+    letter-spacing: 0.03em;
+}
+.tip-cost.free   { background: rgba(61,204,122,0.15); color: var(--green); }
+.tip-cost.paid   { background: rgba(224,92,92,0.15);  color: var(--red); }
+.tip-cost.tokens { background: var(--cyan-dim);        color: var(--cyan); }
+
+/* ── Voice Cloning ─────────────────────────────────── */
+.voice-clone {
+    margin-top: 16px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    padding-top: 14px;
+}
+.voice-clone-header {
+    display: flex; align-items: baseline; gap: 8px;
+    margin-bottom: 4px;
+}
+.voice-clone-header h3 {
+    font-size: 13px; font-weight: 600;
+    margin: 0; font-family: 'Syne', sans-serif;
+}
+.clone-options {
+    display: flex; align-items: center;
+    gap: 12px; margin-bottom: 12px;
+}
+.clone-divider { color: var(--text-dim); font-size: 11px; font-style: italic; }
+.clone-option { flex: 1; }
+
+.btn-record, .btn-upload {
+    display: block; width: 100%;
+    padding: 10px 14px;
+    background: var(--amber-trace);
+    border: 1px dashed color-mix(in srgb, var(--installer-accent) 20%, transparent);
+    border-radius: var(--r-xs);
+    color: var(--amber); cursor: pointer;
+    font: 500 11px 'Syne', sans-serif;
+    text-align: center;
+    transition: all var(--transition);
+}
+.btn-record:hover, .btn-upload:hover {
+    background: var(--amber-dim);
+    border-style: solid;
+    box-shadow: var(--glow-sm);
+}
+
+.recording-status {
+    display: flex; align-items: center;
+    gap: 8px; padding: 10px 14px;
+    background: rgba(224,92,92,0.06);
+    border: 1px solid rgba(224,92,92,0.2);
+    border-radius: var(--r-xs);
+}
+.recording-dot {
+    width: 8px; height: 8px;
+    background: var(--red); border-radius: 50%;
+    animation: pulse-dot 1s ease infinite;
+}
+@keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: 0.3; transform: scale(0.7); }
+}
+.recording-status span { font-size: 12px; font-weight: 600; color: var(--red); font-family: 'JetBrains Mono', monospace; }
+
+.btn-stop {
+    background: rgba(224,92,92,0.12);
+    border: 1px solid rgba(224,92,92,0.25);
+    border-radius: var(--r-xs); padding: 4px 10px;
+    color: var(--red); cursor: pointer;
+    font: 500 10px 'JetBrains Mono', monospace;
+    margin-left: auto;
+    transition: all var(--transition);
+}
+.clone-preview {
+    display: flex; align-items: center;
+    gap: 8px; padding: 8px 10px;
+    background: var(--void); border-radius: var(--r-xs);
+    margin-bottom: 8px;
+    border: 1px solid rgba(255,255,255,0.05);
+}
+.clone-preview span { flex: 1; font-size: 11px; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; }
+
+.btn-text {
+    background: none; border: none;
+    color: var(--text-dim); cursor: pointer;
+    font-size: 11px; padding: 2px 6px;
+    transition: color var(--transition);
+}
+.btn-text:hover { color: var(--text); }
+
+.clone-name-row { display: flex; gap: 8px; align-items: center; }
+
+.clone-status {
+    margin-top: 8px; padding: 9px 12px;
+    border-radius: var(--r-xs); font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+}
+.clone-status.loading  { background: var(--cyan-dim); border: 1px solid color-mix(in srgb, var(--installer-accent) 15%, transparent); color: var(--cyan); }
+.clone-status.success  { background: rgba(61,204,122,0.08); border: 1px solid rgba(61,204,122,0.2); color: var(--green); }
+.clone-status.error    { background: rgba(224,92,92,0.08); border: 1px solid rgba(224,92,92,0.2); color: var(--red); }
+.clone-status strong   { color: var(--amber); }
+
+/* ── Hermes Section ───────────────────────────────── */
+.hermes-section {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+}
+.hermes-section h3 {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 8px;
+    font-family: 'Syne', sans-serif;
+}
+
+/* Provider grid */
+.provider-grid {
+    display: grid !important;
+    grid-template-columns: 1fr;
+    gap: 5px !important;
+    max-height: 270px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--amber-dim) transparent;
+    padding-right: 4px;
+}
+.provider-grid::-webkit-scrollbar { width: 3px; }
+.provider-grid::-webkit-scrollbar-thumb { background: var(--amber-dim); border-radius: 2px; }
+
+/* Provider search */
+.provider-search {
+    width: 100%;
+    padding: 8px 12px;
+    background: var(--void);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: var(--r-xs);
+    color: var(--text);
+    font: 400 11px/1.5 'JetBrains Mono', monospace;
+    outline: none;
+    margin-bottom: 8px;
+    transition: border-color var(--transition);
+}
+.provider-search:focus { border-color: var(--border-bright); }
+.provider-search::placeholder { color: var(--text-dim); }
+
+/* Category headers */
+.provider-category {
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--amber);
+    padding: 6px 4px 2px;
+    margin-top: 4px;
+    opacity: 0.6;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+/* Model select dropdown */
+/* Q03: a long model list gets a filter above it. */
+.model-filter {
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 6px;
+    padding: 8px 12px;
+    background: var(--void);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: var(--r-xs);
+    color: var(--text);
+    font: 400 11px/1.5 'JetBrains Mono', monospace;
+}
+.model-filter[hidden] { display: none !important; }
+
+.model-select {
+    width: 100%;
+    padding: 8px 12px;
+    background: var(--void);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: var(--r-xs);
+    color: var(--text);
+    font: 400 11px/1.5 'JetBrains Mono', monospace;
+    outline: none;
+    cursor: pointer;
+    -webkit-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' fill='%23E8A020' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    transition: border-color var(--transition);
+}
+.model-select:focus { border-color: var(--border-bright); }
+.model-select option { background: var(--void-1); color: var(--text); }
+
+/* OAuth sign-in: as visible as the API key card above it (QA12). */
+.oauth-offer[hidden] { display: none !important; }
+.oauth-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+/* OAuth toggle */
+.oauth-toggle {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 12px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: var(--r-xs);
+}
+.toggle-label {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 11px; color: var(--text-dim);
+    cursor: pointer; font-family: 'JetBrains Mono', monospace;
+}
+.toggle-label input[type="checkbox"] {
+    accent-color: var(--amber);
+    width: 14px; height: 14px;
+}
+
+/* Mini help tip */
+.help-tip.mini {
+    position: absolute;
+    top: 4px; left: 4px;
+    font-size: 8px;
+    width: 13px; height: 13px;
+}
+
+/* ── OS / dependency precheck (mirrors onboard's "Windows detected" hint) ── */
+.os-precheck {
+    margin: 10px 0 14px;
+    padding: 12px 14px;
+    background: rgba(120,140,180,0.06);
+    border: 1px solid rgba(120,140,180,0.28);
+    border-radius: var(--r-xs);
+    transition: background 0.18s ease, border-color 0.18s ease;
+}
+.os-precheck.status-ready {
+    background: rgba(60,180,120,0.06);
+    border-color: rgba(60,180,120,0.32);
+}
+.os-precheck.status-warn {
+    background: rgba(232,168,56,0.06);
+    border-color: rgba(232,168,56,0.36);
+}
+.os-precheck.status-error {
+    background: rgba(229,65,73,0.06);
+    border-color: rgba(229,65,73,0.40);
+}
+.os-precheck-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+    font-size: 13px;
+}
+.os-precheck-icon { font-size: 16px; line-height: 1; }
+.os-precheck-badge {
+    margin-left: auto;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    background: rgba(120,140,180,0.18);
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+.os-precheck.status-ready .os-precheck-badge {
+    background: rgba(60,180,120,0.22);
+    color: #2f8f5d;
+}
+.os-precheck.status-warn .os-precheck-badge {
+    background: rgba(232,168,56,0.22);
+    color: #a76d10;
+}
+.os-precheck.status-error .os-precheck-badge {
+    background: rgba(229,65,73,0.22);
+    color: #c1404a;
+}
+.os-precheck-hint {
+    margin: 0 0 8px;
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--text-dim);
+}
+.os-precheck-deps {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(165px, 1fr));
+    gap: 7px;
+    font-size: 11px;
+}
+.os-precheck-deps li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    min-width: 0;
+    padding: 6px 8px;
+    border: 1px solid rgba(255,255,255,0.055);
+    border-radius: 6px;
+    background: rgba(255,255,255,0.018);
+}
+.os-precheck-deps .dep-name {
+    color: var(--text-dim);
+    font-weight: 500;
+}
+.os-precheck-deps .dep-val {
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: 11px;
+    color: var(--text);
+    text-align: right;
+    white-space: nowrap;
+}
+.os-precheck-deps .dep-val.dep-missing { color: #c1404a; }
+.os-precheck-deps .dep-val.dep-ok      { color: #2f8f5d; }
+.os-precheck-deps .dep-val.dep-managed { color: #8ab4ff; }
+
+/* ── Security acknowledgement (mirrors onboard's first prompt) ── */
+.security-ack {
+    margin: 10px 0 14px;
+    padding: 14px 16px;
+    background: rgba(229,65,73,0.06);
+    border: 1px solid rgba(229,65,73,0.32);
+    border-radius: var(--r-xs);
+}
+.security-ack-header { font-size: 13px; color: var(--red); margin-bottom: 8px; }
+.security-ack-body   { font-size: 12px; color: rgba(255,255,255,0.78); line-height: 1.55; }
+.security-ack-body p { margin: 4px 0; }
+.security-ack-body ul { margin: 6px 0 6px 22px; padding: 0; }
+.security-ack-body li { margin: 3px 0; }
+.security-ack-body a  { color: var(--amber); text-decoration: underline; }
+.security-ack-check {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-top: 12px;
+    padding: 10px;
+    background: rgba(0,0,0,0.25);
+    border-radius: var(--r-xs);
+    cursor: pointer;
+    font-size: 12px;
+    color: rgba(255,255,255,0.85);
+    line-height: 1.4;
+}
+.security-ack-check input { margin-top: 2px; flex-shrink: 0; }
+.security-ack.acked {
+    background: color-mix(in srgb, var(--installer-accent) 5%, transparent);
+    border-color: color-mix(in srgb, var(--installer-accent) 30%, transparent);
+}
+.security-ack.acked .security-ack-header { color: var(--green); }
+
+/* ── Existing-config reuse-or-overwrite ─────────────── */
+.existing-config {
+    margin: 10px 0;
+    padding: 12px 14px;
+    background: rgba(255,213,79,0.06);
+    border: 1px solid rgba(255,213,79,0.28);
+    border-radius: var(--r-xs);
+}
+.existing-config-header { font-size: 12px; color: var(--amber); margin-bottom: 6px; }
+.existing-config-body   { font-size: 11px; color: rgba(255,255,255,0.75); line-height: 1.5; margin-bottom: 10px; }
+.existing-config-body code { background: rgba(0,0,0,0.35); padding: 1px 6px; border-radius: 3px; }
+.existing-config-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* ── Per-provider warning bubble ────────────────────── */
+.provider-warning {
+    margin: 10px 0;
+    padding: 10px 12px;
+    border-radius: var(--r-xs);
+    font-size: 11px;
+    line-height: 1.5;
+}
+.provider-warning .pw-title { font-weight: 600; margin-bottom: 4px; font-size: 12px; }
+.provider-warning .pw-body  { color: rgba(255,255,255,0.78); white-space: pre-wrap; }
+.provider-warning.level-info   { background: color-mix(in srgb, var(--installer-accent) 6%, transparent); border: 1px solid color-mix(in srgb, var(--installer-accent) 25%, transparent); }
+.provider-warning.level-info   .pw-title { color: var(--installer-accent); }
+.provider-warning.level-warn   { background: rgba(255,213,79,0.06);  border: 1px solid rgba(255,213,79,0.30); }
+.provider-warning.level-warn   .pw-title { color: var(--os-amber, #ffc44d); }
+.provider-warning.level-danger { background: rgba(229,65,73,0.06);   border: 1px solid rgba(229,65,73,0.32); }
+.provider-warning.level-danger .pw-title { color: var(--red); }
+
+/* ── Hermes Setup Checklist ─────────────────────────────
+   5-step pipeline shown above the install/start buttons.
+   The official installer prepares the workspace; IRIS then
+   chains provider selection and gateway startup. */
+.setup-checklist {
+    list-style: none;
+    margin: 10px 0 14px;
+    padding: 10px 12px;
+    background: rgba(255,255,255,0.025);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: var(--r-xs);
+}
+.setup-step {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 4px 0;
+    font-size: 12px;
+    color: rgba(255,255,255,0.55);
+    transition: color 0.15s, opacity 0.15s;
+}
+.setup-step .step-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.6);
+    font-size: 10px;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+.setup-step .step-text  { flex: 1; }
+.setup-step .step-text code { font-size: 10px; background: rgba(0,0,0,0.3); padding: 1px 5px; border-radius: 3px; }
+.setup-step .step-status { font-size: 14px; opacity: 0.6; }
+
+.setup-step.active     { color: var(--amber); }
+.setup-step.active     .step-num    { background: var(--amber); color: #000; }
+.setup-step.active     .step-status { opacity: 1; }
+
+.setup-step.done       { color: var(--green); opacity: 0.85; }
+.setup-step.done       .step-num    { background: var(--green); color: #000; }
+
+.setup-step.err        { color: var(--red); }
+.setup-step.err        .step-num    { background: var(--red); color: #fff; }
+
+.setup-step.skipped    { color: rgba(255,255,255,0.35); }
+.setup-step.skipped    .step-num    { background: rgba(255,255,255,0.04); }
+
+/* ── Install Log ────────────────────────────────────── */
+.install-log {
+    max-height: 120px;
+    overflow-y: auto;
+    background: var(--void);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: var(--r-xs);
+    padding: 8px 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: color-mix(in srgb, var(--installer-accent) 60%, transparent);
+    line-height: 1.6;
+    scrollbar-width: thin;
+    scrollbar-color: var(--amber-dim) transparent;
+    margin: 8px 0;
+}
+.install-log .log-line  { padding: 1px 0; }
+.install-log .log-ok    { color: var(--green); }
+.install-log .log-err   { color: var(--red); }
+.install-log .log-warn  { color: var(--amber); }
+.install-log .log-info  { color: var(--amber); }
+
+/* ── Log tail (shown when gateway crashes / can't open its port) ── */
+.install-log .log-tail {
+    margin: 6px 0 4px;
+    padding: 8px 10px;
+    background: rgba(0,0,0,0.28);
+    border-left: 3px solid var(--red);
+    color: var(--text-dim);
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: 10.5px;
+    line-height: 1.45;
+    white-space: pre-wrap;
+    word-break: break-word;
+    max-height: 220px;
+    overflow: auto;
+    border-radius: 3px;
+}
+
+/* ── Field highlight: when start-gateway refuses because of missing API
+   key, we pulse the input field so the user sees where to act. ── */
+@keyframes fieldAttention {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(229,65,73,0);   }
+    50%      { box-shadow: 0 0 0 3px rgba(229,65,73,0.35); }
+}
+.field-attention {
+    animation: fieldAttention 0.9s ease-in-out 3;
+    border-color: var(--red) !important;
+}
+
+/* ── Small Variants ─────────────────────────────────── */
+.btn-sm { font-size: 10px !important; padding: 5px 12px !important; }
+.btn-outline {
+    background: transparent !important;
+    border: 1px solid rgba(255,255,255,0.1) !important;
+    color: var(--text-dim) !important;
+}
+.btn-outline:hover {
+    border-color: rgba(255,255,255,0.25) !important;
+    color: var(--text) !important;
+}
+
+/* ── Select / Filter inputs ──────────────────────────── */
+select, .key-sub-input {
+    background: var(--void);
+    color: var(--text);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: var(--r-xs);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 6px 10px;
+    outline: none;
+    transition: border-color var(--transition);
+    cursor: pointer;
+}
+select:focus { border-color: var(--border-bright); }
+
+/* ── Staggered card animations on step enter ───────── */
+.wizard-step.active .radio-card,
+.wizard-step.active .api-key-field {
+    animation: card-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.wizard-step.active .radio-card:nth-child(1),
+.wizard-step.active .api-key-field:nth-child(1)  { animation-delay: 0.05s; }
+.wizard-step.active .radio-card:nth-child(2),
+.wizard-step.active .api-key-field:nth-child(2)  { animation-delay: 0.1s; }
+.wizard-step.active .radio-card:nth-child(3),
+.wizard-step.active .api-key-field:nth-child(3)  { animation-delay: 0.15s; }
+.wizard-step.active .radio-card:nth-child(4),
+.wizard-step.active .api-key-field:nth-child(4)  { animation-delay: 0.2s; }
+.wizard-step.active .radio-card:nth-child(n+5),
+.wizard-step.active .api-key-field:nth-child(n+5) { animation-delay: 0.25s; }
+
+@keyframes card-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Responsive ─────────────────────────────────────── */
+@media (max-width: 520px) {
+    .wizard-container         { padding: 26px 22px; }
+    .test-buttons             { flex-direction: column; }
+    .radio-card               { flex-direction: column; align-items: flex-start; }
+    .btn-test                 { margin-top: 6px; }
+    .voice-list               { grid-template-columns: 1fr; max-height: 180px; }
+    .voice-filters            { flex-direction: column; }
+    .identity-trait-grid      { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .identity-profile-toolbar,
+    .identity-legacy-notice,
+    .identity-sample-row      { align-items: stretch; flex-direction: column; }
+    .identity-profile-actions { width: 100%; }
+    .identity-profile-actions button { flex: 1; }
+    .identity-console-header  { align-items: flex-start; flex-direction: column; }
+}
+@media (max-width: 520px) {
+    .wizard-container         { padding: 20px 16px; }
+}
+
+@media (max-width: 360px) {
+    .identity-trait-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Button size variant ─────────────────────────────── */
+.btn-sm {
+    padding: 7px 16px;
+    font-size: 12px;
+}
+
+/* ── OAuth Flow Panel ────────────────────────────────── */
+
+/* URL display box */
+.oauth-url-header {
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--amber);
+    margin-bottom: 6px;
+}
+.oauth-url-hint {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+
+/* "Open in browser" button inside the URL box */
+.oauth-open-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 18px;
+    background: linear-gradient(135deg, var(--amber) 0%, var(--amber-bright) 100%);
+    color: #000;
+    border-radius: 8px;
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all var(--transition);
+    margin-bottom: 10px;
+}
+.oauth-open-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px color-mix(in srgb, var(--installer-accent) 40%, transparent);
+}
+
+/* Log line variants */
+.log-line {
+    padding: 1px 0;
+    line-height: 1.6;
+    word-break: break-all;
+}
+.log-ok  { color: var(--green) !important; }
+.log-err { color: var(--red)   !important; }
+
+
+
+/* High visibility for important sections */
+.highlight-section {
+    border: 2px solid var(--amber) !important;
+    box-shadow: 0 0 15px color-mix(in srgb, var(--installer-accent) 20%, transparent) !important;
+    padding: 15px !important;
+    border-radius: 12px !important;
+    background: color-mix(in srgb, var(--installer-accent) 5%, transparent) !important;
+    animation: glow-pulse 2s infinite ease-in-out;
+}
+
+@keyframes glow-pulse {
+    0% { box-shadow: 0 0 5px color-mix(in srgb, var(--installer-accent) 20%, transparent); }
+    50% { box-shadow: 0 0 20px color-mix(in srgb, var(--installer-accent) 40%, transparent); }
+    100% { box-shadow: 0 0 5px color-mix(in srgb, var(--installer-accent) 20%, transparent); }
+}
+
+/* ─────────────────────────────────────────────────────
+   Health-check grid (6 end-to-end diagnostic rows)
+   ───────────────────────────────────────────────────── */
+.healthcheck-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.hc-row {
+    display: grid;
+    grid-template-columns: 24px 1fr auto;
+    gap: 10px;
+    align-items: start;
+    padding: 8px 12px;
+    background: rgba(0,0,0,0.25);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-left: 3px solid rgba(255,255,255,0.15);
+    border-radius: 8px;
+    font-size: 12px;
+    transition: all var(--transition, 0.2s ease);
+}
+.hc-row.state-pending { border-left-color: rgba(255,255,255,0.15); }
+.hc-row.state-running {
+    border-left-color: #60a5fa;
+    background: rgba(96,165,250,0.06);
+}
+.hc-row.state-ok {
+    border-left-color: var(--green, #4ade80);
+    background: rgba(74,222,128,0.05);
+}
+.hc-row.state-fail {
+    border-left-color: var(--red, #ef4444);
+    background: rgba(239,68,68,0.06);
+}
+.hc-row.state-inactive {
+    border-left-color: var(--os-amber, #fbbf24);
+    background: rgba(251,191,36,0.055);
+}
+.hc-row.state-skip {
+    border-left-color: rgba(255,213,79,0.55);
+    background: rgba(255,213,79,0.04);
+    opacity: 0.75;
+}
+.hc-icon {
+    font-size: 16px;
+    line-height: 1.2;
+    align-self: center;
+}
+.hc-icon.spin {
+    display: inline-block;
+    animation: hc-spin 0.9s linear infinite;
+}
+@keyframes hc-spin {
+    to { transform: rotate(360deg); }
+}
+.hc-body { min-width: 0; }
+.hc-label {
+    font-weight: 600;
+    color: rgba(255,255,255,0.92);
+    font-family: 'Syne', sans-serif;
+    letter-spacing: 0.02em;
+}
+.hc-detail {
+    color: rgba(255,255,255,0.6);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    margin-top: 2px;
+    word-break: break-word;
+}
+.hc-hint {
+    color: rgba(255,213,79,0.85);
+    font-size: 11px;
+    margin-top: 4px;
+    font-style: italic;
+}
+.hc-elapsed {
+    color: rgba(255,255,255,0.4);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    white-space: nowrap;
+    align-self: center;
+}
+
+/* ─────────────────────────────────────────────────────
+   Autostart toggle (Windows Startup folder / systemd)
+   ───────────────────────────────────────────────────── */
+.autostart-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 10px 0 4px;
+    padding: 10px 14px;
+    background: rgba(0,0,0,0.25);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 10px;
+}
+.autostart-label {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+.autostart-pill {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 3px 10px;
+    border-radius: 10px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+.autostart-pill.on {
+    background: rgba(74,222,128,0.15);
+    color: #4ade80;
+    border: 1px solid rgba(74,222,128,0.35);
+}
+.autostart-pill.off {
+    background: rgba(255,255,255,0.05);
+    color: rgba(255,255,255,0.45);
+    border: 1px solid rgba(255,255,255,0.08);
+}
+.autostart-detail {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    margin: 4px 0 0 4px;
+    min-height: 1em;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+/* ─────────────────────────────────────────────────────
+   Animation library (Step 5) — optional per-slot uploader
+   ───────────────────────────────────────────────────── */
+.animations-section {
+    margin-top: 18px;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    background: rgba(0,0,0,0.18);
+    padding: 8px 14px;
+}
+.animations-section[open] {
+    padding-bottom: 14px;
+}
+.animations-section > summary {
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 6px 0;
+    user-select: none;
+}
+.animations-section > summary::-webkit-details-marker { display: none; }
+.animations-section > summary::before {
+    content: '▸';
+    display: inline-block;
+    width: 14px;
+    color: color-mix(in srgb, var(--installer-accent) 70%, transparent);
+    transition: transform 0.2s ease;
+}
+.animations-section[open] > summary::before {
+    transform: rotate(90deg);
+}
+.anim-summary-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    color: rgba(255,255,255,0.92);
+}
+.anim-summary-hint {
+    color: rgba(255,255,255,0.5);
+    font-size: 12px;
+}
+.animation-slots {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 8px;
+    margin-top: 12px;
+}
+.anim-slot {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 10px 12px;
+    background: rgba(0,0,0,0.28);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-left: 3px solid rgba(255,255,255,0.15);
+    border-radius: 8px;
+    font-size: 12px;
+    transition: border-color var(--transition, 0.2s ease);
+}
+.anim-slot.has-file {
+    border-left-color: var(--green, #4ade80);
+}
+.anim-slot.uploading {
+    border-left-color: #60a5fa;
+    background: rgba(96,165,250,0.06);
+}
+.anim-slot.error {
+    border-left-color: var(--red, #ef4444);
+    background: rgba(239,68,68,0.06);
+}
+.anim-slot-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
+}
+.anim-slot-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    color: rgba(255,255,255,0.92);
+    text-transform: capitalize;
+}
+.anim-slot-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.06);
+    color: rgba(255,255,255,0.5);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.anim-slot-badge.present {
+    background: rgba(74,222,128,0.12);
+    color: #4ade80;
+}
+.anim-slot-file {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: rgba(255,255,255,0.55);
+    word-break: break-all;
+    min-height: 14px;
+}
+.anim-slot-actions {
+    display: flex;
+    gap: 6px;
+    margin-top: 2px;
+}
+.anim-slot-actions label.btn-upload {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 5px 10px;
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    border-radius: 6px;
+    cursor: pointer;
+    background: color-mix(in srgb, var(--installer-accent) 12%, transparent);
+    color: color-mix(in srgb, var(--installer-accent) 92%, transparent);
+    border: 1px solid color-mix(in srgb, var(--installer-accent) 25%, transparent);
+    transition: background var(--transition, 0.2s ease);
+}
+.anim-slot-actions label.btn-upload:hover {
+    background: color-mix(in srgb, var(--installer-accent) 20%, transparent);
+}
+.anim-slot-actions input[type=file] {
+    display: none;
+}
+.anim-slot-msg {
+    font-size: 11px;
+    min-height: 14px;
+    color: rgba(255,255,255,0.55);
+}
+.anim-slot-msg.ok { color: #4ade80; }
+.anim-slot-msg.err { color: #ef4444; }
+
+/* ── IRIS live-status badge (top-right of wizard header) ─────────
+   Three states styled here:
+     .running  green dot + PID/uptime + inline ⏹ stop button
+     .stopped  grey  dot + "IRIS detenida"
+     .offline  amber dot + "Wizard offline" (the wizard backend itself
+               isn't reachable — distinct from IRIS being stopped)
+   Pulled from wizard.js::renderIrisStatusBadge — keep class names
+   in sync if either side is renamed.                              */
+.iris-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 500;
+    font-family: 'JetBrains Mono', monospace;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.85);
+    user-select: none;
+    transition: background 0.2s, border-color 0.2s;
+}
+.iris-status-badge .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    background: #6b7280; /* grey default */
+}
+.iris-status-badge.running {
+    background: rgba(74, 222, 128, 0.12);
+    border-color: rgba(74, 222, 128, 0.35);
+    color: #d1fae5;
+}
+.iris-status-badge.running .dot {
+    background: #4ade80;
+    box-shadow: 0 0 8px rgba(74, 222, 128, 0.6);
+    animation: IRIS-pulse 2s ease-in-out infinite;
+}
+.iris-status-badge.stopped {
+    background: rgba(107, 114, 128, 0.10);
+    border-color: rgba(107, 114, 128, 0.30);
+    color: rgba(255,255,255,0.65);
+}
+.iris-status-badge.stopped .dot {
+    background: #6b7280;
+}
+.iris-status-badge.offline {
+    background: rgba(232, 160, 32, 0.10);
+    border-color: rgba(232, 160, 32, 0.35);
+    color: #fde68a;
+}
+.iris-status-badge.offline .dot {
+    background: #e8a020;
+}
+.iris-status-badge .badge-meta {
+    opacity: 0.7;
+    font-size: 11px;
+    margin-left: 2px;
+}
+.iris-status-badge .badge-stop {
+    margin-left: 4px;
+    padding: 0 6px;
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    line-height: 1.6;
+    cursor: pointer;
+    background: rgba(239, 68, 68, 0.18);
+    color: #fecaca;
+    transition: background 0.15s;
+}
+.iris-status-badge .badge-stop:hover {
+    background: rgba(239, 68, 68, 0.35);
+    color: #fff;
+}
+@keyframes IRIS-pulse {
+    0%, 100% { box-shadow: 0 0 8px rgba(74, 222, 128, 0.6); }
+    50%      { box-shadow: 0 0 14px rgba(74, 222, 128, 0.9); }
+}
+
+/* ── Hermes Mode Selection ──────────────────────────────── */
+.mode-panel {
+    margin: 14px 0;
+    padding: 18px;
+    background: var(--void-1);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+}
+
+.mode-message {
+    font-size: 14px;
+    color: rgba(255,255,255,0.75);
+    margin-bottom: 14px;
+    line-height: 1.5;
+}
+
+.mode-cards {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px;
+    flex-direction: row !important;
+}
+
+/* The bundled engine's diagnostics may have nothing to offer: only the status line stays. */
+.mode-cards.is-empty {
+    display: none !important;
+}
+
+.mode-panel:has(.mode-cards.is-empty) .mode-message {
+    margin-bottom: 0;
+}
+
+.mode-card {
+    /* Override .radio-card's `display:flex; flex-direction:row` so the
+       icon / title / description stack vertically. Without these three
+       lines the children sit side-by-side in one row and the cards look
+       like they're nested inside each other ("Modo Rápido anidado al
+       Modo Completo" was the user-visible symptom). */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px 14px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.mode-card-icon {
+    font-size: 28px;
+    margin-bottom: 8px;
+}
+
+.mode-card-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--gold);
+    margin-bottom: 6px;
+}
+
+.mode-card-desc {
+    font-size: 11px;
+    color: rgba(255,255,255,0.55);
+    line-height: 1.45;
+}
+
+.badge-beta {
+    display: inline-block;
+    background: rgba(239, 68, 68, 0.2);
+    color: #fca5a5;
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    border-radius: 4px;
+    font-size: 9px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 1px 5px;
+    vertical-align: middle;
+    margin-left: 6px;
+}
+
+.warning-banner {
+    margin: 10px 0;
+    padding: 12px 16px;
+    background: rgba(234, 179, 8, 0.1);
+    border: 1px solid rgba(234, 179, 8, 0.35);
+    border-radius: 8px;
+    font-size: 13px;
+    color: #fde68a;
+    line-height: 1.5;
+}
+
+/* IRIS OS installer skin */
+body {
+    align-items: stretch;
+    padding: 20px;
+    background:
+        linear-gradient(180deg, rgba(0, 6, 12, 0.12), rgba(0, 0, 0, 0.2)),
+        url("/theme-assets/iris-os-bg-v1.png") center / cover fixed,
+        #03070b;
+}
+
+body::before {
+    background:
+        linear-gradient(90deg, color-mix(in srgb, var(--installer-accent) 8%, transparent) 1px, transparent 1px),
+        linear-gradient(180deg, color-mix(in srgb, var(--installer-accent) 4%, transparent) 1px, transparent 1px);
+    background-size: 190px 100%, 100% 86px;
+    opacity: 0.35;
+}
+
+body::after {
+    background:
+        linear-gradient(90deg, rgba(0, 0, 0, 0.58) 0 13%, transparent 13% 82%, rgba(0, 0, 0, 0.52) 82%),
+        linear-gradient(180deg, rgba(0, 0, 0, 0.42), rgba(0, 0, 0, 0.02) 24%, rgba(0, 0, 0, 0.22));
+    animation: none;
+}
+
+.os-installer-shell {
+    max-width: min(1320px, calc(100vw - 40px));
+    min-height: calc(100vh - 40px);
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    overflow: hidden;
+    border-radius: 8px;
+    background: rgba(3, 10, 16, 0.62);
+    border-color: color-mix(in srgb, var(--installer-accent) 22%, transparent);
+    box-shadow:
+        0 0 0 1px rgba(255,255,255,0.035) inset,
+        0 28px 80px rgba(0,0,0,0.68),
+        0 0 44px color-mix(in srgb, var(--installer-accent) 8%, transparent);
+}
+
+.os-installer-shell::before,
+.os-installer-shell::after {
+    display: none;
+}
+
+.os-installer-shell .wizard-header {
+    margin: 0;
+    padding: 18px 26px 14px;
+    border-bottom: 1px solid color-mix(in srgb, var(--installer-accent) 16%, transparent);
+    background:
+        linear-gradient(90deg, rgba(8, 22, 33, 0.92), rgba(5, 12, 18, 0.72)),
+        rgba(0,0,0,0.5);
+}
+
+.os-installer-shell .wizard-header h1 {
+    background: linear-gradient(90deg, var(--installer-accent) 0%, var(--installer-accent) 34%, var(--installer-accent-2) 78%, var(--installer-accent-2) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    text-shadow: 0 0 22px color-mix(in srgb, var(--installer-accent) 18%, transparent), 0 0 30px color-mix(in srgb, var(--installer-accent-2) 12%, transparent);
+    letter-spacing: 0;
+}
+
+.os-installer-shell .subtitle {
+    color: rgba(237, 247, 255, 0.68);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-shadow: 0 0 16px color-mix(in srgb, var(--installer-accent-2) 10%, transparent);
+}
+
+.installer-status-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(140px, 1fr));
+    gap: 10px;
+    margin-top: 14px;
+    max-width: 760px;
+}
+
+.installer-status-grid div {
+    min-height: 48px;
+    padding: 9px 12px;
+    border: 1px solid color-mix(in srgb, var(--installer-accent) 12%, transparent);
+    background: rgba(7, 18, 27, 0.58);
+    border-radius: 8px;
+}
+
+.installer-status-grid span {
+    display: block;
+    font: 600 10px/1.2 'JetBrains Mono', monospace;
+    color: rgba(237, 247, 255, 0.55);
+    text-transform: uppercase;
+}
+
+.installer-status-grid strong {
+    display: block;
+    margin-top: 5px;
+    font-size: 15px;
+    color: var(--installer-accent);
+    text-transform: uppercase;
+}
+
+.os-installer-shell .step-indicator,
+.os-installer-shell .progress-bar {
+    margin-left: 26px;
+    margin-right: 26px;
+}
+
+.os-installer-shell .step-indicator {
+    margin-top: 18px;
+    color: var(--installer-accent-2);
+}
+
+body[data-wizard-step="0"] .os-installer-shell .step-indicator {
+    color: color-mix(in srgb, var(--installer-accent) 78%, transparent);
+}
+
+.os-installer-shell .progress-bar {
+    background: color-mix(in srgb, var(--installer-accent) 10%, transparent);
+    box-shadow: none;
+}
+
+body[data-wizard-step="0"] .os-installer-shell .progress-bar {
+    height: 1px;
+    margin-bottom: 24px;
+    background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--installer-accent) 24%, transparent), transparent);
+}
+
+.os-installer-shell .progress-fill {
+    background: linear-gradient(90deg, var(--installer-accent), var(--installer-accent-2));
+}
+
+body[data-wizard-step="0"] .os-installer-shell .progress-fill {
+    display: none;
+}
+
+.os-installer-shell .wizard-step {
+    width: 100%;
+    padding: 0 26px 28px;
+}
+
+.os-installer-shell .wizard-step.active {
+    flex: 1;
+}
+
+.installer-hero {
+    max-width: 760px;
+    margin: 18px auto 18px;
+    text-align: left;
+}
+
+.mission-kicker {
+    display: block;
+    color: var(--installer-accent-2);
+    font: 800 12px/1 'JetBrains Mono', monospace;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    text-shadow: 0 0 16px color-mix(in srgb, var(--installer-accent-2) 24%, transparent);
+}
+
+.installer-hero h2 {
+    text-align: left;
+    font-size: clamp(30px, 5vw, 58px);
+    line-height: 0.95;
+    margin-bottom: 12px;
+}
+
+.installer-hero p {
+    text-align: left;
+    max-width: 620px;
+    margin: 0;
+    color: rgba(237, 247, 255, 0.72);
+}
+
+.installer-core-readout {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 20px;
+    padding: 13px 14px;
+    border: 1px solid color-mix(in srgb, var(--installer-accent) 18%, transparent);
+    background: rgba(4, 14, 22, 0.66);
+    border-radius: 8px;
+}
+
+.installer-core-readout > span {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #5cffad;
+    box-shadow: 0 0 18px rgba(92, 255, 173, 0.75);
+    flex: 0 0 auto;
+}
+
+.installer-core-readout strong,
+.installer-core-readout small {
+    display: block;
+}
+
+.installer-core-readout small {
+    margin-top: 3px;
+    color: rgba(237, 247, 255, 0.52);
+}
+
+.installer-mode-grid {
+    width: min(760px, 100%);
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.installer-mode-card {
+    min-height: 132px;
+    text-align: left;
+    padding: 16px;
+    border: 1px solid color-mix(in srgb, var(--installer-accent) 18%, transparent);
+    border-radius: 8px;
+    color: var(--text);
+    background:
+        linear-gradient(135deg, color-mix(in srgb, var(--installer-accent) 10%, transparent), color-mix(in srgb, var(--installer-accent-2) 5%, transparent)),
+        rgba(5, 15, 24, 0.66);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: transform 160ms ease, border-color 160ms ease, background 160ms ease, box-shadow 160ms ease;
+}
+
+.installer-mode-card::after {
+    content: '';
+    position: absolute;
+    left: 16px;
+    right: auto;
+    bottom: 0;
+    width: 58px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--installer-accent), transparent);
+    opacity: 0.75;
+}
+
+.installer-mode-card:hover {
+    transform: translateY(-2px);
+    border-color: color-mix(in srgb, var(--installer-accent) 48%, transparent);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.28), 0 0 26px color-mix(in srgb, var(--installer-accent) 12%, transparent);
+}
+
+.installer-mode-card.primary {
+    border-color: color-mix(in srgb, var(--installer-accent-2) 44%, transparent);
+    background:
+        linear-gradient(135deg, color-mix(in srgb, var(--installer-accent-2) 16%, transparent), color-mix(in srgb, var(--installer-accent) 8%, transparent)),
+        rgba(7, 18, 27, 0.82);
+}
+
+.installer-mode-card.primary::after {
+    background: linear-gradient(90deg, var(--installer-accent-2), var(--installer-accent));
+}
+
+.installer-mode-card i {
+    display: block;
+    color: var(--installer-accent);
+    font: 700 11px/1 'JetBrains Mono', monospace;
+    margin-bottom: 20px;
+    font-style: normal;
+}
+
+.installer-mode-card strong {
+    display: block;
+    font-size: 16px;
+    margin-bottom: 7px;
+}
+
+.installer-mode-card span {
+    display: block;
+    color: rgba(237, 247, 255, 0.6);
+    font-size: 13px;
+    line-height: 1.35;
+}
+
+.installer-launch-row {
+    width: min(760px, 100%);
+    margin: 18px auto 0;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.os-installer-shell .btn-primary,
+.os-installer-shell .btn-back,
+.os-installer-shell .btn-secondary,
+.os-installer-shell .btn-test,
+.os-installer-shell .setting-btn {
+    border-radius: 8px;
+}
+
+.installer-launch-row .btn-gold {
+    background: linear-gradient(135deg, color-mix(in srgb, var(--installer-accent) 92%, transparent), color-mix(in srgb, var(--installer-accent-2) 78%, transparent));
+    border: 1px solid color-mix(in srgb, var(--installer-accent) 45%, transparent);
+    color: #041018;
+    box-shadow: 0 0 24px color-mix(in srgb, var(--installer-accent) 18%, transparent);
+}
+
+.installer-launch-row .btn-gold:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 0 30px color-mix(in srgb, var(--installer-accent-2) 22%, transparent);
+}
+
+.installer-launch-row .btn-back {
+    color: rgba(237, 247, 255, 0.82);
+    border-color: color-mix(in srgb, var(--installer-accent) 20%, transparent);
+    background: rgba(5, 15, 24, 0.42);
+}
+
+.installer-launch-row .btn-back:hover {
+    color: var(--installer-accent);
+    border-color: color-mix(in srgb, var(--installer-accent) 45%, transparent);
+}
+
+@media (max-width: 860px) {
+    body {
+        padding: 10px;
+    }
+
+    .os-installer-shell {
+        max-width: calc(100vw - 20px);
+        min-height: calc(100vh - 20px);
+    }
+
+    .installer-status-grid,
+    .installer-mode-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .installer-hero h2 {
+        font-size: 34px;
+    }
+}
+
+/* IRIS OS skin for the full installer flow */
+.os-installer-shell {
+    --os-cyan: var(--installer-accent);
+    --os-magenta: var(--installer-accent-2);
+    --os-green: #5cffad;
+    --os-amber: #ffc44d;
+    --os-panel: rgba(5, 14, 23, 0.7);
+    --os-panel-strong: rgba(8, 18, 29, 0.88);
+    --os-line: color-mix(in srgb, var(--installer-accent) 18%, transparent);
+    --os-line-hot: color-mix(in srgb, var(--installer-accent-2) 36%, transparent);
+    --os-text-dim: rgba(237, 247, 255, 0.58);
+}
+
+.os-installer-shell h2,
+.os-installer-shell h3,
+.os-installer-shell h4 {
+    letter-spacing: 0;
+}
+
+.os-installer-shell h2 {
+    color: #f5f9ff;
+    text-shadow: 0 0 20px color-mix(in srgb, var(--installer-accent) 8%, transparent);
+}
+
+.os-installer-shell h3,
+.os-installer-shell .section-title {
+    color: rgba(237, 247, 255, 0.9);
+}
+
+.os-installer-shell .wizard-step > p,
+.os-installer-shell .step-description,
+.os-installer-shell .settings-description,
+.os-installer-shell .voice-section-desc,
+.os-installer-shell .muted,
+.os-installer-shell small {
+    color: var(--os-text-dim);
+}
+
+.os-installer-shell .radio-card,
+.os-installer-shell .api-key-field,
+.os-installer-shell .info-panel,
+.os-installer-shell .note,
+.os-installer-shell .voice-browser,
+.os-installer-shell .voice-selected,
+.os-installer-shell .upload-zone,
+.os-installer-shell .existing-config,
+.os-installer-shell .security-ack,
+.os-installer-shell .provider-warning,
+.os-installer-shell .refresh-panel,
+.os-installer-shell .setup-checklist,
+.os-installer-shell .launch-info,
+.os-installer-shell .settings-card,
+.os-installer-shell .animation-summary,
+.os-installer-shell .clone-panel {
+    border: 1px solid var(--os-line);
+    border-radius: 8px;
+    background:
+        linear-gradient(135deg, color-mix(in srgb, var(--installer-accent) 5.5%, transparent), color-mix(in srgb, var(--installer-accent-2) 3.5%, transparent)),
+        var(--os-panel);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.035), 0 18px 45px rgba(0,0,0,0.16);
+    backdrop-filter: blur(20px);
+}
+
+.os-installer-shell .radio-card {
+    min-height: 72px;
+    color: rgba(245, 249, 255, 0.94);
+    transition: transform 160ms ease, border-color 160ms ease, background 160ms ease, box-shadow 160ms ease;
+}
+
+.os-installer-shell .radio-card::before {
+    border-color: color-mix(in srgb, var(--installer-accent) 42%, transparent);
+    background: color-mix(in srgb, var(--installer-accent) 8%, transparent);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04);
+}
+
+.os-installer-shell .radio-card:hover {
+    transform: translateY(-1px);
+    border-color: color-mix(in srgb, var(--installer-accent) 42%, transparent);
+    background:
+        linear-gradient(135deg, color-mix(in srgb, var(--installer-accent) 8.5%, transparent), color-mix(in srgb, var(--installer-accent-2) 5.5%, transparent)),
+        rgba(7, 18, 29, 0.82);
+}
+
+.os-installer-shell .radio-card:hover::before {
+    background: color-mix(in srgb, var(--installer-accent) 18%, transparent);
+}
+
+.os-installer-shell .radio-card.selected,
+.os-installer-shell .voice-card.selected {
+    border-color: color-mix(in srgb, var(--installer-accent-2) 62%, transparent);
+    background:
+        linear-gradient(135deg, color-mix(in srgb, var(--installer-accent-2) 16%, transparent), color-mix(in srgb, var(--installer-accent) 8%, transparent)),
+        var(--os-panel-strong);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--installer-accent-2) 12%, transparent), 0 0 28px color-mix(in srgb, var(--installer-accent-2) 12%, transparent);
+}
+
+.os-installer-shell .radio-card.selected::before {
+    background: linear-gradient(135deg, var(--os-cyan), var(--os-magenta));
+    border-color: transparent;
+    box-shadow: 0 0 18px color-mix(in srgb, var(--installer-accent) 32%, transparent);
+}
+
+.os-installer-shell .badge,
+.os-installer-shell .badge-beta,
+.os-installer-shell .auth-badge,
+.os-installer-shell .auth-badge-api_key,
+.os-installer-shell .auth-badge-oauth,
+.os-installer-shell .sync-pill,
+.os-installer-shell .tip-cost {
+    border-color: color-mix(in srgb, var(--installer-accent) 24%, transparent);
+    background: color-mix(in srgb, var(--installer-accent) 9%, transparent);
+    color: var(--os-cyan);
+}
+
+.os-installer-shell .badge-beta,
+.os-installer-shell .auth-badge-oauth,
+.os-installer-shell .tip-cost.paid,
+.os-installer-shell .tip-cost.tokens {
+    border-color: color-mix(in srgb, var(--installer-accent-2) 28%, transparent);
+    background: color-mix(in srgb, var(--installer-accent-2) 10%, transparent);
+    color: var(--os-magenta);
+}
+
+.os-installer-shell .tip-cost.free,
+.os-installer-shell .security-ack.acked .security-ack-header {
+    border-color: rgba(92, 255, 173, 0.28);
+    background: rgba(92, 255, 173, 0.08);
+    color: var(--os-green);
+}
+
+.os-installer-shell input,
+.os-installer-shell select,
+.os-installer-shell textarea,
+.os-installer-shell .key-row input,
+.os-installer-shell .key-sub-input,
+.os-installer-shell .tts-test-input,
+.os-installer-shell .provider-search,
+.os-installer-shell .model-select,
+.os-installer-shell .voice-filter-select,
+.os-installer-shell .voice-filter-input {
+    border: 1px solid color-mix(in srgb, var(--installer-accent) 18%, transparent);
+    border-radius: 8px;
+    background: rgba(3, 10, 17, 0.76);
+    color: rgba(245, 249, 255, 0.92);
+    outline: none;
+}
+
+.os-installer-shell input:focus,
+.os-installer-shell select:focus,
+.os-installer-shell textarea:focus,
+.os-installer-shell .api-key-field:focus-within,
+.os-installer-shell .key-row:focus-within,
+.os-installer-shell .tts-test-input:focus,
+.os-installer-shell .provider-search:focus,
+.os-installer-shell .model-select:focus {
+    border-color: color-mix(in srgb, var(--installer-accent) 56%, transparent);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--installer-accent) 12%, transparent), 0 0 24px color-mix(in srgb, var(--installer-accent) 12%, transparent);
+}
+
+.os-installer-shell input::placeholder,
+.os-installer-shell textarea::placeholder {
+    color: rgba(237, 247, 255, 0.34);
+}
+
+.os-installer-shell .btn-primary,
+.os-installer-shell .btn-secondary,
+.os-installer-shell .btn-back,
+.os-installer-shell .btn-test,
+.os-installer-shell .btn-preview,
+.os-installer-shell .btn-eye,
+.os-installer-shell .sync-refresh-btn,
+.os-installer-shell .setting-btn {
+    border: 1px solid color-mix(in srgb, var(--installer-accent) 24%, transparent);
+    background: rgba(6, 17, 27, 0.72);
+    color: rgba(245, 249, 255, 0.9);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+    transition: transform 150ms ease, border-color 150ms ease, background 150ms ease, box-shadow 150ms ease;
+}
+
+.os-installer-shell .btn-primary,
+.os-installer-shell .btn-gold {
+    border-color: color-mix(in srgb, var(--installer-accent) 50%, transparent);
+    background: linear-gradient(135deg, color-mix(in srgb, var(--installer-accent) 92%, transparent), color-mix(in srgb, var(--installer-accent-2) 76%, transparent));
+    color: #041018;
+    font-weight: 800;
+}
+
+.os-installer-shell .btn-primary:hover,
+.os-installer-shell .btn-secondary:hover,
+.os-installer-shell .btn-back:hover,
+.os-installer-shell .btn-test:hover,
+.os-installer-shell .btn-preview:hover,
+.os-installer-shell .btn-eye:hover,
+.os-installer-shell .sync-refresh-btn:hover,
+.os-installer-shell .setting-btn:hover {
+    transform: translateY(-1px);
+    border-color: color-mix(in srgb, var(--installer-accent) 50%, transparent);
+    background: rgba(10, 25, 38, 0.86);
+    box-shadow: 0 0 22px color-mix(in srgb, var(--installer-accent) 12%, transparent);
+}
+
+.os-installer-shell .btn-primary:hover,
+.os-installer-shell .btn-gold:hover {
+    background: linear-gradient(135deg, var(--installer-accent), color-mix(in srgb, var(--installer-accent-2) 90%, transparent));
+    box-shadow: 0 0 26px color-mix(in srgb, var(--installer-accent-2) 20%, transparent);
+}
+
+.os-installer-shell .help-tip {
+    border-color: color-mix(in srgb, var(--installer-accent-2) 28%, transparent);
+    background: color-mix(in srgb, var(--installer-accent-2) 10%, transparent);
+    color: var(--os-magenta);
+}
+
+.os-installer-shell .tip-content {
+    border: 1px solid color-mix(in srgb, var(--installer-accent) 24%, transparent);
+    border-radius: 8px;
+    background:
+        linear-gradient(135deg, color-mix(in srgb, var(--installer-accent) 8%, transparent), color-mix(in srgb, var(--installer-accent-2) 6%, transparent)),
+        rgba(4, 12, 20, 0.96);
+    box-shadow: 0 22px 60px rgba(0,0,0,0.48), 0 0 32px color-mix(in srgb, var(--installer-accent) 12%, transparent);
+}
+
+.os-installer-shell .tip-title,
+.os-installer-shell .existing-config-header,
+.os-installer-shell .refresh-panel-title {
+    color: var(--os-cyan);
+}
+
+.os-installer-shell .security-ack-header,
+.os-installer-shell .provider-warning.level-danger .pw-title {
+    color: #ff6f8d;
+}
+
+.os-installer-shell .provider-warning.level-info {
+    border-color: color-mix(in srgb, var(--installer-accent) 28%, transparent);
+    background: color-mix(in srgb, var(--installer-accent) 6%, transparent);
+}
+
+.os-installer-shell .provider-warning.level-info .pw-title {
+    color: var(--os-cyan);
+}
+
+.os-installer-shell .provider-warning.level-warn {
+    border-color: rgba(255, 196, 77, 0.32);
+    background: rgba(255, 196, 77, 0.07);
+}
+
+.os-installer-shell .provider-warning.level-warn .pw-title {
+    color: var(--os-amber);
+}
+
+/* Links are the edition's accent; amber stays for warnings. */
+.os-installer-shell .security-ack-body a,
+.os-installer-shell .upload-zone a {
+    color: var(--installer-accent);
+}
+
+.os-installer-shell .setup-step {
+    border-color: color-mix(in srgb, var(--installer-accent) 16%, transparent);
+    background: rgba(3, 10, 17, 0.42);
+}
+
+.os-installer-shell .setup-step.done {
+    border-color: rgba(92, 255, 173, 0.28);
+    background: rgba(92, 255, 173, 0.07);
+}
+
+.os-installer-shell .setup-step.error {
+    border-color: rgba(255, 111, 141, 0.3);
+    background: rgba(255, 111, 141, 0.08);
+}
+
+.os-installer-shell .upload-zone {
+    border-style: dashed;
+}
+
+.os-installer-shell .upload-zone:hover,
+.os-installer-shell .upload-zone.drag-active {
+    border-color: color-mix(in srgb, var(--installer-accent-2) 50%, transparent);
+    background:
+        linear-gradient(135deg, color-mix(in srgb, var(--installer-accent-2) 12%, transparent), color-mix(in srgb, var(--installer-accent) 8%, transparent)),
+        rgba(7, 18, 29, 0.82);
+}
+
+.os-installer-shell .voice-list,
+.os-installer-shell .provider-list,
+.os-installer-shell .setup-checklist {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--installer-accent-2) 72%, transparent) color-mix(in srgb, var(--installer-accent) 8%, transparent);
+}
+
+.os-installer-shell .voice-list::-webkit-scrollbar,
+.os-installer-shell .provider-list::-webkit-scrollbar,
+.os-installer-shell .setup-checklist::-webkit-scrollbar {
+    width: 8px;
+}
+
+.os-installer-shell .voice-list::-webkit-scrollbar-thumb,
+.os-installer-shell .provider-list::-webkit-scrollbar-thumb,
+.os-installer-shell .setup-checklist::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, var(--os-cyan), var(--os-magenta));
+    border-radius: 999px;
+}
+
+.os-installer-shell .voice-card {
+    border: 1px solid color-mix(in srgb, var(--installer-accent) 14%, transparent);
+    border-radius: 8px;
+    background: rgba(4, 12, 20, 0.64);
+}
+
+.os-installer-shell .voice-card:hover {
+    border-color: color-mix(in srgb, var(--installer-accent) 42%, transparent);
+    background: rgba(7, 18, 29, 0.84);
+}
+
+.os-installer-shell .voice-card .play-btn,
+.os-installer-shell .voice-card button,
+.os-installer-shell .voice-play-btn {
+    border-color: color-mix(in srgb, var(--installer-accent) 24%, transparent);
+    background: color-mix(in srgb, var(--installer-accent) 10%, transparent);
+    color: var(--os-cyan);
+}
+
+.os-installer-shell .voice-card.favorite .voice-name,
+.os-installer-shell .favorite-star,
+.os-installer-shell .voice-star {
+    color: var(--os-magenta);
+}
+
+.os-installer-shell .provider-icon,
+.os-installer-shell .mode-card-icon {
+    color: var(--os-cyan);
+    filter: drop-shadow(0 0 8px color-mix(in srgb, var(--installer-accent) 25%, transparent));
+}
+
+.os-installer-shell .key-row,
+.os-installer-shell .provider-meta,
+.os-installer-shell .launch-info code {
+    border-color: color-mix(in srgb, var(--installer-accent) 14%, transparent);
+    background: rgba(2, 8, 14, 0.58);
+}
+
+.os-installer-shell .launch-info code {
+    color: var(--os-cyan);
+}
+
+.os-installer-shell .status-ok,
+.os-installer-shell .ready,
+.os-installer-shell .online,
+.os-installer-shell .check-ok {
+    color: var(--os-green);
+}
+
+.os-installer-shell .status-warn,
+.os-installer-shell .warning,
+.os-installer-shell .requires-config {
+    color: var(--os-amber);
+}
+
+.os-installer-shell .status-error,
+.os-installer-shell .error {
+    color: #ff6f8d;
+}
+
+.os-installer-shell .warning-banner,
+.os-installer-shell .mode-panel,
+.os-installer-shell .os-precheck,
+.os-installer-shell .voice-clone,
+.os-installer-shell .animations-section,
+.os-installer-shell .clone-preview {
+    border: 1px solid var(--os-line);
+    border-radius: 8px;
+    background:
+        linear-gradient(135deg, color-mix(in srgb, var(--installer-accent) 5.5%, transparent), color-mix(in srgb, var(--installer-accent-2) 3.5%, transparent)),
+        rgba(5, 14, 23, 0.72);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.035);
+}
+
+.os-installer-shell .warning-banner {
+    border-color: rgba(255, 196, 77, 0.34);
+    background:
+        linear-gradient(135deg, rgba(255, 196, 77, 0.09), color-mix(in srgb, var(--installer-accent-2) 4%, transparent)),
+        rgba(5, 14, 23, 0.78);
+    color: rgba(255, 236, 190, 0.92);
+}
+
+.os-installer-shell .step-icon {
+    color: var(--os-cyan);
+    text-shadow: 0 0 24px color-mix(in srgb, var(--installer-accent) 32%, transparent);
+    filter: drop-shadow(0 0 10px color-mix(in srgb, var(--installer-accent-2) 14%, transparent));
+}
+
+.os-installer-shell .provider-grid {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--installer-accent-2) 72%, transparent) color-mix(in srgb, var(--installer-accent) 8%, transparent);
+}
+
+.os-installer-shell .provider-grid::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, var(--os-cyan), var(--os-magenta));
+    border-radius: 999px;
+}
+
+.os-installer-shell .provider-category,
+.os-installer-shell .anim-summary-title,
+.os-installer-shell .voice-clone-header h3,
+.os-installer-shell .animations-section > summary,
+.os-installer-shell .os-precheck-badge {
+    color: var(--os-cyan);
+}
+
+.os-installer-shell .os-precheck.status-ready {
+    border-color: rgba(92, 255, 173, 0.28);
+    background:
+        linear-gradient(135deg, rgba(92, 255, 173, 0.08), color-mix(in srgb, var(--installer-accent) 3.5%, transparent)),
+        rgba(5, 14, 23, 0.76);
+}
+
+.os-installer-shell .os-precheck.status-ready .os-precheck-badge,
+.os-installer-shell .os-precheck-deps .dep-val.dep-ok,
+.os-installer-shell .clone-status.success {
+    color: var(--os-green);
+}
+
+.os-installer-shell .os-precheck.status-warn {
+    border-color: rgba(255, 196, 77, 0.3);
+}
+
+.os-installer-shell .os-precheck.status-warn .os-precheck-badge,
+.os-installer-shell .clone-status strong {
+    color: var(--os-amber);
+}
+
+.os-installer-shell .os-precheck.status-error {
+    border-color: rgba(255, 111, 141, 0.32);
+}
+
+.os-installer-shell .os-precheck.status-error .os-precheck-badge,
+.os-installer-shell .os-precheck-deps .dep-val.dep-missing,
+.os-installer-shell .clone-status.error {
+    color: #ff6f8d;
+}
+
+.os-installer-shell .oauth-toggle,
+.os-installer-shell .toggle-label {
+    border-color: color-mix(in srgb, var(--installer-accent) 18%, transparent);
+    background: rgba(3, 10, 17, 0.52);
+    border-radius: 8px;
+}
+
+.os-installer-shell input[type="checkbox"],
+.os-installer-shell input[type="radio"] {
+    accent-color: var(--os-cyan);
+}
+
+/* ═══════════════════════════════════════════════════════
+   Visual edition picker — distro-style first boot
+   ═══════════════════════════════════════════════════════ */
+body {
+    --installer-accent: #73f7ff;
+    --installer-accent-2: #ff74d4;
+    --installer-ready: #5cffad;
+    /* The first wizard design (amber, then --cyan; see :root) follows the chosen edition too.
+       Warnings keep their own amber: --os-amber. */
+    --cyan: var(--installer-accent);
+    --cyan-dim: color-mix(in srgb, var(--installer-accent) 12%, transparent);
+    --amber: var(--installer-accent);
+    --amber-bright: color-mix(in srgb, var(--installer-accent) 72%, #ffffff);
+    --amber-dim: color-mix(in srgb, var(--installer-accent) 18%, transparent);
+    --amber-glow: color-mix(in srgb, var(--installer-accent) 8%, transparent);
+    --amber-trace: color-mix(in srgb, var(--installer-accent) 4%, transparent);
+    --gold: var(--installer-accent);
+    --border: color-mix(in srgb, var(--installer-accent) 12%, transparent);
+    --border-bright: color-mix(in srgb, var(--installer-accent) 35%, transparent);
+    --glow-amber: 0 0 20px color-mix(in srgb, var(--installer-accent) 15%, transparent), 0 0 60px color-mix(in srgb, var(--installer-accent) 5%, transparent);
+    --glow-sm: 0 0 10px color-mix(in srgb, var(--installer-accent) 20%, transparent);
+    --installer-wallpaper: url("/theme-assets/iris-os-bg-v1.png");
+    background:
+        linear-gradient(180deg, rgba(0, 6, 12, 0.28), rgba(0, 0, 0, 0.56)),
+        var(--installer-wallpaper) center / cover fixed,
+        #03070b;
+    transition: background-color 420ms ease, color 220ms ease;
+}
+
+body[data-installer-theme="rose"] {
+    --installer-accent: #ff8ed7;
+    --installer-accent-2: #c78bff;
+    --installer-ready: #ffb4e5;
+    --installer-wallpaper: url("/theme-assets/theme-sakura.png");
+}
+
+body[data-installer-theme="verdant"] {
+    --installer-accent: #5cffad;
+    --installer-accent-2: #0eff8f;
+    --installer-ready: #baffdc;
+    --installer-wallpaper: url("/theme-assets/theme-hacker.png");
+}
+
+body[data-installer-theme="sunrise"] {
+    --installer-accent: #9ed8ff;
+    --installer-accent-2: #73f7ff;
+    --installer-ready: #d8f1ff;
+    --installer-wallpaper: url("/theme-assets/theme-classic.png");
+}
+
+body[data-installer-theme] .os-installer-shell {
+    --os-cyan: var(--installer-accent);
+    --os-magenta: var(--installer-accent-2);
+    --os-green: var(--installer-ready);
+    border-color: color-mix(in srgb, var(--installer-accent) 28%, transparent);
+    box-shadow:
+        0 0 0 1px rgba(255,255,255,0.035) inset,
+        0 28px 80px rgba(0,0,0,0.68),
+        0 0 54px color-mix(in srgb, var(--installer-accent) 11%, transparent);
+}
+
+body[data-installer-theme] .os-installer-shell .wizard-header h1 {
+    background: linear-gradient(90deg, var(--installer-accent), var(--installer-accent-2));
+    -webkit-background-clip: text;
+    background-clip: text;
+}
+
+body[data-installer-theme] .os-installer-shell .progress-fill,
+body[data-installer-theme] .os-installer-shell .btn-primary,
+body[data-installer-theme] .os-installer-shell .btn-gold {
+    background: linear-gradient(135deg, var(--installer-accent), var(--installer-accent-2));
+}
+
+body[data-wizard-step="0"] .installer-hero,
+body[data-wizard-step="0"] .installer-mode-grid,
+body[data-wizard-step="0"] .installer-launch-row {
+    width: min(1180px, 100%);
+    max-width: 1180px;
+}
+
+body[data-wizard-step="0"] .installer-mode-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+body[data-wizard-step="0"] .installer-mode-card {
+    min-height: 168px;
+}
+
+.edition-picker {
+    width: min(1180px, 100%);
+    margin: 22px auto 24px;
+    padding: 18px;
+    border: 1px solid color-mix(in srgb, var(--installer-accent) 24%, transparent);
+    border-radius: 12px;
+    background:
+        linear-gradient(135deg,
+            color-mix(in srgb, var(--installer-accent) 8%, transparent),
+            color-mix(in srgb, var(--installer-accent-2) 5%, transparent)),
+        rgba(2, 9, 15, 0.82);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.045), 0 24px 70px rgba(0,0,0,0.26);
+    overflow: hidden;
+    position: relative;
+}
+
+.edition-picker::after {
+    content: 'ELIGE TU APARIENCIA';
+    position: absolute;
+    top: 14px;
+    right: -22px;
+    color: color-mix(in srgb, var(--installer-accent) 11%, transparent);
+    font: 900 34px/1 'Syne', sans-serif;
+    letter-spacing: -0.06em;
+    pointer-events: none;
+}
+
+/* As its own step the title already says it; the watermark would sit over the copy. */
+.wizard-step[data-step="2"] .edition-picker::after { display: none; }
+
+.edition-picker-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 16px;
+    position: relative;
+    z-index: 1;
+}
+
+.edition-picker-heading h3 {
+    margin: 0 0 5px;
+    color: #f6fbff;
+    font-size: clamp(19px, 2vw, 27px);
+}
+
+.edition-picker-heading p {
+    margin: 0;
+    max-width: 650px;
+    color: rgba(237,247,255,0.58);
+    font-size: 13px;
+}
+
+.edition-save-state {
+    flex: 0 0 auto;
+    padding: 7px 9px;
+    border: 1px solid color-mix(in srgb, var(--installer-accent) 25%, transparent);
+    border-radius: 999px;
+    color: var(--installer-accent);
+    background: color-mix(in srgb, var(--installer-accent) 7%, transparent);
+    font: 700 9px/1 'JetBrains Mono', monospace;
+    letter-spacing: 0.08em;
+}
+
+.edition-save-state.saving { opacity: 0.62; }
+.edition-save-state.saved { color: var(--installer-ready); }
+.edition-save-state.error { color: #ff8da5; }
+
+.edition-picker-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 0.92fr) minmax(420px, 1.08fr);
+    gap: 16px;
+}
+
+.edition-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.edition-card {
+    display: grid;
+    grid-template-columns: 74px minmax(0, 1fr);
+    grid-template-rows: 1fr auto;
+    min-height: 112px;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 9px;
+    background: rgba(3, 10, 17, 0.76);
+    overflow: hidden;
+    cursor: pointer;
+    position: relative;
+    transition: transform 170ms ease, border-color 170ms ease, box-shadow 170ms ease;
+}
+
+.edition-card:hover {
+    transform: translateY(-2px);
+    border-color: color-mix(in srgb, var(--installer-accent) 45%, transparent);
+}
+
+.edition-card.selected {
+    border-color: var(--installer-accent);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--installer-accent) 16%, transparent),
+        0 0 28px color-mix(in srgb, var(--installer-accent) 13%, transparent);
+}
+
+.edition-card:has(input:focus-visible) {
+    outline: 2px solid var(--installer-accent);
+    outline-offset: 3px;
+}
+
+.edition-card.selected::after {
+    content: '✓';
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: grid;
+    place-items: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    color: #031016;
+    background: var(--installer-accent);
+    font: 900 11px/1 'JetBrains Mono', monospace;
+}
+
+.edition-card input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.edition-art {
+    grid-row: 1 / 3;
+    min-height: 112px;
+    background-position: center;
+    background-size: cover;
+    border-right: 1px solid rgba(255,255,255,0.08);
+    filter: saturate(1.08) contrast(1.04);
+}
+
+.edition-art-cyber { background-image: url("/theme-assets/iris-os-bg-v1.png"); }
+.edition-art-sakura { background-image: url("/theme-assets/theme-sakura.png"); }
+.edition-art-hacker { background-image: url("/theme-assets/theme-hacker.png"); }
+.edition-art-classic { background-image: url("/theme-assets/theme-classic.png"); }
+
+.edition-copy {
+    align-self: end;
+    padding: 15px 30px 4px 12px;
+}
+
+.edition-copy strong,
+.edition-copy small {
+    display: block;
+}
+
+.edition-copy strong {
+    color: #f5f9ff;
+    font-size: 15px;
+}
+
+.edition-copy small {
+    margin-top: 3px;
+    color: rgba(237,247,255,0.48);
+    font: 500 10px/1.2 'JetBrains Mono', monospace;
+}
+
+.edition-code {
+    align-self: end;
+    padding: 0 12px 12px;
+    color: color-mix(in srgb, var(--installer-accent) 68%, white 8%);
+    font: 600 8px/1 'JetBrains Mono', monospace;
+    letter-spacing: 0.06em;
+}
+
+.edition-live-preview {
+    --preview-a: var(--installer-accent);
+    --preview-b: var(--installer-accent-2);
+    --preview-ready: #5cffad;
+    min-height: 270px;
+    border: 1px solid color-mix(in srgb, var(--preview-a) 34%, transparent);
+    border-radius: 10px;
+    background:
+        linear-gradient(135deg, rgba(0,0,0,0.16), rgba(0,0,0,0.54)),
+        url("/theme-assets/iris-os-bg-v1.png") center / cover;
+    overflow: hidden;
+    box-shadow: inset 0 0 70px rgba(0,0,0,0.38);
+    transition: background-image 300ms ease, border-color 220ms ease;
+}
+
+.edition-live-preview[data-edition-preview="rose"] {
+    --preview-a: #ff8ed7;
+    --preview-b: #c78bff;
+    --preview-ready: #ffb4e5;
+    background-image: linear-gradient(135deg, rgba(15,3,18,0.12), rgba(8,2,14,0.48)), url("/theme-assets/theme-sakura.png");
+}
+
+.edition-live-preview[data-edition-preview="verdant"] {
+    --preview-a: #5cffad;
+    --preview-b: #0eff8f;
+    --preview-ready: #baffdc;
+    background-image: linear-gradient(135deg, rgba(0,12,7,0.1), rgba(0,7,4,0.5)), url("/theme-assets/theme-hacker.png");
+}
+
+.edition-live-preview[data-edition-preview="sunrise"] {
+    --preview-a: #9ed8ff;
+    --preview-b: #73f7ff;
+    --preview-ready: #d8f1ff;
+    background-image: linear-gradient(135deg, rgba(0,8,16,0.12), rgba(2,8,16,0.52)), url("/theme-assets/theme-classic.png");
+}
+
+.edition-screen-bar {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    min-height: 32px;
+    padding: 0 11px;
+    border-bottom: 1px solid color-mix(in srgb, var(--preview-a) 25%, transparent);
+    background: rgba(2, 9, 15, 0.72);
+    backdrop-filter: blur(15px);
+    font: 700 8px/1 'JetBrains Mono', monospace;
+    letter-spacing: 0.07em;
+}
+
+.edition-screen-bar b { color: var(--preview-a); }
+.edition-screen-bar i { justify-self: end; color: var(--preview-ready); font-style: normal; }
+
+.edition-screen-body {
+    min-height: 238px;
+    display: grid;
+    grid-template-columns: 38px minmax(0, 1fr) minmax(150px, 0.65fr);
+    gap: 10px;
+    padding: 12px;
+}
+
+.edition-dock,
+.edition-desktop-card,
+.edition-terminal {
+    border: 1px solid color-mix(in srgb, var(--preview-a) 22%, transparent);
+    background: rgba(2, 9, 15, 0.66);
+    backdrop-filter: blur(16px);
+}
+
+.edition-dock {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 8px;
+    border-radius: 8px;
+}
+
+.edition-dock span {
+    width: 16px;
+    height: 16px;
+    border: 1px solid color-mix(in srgb, var(--preview-a) 45%, transparent);
+    border-radius: 4px;
+    background: color-mix(in srgb, var(--preview-a) 9%, transparent);
+}
+
+.edition-dock span:first-child {
+    background: linear-gradient(135deg, var(--preview-a), var(--preview-b));
+}
+
+.edition-desktop-card {
+    align-self: end;
+    min-height: 142px;
+    padding: 18px;
+    border-radius: 10px;
+}
+
+.edition-desktop-card small,
+.edition-desktop-card strong,
+.edition-desktop-card p { display: block; }
+.edition-desktop-card small { color: var(--preview-a); font: 700 8px/1 'JetBrains Mono', monospace; }
+.edition-desktop-card strong { margin: 9px 0 7px; color: #fff; font-size: 28px; line-height: .9; }
+.edition-desktop-card p { max-width: 290px; color: rgba(240,248,255,0.58); font-size: 10px; }
+
+.edition-palette { display: flex; gap: 5px; margin-top: 15px; }
+.edition-palette i { width: 23px; height: 4px; border-radius: 99px; background: var(--preview-a); }
+.edition-palette i:nth-child(2) { background: var(--preview-b); }
+.edition-palette i:nth-child(3) { background: var(--preview-ready); }
+
+.edition-terminal {
+    align-self: start;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    padding: 13px;
+    border-radius: 8px;
+    color: rgba(235,247,255,0.46);
+    font: 500 8px/1.35 'JetBrains Mono', monospace;
+}
+
+.edition-terminal b { color: var(--preview-ready); font-weight: 600; }
+
+@media (max-width: 1050px) {
+    body[data-wizard-step="0"] .installer-mode-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .edition-picker-layout { grid-template-columns: 1fr; }
+    .edition-live-preview { min-height: 250px; }
+}
+
+@media (max-width: 640px) {
+    .edition-picker { padding: 14px; }
+    .edition-picker-heading { flex-direction: column; }
+    .edition-picker::after { display: none; }
+    .edition-grid,
+    body[data-wizard-step="0"] .installer-mode-grid { grid-template-columns: 1fr; }
+    .edition-live-preview { min-height: 230px; }
+    .edition-screen-body { grid-template-columns: 34px 1fr; }
+    .edition-terminal { display: none; }
+    .edition-desktop-card strong { font-size: 23px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .edition-card,
+    body { transition: none; }
+}
+
+/* Optional native companion — final-step telemetry, scoped to the wizard. */
+.wizard-companion-card {
+    width: min(100%, 720px);
+    margin: 18px auto 0;
+    padding: 16px;
+    border: 1px solid color-mix(in srgb, var(--installer-accent) 24%, rgba(255,255,255,.06));
+    border-radius: 6px 18px 6px 18px;
+    background:
+        linear-gradient(120deg, color-mix(in srgb, var(--installer-accent) 7%, transparent), transparent 48%),
+        rgba(3, 9, 18, .88);
+    text-align: left;
+}
+
+.wizard-companion-card[data-state="ready"] { border-color: rgba(92, 255, 173, .42); }
+.wizard-companion-card[data-state="error"] { border-color: rgba(255, 107, 136, .5); }
+.wizard-companion-card > header {
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    gap: 16px;
+}
+.wizard-companion-card h3 { margin: 3px 0 0; color: #f5fbff; font-size: 18px; }
+.wizard-companion-card > header > strong {
+    padding: 5px 8px;
+    border: 1px solid color-mix(in srgb, var(--installer-accent) 30%, transparent);
+    border-radius: 999px;
+    color: var(--installer-accent);
+    font: 800 9px/1 'JetBrains Mono', monospace;
+    letter-spacing: .1em;
+}
+.wizard-companion-kicker {
+    color: color-mix(in srgb, var(--installer-accent) 72%, white 8%);
+    font: 700 9px/1 'JetBrains Mono', monospace;
+    letter-spacing: .12em;
+}
+.wizard-companion-card > p { margin: 10px 0 13px; color: rgba(222, 238, 246, .58); font-size: 12px; }
+.wizard-companion-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+}
+.wizard-companion-grid article {
+    min-width: 0;
+    display: grid;
+    gap: 5px;
+    padding: 9px;
+    border-top: 2px solid rgba(157, 188, 201, .2);
+    background: rgba(0, 5, 13, .66);
+}
+.wizard-companion-grid span,
+.wizard-companion-grid strong { font: 800 10px/1 'JetBrains Mono', monospace; letter-spacing: .07em; }
+.wizard-companion-grid span { color: rgba(197, 220, 230, .5); }
+.wizard-companion-grid strong { color: rgba(235, 247, 252, .76); }
+.wizard-companion-grid small {
+    min-height: 25px;
+    overflow: hidden;
+    color: rgba(197, 220, 230, .5);
+    font-size: 10px;
+    line-height: 1.3;
+    text-overflow: ellipsis;
+}
+.wizard-companion-grid article[data-state="ready"] { border-top-color: #5cffad; }
+.wizard-companion-grid article[data-state="ready"] strong { color: #5cffad; }
+.wizard-companion-grid article[data-state="blocked"] { border-top-color: #ff8fa6; }
+.wizard-companion-grid article[data-state="blocked"] strong { color: #ff8fa6; }
+.wizard-companion-grid article[data-state="missing"] strong { color: #ffd77a; }
+.wizard-companion-autostart {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 12px;
+    margin-top: 9px;
+    padding: 9px 10px;
+    border-left: 2px solid color-mix(in srgb, var(--installer-accent) 55%, transparent);
+    background: rgba(0, 5, 13, .4);
+}
+.wizard-companion-autostart span { display: grid; gap: 3px; }
+.wizard-companion-autostart strong { color: rgba(244, 250, 253, .9); font-size: 11px; }
+.wizard-companion-autostart small { color: rgba(197, 220, 230, .5); font-size: 10px; }
+.wizard-companion-autostart input { width: 18px; height: 18px; accent-color: var(--installer-accent); }
+.wizard-companion-actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 7px;
+    margin-top: 9px;
+}
+.wizard-companion-actions button {
+    min-height: 34px;
+    padding: 0 10px;
+    border: 1px solid color-mix(in srgb, var(--installer-accent) 26%, rgba(255,255,255,.06));
+    border-radius: 8px;
+    background: rgba(255,255,255,.025);
+    color: rgba(229, 248, 255, .86);
+    font: 700 10px/1 'JetBrains Mono', monospace;
+    cursor: pointer;
+}
+.wizard-companion-actions button:disabled { cursor: not-allowed; opacity: .42; }
+.wizard-companion-status {
+    margin-top: 9px;
+    color: rgba(203, 226, 236, .56);
+    font: 500 10px/1.4 'JetBrains Mono', monospace;
+}
+
+@media (max-width: 720px) {
+    .wizard-companion-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 480px) {
+    .wizard-companion-grid,
+    .wizard-companion-actions { grid-template-columns: 1fr; }
+}
+
+.provider-login-actions { display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin-top:12px; }
+.provider-login-code { display:block; padding:14px 0; font-size:24px; letter-spacing:0.12em; user-select:all; overflow-wrap:anywhere; }
+
+/* ── A08.6: controls follow the runtime contract ──────────────────────
+   The packaged runtime includes Hermes Agent: the external installer, its
+   OS precheck, beta notice and autostart exist only where the runtime grants
+   those capabilities. An unknown runtime fails closed. */
+body:not([data-hermes-install="on"]) #btn-install-hermes,
+body:not([data-hermes-install="on"]) #oc-os-precheck,
+body:not([data-hermes-install="on"]) #beta-warning,
+body:not([data-hermes-install="on"]) #oc-existing-config,
+body:not([data-hermes-autostart="on"]) #oc-step-daemon,
+body:not([data-hermes-autostart="on"]) .autostart-row,
+body:not([data-hermes-autostart="on"]) #autostart-detail,
+body[data-runtime-mode="packaged"] [data-runtime-only="development"],
+body:not([data-runtime-mode="packaged"]) [data-runtime-only="packaged"] {
+    display: none !important;
+}
+
+/* A08.6: one consent dialog for every path that starts the bundled engine. */
+.engine-consent-dialog {
+    max-width: min(560px, calc(100vw - 32px));
+    margin: auto; /* the base reset removes the user-agent centring */
+    padding: 0;
+    border: 1px solid var(--border-bright);
+    border-radius: var(--r-sm);
+    background: var(--panel);
+    color: var(--text);
+    box-shadow: var(--glow-amber);
+}
+.engine-consent-dialog::backdrop { background: rgba(0, 0, 0, 0.62); }
+.engine-consent-dialog form { display: grid; gap: 12px; padding: 20px; }
+.engine-consent-dialog h3 { margin: 0; }
+.engine-consent-body { line-height: 1.6; font-size: 13px; }
+.engine-consent-body ul { margin: 6px 0; padding-left: 20px; }
+.engine-consent-body a { color: var(--amber-bright); overflow-wrap: anywhere; }
+.engine-consent-actions button:focus-visible { outline: 2px solid var(--amber-bright); outline-offset: 2px; }
+.engine-consent-actions { display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap; }
+
+/* ── Provider step: the folded main provider, more providers and the Gateway ──
+   The provider folds into a summary once saved and ready; messaging is optional;
+   the Gateway comes after both and waits for a ready provider (llm_setup.js).
+   Colours follow the IRIS OS skin, so every visual edition recolours them. */
+.llm-configured {
+    display: grid;
+    gap: 14px;
+    margin-top: 10px;
+    padding: 16px 18px;
+    border: 1px solid color-mix(in srgb, var(--os-green, #5cffad) 34%, transparent);
+    border-radius: 10px;
+    background:
+        linear-gradient(135deg,
+            color-mix(in srgb, var(--os-green, #5cffad) 9%, transparent),
+            color-mix(in srgb, var(--os-cyan, #73f7ff) 4%, transparent)),
+        var(--os-panel, rgba(5, 14, 23, 0.7));
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 18px 45px rgba(0,0,0,0.16);
+    animation: llm-fold-in 220ms ease-out;
+}
+.llm-configured[hidden], #llm-editor[hidden],
+.llm-editor-actions [hidden], .llm-configured-actions [hidden] { display: none !important; }
+@keyframes llm-fold-in {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .llm-configured { animation: none; }
+}
+.llm-configured-head { display: flex; align-items: center; gap: 14px; min-width: 0; }
+.llm-configured-mark {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: 1px solid color-mix(in srgb, var(--os-green, #5cffad) 55%, transparent);
+    background: color-mix(in srgb, var(--os-green, #5cffad) 14%, transparent);
+    color: var(--os-green, #5cffad);
+    font-size: 18px;
+    font-weight: 800;
+    box-shadow: 0 0 18px color-mix(in srgb, var(--os-green, #5cffad) 20%, transparent);
+}
+.llm-configured-text { display: grid; gap: 3px; flex: 1; min-width: 0; }
+.llm-configured-eyebrow {
+    color: var(--os-green, #5cffad);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+.llm-configured-text strong {
+    font-family: 'Syne', sans-serif;
+    font-size: 17px;
+    color: #f5f9ff;
+    overflow-wrap: anywhere;
+}
+.llm-configured-detail {
+    color: var(--os-text-dim, rgba(237, 247, 255, 0.58));
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    overflow-wrap: anywhere;
+}
+.llm-configured-badge {
+    flex: none;
+    padding: 4px 10px;
+    border: 1px solid color-mix(in srgb, var(--os-cyan, #73f7ff) 38%, transparent);
+    border-radius: 999px;
+    color: var(--os-cyan, #73f7ff);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+.llm-configured-others {
+    display: grid;
+    gap: 8px;
+    padding-top: 12px;
+    border-top: 1px solid var(--os-line, rgba(115, 247, 255, 0.18));
+}
+.llm-configured-others[hidden] { display: none; }
+.llm-configured-others .llm-configured-eyebrow { color: var(--os-cyan, #73f7ff); }
+.llm-configured-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.llm-chip {
+    padding: 5px 10px;
+    border: 1px solid var(--os-line, rgba(115, 247, 255, 0.18));
+    border-radius: 999px;
+    background: rgba(6, 17, 27, 0.6);
+    color: rgba(245, 249, 255, 0.88);
+    font-size: 11px;
+}
+.llm-configured-note { margin: 0; color: var(--os-text-dim, rgba(237, 247, 255, 0.58)); font-size: 11px; }
+.llm-configured-actions, .llm-editor-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.llm-editor-actions {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid var(--os-line, rgba(115, 247, 255, 0.18));
+}
+.llm-editor-intro {
+    margin: 4px 0 12px;
+    padding: 10px 12px;
+    border-left: 2px solid var(--os-magenta, #ff74d4);
+    background: color-mix(in srgb, var(--os-magenta, #ff74d4) 6%, transparent);
+    color: rgba(245, 249, 255, 0.86);
+    font-size: 12px;
+    line-height: 1.6;
+}
+.llm-editor-intro[hidden] { display: none; }
+.llm-save-status { margin: 0; min-height: 18px; color: var(--os-text-dim, rgba(237, 247, 255, 0.58)); font-size: 12px; line-height: 1.5; }
+.llm-save-status[data-tone="ok"] { color: var(--os-green, #5cffad); }
+.llm-save-status[data-tone="error"] { color: #ff9b9b; }
+.llm-configured .llm-save-status:empty { display: none; }
+
+.optional-pill {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 2px 9px;
+    border: 1px solid color-mix(in srgb, var(--os-cyan, #73f7ff) 36%, transparent);
+    border-radius: 999px;
+    color: var(--os-cyan, #73f7ff);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    vertical-align: middle;
+}
+
+.gateway-section {
+    margin-top: 22px;
+    padding: 18px;
+    border: 1px solid var(--os-line, rgba(115, 247, 255, 0.18));
+    border-radius: 10px;
+    background:
+        linear-gradient(135deg, color-mix(in srgb, var(--installer-accent) 5%, transparent), color-mix(in srgb, var(--installer-accent-2) 3%, transparent)),
+        var(--os-panel, rgba(5, 14, 23, 0.7));
+    transition: border-color 200ms ease, box-shadow 200ms ease;
+}
+.gateway-section[data-state="ready"],
+.gateway-section[data-state="stale"] {
+    border-color: color-mix(in srgb, var(--os-cyan, #73f7ff) 45%, transparent);
+    box-shadow: 0 0 30px color-mix(in srgb, var(--os-cyan, #73f7ff) 10%, transparent);
+}
+.gateway-section[data-state="running"] { border-color: color-mix(in srgb, var(--os-green, #5cffad) 40%, transparent); }
+.gateway-section[data-state="failed"] { border-color: rgba(255, 120, 120, 0.4); }
+.gateway-heading .messaging-eyebrow { margin-bottom: 6px; }
+.gateway-heading h3 { margin-bottom: 6px; }
+.gateway-heading p { margin: 0 0 14px; line-height: 1.6; }
+.gateway-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+.gateway-state {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: rgba(245, 249, 255, 0.86);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+.gateway-state::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(245, 249, 255, 0.3);
+}
+.gateway-section[data-state="ready"] .gateway-state::before { background: var(--os-cyan, #73f7ff); box-shadow: 0 0 10px var(--os-cyan, #73f7ff); }
+.gateway-section[data-state="running"] .gateway-state::before { background: var(--os-green, #5cffad); box-shadow: 0 0 10px var(--os-green, #5cffad); }
+.gateway-section[data-state="stale"] .gateway-state::before { background: var(--os-amber, #ffc44d); box-shadow: 0 0 10px var(--os-amber, #ffc44d); }
+.gateway-section[data-state="failed"] .gateway-state::before { background: #ff7878; }
+.gateway-section .btn-primary:disabled { cursor: not-allowed; }
+.gateway-hint { margin: 10px 0 0; color: var(--os-text-dim, rgba(237, 247, 255, 0.58)); font-size: 12px; line-height: 1.6; }
+.gateway-section .autostart-row { margin-top: 14px; }
+@media (max-width: 600px) {
+    .llm-configured-head { flex-wrap: wrap; }
+    .gateway-row { align-items: stretch; flex-direction: column; }
+}
+
+/* Secondary actions read as actions, not as disabled buttons (the base
+   .btn-outline used the 35% dim text). */
+.os-installer-shell .btn-outline {
+    border-color: color-mix(in srgb, var(--os-cyan) 34%, transparent) !important;
+    background: rgba(6, 17, 27, 0.6) !important;
+    color: rgba(245, 249, 255, 0.9) !important;
+    font-weight: 600;
+}
+.os-installer-shell .btn-outline:hover {
+    border-color: color-mix(in srgb, var(--os-cyan) 62%, transparent) !important;
+    color: #fff !important;
+    box-shadow: 0 0 18px color-mix(in srgb, var(--os-cyan) 14%, transparent);
+}
+
+/* Messaging follows the IRIS OS skin too (messaging.css keeps its own fallbacks);
+   amber stays only where it means "needs attention". */
+.os-installer-shell .messaging-eyebrow { color: var(--os-magenta); }
+.os-installer-shell .messaging-monogram {
+    border-color: color-mix(in srgb, var(--os-cyan) 32%, transparent);
+    color: var(--os-cyan);
+}
+.os-installer-shell .messaging-card { border-color: var(--os-line); background: var(--os-panel); }
+.os-installer-shell .messaging-card[open] {
+    border-color: color-mix(in srgb, var(--os-cyan) 45%, transparent);
+    background: var(--os-panel-strong);
+}
+.os-installer-shell .messaging-card[open] summary::after { color: var(--os-cyan); }
+.os-installer-shell .messaging-card summary:focus-visible { outline-color: var(--os-cyan); }
+.os-installer-shell .messaging-active-filter input,
+.os-installer-shell .messaging-enable input,
+.os-installer-shell .messaging-clear input { accent-color: var(--os-cyan); }
+.os-installer-shell #messaging-panel .key-link { color: var(--os-cyan); }
+.os-installer-shell .messaging-badge.connected { color: var(--os-green); }
+
+/* The engine notice lives outside the installer shell and the logs predate the
+   IRIS OS skin: both follow the visual edition too (amber only for warnings). */
+.engine-consent-dialog {
+    border: 1px solid color-mix(in srgb, var(--installer-accent, #73f7ff) 40%, transparent);
+    border-radius: 12px;
+    background:
+        linear-gradient(135deg,
+            color-mix(in srgb, var(--installer-accent, #73f7ff) 7%, transparent),
+            color-mix(in srgb, var(--installer-accent-2, #ff74d4) 5%, transparent)),
+        rgba(4, 12, 20, 0.97);
+    box-shadow: 0 28px 80px rgba(0, 0, 0, 0.6), 0 0 40px color-mix(in srgb, var(--installer-accent, #73f7ff) 12%, transparent);
+}
+.engine-consent-dialog h3 { font-family: 'Syne', sans-serif; color: #f5f9ff; }
+.engine-consent-body a { color: var(--installer-accent, #73f7ff); }
+.engine-consent-actions button { border-radius: 8px; }
+.engine-consent-actions .btn-primary {
+    border: 1px solid color-mix(in srgb, var(--installer-accent, #73f7ff) 50%, transparent);
+    background: linear-gradient(135deg, var(--installer-accent, #73f7ff), var(--installer-accent-2, #ff74d4));
+    color: #041018;
+    font-weight: 800;
+    box-shadow: 0 0 24px color-mix(in srgb, var(--installer-accent, #73f7ff) 18%, transparent);
+}
+.engine-consent-actions .btn-back {
+    border: 1px solid color-mix(in srgb, var(--installer-accent, #73f7ff) 30%, transparent);
+    background: rgba(6, 17, 27, 0.72);
+    color: rgba(245, 249, 255, 0.9);
+}
+.engine-consent-actions button:focus-visible { outline-color: var(--installer-accent, #73f7ff); }
+.os-installer-shell .install-log {
+    border-color: var(--os-line);
+    background: rgba(2, 8, 14, 0.82);
+    color: color-mix(in srgb, var(--os-cyan) 70%, transparent);
+    scrollbar-color: color-mix(in srgb, var(--os-cyan) 40%, transparent) transparent;
+}
+.os-installer-shell .install-log .log-info { color: var(--os-cyan); }
+.os-installer-shell .install-log .log-ok { color: var(--os-green); }
+.os-installer-shell .install-log .log-warn { color: var(--os-amber); }
+.os-installer-shell .highlight { color: var(--os-cyan); }
+
+/* Resource links in the info panels (avatar and animations) follow the edition; they showed
+   the browser's own blue and purple. */
+.os-installer-shell .info-panel a,
+.os-installer-shell .info-panel a:visited {
+    color: var(--installer-accent);
+    text-decoration-color: color-mix(in srgb, var(--installer-accent) 45%, transparent);
+    text-underline-offset: 2px;
+}
+
+.os-installer-shell .info-panel a:hover,
+.os-installer-shell .info-panel a:focus-visible {
+    color: var(--installer-accent-2);
+}
+
+/* IRIS OS line icons: <wz-icon> (wizard_icons.js) draws the wizard's own icon marks with
+   the same set as the desktop. The tone colours states. */
+wz-icon {
+    display: inline-flex;
+    flex: none;
+    width: 1.15em;
+    height: 1.15em;
+    vertical-align: -0.22em;
+    color: var(--installer-accent);
+}
+
+wz-icon svg {
+    width: 100%;
+    height: 100%;
+    filter: drop-shadow(0 0 5px color-mix(in srgb, currentColor 42%, transparent));
+}
+
+wz-icon[data-tone="ok"] { color: var(--installer-ready); }
+wz-icon[data-tone="warn"] { color: var(--os-amber, #ffc44d); }
+wz-icon[data-tone="err"] { color: #ff6b8b; }
+wz-icon[data-tone="idle"] { color: rgba(226, 241, 255, 0.42); }
+wz-icon[data-tone="busy"] svg { animation: wz-icon-pulse 1.4s ease-in-out infinite; }
+
+@keyframes wz-icon-pulse { 50% { opacity: 0.4; } }
+
+/* Each step's mark sits in a framed tile, like the IRIS OS desktop icons. */
+.os-installer-shell .step-icon {
+    display: grid;
+    place-items: center;
+    width: 58px;
+    height: 58px;
+    margin: 0 auto 12px;
+    border-radius: 17px;
+    font-size: 26px;
+    color: var(--installer-accent);
+    border: 1px solid color-mix(in srgb, var(--installer-accent) 32%, transparent);
+    background:
+        radial-gradient(circle at 50% 28%, color-mix(in srgb, var(--installer-accent) 20%, transparent), transparent 70%),
+        rgba(5, 14, 23, 0.74);
+    box-shadow:
+        0 0 26px color-mix(in srgb, var(--installer-accent) 18%, transparent),
+        inset 0 0 18px color-mix(in srgb, var(--installer-accent-2) 9%, transparent);
+    text-shadow: none;
+    filter: none;
+}
+
+.os-installer-shell .step-icon wz-icon { width: 28px; height: 28px; }
+
+.os-installer-shell .mode-card-icon {
+    display: grid;
+    place-items: center;
+    width: 46px;
+    height: 46px;
+    margin: 0 auto 10px;
+    border-radius: 14px;
+    font-size: 22px;
+    border: 1px solid color-mix(in srgb, var(--installer-accent) 26%, transparent);
+    background: color-mix(in srgb, var(--installer-accent) 9%, rgba(255, 255, 255, 0.03));
+}
+
+.os-installer-shell .mode-card-icon wz-icon { width: 24px; height: 24px; }
+
+/* Providers show a monogram, like the messaging channels, instead of a brand emoji. */
+.provider-monogram {
+    display: inline-grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    margin-right: 9px;
+    border-radius: 7px;
+    vertical-align: middle;
+    font: 700 10px/1 'JetBrains Mono', monospace;
+    letter-spacing: 0.04em;
+    color: var(--installer-accent);
+    border: 1px solid color-mix(in srgb, var(--installer-accent) 32%, transparent);
+    background: color-mix(in srgb, var(--installer-accent) 8%, transparent);
+}
+
+.os-installer-shell .btn-eye wz-icon { width: 16px; height: 16px; vertical-align: middle; }
+/* Setup flow: five sections, progressive disclosure using the existing theme. */
+body .os-installer-shell .voice-card .voice-select { flex-direction:column; font-size:13px; line-height:1.45; }
+body .os-installer-shell .wizard-step .setup-choice { text-align:left; font-size:13px; }
+.setup-welcome-actions { display:flex; gap:18px; align-items:center; flex-wrap:wrap; margin:24px 0; }
+body[data-wizard-step="0"] :is(.installer-hero, .setup-welcome-actions, #setup-sections, .installer-launch-row) {
+    width: min(760px, 100%); margin-left: auto; margin-right: auto; box-sizing: border-box;
+}
+.setup-welcome-actions > span, .setup-privacy { color:var(--text-dim); font-size:13px; line-height:1.6; }
+.setup-details { margin:14px 0; border:1px solid color-mix(in srgb, var(--installer-accent) 20%, transparent); border-radius:12px; background:rgba(0,0,0,.12); }
+.setup-details > summary { cursor:pointer; padding:15px 18px; color:var(--text); font-size:14px; font-weight:600; }
+.setup-details[open] > summary { border-bottom:1px solid rgba(255,255,255,.08); }
+.setup-details-body { padding:16px; min-width:0; }
+.setup-details-body > :first-child { margin-top:0; }
+.setup-header-details { margin-top:12px; font-size:12px; color:var(--text-dim); }
+.setup-header-details > summary { cursor:pointer; }
+.setup-header-details .installer-status-grid { margin-top:8px; }
+.setup-section-links, .setup-summary-links { display:flex; gap:8px; padding:14px; flex-wrap:wrap; }
+.setup-section-links button { display:flex; gap:8px; align-items:center; padding:12px; border:1px solid rgba(255,255,255,.12); border-radius:8px; background:var(--void); color:var(--text); cursor:pointer; font:inherit; }
+.setup-choice { margin:14px 0 8px; padding:10px 12px; border-left:3px solid var(--installer-accent); color:var(--text); font-size:13px; overflow-wrap:anywhere; }
+.voice-engine-options .setup-details .radio-group { margin:0; }
+.voice-engine-options .radio-card { min-width:0; }
+.voice-engine-options .radio-content { min-width:0; }
+.os-installer-shell .voice-card { cursor:default; padding:0 10px 0 0; gap:10px; }
+.os-installer-shell .voice-card .voice-select { display:flex; flex:1; gap:4px; align-items:flex-start; padding:12px; text-align:left; border:0; border-radius:8px; background:transparent; color:var(--text); font:inherit; cursor:pointer; min-width:0; }
+.os-installer-shell .voice-card .voice-select:hover { background:color-mix(in srgb, var(--installer-accent) 9%, transparent); }
+.wizard-step h2:focus { outline:none; }
+.wizard-step button:focus-visible, .wizard-step summary:focus-visible { outline:2px solid var(--installer-accent); outline-offset:3px; }
+.wizard-step h2 { scroll-margin-top:18px; }
+@media (max-width:600px) {
+    .setup-details > summary { padding:13px; }
+    .setup-details-body { padding:12px; }
+    .setup-section-links { display:grid; grid-template-columns:1fr; }
+    .setup-welcome-actions { align-items:stretch; flex-direction:column; }
+    .setup-summary-links { padding:8px 0; }
+    .voice-engine-options .radio-group { grid-template-columns:1fr; }
+    .setup-details input, .setup-details select { max-width:100%; }
+}
+@media (prefers-reduced-motion:reduce) {
+    .wizard-step.active { animation:none; }
+}
+
+/* Voice cards keep labels, inputs and actions separated at every width. */
+#fish-audio-key-section { display: flex; flex-direction: column; gap: 10px; }
+#fish-audio-key-section label { margin: 8px 0 0; }
+#fish-audio-key-section .key-sub-input { margin: 0; width: 100%; min-width: 0; }
+#fish-audio-key-section .key-row { flex-wrap: wrap; gap: 8px; }
+#fish-audio-key-section .key-row input { flex: 1 1 160px; min-width: 0; }
+#fish-audio-key-section .key-row .btn-eye { flex: 0 0 auto; }
+/* At the foot of the form it leaves the fields alone, and stays in reach of a long list. */
+.voice-save-row { position: sticky; bottom: 12px; z-index: 5; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; margin: 20px 0 16px; padding: 10px 14px; border: 1px solid var(--border); border-radius: 12px; background: var(--void-1, #10121d); box-shadow: 0 -8px 24px rgba(0,0,0,.35); }
+.voice-save-row p { flex-basis: 100%; margin: 0; }
+/* Clip decoration without creating an unscrolled ancestor for the voice bar. */
+.os-installer-shell:has(.wizard-step.active[data-step="4"]) { overflow: clip; }
+.voice-save-row #voice-save-status { color: var(--text, #edf2fa); }
+.voice-save-row #save-voice-selection:disabled { cursor: wait; }
+@media (max-width: 480px) { .voice-save-row { padding: 12px; gap: 8px; } .voice-save-row #save-voice-selection { width: 100%; } }
+.iris-audio-player { display: grid; grid-template-columns: auto minmax(70px,1fr) auto; align-items: center; gap: 12px; border: 1px solid var(--border); background: var(--void); padding: 12px; border-radius: 12px; color-scheme: dark; }
+.iris-audio-player input[type=range] { width: 100%; min-width: 0; accent-color: var(--installer-accent); }
+.iris-audio-player button:focus-visible,.iris-audio-player input:focus-visible { outline: 2px solid var(--installer-accent); outline-offset: 3px; }
+@media(max-width:480px) { .iris-audio-player { grid-template-columns: auto 1fr; } .iris-audio-player input[type=range] { grid-row: 2; grid-column: 1/-1; } }

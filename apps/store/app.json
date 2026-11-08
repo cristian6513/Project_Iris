@@ -1,0 +1,24 @@
+{
+  "schema": "iris.app-manifest/v1",
+  "sdkVersion": 1,
+  "id": "store",
+  "name": "Iris Store",
+  "version": "1.0.0",
+  "description": "Instala apps desde un archivo o una carpeta",
+  "icon": "download",
+  "accent": "magenta",
+  "presentation": "window",
+  "window": {
+    "width": 760,
+    "height": 640
+  },
+  "launcher": {
+    "visible": true,
+    "order": 95,
+    "label": "Iris Store"
+  },
+  "ui": {
+    "entry": "main.js",
+    "style": "style.css"
+  }
+}

@@ -1,0 +1,242 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://iris.local/schemas/desktop-runtime.json",
+  "title": "Iris Desktop runtime descriptor",
+  "description": "A08.1 structural contract. Native/Python resolvers also enforce a 64 KiB UTF-8 document limit, reject duplicate fields, and validate filesystem containment/existence and the Hermes metadata pin. Capabilities are derived from mode; they are not descriptor inputs. Hash/inventory verification belongs to A08.4. A08.7: an optional install.max_relative_path declares the longest staged relative path; packaged Windows resolvers reject an installation folder longer than MAX_PATH (259) - 1 - that value.",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/developmentV1"
+    },
+    {
+      "$ref": "#/$defs/runtimeV2"
+    }
+  ],
+  "$defs": {
+    "revision": {
+      "type": "string",
+      "minLength": 40,
+      "maxLength": 40,
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "version": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^(?!.*[\\u0000-\\u001f\\u007f-\\u009f])(?=.*\\S).*$"
+    },
+    "path": {
+      "type": "string",
+      "minLength": 1
+    },
+    "packagedPath": {
+      "type": "string",
+      "minLength": 1,
+      "allOf": [
+        {
+          "pattern": "^(?!/)(?!.*[\\\\:%<>\"|?*\\u0000-\\u001f\\u007f-\\u009f])[^/]+(?:/[^/]+)*$"
+        },
+        {
+          "pattern": "^(?!.*(?:^|/)\\.{1,2}(?:/|$))"
+        },
+        {
+          "pattern": "^(?!.*[. ](?:/|$))"
+        },
+        {
+          "pattern": "^(?!.*(?:^|/)(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Ll][Oo][Cc][Kk]\\$|[Cc][Oo][Mm][1-9¹²³]|[Ll][Pp][Tt][1-9¹²³]) *(?:\\.|/|$))"
+        }
+      ]
+    },
+    "developmentV1": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "mode",
+        "project_root",
+        "python"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": 1,
+          "type": "integer"
+        },
+        "mode": {
+          "const": "development"
+        },
+        "project_root": {
+          "type": "string"
+        },
+        "python": {
+          "type": "string"
+        }
+      }
+    },
+    "iris": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "root",
+        "python",
+        "assets",
+        "revision"
+      ],
+      "properties": {
+        "root": {
+          "$ref": "#/$defs/path"
+        },
+        "python": {
+          "$ref": "#/$defs/path"
+        },
+        "assets": {
+          "$ref": "#/$defs/path"
+        },
+        "revision": {
+          "$ref": "#/$defs/revision"
+        }
+      }
+    },
+    "hermes": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "root",
+        "python",
+        "cli",
+        "version",
+        "revision",
+        "metadata"
+      ],
+      "properties": {
+        "root": {
+          "$ref": "#/$defs/path"
+        },
+        "python": {
+          "$ref": "#/$defs/path"
+        },
+        "cli": {
+          "$ref": "#/$defs/path"
+        },
+        "version": {
+          "$ref": "#/$defs/version"
+        },
+        "revision": {
+          "$ref": "#/$defs/revision"
+        },
+        "metadata": {
+          "$ref": "#/$defs/path"
+        }
+      }
+    },
+    "hermesMetadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "version",
+        "revision"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": 1,
+          "type": "integer"
+        },
+        "version": {
+          "$ref": "#/$defs/version"
+        },
+        "revision": {
+          "$ref": "#/$defs/revision"
+        }
+      }
+    },
+    "runtimeV2": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "mode",
+        "iris"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": 2,
+          "type": "integer"
+        },
+        "mode": {
+          "enum": [
+            "development",
+            "packaged"
+          ]
+        },
+        "iris": {
+          "$ref": "#/$defs/iris"
+        },
+        "hermes": {
+          "$ref": "#/$defs/hermes"
+        },
+        "install": {
+          "$ref": "#/$defs/install"
+        }
+      },
+      "if": {
+        "properties": {
+          "mode": {
+            "const": "packaged"
+          }
+        },
+        "required": [
+          "mode"
+        ]
+      },
+      "then": {
+        "required": [
+          "hermes"
+        ],
+        "properties": {
+          "iris": {
+            "properties": {
+              "root": {
+                "$ref": "#/$defs/packagedPath"
+              },
+              "python": {
+                "$ref": "#/$defs/packagedPath"
+              },
+              "assets": {
+                "$ref": "#/$defs/packagedPath"
+              }
+            }
+          },
+          "hermes": {
+            "properties": {
+              "root": {
+                "$ref": "#/$defs/packagedPath"
+              },
+              "python": {
+                "$ref": "#/$defs/packagedPath"
+              },
+              "cli": {
+                "$ref": "#/$defs/packagedPath"
+              },
+              "metadata": {
+                "$ref": "#/$defs/packagedPath"
+              }
+            }
+          }
+        }
+      }
+    },
+    "install": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "max_relative_path"
+      ],
+      "properties": {
+        "max_relative_path": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 4096
+        }
+      }
+    }
+  }
+}

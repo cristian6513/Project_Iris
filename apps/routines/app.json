@@ -1,0 +1,22 @@
+{
+  "schema": "iris.app-manifest/v1",
+  "sdkVersion": 1,
+  "id": "routines",
+  "name": "Tareas programadas",
+  "version": "1.0.0",
+  "description": "Tareas programadas por horario",
+  "icon": "routines",
+  "accent": "amber",
+  "presentation": "window",
+  "window": {
+    "width": 780,
+    "height": 560
+  },
+  "launcher": {
+    "visible": true,
+    "order": 40
+  },
+  "ui": {
+    "adapter": "legacy"
+  }
+}

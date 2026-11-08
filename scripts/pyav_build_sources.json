@@ -1,0 +1,123 @@
+{
+  "schema": 1,
+  "platform": "windows",
+  "arch": "x86_64",
+  "source": {
+    "name": "av",
+    "version": "18.1.0",
+    "filename": "av-18.1.0.tar.gz",
+    "url": "https://files.pythonhosted.org/packages/8d/f4/f22114d30d3435e38c6af2b4870f37b864403dca6ae7af747a289ce0a18e/av-18.1.0.tar.gz",
+    "sha256": "47bfc286e1bc9de7ab4681fc2b575cd2460a66919d31ffe1bd5aa54fae531a28",
+    "metadata_url": "https://pypi.org/pypi/av/18.1.0/json"
+  },
+  "python": {
+    "version": "3.11.16",
+    "build": "20260901",
+    "filename": "cpython-3.11.16+20260901-x86_64-pc-windows-msvc-install_only_stripped.tar.gz",
+    "url": "https://github.com/astral-sh/python-build-standalone/releases/download/20260901/cpython-3.11.16%2B20260901-x86_64-pc-windows-msvc-install_only_stripped.tar.gz",
+    "sha256": "06cbe479e039f5b9cb5640c286d790074d63f549f92a32d599a3748293bd4510",
+    "archive_prefix": "python/",
+    "license": "Python-2.0"
+  },
+  "tools": [
+    {
+      "name": "Cython",
+      "version": "3.2.4",
+      "filename": "cython-3.2.4-cp311-cp311-win_amd64.whl",
+      "url": "https://files.pythonhosted.org/packages/32/e4/424a004d7c0d8a4050c81846ebbd22272ececfa9a498cb340aa44fccbec2/cython-3.2.4-cp311-cp311-win_amd64.whl",
+      "sha256": "1a64a112a34ec719b47c01395647e54fb4cf088a511613f9a3a5196694e8e382",
+      "metadata_url": "https://pypi.org/pypi/Cython/3.2.4/json"
+    },
+    {
+      "name": "setuptools",
+      "version": "81.0.0",
+      "filename": "setuptools-81.0.0-py3-none-any.whl",
+      "url": "https://files.pythonhosted.org/packages/e1/e3/c164c88b2e5ce7b24d667b9bd83589cf4f3520d97cad01534cd3c4f55fdb/setuptools-81.0.0-py3-none-any.whl",
+      "sha256": "fdd925d5c5d9f62e4b74b30d6dd7828ce236fd6ed998a08d81de62ce5a6310d6",
+      "metadata_url": "https://pypi.org/pypi/setuptools/81.0.0/json"
+    },
+    {
+      "name": "wheel",
+      "version": "0.46.3",
+      "filename": "wheel-0.46.3-py3-none-any.whl",
+      "url": "https://files.pythonhosted.org/packages/87/22/b76d483683216dde3d67cba61fb2444be8d5be289bf628c13fc0fd90e5f9/wheel-0.46.3-py3-none-any.whl",
+      "sha256": "4b399d56c9d9338230118d705d9737a2a468ccca63d5e813e2a4fc7815d8bc4d",
+      "metadata_url": "https://pypi.org/pypi/wheel/0.46.3/json"
+    },
+    {
+      "name": "build",
+      "version": "1.5.0",
+      "filename": "build-1.5.0-py3-none-any.whl",
+      "url": "https://files.pythonhosted.org/packages/0d/fe/6bea5c9162869c5beba5d9c8abbed835ec85bf1ec1fba05a3822325c45f3/build-1.5.0-py3-none-any.whl",
+      "sha256": "13f3eecb844759ab66efec90ca17639bbf14dc06cb2fdf37a9010322d9c50a6f",
+      "metadata_url": "https://pypi.org/pypi/build/1.5.0/json"
+    },
+    {
+      "name": "delvewheel",
+      "version": "1.12.0",
+      "filename": "delvewheel-1.12.0-py3-none-any.whl",
+      "url": "https://files.pythonhosted.org/packages/89/74/bf0ea7b89e114af19a38c2341746fd1f17f1de23fa8d8019cbcd39719c5f/delvewheel-1.12.0-py3-none-any.whl",
+      "sha256": "659ef85a83e4503e037e65570f7a87d2ad4e0ee55dc2d19d9afed420a031caf0",
+      "metadata_url": "https://pypi.org/pypi/delvewheel/1.12.0/json"
+    },
+    {
+      "name": "packaging",
+      "version": "26.2",
+      "filename": "packaging-26.2-py3-none-any.whl",
+      "url": "https://files.pythonhosted.org/packages/df/b2/87e62e8c3e2f4b32e5fe99e0b86d576da1312593b39f47d8ceef365e95ed/packaging-26.2-py3-none-any.whl",
+      "sha256": "5fc45236b9446107ff2415ce77c807cee2862cb6fac22b8a73826d0693b0980e",
+      "metadata_url": "https://pypi.org/pypi/packaging/26.2/json"
+    },
+    {
+      "name": "pyproject-hooks",
+      "version": "1.2.0",
+      "filename": "pyproject_hooks-1.2.0-py3-none-any.whl",
+      "url": "https://files.pythonhosted.org/packages/bd/24/12818598c362d7f300f18e74db45963dbcb85150324092410c8b49405e42/pyproject_hooks-1.2.0-py3-none-any.whl",
+      "sha256": "9e5c6bfa8dcc30091c74b0cf803c81fdd29d94f01992a7707bc97babb1141913",
+      "metadata_url": "https://pypi.org/pypi/pyproject-hooks/1.2.0/json"
+    },
+    {
+      "name": "pefile",
+      "version": "2024.8.26",
+      "filename": "pefile-2024.8.26-py3-none-any.whl",
+      "url": "https://files.pythonhosted.org/packages/54/16/12b82f791c7f50ddec566873d5bdd245baa1491bac11d15ffb98aecc8f8b/pefile-2024.8.26-py3-none-any.whl",
+      "sha256": "76f8b485dcd3b1bb8166f1128d395fa3d87af26360c2358fb75b80019b957c6f",
+      "metadata_url": "https://pypi.org/pypi/pefile/2024.8.26/json"
+    },
+    {
+      "name": "colorama",
+      "version": "0.4.6",
+      "filename": "colorama-0.4.6-py2.py3-none-any.whl",
+      "url": "https://files.pythonhosted.org/packages/d1/d6/3965ed04c63042e047cb6a3e6ed1a63a35087b6a609aa3a15ed8ac56c221/colorama-0.4.6-py2.py3-none-any.whl",
+      "sha256": "4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6",
+      "metadata_url": "https://pypi.org/pypi/colorama/0.4.6/json"
+    }
+  ],
+  "source_date_epoch": 1790713770,
+  "ffmpeg_libraries": [
+    "avcodec",
+    "avdevice",
+    "avfilter",
+    "avformat",
+    "avutil",
+    "swresample",
+    "swscale"
+  ],
+  "msvc": {
+    "version": "14.50.35717",
+    "sdk_version": "10.0.26100.0",
+    "compile_flags": [
+      "/Brepro"
+    ],
+    "link_flags": [
+      "/Brepro",
+      "/DEBUG:NONE"
+    ]
+  },
+  "repair": {
+    "tool": "delvewheel",
+    "version": "1.12.0",
+    "mangle": true,
+    "private_sdk_only": true
+  }
+}

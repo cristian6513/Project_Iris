@@ -1,0 +1,42 @@
+{
+  "schema": 1,
+  "component": "main",
+  "source_base_commit": "49951db0042405b7a60a0c4dd3d7896bdd920784",
+  "source_has_uncommitted_changes": true,
+  "source_tree_sha256": "37f2cbf55a7588626d90cbae106c7ba83592038d2333b48f1a2d9542feb7ac41",
+  "content_tree_sha256": "fb38e73c8dd150cde0e5403bb2bdfc1d13ace4933488c09d0b45a44ade1370c3",
+  "payload_files": 1382,
+  "documentation_references_adapted": 130,
+  "exact_source_commit": false,
+  "installer_acceptance": false,
+  "qa_artifacts": {
+    "candidate": "QA22",
+    "version": "0.9.2",
+    "build_id": "ddd205bd",
+    "build_tree_sha256": "46a4a95fe23a32fc5284264d8ca43c51aa3463e6173bc55ae7298636ec12a33a",
+    "staging_sha256": "ddd205bd6721030fee31c1dc817e8c32d0e690ca2c7920226cfa1b5606b783dc",
+    "installer_sha256": "640536c91301621b7d3aa393087173d7d97ba1d4021ac167f3ca321db45c5ac8",
+    "package_sha256": "574562ae499304890295b689b351443d8781004cb4cee02b410411fe7854bf24"
+  },
+  "public_adaptations": {
+    "build_version_files": [
+      "core/version.py",
+      "desktop/src-tauri/tauri.conf.json",
+      "scripts/runtime_sources.json"
+    ],
+    "privacy_files": [
+      ".gitignore",
+      ".dockerignore",
+      "pagina-iris/.gitignore",
+      "pagina-iris/site.config.json",
+      "pagina-iris/deploy/README.md",
+      "pagina-iris/scripts/deploy.mjs",
+      "tools/repositories/exports.json",
+      "tests/test_hermes_response_envelope.py"
+    ],
+    "documentation": [
+      "README.md",
+      "Public Markdown links"
+    ]
+  }
+}

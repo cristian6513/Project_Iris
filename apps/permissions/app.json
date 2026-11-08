@@ -1,0 +1,22 @@
+{
+  "schema": "iris.app-manifest/v1",
+  "sdkVersion": 1,
+  "id": "permissions",
+  "name": "Permisos",
+  "version": "1.0.0",
+  "description": "Permisos y controles de Iris",
+  "icon": "permissions",
+  "accent": "amber",
+  "presentation": "window",
+  "window": {
+    "width": 1120,
+    "height": 680
+  },
+  "launcher": {
+    "visible": true,
+    "order": 110
+  },
+  "ui": {
+    "adapter": "legacy"
+  }
+}

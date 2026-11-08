@@ -1,0 +1,73 @@
+/* Every rule starts with .mi-app so the app never changes the rest of IRIS OS.
+   Colors come from the active theme: --iris-os-accent and --iris-os-accent-2. */
+.mi-app {
+    display: grid;
+    gap: 12px;
+    color: rgba(230, 244, 249, 0.86);
+    font: 600 0.82rem/1.45 var(--font-body);
+}
+
+.mi-app-header {
+    display: flex;
+    gap: 8px;
+}
+
+.mi-app-search {
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 34px;
+    padding: 0 12px;
+    border-radius: 11px;
+    border: 1px solid color-mix(in srgb, var(--iris-os-accent) 26%, rgba(255, 255, 255, 0.08));
+    background: rgba(255, 255, 255, 0.04);
+    color: inherit;
+    font: inherit;
+}
+
+.mi-app-refresh,
+.mi-app-item {
+    min-height: 34px;
+    padding: 0 14px;
+    border-radius: 11px;
+    border: 1px solid color-mix(in srgb, var(--iris-os-accent) 30%, rgba(255, 255, 255, 0.08));
+    background: color-mix(in srgb, var(--iris-os-accent) 10%, rgba(255, 255, 255, 0.03));
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+}
+
+.mi-app-list {
+    display: grid;
+    gap: 6px;
+}
+
+.mi-app-item {
+    text-align: left;
+}
+
+.mi-app-item[aria-pressed="true"] {
+    border-color: var(--iris-os-accent);
+    color: var(--iris-os-accent);
+}
+
+.mi-app-refresh:focus-visible,
+.mi-app-item:focus-visible,
+.mi-app-search:focus-visible {
+    outline: 2px solid var(--iris-os-accent);
+    outline-offset: 2px;
+}
+
+.mi-app-status,
+.mi-app-detail {
+    margin: 0;
+}
+
+.mi-app-age {
+    color: rgba(220, 240, 248, 0.5);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .mi-app-item {
+        transition: border-color 160ms ease, color 160ms ease;
+    }
+}

@@ -1,0 +1,22 @@
+{
+  "schema": "iris.app-manifest/v1",
+  "sdkVersion": 1,
+  "id": "models",
+  "name": "Modelos",
+  "version": "1.0.0",
+  "description": "Selector del chat y modelo de visión",
+  "icon": "models",
+  "accent": "cyan",
+  "presentation": "window",
+  "window": {
+    "width": 920,
+    "height": 620
+  },
+  "launcher": {
+    "visible": true,
+    "order": 140
+  },
+  "ui": {
+    "adapter": "legacy"
+  }
+}

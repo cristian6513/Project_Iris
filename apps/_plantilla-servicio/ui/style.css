@@ -1,0 +1,53 @@
+/* Every rule starts with .mi-servicio so the app never changes the rest of IRIS OS. */
+.mi-servicio {
+    display: grid;
+    gap: 12px;
+    color: rgba(230, 244, 249, 0.86);
+    font: 600 0.82rem/1.45 var(--font-body);
+}
+
+.mi-servicio-refresh {
+    justify-self: start;
+    min-height: 34px;
+    padding: 0 14px;
+    border-radius: 11px;
+    border: 1px solid color-mix(in srgb, var(--iris-os-accent-2) 34%, rgba(255, 255, 255, 0.08));
+    background: color-mix(in srgb, var(--iris-os-accent-2) 10%, rgba(255, 255, 255, 0.03));
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+}
+
+.mi-servicio-refresh:focus-visible {
+    outline: 2px solid var(--iris-os-accent-2);
+    outline-offset: 2px;
+}
+
+.mi-servicio-status {
+    margin: 0;
+}
+
+.mi-servicio-list {
+    display: grid;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.mi-servicio-item {
+    display: grid;
+    gap: 2px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.mi-servicio-item[aria-current="true"] {
+    border-color: var(--iris-os-accent-2);
+}
+
+.mi-servicio-detail {
+    color: rgba(220, 240, 248, 0.62);
+}

@@ -1,0 +1,23 @@
+[package]
+name = "iris-desktop"
+version = "0.1.0"
+description = "IRIS main desktop application"
+edition = "2021"
+license = "MIT"
+
+[features]
+# Production build, as `tauri build` does: the embedded frontend is served over
+# the custom protocol. Without it Tauri compiles in dev mode and records the
+# source folder inside the executable (A08.7).
+custom-protocol = ["tauri/custom-protocol"]
+
+[build-dependencies]
+tauri-build = { version = "=2.6.3", features = [] }
+
+[dependencies]
+dirs = "=6.0.0"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tauri = { version = "=2.11.5", features = ["tray-icon"] }
+tauri-plugin-single-instance = "=2.4.3"
+tauri-plugin-window-state = "=2.4.1"

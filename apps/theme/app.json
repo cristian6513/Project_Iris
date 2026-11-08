@@ -1,0 +1,22 @@
+{
+  "schema": "iris.app-manifest/v1",
+  "sdkVersion": 1,
+  "id": "theme",
+  "name": "Theme Studio",
+  "version": "1.0.0",
+  "description": "Temas y apariencia",
+  "icon": "palette",
+  "accent": "magenta",
+  "presentation": "window",
+  "window": {
+    "width": 920,
+    "height": 620
+  },
+  "launcher": {
+    "visible": true,
+    "order": 150
+  },
+  "ui": {
+    "adapter": "legacy"
+  }
+}

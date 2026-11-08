@@ -1,0 +1,22 @@
+IRIS — avatar VRM (iris.vrm)
+Autor: Cristian Betancourt. Todos los derechos reservados.
+
+Este modelo NO forma parte de la licencia MIT del código de IRIS OS. Se incluye
+solo para que IRIS OS lo muestre como avatar predeterminado.
+
+Sus condiciones son las de sus metadatos VRM (VRM Public License 1.0,
+https://vrm.dev/licenses/1.0/):
+- No se permite redistribuirlo fuera de IRIS OS.
+- No se permite modificarlo.
+- Uso personal y sin fines de lucro.
+- No se permiten usos de odio, excesivamente violentos, excesivamente sexuales,
+  políticos o religiosos.
+- Se requiere el crédito «Iris — Cristian Betancourt».
+
+IRIS OS acepta cualquier otro modelo .vrm: desde el asistente de configuración,
+Configuración rápida («Usar mi propio VRM») o arrastrándolo a la ventana.
+
+English: the IRIS avatar (iris.vrm) is not covered by the MIT license of the
+IRIS OS code. It ships only as IRIS OS' default avatar. It may not be
+redistributed outside IRIS OS, and it may not be modified (see its VRM
+metadata, VRM Public License 1.0).

@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <title>IRIS OS — foto de perfil (retrato)</title>
+    <!-- Alternativa de foto de perfil con el retrato de IRIS (800×800; el original mide 512).
+         La renderiza scripts/render-images.mjs --redes. -->
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { width: 800px; height: 800px; overflow: hidden; background: #020711; }
+
+        .card {
+            position: relative;
+            width: 800px;
+            height: 800px;
+            background: url('../assets/profile-iris.webp') center / cover no-repeat;
+        }
+
+        /* Un aro fino dentro del círculo que recortan las redes */
+        .card::after {
+            content: "";
+            position: absolute;
+            inset: 14px;
+            border-radius: 50%;
+            box-shadow: 0 0 0 5px rgba(115, 247, 255, 0.7), 0 0 60px rgba(255, 116, 212, 0.45);
+        }
+    </style>
+</head>
+<body>
+    <div class="card"></div>
+</body>
+</html>

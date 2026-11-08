@@ -1,0 +1,165 @@
+/* F07 Bandeja (general inbox) and the silent notice on return, with the IRIS OS theme tokens. */
+
+/* The Notification Center window: "Bandeja" and "Vision" share it. */
+.os-window-body > .workbench-view[data-workbench-view="notifications"] {
+    display:flex !important; flex-direction:column; gap:10px;
+}
+.workbench-view[data-workbench-view="notifications"] .notifications-pane { flex:1 1 auto; min-height:0; }
+.workbench-view[data-workbench-view="notifications"] .notifications-pane[hidden] { display:none !important; }
+.notifications-switch { display:flex; gap:6px; flex:none; }
+.notifications-switch button {
+    font:600 12px var(--font-main, 'Outfit', system-ui, sans-serif); color:var(--os-text, #e7edf5);
+    padding:8px 16px; background:transparent; border:1px solid var(--os-line, #263441); border-radius:999px; cursor:pointer;
+}
+.notifications-switch button[aria-selected="true"] { border-color:var(--iris-os-accent, #73f7ff);
+    color:var(--iris-os-accent, #73f7ff); background:color-mix(in srgb, var(--iris-os-accent, #73f7ff) 9%, transparent); }
+.notifications-switch button:focus-visible { outline:2px solid var(--iris-os-accent, #73f7ff); outline-offset:3px; }
+
+.inbox-host { height:100%; min-height:0; container: inbox / inline-size; }
+.inbox-app {
+    --inbox-accent: var(--iris-os-accent, #73f7ff);
+    --inbox-accent-2: var(--iris-os-accent-2, #ff74d4);
+    --inbox-ready: var(--iris-ready-color, #5cffad);
+    --inbox-warn: #ffc670;
+    --inbox-error: #ff8a9b;
+    --inbox-mono: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+    height:100%; overflow:auto; box-sizing:border-box; padding:22px;
+    color:var(--os-text, #e7edf5); font-family:var(--font-main, 'Outfit', system-ui, sans-serif);
+    background:radial-gradient(ellipse at 10% 0%, color-mix(in srgb, var(--inbox-accent) 7%, transparent), transparent 55%),
+        radial-gradient(ellipse at 95% 100%, color-mix(in srgb, var(--inbox-accent-2) 6%, transparent), transparent 50%),
+        var(--os-panel, #080e19);
+    scrollbar-width:thin; scrollbar-color:var(--inbox-accent) transparent;
+}
+.inbox-app [hidden] { display:none !important; }
+.inbox-app button, .inbox-app select { font:600 12px var(--font-main, 'Outfit', system-ui, sans-serif); color:inherit; }
+.inbox-app button { padding:8px 12px; background:transparent; border:1px solid var(--os-line, #263441);
+    border-radius:7px; cursor:pointer; }
+.inbox-app button:hover:not(:disabled) { border-color:var(--inbox-accent); }
+.inbox-app button:disabled, .inbox-app select:disabled { opacity:.45; cursor:not-allowed; }
+.inbox-app :is(button, select, summary):focus-visible { outline:2px solid var(--inbox-accent); outline-offset:3px; }
+.inbox-app select { padding:7px 8px; border:1px solid var(--os-line, #263441); border-radius:7px;
+    background:var(--os-panel, #080e19); }
+.inbox-app .inbox-primary { border-color:var(--inbox-accent); color:var(--inbox-accent);
+    background:color-mix(in srgb, var(--inbox-accent) 8%, transparent); }
+.inbox-app button[aria-pressed="true"] { border-color:var(--inbox-accent);
+    background:color-mix(in srgb, var(--inbox-accent) 9%, transparent); }
+
+.inbox-hero { display:flex; justify-content:space-between; gap:16px; padding:4px 0 18px;
+    border-bottom:1px solid var(--os-line, #263441); }
+.inbox-kicker { color:var(--inbox-accent); font:600 10px var(--inbox-mono); letter-spacing:.08em; }
+.inbox-hero h2 { font:800 clamp(18px, calc((100cqi - 40px) / 12), 30px) var(--font-display, 'Syne', system-ui, sans-serif);
+    margin:10px 0 6px; }
+.inbox-app p { font-size:13px; line-height:1.6; color:var(--os-muted, #a6b4c4); margin:6px 0; }
+.inbox-counter { display:flex; flex-direction:column; justify-content:center; text-align:right; min-width:64px; }
+.inbox-counter strong { color:var(--inbox-accent); font:600 38px var(--inbox-mono); line-height:1.15; }
+.inbox-counter span { color:var(--os-muted, #a6b4c4); font:600 9px var(--inbox-mono); letter-spacing:.08em; }
+
+.inbox-app .inbox-status { font-size:12px; padding:12px 0 4px; margin:0; }
+.inbox-status[data-tone=error] { color:var(--inbox-error); }
+.inbox-status[data-tone=ok] { color:var(--inbox-ready); }
+.inbox-problems { border-left:3px solid var(--inbox-warn); padding:4px 12px; margin:8px 0; }
+.inbox-app .inbox-problems p { color:var(--inbox-warn); font-size:12px; margin:4px 0; }
+
+.inbox-toolbar { display:flex; flex-wrap:wrap; align-items:center; gap:10px; padding:12px 0 16px; }
+.inbox-views { display:flex; flex-wrap:wrap; gap:6px; }
+.inbox-origin { display:flex; align-items:center; gap:8px; font-size:12px; margin-left:auto; }
+
+.inbox-layout { display:grid; grid-template-columns:minmax(0, 1fr) 260px; gap:22px; align-items:start; }
+.inbox-list { list-style:none; margin:0; padding:0; display:grid; gap:12px; min-width:0; }
+.inbox-item { border:1px solid var(--os-line, #263441); border-left:3px solid var(--os-line, #263441);
+    border-radius:2px 10px 10px 2px; padding:14px 16px;
+    background:color-mix(in srgb, var(--os-text, white) 2.5%, transparent); }
+.inbox-item[data-unread="true"] { border-left-color:var(--inbox-accent);
+    background:color-mix(in srgb, var(--inbox-accent) 4%, transparent); }
+.inbox-item:has(.tone-error) { border-left-color:var(--inbox-error); }
+.inbox-item-meta { display:flex; justify-content:space-between; gap:10px; color:var(--os-muted, #a6b4c4);
+    font:600 10px var(--inbox-mono); letter-spacing:.06em; }
+.inbox-item[data-origin="vision"] .inbox-origin-chip { color:var(--inbox-accent-2); }
+.inbox-item[data-origin="automation"] .inbox-origin-chip { color:var(--inbox-accent); }
+.inbox-item-head { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-top:8px; }
+.inbox-item-head strong { font-size:15px; overflow-wrap:anywhere; }
+.inbox-pill { flex:none; font:600 10px var(--inbox-mono); letter-spacing:.06em; text-transform:uppercase;
+    padding:4px 8px; border-radius:999px; border:1px solid currentColor; white-space:nowrap; }
+.inbox-pill.tone-ok { color:var(--inbox-ready); }
+.inbox-pill.tone-running { color:var(--inbox-accent); }
+.inbox-pill.tone-warning { color:var(--inbox-warn); }
+.inbox-pill.tone-error { color:var(--inbox-error); }
+.inbox-pill.tone-muted { color:var(--os-muted, #a6b4c4); }
+.inbox-app .inbox-text { color:var(--os-text, #e7edf5); white-space:pre-wrap; overflow-wrap:anywhere;
+    border-left:1px solid var(--os-line, #263441); padding-left:12px; }
+.inbox-text-more { font-size:12px; }
+.inbox-text-more summary { cursor:pointer; color:var(--inbox-accent); }
+.inbox-item:has(.inbox-text-more[open]) .inbox-text-preview { display:none; }
+.inbox-app .inbox-item-state { font-size:12px; }
+.inbox-actions { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-top:10px; }
+
+.inbox-empty { display:grid; place-content:center; text-align:center; min-height:200px; padding:24px;
+    border:1px dashed var(--os-line, #263441); border-radius:10px; }
+.inbox-empty strong { font-size:16px; }
+
+.inbox-side { display:grid; gap:16px; border-left:1px solid var(--os-line, #263441); padding-left:20px; min-width:0; }
+.inbox-card { padding-bottom:14px; border-bottom:1px solid var(--os-line, #263441); display:grid; gap:8px; }
+.inbox-card h3 { font-size:14px; margin:6px 0 0; }
+.inbox-quiet { display:flex; gap:8px; }
+.inbox-quiet select { flex:1; min-width:0; }
+.inbox-help { display:block; color:var(--os-muted, #a6b4c4); font-size:11px; line-height:1.5; }
+.inbox-how { list-style:none; margin:0; padding:0; display:grid; gap:8px; font-size:12px;
+    color:var(--os-muted, #a6b4c4); line-height:1.5; }
+.inbox-how li { padding-left:12px; border-left:1px solid var(--os-line, #263441); }
+
+@container inbox (max-width:720px) {
+    .inbox-app { padding:14px; }
+    .inbox-layout { grid-template-columns:1fr; }
+    .inbox-side { border:0; padding:0; }
+    .inbox-counter strong { font-size:32px; }
+}
+@container inbox (max-width:520px) {
+    .inbox-hero { flex-wrap:wrap; }
+    .inbox-counter { flex-direction:row; align-items:baseline; gap:8px; text-align:left; }
+    .inbox-counter strong { font-size:26px; }
+    .inbox-origin { margin-left:0; }
+    .inbox-item-head { flex-direction:column; }
+}
+
+/* The notice on return: silent, out of the way, never taking the focus. */
+/* Bottom left: clear of the chat drawer and the mood widget on the right, and of the dock in the middle. */
+.inbox-notice-host { position:fixed; left:24px; bottom:112px; z-index:12500; width:min(360px, calc(100vw - 32px));
+    pointer-events:none; }
+.inbox-notice {
+    pointer-events:auto; box-sizing:border-box; padding:14px 16px 16px; border-radius:14px;
+    color:var(--os-text, #e7edf5); font-family:var(--font-main, 'Outfit', system-ui, sans-serif);
+    border:1px solid color-mix(in srgb, var(--iris-os-accent, #73f7ff) 55%, var(--os-line, #263441));
+    /* The theme's panels are glass over the room; floating over other panels, the notice needs an opaque base. */
+    background:linear-gradient(160deg, color-mix(in srgb, var(--iris-os-accent, #73f7ff) 10%, transparent), transparent 60%),
+        linear-gradient(var(--os-panel-strong, rgba(5, 9, 20, .62)), var(--os-panel-strong, rgba(5, 9, 20, .62))),
+        #060a14;
+    box-shadow:0 18px 40px rgba(0, 0, 0, .45), 0 0 0 1px rgba(255, 255, 255, .03) inset;
+    backdrop-filter:blur(14px); animation:inbox-notice-in .32s ease-out both;
+}
+@keyframes inbox-notice-in { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:none; } }
+.inbox-notice-head { display:flex; justify-content:space-between; align-items:center; }
+.inbox-notice-kicker { color:var(--iris-os-accent, #73f7ff); font:600 10px ui-monospace, 'Cascadia Mono', Consolas, monospace;
+    letter-spacing:.1em; }
+.inbox-notice-close { font:600 16px/1 var(--font-main, 'Outfit', system-ui, sans-serif); color:var(--os-muted, #a6b4c4);
+    background:transparent; border:0; padding:4px 6px; cursor:pointer; border-radius:6px; }
+.inbox-notice-close:hover { color:var(--os-text, #e7edf5); }
+.inbox-notice-title { display:block; margin:8px 0 10px; font:700 15px/1.35 var(--font-display, 'Syne', system-ui, sans-serif); }
+.inbox-notice-list { list-style:none; margin:0; padding:0; display:grid; gap:8px; }
+.inbox-notice-row { display:grid; grid-template-columns:minmax(0, 1fr) auto; gap:2px 10px; padding-left:10px;
+    border-left:2px solid var(--os-line, #263441); }
+.inbox-notice-row.tone-ok { border-left-color:var(--iris-ready-color, #5cffad); }
+.inbox-notice-row.tone-error { border-left-color:#ff8a9b; }
+.inbox-notice-row.tone-running { border-left-color:var(--iris-os-accent, #73f7ff); }
+.inbox-notice-row-title { font-size:13px; font-weight:600; overflow-wrap:anywhere; }
+.inbox-notice-row-state { font:600 10px ui-monospace, 'Cascadia Mono', Consolas, monospace; letter-spacing:.06em;
+    text-transform:uppercase; color:var(--os-muted, #a6b4c4); align-self:center; }
+.inbox-notice-excerpt { grid-column:1 / -1; margin:0; font-size:12px; line-height:1.45; color:var(--os-muted, #a6b4c4);
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.inbox-notice-more { margin:8px 0 0; font-size:12px; color:var(--os-muted, #a6b4c4); }
+.inbox-notice-open { margin-top:12px; width:100%; font:600 12px var(--font-main, 'Outfit', system-ui, sans-serif);
+    color:var(--iris-os-accent, #73f7ff); padding:9px 12px; cursor:pointer; border-radius:8px;
+    border:1px solid var(--iris-os-accent, #73f7ff); background:color-mix(in srgb, var(--iris-os-accent, #73f7ff) 8%, transparent); }
+.inbox-notice :is(button):focus-visible { outline:2px solid var(--iris-os-accent, #73f7ff); outline-offset:2px; }
+@media (max-width:520px) { .inbox-notice-host { right:16px; left:16px; width:auto; bottom:96px; } }
+@media (prefers-reduced-motion: reduce) { .inbox-notice { animation:none; } }
+[data-reduced-motion=true] .inbox-notice { animation:none; }

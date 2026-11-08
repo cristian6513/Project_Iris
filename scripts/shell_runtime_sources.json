@@ -1,0 +1,314 @@
+{
+  "schema": 1,
+  "version": "2.56.0.2",
+  "archive": {
+    "filename": "Git-2.56.0.2-64-bit.tar.bz2",
+    "url": "https://github.com/git-for-windows/git/releases/download/v2.56.0.windows.2/Git-2.56.0.2-64-bit.tar.bz2",
+    "sha256": "16ca394bdb94b372267d79e1e10b68763674f73e03e0648202a7971a8a730a84"
+  },
+  "files": {
+    "etc/fstab": "50718b489a9ef0d4590ef6725f903166c50b6291fb1d9a8c86ff8d221b921aea",
+    "etc/nsswitch.conf": "0823a988d6c923855be5565bed6f1900e1899ee60513a58ad550389bed276f14",
+    "usr/bin/awk.exe": "f123d2c120b2ad2158aa8c69d8eeedf14c0d681e68ee76ff103e06ac49986200",
+    "usr/bin/base64.exe": "ef4877b2e3f929fa3e9671ff421fe64a8e50c89b3e11c2263d9b802604586e7c",
+    "usr/bin/basename.exe": "6fe2e201a956304503f808d0909a26d9b49e1a7e99f6ee6d93721ac4a76a7c6e",
+    "usr/bin/bash.exe": "5490d0da5e7cf9d92068cc48fcc590f2bcf8564add8ff91c3b5fe541eb2d72e3",
+    "usr/bin/cat.exe": "f1b37048ee5c70fdc31dde509e562261c9b2d102d94c903393f55b45e883ef90",
+    "usr/bin/chmod.exe": "fd765e24d91b94dcedf9b4c070047a964f866c0f079ad47d7462559302736f1c",
+    "usr/bin/cmp.exe": "9436e2a0a92e8f31e02077785f075fb62d05074d4ce257c53434b93497b0eb2d",
+    "usr/bin/comm.exe": "7b1a630adb1d85b4f3dd8247a45a914ead7bc34e8b72b8c4a1f12baa82aa80f4",
+    "usr/bin/cp.exe": "5f91e0b445edb4e4c17e9a660ac29239f6cac5a821a173a86d4332b9eaa8cea3",
+    "usr/bin/cut.exe": "63fcfb76c80d57538312a9637429d5a4b99ac83e8b00d95684609b4c045471e9",
+    "usr/bin/cygpath.exe": "6f70cf08f48ebd6a903a98c02a84d8c6a815832a757a51dd844a0b6f18d6d004",
+    "usr/bin/date.exe": "743228ae082e1128a2aff02414e114dc45a51f7461775bc5750d89307f3ccdac",
+    "usr/bin/df.exe": "66d5c328f71c47f8311bd579f84114932d708788e831f320a50c5831777de047",
+    "usr/bin/diff.exe": "d64621f766d8910a92cb3d99bd7f23c0b1c736eece0e19dccbccead93aa81854",
+    "usr/bin/dirname.exe": "53896fda354605a1a1d1f5e6802daba5ba6c05961f3074b892194e068aa82772",
+    "usr/bin/du.exe": "dc22867da6d50648fd627c549edc906d97fdecf2f7956b2f3e05fe619976b07e",
+    "usr/bin/env.exe": "b5d80f13e6b4b422a8c22d32be9cc1f5fd9b482fc60008ed80e513a2fa938cdc",
+    "usr/bin/expr.exe": "e1608f26781374b67f180370dc50c833bfc61946aadfb433e48536590bb79219",
+    "usr/bin/false.exe": "71314347cf1355d1fd818d62fe11cf6b58373e70170a273335d38a8bacb987d6",
+    "usr/bin/find.exe": "1729ceebf52cf72bf1fc955af8167f2ba8ecbffa928fa386818affc5a60224fd",
+    "usr/bin/grep.exe": "497202418334f8a48d9f34cd2e1b2c03c4f957e02304b613e10931c0457e8d4a",
+    "usr/bin/head.exe": "c82ae2ef72235a34db7007580628cd5183cb350878a10fcc98b6ef26b92a3537",
+    "usr/bin/ls.exe": "b45981580702029cfeeffc8ca69e2a4d1e9c68914009e94c31ffec9cbc544aa5",
+    "usr/bin/mkdir.exe": "fc9b9e49fd6496cdddfc5681208d74bd649ac934818eafdfd50a9571bdcb4861",
+    "usr/bin/mktemp.exe": "bd6474b0404e52b195296438342f38e510fe1a4c1c0d91ceb83cf8411959fecb",
+    "usr/bin/msys-2.0.dll": "2a89b7c31b323c42e2fb37900af087aeb27417694e630a210bc75b0369410bc7",
+    "usr/bin/msys-gcc_s-seh-1.dll": "59b816ee2880c2140ac8d7726f59e4e7435e309f272a80fd590d3130215f77f5",
+    "usr/bin/msys-gmp-10.dll": "e3d88ffc1bd3bb3bdda1d84f3f823e6f0f07c89dfd17e2d003c588f56dd80784",
+    "usr/bin/msys-iconv-2.dll": "50012969ed96a5232220185d2fc1ac1e3abe5790f6b3027f4fc3c4cad3fd38f0",
+    "usr/bin/msys-intl-8.dll": "50f7de0c712d867ddca2c9eb8562ca6ee2d69e120e798ec6126ad29dd1ed5402",
+    "usr/bin/msys-mpfr-6.dll": "7be008ed823d8ce65a205669c44fd8ad56eee5838111101d29c6684f8eccc4f4",
+    "usr/bin/msys-ncursesw6.dll": "aef26ffbcd20ee5781c3a5e81265390494090e13561a13336d000d9d5f9a84cb",
+    "usr/bin/msys-pcre-1.dll": "a94b1a5ba095ac7ff81e138a1231e42e3a07391e85eeb86c3bb5c9245244597a",
+    "usr/bin/msys-readline8.dll": "0c7c38f1b76e087add0faca414659c3d25008a893dd4b185604a4183bb68132b",
+    "usr/bin/mv.exe": "0e990f9314e17eaf2eed168561313e0b6e1d21daf8fb6400387026c6da7277a1",
+    "usr/bin/printf.exe": "dbc52ee41a9d2fc4cdad6d690e430c6b630ce5fb5837d66d6b47cf59ea63b198",
+    "usr/bin/ps.exe": "c95f29fc73f22c9f21ede4e42a4be04d5ad80f9cbfedc8613da9437ce08c6d9f",
+    "usr/bin/pwd.exe": "d1281cecce65fc76750381698faca130216ffacc6396886d63a85ad28a3071aa",
+    "usr/bin/readlink.exe": "3617334c256348026305e7a978bb803c45c31e2f4d24c763e1f11361ceb1d58c",
+    "usr/bin/realpath.exe": "e780c23d5d6bf60d7e80e073586be5f4d7f91faa0a0d1f07b3088b5d710f8395",
+    "usr/bin/rm.exe": "a845f7517a49b49726e056da8a8f65a6d9ce96fbe79c3664c082521eea0f80e7",
+    "usr/bin/rmdir.exe": "7d91cc7b4e7a297a74dcdb621ff19b495db14a8a96612a737fc870403fc6775c",
+    "usr/bin/sed.exe": "8d54e322dfc3faa60f0464691aba8634197406e53367aa8942409181c0808be8",
+    "usr/bin/sh.exe": "5490d0da5e7cf9d92068cc48fcc590f2bcf8564add8ff91c3b5fe541eb2d72e3",
+    "usr/bin/sleep.exe": "3dfa2435317339e861121c1bd22e57b7b67c204705f00a88b5ac10a0cba87514",
+    "usr/bin/sort.exe": "7c5df851d821e23988641f35442a06652ce834ed724456511798ce60314cab9a",
+    "usr/bin/stat.exe": "84468965a541829728d1fa02d32e987ab1a844ec4a23644058ef477ff8b3264a",
+    "usr/bin/tail.exe": "8608c4138642de6dca0806b266b3009c137dc373171978cf47418056a5e05c55",
+    "usr/bin/tee.exe": "5b956ac9d6bb6d457665709bbcf71326ecd66bb5111b280c124a68405ce5da46",
+    "usr/bin/test.exe": "bc151f331dbbe8d8558014bc55b983d20effd4ebbea04d2a29b6badf879ce423",
+    "usr/bin/touch.exe": "1d895e0f77cbc8b77c3a38da009e8ad8d23a371afd398da5408bdeffcddf5fc0",
+    "usr/bin/tr.exe": "7cf90be63820ba9ec66a10c0c4af84f0a2e3ec90a722ea6904219ec0b93bf1c1",
+    "usr/bin/true.exe": "e3ce235425032cc3e1262f46b414b1b88f971724104916690f24e25c4663d474",
+    "usr/bin/uname.exe": "1cba275ff8e0c81f48898f017758c558ee5951cb0448c36628580beffdf4ef89",
+    "usr/bin/uniq.exe": "07e78095a79870b52ac988989faa5ff8446e1a8cdc861165d7eb93904fff5211",
+    "usr/bin/wc.exe": "3ab05efc4703295f0d36fd48da17f2021219494fb932a062a535ae17ea9f45b3",
+    "usr/bin/xargs.exe": "14097e707f43f2c1e4b60a72a02e1e7a950faddc48b7cbe81b6a2ee037811fa0"
+  },
+  "sources": [
+    {
+      "package": "bash",
+      "version": "5.3.015-2",
+      "filename": "bash-5.3.015-2.src.tar.gz",
+      "url": "https://github.com/git-for-windows/pacman-repo/releases/download/2026-08-20T13-55-07.365148200Z/bash-5.3.015-2.src.tar.gz",
+      "sha256": "817a480aa08f0f112af9496a9335d3a48f4c479ef5e1b1740df6dcc76670d94a",
+      "notices": {
+        "bash-d7744684-SRCINFO.txt": "d6c5d50406a75bba0dbcaa289f27d8936ea642c70ddf29c2c9b29b0155afdd26",
+        "bash-5410c8a5-COPYING.txt": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903",
+        "bash-71dfb7f9-COPYING.txt": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903",
+        "bash-585ab5d0-LICENSE.txt": "5908bd3b6f430bffa4f8a20290eebdd933b62e2213908b83da1230355f3e9c1a",
+        "bash-72ff4660-COPYRIGHT.txt": "e649815d1b6becdc545dda87c91f1b65497ddf6461240b904b2d8511a63476fb",
+        "bash-2fa00d55-PKGBUILD.txt": "b2aeaff6799073b992b716efd1da2753198ca099dee9de05315ceca431f7ad50"
+      },
+      "license": "GPL-3.0-or-later"
+    },
+    {
+      "package": "coreutils",
+      "version": "8.32-5",
+      "filename": "coreutils-8.32-5.src.tar.zst",
+      "url": "https://repo.msys2.org/msys/sources/coreutils-8.32-5.src.tar.zst",
+      "sha256": "2b8689413bc50367a9995adf50ea84cd3caaff0ec68a8f32d8328842c3f83835",
+      "notices": {
+        "coreutils-11f6b422-SRCINFO.txt": "018c1d293b5a9c4bdeb728ddbfcb8697ffbf7fd15c016588a5cfbfd47320fedd",
+        "coreutils-8d3bd5a6-COPYING.txt": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+        "coreutils-69cb1900-PKGBUILD.txt": "ca4c295aad47cace395db92a039d8f1da70c38588305eba997d8a0ce44612ead"
+      },
+      "license": "GPL-3.0-or-later"
+    },
+    {
+      "package": "findutils",
+      "version": "4.11.0-2",
+      "filename": "findutils-4.11.0-2.src.tar.zst",
+      "url": "https://repo.msys2.org/msys/sources/findutils-4.11.0-2.src.tar.zst",
+      "sha256": "92edf442f61f8873318811a688ba327a0d2878a63a9ed21992b5cce12b0ae146",
+      "notices": {
+        "findutils-25f70f64-SRCINFO.txt": "7eb343befe97b9af4ec47adc116a2f32ad94d124d770abe938b1a08b5559c5ff",
+        "findutils-d6326731-COPYING.txt": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+        "findutils-da8f9a17-PKGBUILD.txt": "9dd07b5ca4d9c5ed7fa0b910413ad486a05d7dbb7c49c048ec1fde5f53b4c617"
+      },
+      "license": "GPL-3.0-or-later"
+    },
+    {
+      "package": "grep",
+      "version": "1~3.0-7",
+      "filename": "grep-1~3.0-7.src.tar.zst",
+      "url": "https://repo.msys2.org/msys/sources/grep-1~3.0-7.src.tar.zst",
+      "sha256": "acba43b9b2c3eb393f9a75d02a1eca34fa23d959541150a7ac4ffbafce3cae4e",
+      "notices": {
+        "grep-57f96bf7-SRCINFO.txt": "b775ca6b86150b5a0d188e99a0a2974d546b3e18da195fcea4a17f78302aa2f3",
+        "grep-fab035eb-COPYING.txt": "ca372a7d92560b1fa9f6d832b440e8bcd62d9adfa8870c98287deab66d98310e",
+        "grep-73207f91-PKGBUILD.txt": "106e3f99a885b7d3704574819d13602e28e4a469120ab45c1a0611a88e13f29b"
+      },
+      "license": "GPL-3.0-or-later"
+    },
+    {
+      "package": "sed",
+      "version": "4.9-1",
+      "filename": "sed-4.9-1.src.tar.zst",
+      "url": "https://repo.msys2.org/msys/sources/sed-4.9-1.src.tar.zst",
+      "sha256": "a9686da7c1f3cb2ba7ae5f20f30d9ef38f7bba993f9c777b43bd13c7fbd7cc58",
+      "notices": {
+        "sed-49b84631-SRCINFO.txt": "8b3969b6cf3a140109f1f0a37e992800179862ce5c91ea2032dd77b3123cf5ea",
+        "sed-d6056246-PKGBUILD.txt": "09eef7095c96746eb2037e9ef109b43f9feb6412a51a04650ae32fbe7e8a3d9c",
+        "sed-c1216da8-COPYING.txt": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
+      },
+      "license": "GPL-3.0-or-later"
+    },
+    {
+      "package": "gawk",
+      "version": "5.4.1-1",
+      "filename": "gawk-5.4.1-1.src.tar.zst",
+      "url": "https://repo.msys2.org/msys/sources/gawk-5.4.1-1.src.tar.zst",
+      "sha256": "d8b8cdd6cbf72431c02cb26cf92174aca5b6f1b7791aaf29fa3a11d205a66b39",
+      "notices": {
+        "gawk-ae4bc97e-SRCINFO.txt": "4f9dc0e49f36bdf515f90f945c7676d8183d51a6802c4703926d1e4fad60fd07",
+        "gawk-51ff09c4-COPYING.txt": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903",
+        "gawk-95841506-COPYING.txt": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903",
+        "gawk-fc9d298b-COPYING.LIB.txt": "9d5d268bbcbdcd395a8b74ed9028ef7b326b915bb06196ea01c78685e3f57bba",
+        "gawk-5e0f8eef-PKGBUILD.txt": "0635cd9b554764360b6d5d72af8d9ff415dcf2c05dbf5f9e4e6d7d9b17c2d8be"
+      },
+      "license": "GPL-3.0-or-later"
+    },
+    {
+      "package": "diffutils",
+      "version": "3.12-1",
+      "filename": "diffutils-3.12-1.src.tar.zst",
+      "url": "https://repo.msys2.org/msys/sources/diffutils-3.12-1.src.tar.zst",
+      "sha256": "474c4a3528a2afbb8d9608c65ad1bdbbd81ff42c143a438d7d56272a61b1bfac",
+      "notices": {
+        "diffutils-1fefcc88-SRCINFO.txt": "0073ab5fa30a99c0f17f2892c6e90e7cf702a3b4a298cc1bf63691a5b5d2b787",
+        "diffutils-f58d73a8-COPYING.txt": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903",
+        "diffutils-5dc4a115-PKGBUILD.txt": "1e23b99903475f289ec3cf75c4e5d11a415d871f54601c25d1d8196c8b6e6375"
+      },
+      "license": "GPL-3.0-or-later"
+    },
+    {
+      "package": "msys2-runtime",
+      "version": "3.6.10-4",
+      "filename": "msys2-runtime-3.6.10-4.src.tar.gz",
+      "url": "https://github.com/git-for-windows/pacman-repo/releases/download/2026-09-28T10-53-27.205004700Z/msys2-runtime-3.6.10-4.src.tar.gz",
+      "sha256": "3dae788aee6bf5244f124aa7e0a04328e6585d92ed1826bb510f23aefbc40a1e",
+      "notices": {
+        "msys2-runtime-0940f7af-SRCINFO.txt": "2dc9a812ea5e01fbd83a23e70d0b39bac053c681f2f61d617031b96fd8c092bc",
+        "msys2-runtime-18f88214-PKGBUILD.txt": "e45f11d95925b2ac858ac83d55569d91cc2c7aad416507d00a4cc4743409eb4d",
+        "msys2-runtime-winsup-COPYING.txt": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903",
+        "msys2-runtime-COPYING.txt": "231f7edcc7352d7734a96eef0b8030f77982678c516876fcb81e25b32d68564c",
+        "msys2-runtime-COPYING.LIB.txt": "a9bdde5616ecdd1e980b44f360600ee8783b1f99b8cc83a2beb163a0a390e861",
+        "msys2-runtime-COPYING.NEWLIB.txt": "fcfb5ec69b6ab52676dcc4dab7cf4338c8000ef97812dadd35b8592a640a8419"
+      },
+      "license": "GPL-3.0-or-later WITH Cygwin-exception-3.0"
+    },
+    {
+      "package": "ncurses",
+      "version": "6.6-2",
+      "filename": "ncurses-6.6-2.src.tar.zst",
+      "url": "https://repo.msys2.org/msys/sources/ncurses-6.6-2.src.tar.zst",
+      "sha256": "f5df12bd297e6b6930e2aa68e8014347b2193592645d93acce6774e05cbf15e6",
+      "notices": {
+        "ncurses-e4e2967e-SRCINFO.txt": "34abe920bf38c5a806815b6d9dff03a5f9d7c747480d0fa652d5142d4b544bfe",
+        "ncurses-44b5ee39-COPYING.txt": "708999f95527e1ffa670c6fce288c6c600cb477dd04afcc1171422b3dd4ee226",
+        "ncurses-0f7a5a45-PKGBUILD.txt": "8e3b67186951322c49e68d3cfb280f528dc1b7872a99e691ae8417544f02e735"
+      },
+      "license": "MIT"
+    },
+    {
+      "package": "readline",
+      "version": "8.3.006-1",
+      "filename": "readline-8.3.006-1.src.tar.zst",
+      "url": "https://repo.msys2.org/msys/sources/readline-8.3.006-1.src.tar.zst",
+      "sha256": "9ddb3eb989f6ad7d696ce5a2d92322b33a20056b293e3c4fc4f6cc568a320640",
+      "notices": {
+        "readline-24802333-SRCINFO.txt": "819054a874979b797e7d975781f398b4ba11c1fbd03f58e6b5477bba09b11c67",
+        "readline-a9f4bd76-PKGBUILD.txt": "5408ac3afbe75946dcbcb88d20f1807f5e32208819af92adb9d1ab289ddc1572",
+        "readline-17cd3389-COPYING.txt": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903"
+      },
+      "license": "GPL-3.0-or-later"
+    },
+    {
+      "package": "gmp",
+      "version": "6.3.0-2",
+      "filename": "gmp-6.3.0-2.src.tar.zst",
+      "url": "https://repo.msys2.org/msys/sources/gmp-6.3.0-2.src.tar.zst",
+      "sha256": "02356ca25ce362edb883ce7c060050de2cec5f2b1227a1c56ef7c0a0f99ff667",
+      "notices": {
+        "gmp-323f0a21-SRCINFO.txt": "86d50be296a52a11aa844d8d6d4f354e811d7fc42604ff3ab11bda6f7a00b79c",
+        "gmp-9100e7db-COPYING.txt": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903",
+        "gmp-39e4912d-PKGBUILD.txt": "666c879b6e1e1bf2c661e6c5cc8f62d3634c039e2f07321db111420b6f852a8b"
+      },
+      "license": "LGPL-3.0-or-later OR GPL-2.0-or-later"
+    },
+    {
+      "package": "mpfr",
+      "version": "4.2.2-1",
+      "filename": "mpfr-4.2.2-1.src.tar.zst",
+      "url": "https://repo.msys2.org/msys/sources/mpfr-4.2.2-1.src.tar.zst",
+      "sha256": "e0c56e3af3819471e74dd37e32660e4eb8f58761c4d214dabd2d62f57c548869",
+      "notices": {
+        "mpfr-0b58e296-SRCINFO.txt": "f3f54577db6519155af7d62c8f17a22635b24e848c7f35736ada6cd3c97b8cdb",
+        "mpfr-b09394d8-COPYING.LESSER.txt": "e3a994d82e644b03a792a930f574002658412f62407f5fee083f2555c5f23118",
+        "mpfr-242264e9-COPYING.txt": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+        "mpfr-7d2ea71f-PKGBUILD.txt": "fc8ff4849c641049a1c2299332a40bed6250fb58e0c0b2dff205bce3aafb81ed"
+      },
+      "license": "LGPL-3.0-or-later"
+    },
+    {
+      "package": "libiconv",
+      "version": "1.19-1",
+      "filename": "libiconv-1.19-1.src.tar.zst",
+      "url": "https://repo.msys2.org/msys/sources/libiconv-1.19-1.src.tar.zst",
+      "sha256": "5a8bcd3242e2be94fffd9f03fadcda8d9fd64047430050c5cbd214cd3bf7f0a7",
+      "notices": {
+        "libiconv-d9b1ec9a-SRCINFO.txt": "a9bf492bfe324ac464f70b0cb9e6c102b1d4a736dd6f14e6aaa32f89be239dcb",
+        "libiconv-c9cafc13-COPYING.LIB.txt": "20e50fe7aae3e56378ebf0417d9de904f55a0e61e4df315333e632a4d3555d95",
+        "libiconv-6bcbc1ae-COPYING.LIB.txt": "20e50fe7aae3e56378ebf0417d9de904f55a0e61e4df315333e632a4d3555d95",
+        "libiconv-894890de-COPYING.txt": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903",
+        "libiconv-91391f96-PKGBUILD.txt": "3c7cfd90420b139d59e4846296aa7fa6d15a65d940fd2b720f39129242e7a898"
+      },
+      "license": "LGPL-2.1-or-later"
+    },
+    {
+      "package": "gettext",
+      "version": "0.22.5-1",
+      "filename": "gettext-0.22.5-1.src.tar.zst",
+      "url": "https://repo.msys2.org/msys/sources/gettext-0.22.5-1.src.tar.zst",
+      "sha256": "e07a0b3e6716aae86dc0edd2dcdc8864731d56051345592b53659a3840ccfbd8",
+      "notices": {
+        "gettext-9b5e75bd-SRCINFO.txt": "ace8cf31c1b03f7ee95b3aef06cffc9df16dde556fec51abea685292d6d9b259",
+        "gettext-72f7a537-COPYING.txt": "e79e9c8a0c85d735ff98185918ec94ed7d175efc377012787aebcf3b80f0d90b",
+        "gettext-48c62248-COPYING.txt": "7ef2cdfe58e0c0460657b6598b49af29d4e03c1e41cbaf0e1da1eb8ad74b95d0",
+        "gettext-f466b5c1-COPYING.LIB.txt": "3fe5361f24b7c49ba12911c08f5a33f9cb18871d95d9fb881f5b8a4793e04288",
+        "gettext-0af7e974-COPYING.txt": "03133addae5b99a6148c538300e6d97074453089be1423b741bd081f18e2b298",
+        "gettext-46d6c00a-COPYING.LIB.txt": "3fe5361f24b7c49ba12911c08f5a33f9cb18871d95d9fb881f5b8a4793e04288",
+        "gettext-b6d44617-COPYING.txt": "5d4cff30d5038f82a0edc79798456049b61e1752fdb7e9ab1f4bfb9fae3a7303",
+        "gettext-4214cd62-COPYING.txt": "e79e9c8a0c85d735ff98185918ec94ed7d175efc377012787aebcf3b80f0d90b",
+        "gettext-bfc41fc8-PKGBUILD.txt": "86adbd786e7fd8b4cf04cf6275fd876a9574dc65d79c6cf28e56e21ab398df0f"
+      },
+      "license": "LGPL-2.1-or-later"
+    },
+    {
+      "package": "gcc",
+      "version": "15.3.0-1",
+      "filename": "gcc-15.3.0-1.src.tar.zst",
+      "url": "https://repo.msys2.org/msys/sources/gcc-15.3.0-1.src.tar.zst",
+      "sha256": "110eaa240aaced2ec2d05b1ce1c7d7273b9549c60ac17cb571bd28781766522d",
+      "notices": {
+        "gcc-9013efda-SRCINFO.txt": "c153a46fa1351e15dcba3a7ff5e39bc44229530e5dc897d13f542746e072c975",
+        "gcc-59cb9c80-COPYING3.txt": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903",
+        "gcc-cb6aafbc-COPYING.txt": "231f7edcc7352d7734a96eef0b8030f77982678c516876fcb81e25b32d68564c",
+        "gcc-dd418053-LICENSE.txt": "a61d06e8f7be57928e71e800eb9273b05cb8868c484108afe41e4305bb320dde",
+        "gcc-e0453c1f-COPYING.RUNTIME.txt": "9d6b43ce4d8de0c878bf16b54d8e7a10d9bd42b75178153e3af6a815bdc90f74",
+        "gcc-a0301fbd-COPYING3.txt": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903",
+        "gcc-b83f8a23-LICENSE.txt": "2d36597f7117c38b006835ae7f537487207d8ec407aa9d9980794b2030cbc067",
+        "gcc-bbd4a8a1-COPYING3.txt": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903",
+        "gcc-09168e39-COPYING.LIB.txt": "32434afcc8666ba060e111d715bfdb6c2d5dd8a35fa4d3ab8ad67d8f850d2f2b",
+        "gcc-5f0c1efa-COPYING.RUNTIME.txt": "86c57afef00e0462173a19ab20387dec082f10b6dc59b7eda74d3da76b3142c2",
+        "gcc-f29fa582-COPYING3.txt": "0ae0485a5bd37a63e63603596417e4eb0e653334fa6c7f932ca3a0e85d4af227",
+        "gcc-a57e00d3-COPYING.txt": "231f7edcc7352d7734a96eef0b8030f77982678c516876fcb81e25b32d68564c",
+        "gcc-83e4b4ff-COPYING.LIB.txt": "a9bdde5616ecdd1e980b44f360600ee8783b1f99b8cc83a2beb163a0a390e861",
+        "gcc-b1a14413-LICENSE.txt": "e928a2c9b73e5548dddb9e74f83dc5bb58e8856fc6e8c21b7107f9b5098bcff7",
+        "gcc-ed14d84a-COPYING.LIB.txt": "32434afcc8666ba060e111d715bfdb6c2d5dd8a35fa4d3ab8ad67d8f850d2f2b",
+        "gcc-89ee8033-COPYING.LIB.txt": "32434afcc8666ba060e111d715bfdb6c2d5dd8a35fa4d3ab8ad67d8f850d2f2b",
+        "gcc-64de2b22-LICENSE.txt": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+        "gcc-4a546e1e-COPYING.txt": "231f7edcc7352d7734a96eef0b8030f77982678c516876fcb81e25b32d68564c",
+        "gcc-9780dddc-PKGBUILD.txt": "222bbf18ae8d9694c198ac879907930b48a08843901040922b8c033415641bb2"
+      },
+      "license": "GPL-3.0-or-later WITH GCC-exception-3.1"
+    },
+    {
+      "package": "pcre",
+      "version": "8.45-5",
+      "filename": "pcre-8.45-5.src.tar.zst",
+      "url": "https://repo.msys2.org/msys/sources/pcre-8.45-5.src.tar.zst",
+      "sha256": "f7104aa31f29655689b404ead9923332e2fa6aadfe97c060d0dfc02f4661d6b5",
+      "notices": {
+        "pcre-03deeb2c-SRCINFO.txt": "83861eca71227f44461a72d00f209d0ba708271c87234b720e7ea9a0b28f83cb",
+        "pcre-22c21812-LICENCE.txt": "51b3dea44f63338b84b9c97b3d793826a8397309068cf9379a423216ab8ea5b2",
+        "pcre-8b7a0b6e-COPYING.txt": "17abe1dbb92b21ab173cf9757dd57b0b15cd8d863b2ccdef635fdbef03077fb0",
+        "pcre-5c27f45d-PKGBUILD.txt": "6d24aa11bfc711b8ecbd4329f4b4b20cda4c1b33868b63a205a6a14b86fffc38"
+      },
+      "license": "BSD-3-Clause"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+.contador-root { min-height: 100%; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 26px; text-align: center; color: var(--os-text, #edf3fc); font-family: var(--font-main, system-ui); }
+.contador-root h2 { margin: 0; font: 700 23px var(--font-display, system-ui); }
+.contador-root p { margin: 0; max-width: 32ch; font-size: 13px; color: var(--os-muted, #a9b4c6); }
+.contador-root output { font-size: 68px; font-weight: 600; line-height: 1.15; font-variant-numeric: tabular-nums; color: var(--iris-os-accent, #73f7ff); }
+.contador-root .contador-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.contador-root button { border: 1px solid var(--os-line, #ffffff26); background: var(--os-panel-strong, #111e30); color: inherit; padding: 10px 18px; border-radius: 11px; font: 600 14px var(--font-main, system-ui); cursor: pointer; }
+.contador-root button:first-child { background: var(--iris-os-accent, #73f7ff); color: #08101c; border-color: transparent; }
+.contador-root button:focus-visible { outline: 2px solid var(--iris-os-accent-2, #ff74d4); outline-offset: 3px; }
+.contador-root button:disabled { opacity: .5; cursor: default; }
+.contador-root.contador-widget { padding: 14px; gap: 7px; }
+.contador-root.contador-widget h2 { font-size: 16px; }
+.contador-root.contador-widget output { font-size: 42px; }
+.contador-root.contador-widget p { font-size: 12px; }

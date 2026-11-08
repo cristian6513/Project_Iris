@@ -1,0 +1,100 @@
+{
+  "schema": 1,
+  "platform": "windows",
+  "arch": "x86_64",
+  "base_sources_sha256": "876092c157cd65b47cd315600333de0db65190b35f31aaf94564e96bc12ec997",
+  "codecs": {
+    "opus": {
+      "version": "1.6.1",
+      "url": "https://downloads.xiph.org/releases/opus/opus-1.6.1.tar.gz",
+      "sha256": "6ffcb593207be92584df15b32466ed64bbec99109f007c82205f0194572411a1",
+      "license": "BSD-3-Clause",
+      "notices": [
+        "COPYING"
+      ],
+      "configure": [
+        "--prefix=/codecs",
+        "--build=x86_64-w64-mingw32",
+        "--host=x86_64-w64-mingw32",
+        "--disable-shared",
+        "--enable-static",
+        "--disable-doc",
+        "--disable-extra-programs",
+        "--disable-asm",
+        "--disable-rtcd",
+        "--disable-intrinsics",
+        "--disable-dred",
+        "--disable-deep-plc",
+        "--disable-osce",
+        "--disable-maintainer-mode",
+        "--disable-dependency-tracking"
+      ]
+    },
+    "lame": {
+      "version": "4.0",
+      "url": "https://downloads.sourceforge.net/project/lame/lame/4.0/lame-4.0.tar.gz",
+      "sha256": "3df5124d5ad3a98312ffd7ba6a9b36230e4f8a3e66d3ce0f425e336c32d216eb",
+      "license": "LGPL-2.0-or-later",
+      "notices": [
+        "COPYING",
+        "LICENSE"
+      ],
+      "configure": [
+        "--prefix=/codecs",
+        "--build=x86_64-w64-mingw32",
+        "--host=x86_64-w64-mingw32",
+        "--disable-shared",
+        "--enable-static",
+        "--disable-frontend",
+        "--disable-decoder",
+        "--disable-gtktest",
+        "--disable-analyzer-hooks",
+        "--disable-rpath",
+        "--disable-dependency-tracking"
+      ]
+    }
+  },
+  "configure": [
+    "--prefix=../package",
+    "--target-os=mingw32",
+    "--arch=x86_64",
+    "--cc=gcc",
+    "--cxx=g++",
+    "--ln_s=cp -f",
+    "--disable-autodetect",
+    "--disable-everything",
+    "--disable-network",
+    "--disable-ffplay",
+    "--disable-doc",
+    "--disable-debug",
+    "--disable-x86asm",
+    "--disable-pthreads",
+    "--enable-w32threads",
+    "--enable-shared",
+    "--disable-static",
+    "--disable-gpl",
+    "--disable-version3",
+    "--disable-nonfree",
+    "--enable-ffmpeg",
+    "--enable-ffprobe",
+    "--enable-avcodec",
+    "--enable-avformat",
+    "--enable-avfilter",
+    "--enable-swresample",
+    "--disable-avdevice",
+    "--disable-swscale",
+    "--enable-decoder=aac,aac_fixed,aac_latm,mp3,mp3float,mp3adu,mp3adufloat,mp3on4,mp3on4float,vorbis,opus,flac,pcm_s16le,pcm_s16be,pcm_s24le,pcm_s24be,pcm_s32le,pcm_s32be,pcm_f32le,pcm_f32be,pcm_f64le,pcm_f64be,pcm_u8,pcm_alaw,pcm_mulaw",
+    "--enable-parser=aac,aac_latm,mpegaudio,vorbis,opus,flac",
+    "--enable-demuxer=concat,wav,mp3,ogg,mov,aac,flac,matroska",
+    "--enable-muxer=ogg,opus,mp3,flac,adts,ipod,mp4,wav,pcm_s16le,pcm_s16be,pcm_f32le,null",
+    "--enable-encoder=libopus,libmp3lame,aac,flac,pcm_s16le,pcm_s16be,pcm_s24le,pcm_f32le",
+    "--enable-protocol=file,pipe",
+    "--enable-filter=abuffer,abuffersink,aformat,anull,aresample,atrim,asetpts,volume",
+    "--extra-ldflags=-L../codecs/lib -static-libgcc -Wl,--no-insert-timestamp",
+    "--extra-version=iris-messaging-audio-29e619e767",
+    "--enable-bsf=aac_adtstoasc",
+    "--enable-libopus",
+    "--enable-libmp3lame",
+    "--extra-cflags=-I../codecs/include"
+  ]
+}

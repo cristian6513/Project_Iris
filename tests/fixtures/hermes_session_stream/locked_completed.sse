@@ -1,0 +1,24 @@
+event: run.started
+data: {"user_message": {"role": "user", "content": "hola [[T-1]]"}, "runtime": {"provider": "", "model": "", "route_source": "raw_request", "requested": {"provider": "fake-b", "model": "beta-1"}, "model_lock": "accepted"}, "session_id": "IRIS-fixture", "run_id": "run_eff87de77e4947a99fe249f96c385773", "seq": 1, "ts": 1791418525.8667548}
+
+event: message.started
+data: {"message": {"id": "msg_caf641be1d5a4ad890f22b3f5e8de070", "role": "assistant"}, "session_id": "IRIS-fixture", "run_id": "run_eff87de77e4947a99fe249f96c385773", "seq": 2, "ts": 1791418525.8667548}
+
+event: assistant.delta
+data: {"message_id": "msg_caf641be1d5a4ad890f22b3f5e8de070", "delta": "respuesta ", "session_id": "IRIS-fixture", "run_id": "run_eff87de77e4947a99fe249f96c385773", "seq": 3, "ts": 1791418531.4140968}
+
+event: assistant.delta
+data: {"message_id": "msg_caf641be1d5a4ad890f22b3f5e8de070", "delta": "de fake-b/beta-1 [[T-1]]", "session_id": "IRIS-fixture", "run_id": "run_eff87de77e4947a99fe249f96c385773", "seq": 4, "ts": 1791418531.4151952}
+
+event: tool.progress
+data: {"message_id": "msg_caf641be1d5a4ad890f22b3f5e8de070", "tool_name": "_thinking", "delta": "respuesta de fake-b/beta-1 [[T-1]]", "session_id": "IRIS-fixture", "run_id": "run_eff87de77e4947a99fe249f96c385773", "seq": 5, "ts": 1791418531.422144}
+
+event: assistant.completed
+data: {"session_id": "IRIS-fixture", "message_id": "msg_caf641be1d5a4ad890f22b3f5e8de070", "content": "respuesta de fake-b/beta-1 [[T-1]]", "completed": true, "partial": false, "interrupted": false, "runtime": {"provider": "custom", "model": "beta-1", "route_source": "raw_request", "requested": {"provider": "fake-b", "model": "beta-1"}, "model_lock": "confirmed"}, "run_id": "run_eff87de77e4947a99fe249f96c385773", "seq": 6, "ts": 1791418531.444132}
+
+event: run.completed
+data: {"session_id": "IRIS-fixture", "message_id": "msg_caf641be1d5a4ad890f22b3f5e8de070", "completed": true, "partial": false, "interrupted": false, "messages": [{"role": "assistant", "content": "respuesta de fake-b/beta-1 [[T-1]]", "timestamp": 1791418531.422144, "finish_reason": "stop", "reasoning": null}], "usage": {"input_tokens": 5, "output_tokens": 5, "total_tokens": 10, "runtime": {"provider": "custom", "model": "beta-1", "route_source": "raw_request", "requested": {"provider": "fake-b", "model": "beta-1"}, "model_lock": "confirmed"}}, "runtime": {"provider": "custom", "model": "beta-1", "route_source": "raw_request", "requested": {"provider": "fake-b", "model": "beta-1"}, "model_lock": "confirmed"}, "run_id": "run_eff87de77e4947a99fe249f96c385773", "seq": 7, "ts": 1791418531.444132}
+
+event: done
+data: {"session_id": "IRIS-fixture", "run_id": "run_eff87de77e4947a99fe249f96c385773", "seq": 8, "ts": 1791418531.444132}
+

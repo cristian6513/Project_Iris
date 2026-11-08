@@ -1,0 +1,181 @@
+# Maintainer: Alexey Pavlov <alexpux@gmail.com>
+# Contributor: Ray Donnelly <mingw.android@gmail.com>
+
+pkgbase=bash
+pkgname=('bash' 'bash-devel')
+_basever=5.3
+_patchlevel=015 #prepare for some patches
+pkgver=${_basever}.${_patchlevel}
+pkgrel=2
+pkgdesc="The GNU Bourne Again shell"
+arch=('i686' 'x86_64')
+license=('GPL')
+url="https://www.gnu.org/software/bash/bash.html"
+validpgpkeys=('7C0135FB088AAF6C66C650B9BB5869F064EA74AB') # Chet Ramey
+makedepends=('gettext-devel' 'ncurses-devel' 'gcc')
+if [ "${CARCH}" == 'x86_64' ]; then
+	# Git for Windows' i686-bit SDK does not have the `autotools` package
+	# and it only has a too-old libreadline
+	makedepends+=('libreadline-devel>=7.0' 'autotools')
+	installed_readline=--with-installed-readline
+	READLINE_LDFLAGS=READLINE_LDFLAGS=
+else
+	installed_readline="--without-installed-readline --with-included-readline"
+	READLINE_LDFLAGS=
+fi
+source=(https://ftp.gnu.org/gnu/bash/bash-${_basever}.tar.gz{,.sig}
+        0001-bash-4.4-cygwin.patch
+        0002-bash-4.3-msysize.patch
+        0005-bash-4.3-msys2-fix-lineendings.patch
+        0006-bash-4.3-add-pwd-W-option.patch
+        0007-fix-static-build.patch)
+if [ $_patchlevel -gt 000 ]; then
+  for (( p=1; p<=$((10#${_patchlevel})); p++ )); do
+    source=(${source[@]} https://ftp.gnu.org/gnu/bash/bash-${_basever}-patches/bash${_basever//./}-$(printf "%03d" $p){,.sig})
+  done
+fi
+noextract=(${pkgbase}-${_basever}.tar.gz)
+validpgpkeys=('7C0135FB088AAF6C66C650B9BB5869F064EA74AB') # Chet Ramey
+
+prepare() {
+  [[ -d ${pkgbase}-${_basever} ]] && rm -rf ${pkgbase}-${_basever}
+  tar -xzvf ${srcdir}/${pkgbase}-${_basever}.tar.gz || true
+  cd ${srcdir}/${pkgname}-${_basever}
+
+  # Remove patch-created file.
+  [[ -f cross-build/msys32.cache ]] && rm -rf cross-build/msys32.cache
+
+  for (( p=1; p<=$((10#${_patchlevel})); p++ )); do
+    msg "applying patch bash${_basever//./}-$(printf "%03d" $p)"
+    patch -p0 -i $srcdir/bash${_basever//./}-$(printf "%03d" $p)
+  done
+
+  patch -p1 -i ${srcdir}/0001-bash-4.4-cygwin.patch
+  patch -p1 -i ${srcdir}/0002-bash-4.3-msysize.patch
+  patch -p1 -i ${srcdir}/0005-bash-4.3-msys2-fix-lineendings.patch
+  patch -p1 -i ${srcdir}/0006-bash-4.3-add-pwd-W-option.patch
+  patch -p1 -i ${srcdir}/0007-fix-static-build.patch
+
+  autoconf
+}
+
+build() {
+  cd ${srcdir}/${pkgname}-$_basever
+
+  ./configure --build=${CHOST} \
+    --prefix=/usr \
+    --sysconfdir=/etc \
+    --localstatedir=/var \
+    --enable-static-link \
+    --enable-readline \
+    --without-libintl-prefix \
+    --without-libiconv-prefix \
+    $installed_readline \
+    --without-bash-malloc \
+    --with-curses \
+    bash_cv_dev_stdin=present \
+    bash_cv_dev_fd=standard \
+    bash_cv_termcap_lib=libncurses
+
+  # Prepopulate the release level.
+  expr ${pkgrel} > .build || :
+
+  # CFLAGS+=" -D_STATIC_BUILD"
+  make CPPFLAGS=-DWORDEXP_OPTION \
+       HISTORY_LDFLAGS= \
+       $READLINE_LDFLAGS \
+       LOCAL_LDFLAGS='-Wl,--export-all,--out-implib,lib$(@:.exe=.dll.a)'
+
+  test -z "$SIGNTOOL" || {
+    # first strip, then code-sign, otherwise the .exe becomes corrupt somehow
+    strip bash.exe &&
+    eval "$SIGNTOOL" "$PWD/bash.exe"
+  }
+}
+
+check() {
+  cd ${srcdir}/${pkgname}-$_basever
+  make check
+}
+
+package_bash() {
+  # stripping after code-signing somehow corrupts the exe
+  test -z "$SIGNTOOL" || options=('!strip')
+
+  provides=('sh')
+  #install=bash.install
+
+  cd ${srcdir}/${pkgname}-$_basever
+  make DESTDIR=${pkgdir} install
+
+  cp -fp ${pkgdir}/usr/bin/{ba,}sh.exe
+
+  cd ${pkgdir}/usr/share/man/man1 > /dev/null
+  echo '.so man1/bash.1' > sh.1
+  echo '.so man1/bash_builtins.1.gz' > alias.1
+
+  gzip alias.1
+  for f in bg bind break builtin caller case cd command compgen complete \
+    continue declare dirs disown do done elif else enable esac eval exec \
+    exit export fc fg fi for function getopts hash help history if in jobs \
+    let local logout popd pushd read readonly return select set shift shopt \
+    source suspend then time times trap type typeset ulimit umask unalias \
+    unset until wait while [ ; do
+    cp -fp alias.1.gz $f.1.gz
+  done
+}
+
+package_bash-devel() {
+ pkgdesc="Bash headers and libraries"
+ groups=('development')
+ options=('staticlibs')
+ backup=()
+
+ mkdir -p ${pkgdir}/usr/{include,lib,bin}
+ cd ${srcdir}/bash-$_basever
+ cp -f libbash.dll.a ${pkgdir}/usr/lib/
+
+ mkdir -p  ${pkgdir}/usr/include/bash
+ for f in [^y]*.h builtins/*.h include/*.h lib/{glob,tilde}/*.h
+ do
+   /usr/bin/install ${f} ${pkgdir}/usr/include/bash
+ done
+}
+
+sha256sums=('0d5cd86965f869a26cf64f4b71be7b96f90a3ba8b3d74e27e8e9d9d5550f31ba'
+            'SKIP'
+            '81f5fcb0990199e555f78ecf57dd6874d4b0ca781d4e7d26eac5a76ba729ac59'
+            '64c9c0ff8516c1d89baa1b64159dd646876bf9277ae341647164040acc16fb80'
+            '3c33be8d7363b00189309353f3fcdedfb7c7082c4a1cedbcc76a36fd0a8af8a8'
+            'e123c1ef06499405f055d6c920cf267258d7ab3d59d6036e1ee2b5b0edd81ad2'
+            'f70394dfe8afd8be94a8358732c4e55b4af069cb40555d1375f2dadee7554797'
+            '1f608434364af86b9b45c8b0ea3fb3b165fb830d27697e6cdfc7ac17dee3287f'
+            'SKIP'
+            'e385548a00130765ec7938a56fbdca52447ab41fabc95a25f19ade527e282001'
+            'SKIP'
+            'f245d9c7dc3f5a20d84b53d249334747940936f09dc97e1dcb89fc3ab37d60ed'
+            'SKIP'
+            '9591d245045529f32f0812f94180b9d9ce9023f5a765c039b852e5dfc99747d0'
+            'SKIP'
+            'cca1ef52dbbf433bc98e33269b64b2c814028efe2538be1e2c9a377da90bc99d'
+            'SKIP'
+            '29119addefed8eff91ae37fd51822c31780ee30d4a28376e96002706c995ff10'
+            'SKIP'
+            'c0976bbfffa1453c7cfdd62058f206a318568ff2d690f5d4fa048793fa3eb299'
+            'SKIP'
+            '097cd723cbfb8907674ac32214063a3fd85282657ec5b4e544d2c0f719653fb4'
+            'SKIP'
+            'eee30fe78a4b0cb2fe20e010e00308899cfc613e0774ebb3c8557a1552f24f8c'
+            'SKIP'
+            'cf76f1cce2ea300c18bff9f002d21f280cc931acd17c28518110b93fe6e72569'
+            'SKIP'
+            '0298df8f5ea2a31d3be43ed7d269c5b3c7c342dd5b570bea7f64d66dcbbe7531'
+            'SKIP'
+            'd71379b39bebaedaf123414414e77fb458a0a43b9ad3116594c6df7ca6754573'
+            'SKIP'
+            '042f9cda967e24bf4211944697441e93d06ff42b4b998629a98a1b249279f200'
+            'SKIP'
+            'bd4360b401d38507e358783dcad8536a99c6789f0d3a5bd0cfb8c4a34144696c'
+            'SKIP'
+            '55b79ceee2fc27f6767eed697e939a7eb2fe2a28c01556bd75f18d581014f46e'
+            'SKIP')

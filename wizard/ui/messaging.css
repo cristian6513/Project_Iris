@@ -1,0 +1,58 @@
+.messaging-heading { margin-bottom: 20px; }
+.messaging-eyebrow { display: block; color: var(--gold, #d4a017); font-size: 10px; letter-spacing: .2em; margin-bottom: 8px; }
+.messaging-toolbar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin: 14px 0; }
+.messaging-toolbar input[type=search] { flex: 1; min-width: 180px; }
+.messaging-active-filter, .messaging-enable { display: flex; gap: 9px; align-items: center; font-size: 12px; }
+.messaging-active-filter input, .messaging-enable input, .messaging-clear input { width: auto; flex: none; accent-color: var(--gold, #d4a017); }
+.messaging-list { display: grid; gap: 8px; max-height: 700px; overflow-y: auto; padding-right: 5px; }
+.messaging-list:empty::after { content: 'No hay canales disponibles. Revisa el estado de Hermes en «Verificar conexión».'; color: #a6abb2; padding: 20px 0; }
+.messaging-list:not([data-empty=''])::after { content: attr(data-empty); color: #a6abb2; padding: 20px 0; }
+.messaging-card { border: 1px solid rgba(160, 177, 192, .16); border-radius: 10px; background: rgba(9, 16, 22, .65); }
+.messaging-card[open] { border-color: rgba(212, 160, 23, .45); background: rgba(17, 23, 27, .85); }
+.messaging-card[hidden] { display: none; }
+.messaging-card summary { display: flex; align-items: center; gap: 12px; padding: 15px; cursor: pointer; list-style: none; }
+.messaging-card summary::-webkit-details-marker { display: none; }
+.messaging-card summary::after { content: '+'; color: #a6abb2; font-size: 20px; }
+.messaging-card[open] summary::after { content: '−'; color: var(--gold, #d4a017); }
+.messaging-card summary:focus-visible { outline: 2px solid var(--gold, #d4a017); outline-offset: -3px; border-radius: 10px; }
+.messaging-card summary strong { flex: 1; font-family: 'Syne', sans-serif; font-size: 15px; }
+.messaging-monogram { display: grid; place-items: center; width: 34px; height: 34px; flex: none; border: 1px solid rgba(212, 160, 23, .3); color: var(--gold, #d4a017); border-radius: 7px; font-size: 11px; }
+.messaging-badge { color: #a6abb2; font-size: 10px; text-align: right; }
+.messaging-badge.connected { color: #a8d8b9; }
+.messaging-badge.not_configured, .messaging-badge.pending_restart { color: #e9bc52; }
+.messaging-body { padding: 0 18px 15px; border-top: 1px solid rgba(160, 177, 192, .1); }
+.messaging-body > p { margin: 14px 0; line-height: 1.7; }
+.messaging-enable { margin: 18px 0; }
+.messaging-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; margin: 20px 0; }
+.messaging-field { display: flex; flex-direction: column; gap: 7px; min-width: 0; }
+.messaging-field > label:not(.messaging-clear) { display: flex; flex-direction: column; gap: 7px; font-size: 12px; }
+.messaging-field small { color: #959ea8; font-size: 10px; line-height: 1.6; overflow-wrap: anywhere; }
+.messaging-field-heading { display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px 10px; }
+.messaging-field-requirement { color: var(--text-dim, #a1aab4); font-size: 10px; font-weight: 400; }
+.messaging-field input:not([type=checkbox]), .messaging-whatsapp > input, .messaging-whatsapp > select { width: 100%; }
+.messaging-clear { display: flex; align-items: center; gap: 7px; color: #a6abb2; font-size: 10px !important; }
+.messaging-status { min-height: 24px; color: #a8d8b9; font-size: 12px; line-height: 1.7; }
+.messaging-status.error { color: #ffaaaa; }
+.messaging-whatsapp { border-top: 1px solid rgba(160, 177, 192, .16); padding-top: 18px; display: grid; gap: 12px; }
+.messaging-whatsapp > button { justify-self: start; }
+.messaging-pairing { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.messaging-pairing p { width: 100%; color: #a6abb2; font-size: 12px; line-height: 1.7; }
+.messaging-pairing img { max-width: 100%; background: white; border-radius: 10px; }
+@media (max-width: 600px) {
+    .messaging-fields { grid-template-columns: 1fr; }
+    .messaging-card summary { padding: 12px; gap: 8px; }
+    .messaging-card summary strong { font-size: 13px; }
+    .messaging-badge { max-width: 90px; }
+}
+
+#messaging-panel { --text-dim: #a1aab4; }
+#messaging-panel .key-link { opacity: 1; color: #e9bc52; }
+.messaging-field label { overflow-wrap: anywhere; }
+#messaging-panel input:not([type=checkbox]), #messaging-panel select { min-height: 40px; padding: 9px 12px; font: inherit; font-size: 12px; border-radius: 7px; }
+#messaging-panel button { min-height: 34px; font-size: 11px; }
+
+/* A08.6: a channel the running engine cannot start stays visible but inert. */
+.messaging-card.unavailable summary strong { color: #a6abb2; }
+.messaging-badge.unavailable { color: #e9bc52; }
+.messaging-unavailable { margin: 14px 0; padding: 10px 12px; border: 1px solid rgba(233, 188, 82, .35); border-radius: 8px; color: #e9bc52; font-size: 12px; line-height: 1.6; }
+.messaging-filter-unavailable { color: #a6abb2; }

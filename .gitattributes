@@ -1,0 +1,71 @@
+# Stable diffs and cross-platform checkouts
+* text=auto
+
+*.py text eol=lf
+*.js text eol=lf
+*.mjs text eol=lf
+*.css text eol=lf
+*.html text eol=lf
+*.json text eol=lf
+*.json5 text eol=lf
+*.md text eol=lf
+*.toml text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.sh text eol=lf
+*.ps1 text eol=crlf
+*.cmd text eol=crlf
+# The installer script's SHA-256 is recorded with every installer it builds.
+*.nsi text eol=lf
+# Vendored notices are hashed resource inputs; Windows must preserve their LF.
+/companion/third-party/*.txt text eol=lf
+/desktop/third-party/*.txt text eol=lf
+/scripts/third-party/*.txt text eol=lf
+/face/vendor/qrcode/*.txt text eol=lf
+/pagina-iris/fonts/*.txt text eol=lf
+# Lockfiles are hashed by the runtime pins and the license inventories.
+/scripts/locks/*.txt text eol=lf
+/uv.lock text eol=lf
+Cargo.lock text eol=lf
+
+# Hash-pinned inputs whose reviewed SHA-256 covers bytes with CRLF or mixed line
+# endings. Git stores and checks them out unchanged on every platform.
+/scripts/runtime_notices/** -text
+/scripts/runtime_native_notices/** -text
+/scripts/desktop_notices/** -text
+/scripts/audio_build_sources.json -text
+/scripts/runtime_sources.json -text
+# Face sources pinned by scripts/release_web_assets.json with mixed line endings.
+/face/js/ambient_audio.js -text
+/face/js/auto_springbones.js -text
+/face/js/bvh_retargeter.js -text
+/face/js/contextual_fx.js -text
+/face/js/emotion_classifier.js -text
+/face/js/lipsync.js -text
+/face/js/particles.js -text
+/face/js/room.js -text
+/face/js/room_actions.js -text
+/face/js/room_hotspots.js -text
+/face/js/scene_actions.js -text
+/face/js/skills_panel.js -text
+/face/js/speech_animator.js -text
+/face/js/subtitles.js -text
+/face/js/webrtc_host.js -text
+
+# Runtime assets and vendored model data are binary.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.gif binary
+*.ico binary
+*.woff2 binary
+*.glb binary
+*.gltf text eol=lf
+*.vrm binary
+*.vrma binary
+*.task binary
+*.wasm binary
+*.mp3 binary
+*.wav binary
+

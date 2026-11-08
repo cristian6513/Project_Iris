@@ -1,0 +1,18 @@
+{
+  "schema": "iris.app-manifest/v1",
+  "sdkVersion": 1,
+  "id": "settings",
+  "name": "Ajustes",
+  "version": "1.0.0",
+  "description": "Configuración de Iris OS",
+  "icon": "settings",
+  "accent": "amber",
+  "presentation": "tab",
+  "launcher": {
+    "visible": true,
+    "order": 170
+  },
+  "ui": {
+    "adapter": "legacy"
+  }
+}

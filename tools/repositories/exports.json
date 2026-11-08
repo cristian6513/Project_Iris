@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "secret_exceptions": [{"path": "tests/test_iris_updates.py", "rule": "private_key", "line_sha256": "d137987e9a111058f41cdb1a20f27fde7d76f4fdd34096f3b37e25e6809f5857", "reason": "La prueba incluye solo el delimitador OPENSSH de una constante de biblioteca; no contiene un bloque de clave."}],
+  "excluded_prefixes": ["desktop/installer/qa/", "docs/audits/", "pagina-iris/deploy.local.json", "pagina-iris/deploy/README.local.md", "tools/skills/iris-project-context/", "tools/skills/iris-regression-review/"],
+  "main_roots": [".github", ".hermes", "apps", "companion", "core", "desktop", "docker", "docs", "examples", "face", "hardware", "pagina-iris", "personality", "scripts", "tests", "tools", "wizard"],
+  "main_files": [".dockerignore", ".env.example", ".gitattributes", ".gitignore", ".node-version", "COMPILAR.cmd", "CONTRIBUTING.md", "Dockerfile", "docker-compose.yml", "install.sh", "LICENSE", "MANIFEST.in", "pyproject.toml", "README.md", "requirements.txt", "rust-toolchain.toml", "uv.lock"],
+  "components": {
+    "main": {"directory": "Project iris", "label": "Código fuente de Iris OS"},
+    "apps": {
+      "directory": "Aplicaciones Iris", "label": "Kit para crear aplicaciones",
+      "prefixes": ["apps/_plantilla/", "apps/_plantilla-servicio/", "apps/player/", "examples/apps/contador/", "tools/skills/iris-app-contributor/", "tools/skills/iris-os-design/"],
+      "files": ["LICENSE", ".gitattributes", "apps/README.md", "docs/guides/community-apps-python.md", "docs/guides/contributing-apps.md", "docs/guides/widgets.md", "docs/guides/iris-store.md", "docs/guides/iris-player.md", "core/app_manifest.py", "core/app_extension_contract.py", "core/app_actions.py", "core/app_packages.py", "core/app_extensions.py", "core/app_worker.py", "core/app_services.py", "core/app_notices.py", "core/app_messages.py", "core/widget_catalog.py", "face/js/os_app_manifest.js", "face/js/os_icons.js", "face/js/os_theme.js", "face/js/os_app_client.js", "face/js/app_ask_iris.js", "face/js/app_notice.js", "face/js/inbox_state.js"]
+    },
+    "transitions": {
+      "directory": "Transiciones iris", "label": "Kit para crear transiciones",
+      "prefixes": ["examples/transitions/"],
+      "files": ["LICENSE", ".gitattributes", "docs/guides/theme-transitions.md", "docs/schemas/iris-transition-v1.schema.json", "face/js/os_transition_format.js", "face/js/os_transition_examples.js", "scripts/transition_tool.mjs"]
+    }
+  }
+}

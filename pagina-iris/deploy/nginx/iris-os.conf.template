@@ -1,0 +1,121 @@
+# Página de IRIS OS · servidor nginx para {{HOST}}
+#
+# Archivo generado por pagina-iris/scripts/build.mjs a partir de
+# pagina-iris/deploy/nginx/iris-os.conf.template. No lo edites en el servidor:
+# cambia la plantilla o site.config.json y vuelve a generarlo.
+# Instalación paso a paso: pagina-iris/deploy/README.md
+
+# HTTP: solo redirige a HTTPS (y deja pasar las validaciones de Let's Encrypt).
+server {
+    listen 80;
+    listen [::]:80;
+    server_name {{SERVER_NAMES}};
+
+    location ^~ /.well-known/acme-challenge/ {
+        root /var/www/letsencrypt;
+    }
+
+    location / {
+        return 301 https://{{HOST}}$request_uri;
+    }
+}
+{{WWW_REDIRECT}}
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    server_name {{HOST}};
+
+    ssl_certificate     /etc/letsencrypt/live/{{HOST}}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/{{HOST}}/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers off;
+    ssl_session_cache shared:IRISOS:10m;
+    ssl_session_timeout 1d;
+    ssl_session_tickets off;
+
+    # Cada despliegue es una carpeta en releases/; current apunta a la activa.
+    root {{ROOT}}/current;
+    index index.html;
+    charset utf-8;
+    server_tokens off;
+
+    # build.mjs genera .gz y .br junto a cada archivo de texto.
+    gzip on;
+    gzip_static on;
+    gzip_vary on;
+    gzip_comp_level 6;
+    gzip_types text/css application/javascript application/json application/manifest+json application/xml image/svg+xml text/plain;
+    # brotli_static on;   # requiere el módulo ngx_brotli (libnginx-mod-http-brotli-static)
+
+    # Sin bloque types a nivel de server: types { … } no amplía mime.types, lo
+    # sustituye entero, y todo lo demás saldría como application/octet-stream.
+    include /etc/nginx/snippets/iris-os-security-headers.conf;
+
+    # Archivos con huella (hash en el nombre): se pueden guardar un año.
+    location ~ ^/(assets|css|js|fonts)/ {
+        include /etc/nginx/snippets/iris-os-security-headers.conf;
+        add_header Cache-Control "public, max-age=31536000, immutable" always;
+        access_log off;
+        try_files $uri =404;
+    }
+
+    # Archivos de nombre fijo: un día.
+    location ~ ^/(favicon\.ico|favicon\.svg|apple-touch-icon\.png|robots\.txt|sitemap\.xml)$ {
+        include /etc/nginx/snippets/iris-os-security-headers.conf;
+        add_header Cache-Control "public, max-age=86400" always;
+        access_log off;
+        try_files $uri =404;
+    }
+
+    # El manifiesto no está en mime.types: su tipo se fija solo aquí.
+    location = /site.webmanifest {
+        types { }
+        default_type application/manifest+json;
+        include /etc/nginx/snippets/iris-os-security-headers.conf;
+        add_header Cache-Control "public, max-age=86400" always;
+        access_log off;
+        try_files $uri =404;
+    }
+
+    # security.txt y validaciones; el resto de archivos ocultos no se sirve.
+    location ^~ /.well-known/ {
+        try_files $uri =404;
+    }
+
+    location ~ /\. {
+        deny all;
+    }
+
+    # Futuro backend de Comunidad (login): mismo dominio, sin cambiar la CSP.
+    # location /api/ {
+    #     proxy_pass http://127.0.0.1:8080;
+    #     proxy_set_header Host $host;
+    #     proxy_set_header X-Real-IP $remote_addr;
+    #     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    #     proxy_set_header X-Forwarded-Proto $scheme;
+    # }
+
+    # HTML: se envía entero en cada visita, sin 304, para que cada despliegue y cada
+    # cambio de cabeceras se vea al instante. Un 304 no trae Content-Type: el navegador
+    # conserva las cabeceras guardadas, y un HTML guardado como octet-stream se seguiría
+    # descargando aunque el servidor ya lo sirva bien.
+    location / {
+        limit_except GET HEAD {
+            deny all;
+        }
+        include /etc/nginx/snippets/iris-os-security-headers.conf;
+        add_header Cache-Control "no-cache" always;
+        etag off;
+        if_modified_since off;
+        try_files $uri $uri/ =404;
+    }
+
+    error_page 404 /404.html;
+    location = /404.html {
+        internal;
+        include /etc/nginx/snippets/iris-os-security-headers.conf;
+        add_header Cache-Control "no-cache" always;
+        etag off;
+        if_modified_since off;
+    }
+}

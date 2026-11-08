@@ -1,0 +1,4 @@
+[
+  { "id": "uno", "title": "Elemento de ejemplo", "detail": "Viene de sample_items.json, dentro de la app." },
+  { "id": "dos", "title": "Otro elemento de ejemplo", "detail": "Pon un items.json en la carpeta de datos de la app para ver los tuyos." }
+]

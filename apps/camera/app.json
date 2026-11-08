@@ -1,0 +1,18 @@
+{
+  "schema": "iris.app-manifest/v1",
+  "sdkVersion": 1,
+  "id": "camera",
+  "name": "Cámara",
+  "version": "1.0.0",
+  "description": "Vista y permisos",
+  "icon": "camera",
+  "accent": "cyan",
+  "presentation": "tab",
+  "launcher": {
+    "visible": true,
+    "order": 160
+  },
+  "ui": {
+    "adapter": "legacy"
+  }
+}

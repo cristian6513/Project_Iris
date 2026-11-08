@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "platform": "win_amd64",
+  "python": "3.11",
+  "resolution": {
+    "index_url": "https://pypi.org/simple",
+    "exclude_newer": "2026-10-03T00:00:00Z",
+    "python_platform": "x86_64-pc-windows-msvc"
+  },
+  "extras": {
+    "kokoro": {
+      "label": "Kokoro-82M (TTS local)",
+      "consumer": "tts:kokoro",
+      "requirements": [
+        "kokoro>=0.9.4",
+        "soundfile>=0.12.0",
+        "transformers>=4.48,<5",
+        "numpy"
+      ],
+      "lock": "pylock.kokoro.toml",
+      "lock_sha256": "a6257939a48216dda44961ac96ac1cae36afa7c71b9c41b027cacd342de8f334",
+      "probe": [
+        "kokoro",
+        "misaki.espeak",
+        "espeakng_loader",
+        "soundfile"
+      ],
+      "download_bytes": 222200976,
+      "packages": 91,
+      "models": "El modelo Kokoro-82M (Apache-2.0, unos 330 MB) se descarga de Hugging Face la primera vez que habla y se guarda en el perfil.",
+      "warning": "Incluye las voces en español y su eSpeak-NG. Las voces en inglés, japonés y chino necesitan componentes que este extra aún no incluye."
+    },
+    "hf-s2s": {
+      "label": "HF speech-to-speech 0.2.12 (Qwen3-TTS)",
+      "consumer": "tts:hf-s2s",
+      "requirements": [
+        "speech-to-speech==0.2.12",
+        "numpy"
+      ],
+      "lock": "pylock.hf-s2s.toml",
+      "lock_sha256": "38b8bfc2c263791e3e78ec31b0417d8469ec2ba1813eacbe61d4f9c7169e862d",
+      "probe": [
+        "speech_to_speech",
+        "speech_to_speech.TTS.qwen3_tts_handler",
+        "speech_to_speech.pipeline.messages"
+      ],
+      "download_bytes": 434709597,
+      "packages": 104,
+      "models": "Los pesos Qwen3-TTS elegidos (0.6B o 1.7B) se descargan de Hugging Face en la primera prueba y se guardan en el perfil.",
+      "warning": "Experimental y lento en Windows: usa la CPU y tarda unas 12 veces la duración del audio con 0.6B y 17 con 1.7B (una frase corta, alrededor de un minuto). Árbol grande de dependencias."
+    }
+  },
+  "unsupported": {
+    "coqui": "Coqui TTS no tiene una instalación verificable solo con wheels: su dependencia docopt (vía num2words) solo se publica como código fuente e Iris no compila paquetes en tu equipo.",
+    "neutts": "NeuTTS necesita llama-cpp-python, que no publica wheels para Windows en PyPI; Iris no compila paquetes en tu equipo.",
+    "faster-whisper": "La transcripción local la hace el Hermes incluido; Iris ya no tiene un consumidor propio de Faster-Whisper.",
+    "elevenlabs": "Iris usa directamente la API HTTP de ElevenLabs; el SDK opcional no es necesario."
+  }
+}

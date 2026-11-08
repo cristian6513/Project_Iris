@@ -1,0 +1,319 @@
+/* IRIS OS dialogs (face/js/iris_dialog.js). Accents come from the active theme, live:
+   IRIS OS publishes it on <html> (--iris-theme-*, hermes_activity.js) and the setup wizard
+   keeps its edition on <body> (--installer-*). --dlg-a is the primary accent (cyan in IRIS),
+   --dlg-b the secondary (magenta in IRIS). */
+
+.iris-dialog-backdrop {
+    --dlg-a: var(--iris-theme-accent, var(--companion-accent, var(--installer-accent, #73f7ff)));
+    --dlg-b: var(--iris-theme-accent-2, var(--companion-accent-2, var(--installer-accent-2, #ff74d4)));
+    --dlg-ready: var(--iris-theme-ready, var(--installer-ready, #5cffad));
+    --dlg-danger: #ff6b8b;
+    position: fixed;
+    inset: 0;
+    z-index: 13000;
+    display: grid;
+    align-items: start;
+    justify-items: center;
+    padding: clamp(16px, 9vh, 96px) 16px 16px;
+    overflow-y: auto;
+    background:
+        radial-gradient(circle at 50% 18%, color-mix(in srgb, var(--dlg-b) 8%, transparent), transparent 46%),
+        rgba(2, 4, 10, 0.34);
+    opacity: 0;
+    transition: opacity 160ms ease;
+    font-family: var(--font-main, 'Outfit', system-ui, sans-serif);
+}
+
+.iris-dialog-backdrop.open { opacity: 1; }
+.iris-dialog-backdrop.closing { opacity: 0; }
+
+.iris-dialog {
+    position: relative;
+    width: min(640px, 100%);
+    border: 1.5px solid transparent;
+    border-radius: 18px;
+    color: rgba(242, 248, 255, 0.94);
+    background:
+        linear-gradient(180deg, rgba(11, 15, 32, 0.96), rgba(6, 9, 21, 0.97)) padding-box,
+        linear-gradient(118deg, var(--dlg-a), color-mix(in srgb, var(--dlg-a) 45%, var(--dlg-b)) 46%, var(--dlg-b)) border-box;
+    box-shadow:
+        0 0 26px color-mix(in srgb, var(--dlg-a) 26%, transparent),
+        0 0 46px color-mix(in srgb, var(--dlg-b) 20%, transparent),
+        0 30px 80px rgba(0, 0, 0, 0.62);
+    transform: translateY(-8px) scale(0.985);
+    transition: transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    overflow: hidden;
+}
+
+.iris-dialog-backdrop.open .iris-dialog { transform: none; }
+.iris-dialog-preview { display: block; width: 100%; max-height: 45vh; object-fit: contain; border-radius: 8px; background: #030710; }
+.iris-dialog[data-tone="danger"] { --dlg-b: var(--dlg-danger); }
+
+.iris-dialog-head {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 20px 16px 22px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    background: linear-gradient(90deg, color-mix(in srgb, var(--dlg-b) 7%, transparent), transparent 60%);
+}
+
+/* A faint circuit trace on the right of the header, as in the mockup. */
+.iris-dialog-head::after {
+    content: '';
+    position: absolute;
+    inset: 0 0 0 42%;
+    pointer-events: none;
+    opacity: 0.16;
+    background:
+        linear-gradient(135deg, transparent 47%, color-mix(in srgb, var(--dlg-a) 60%, transparent) 48%, transparent 50%) 0 0 / 46px 46px,
+        linear-gradient(90deg, transparent 49%, color-mix(in srgb, var(--dlg-a) 40%, transparent) 50%, transparent 51%) 0 0 / 92px 23px;
+    mask-image: linear-gradient(90deg, transparent, #000 40%, transparent);
+}
+
+.iris-dialog-badge {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 54px;
+    height: 54px;
+    border-radius: 12px;
+    border: 1px solid color-mix(in srgb, var(--dlg-b) 55%, transparent);
+    background: radial-gradient(circle at 50% 30%, color-mix(in srgb, var(--dlg-b) 22%, transparent), rgba(8, 10, 22, 0.9) 70%);
+    color: var(--dlg-b);
+    box-shadow: 0 0 18px color-mix(in srgb, var(--dlg-b) 26%, transparent), inset 0 0 12px color-mix(in srgb, var(--dlg-b) 14%, transparent);
+}
+
+.iris-dialog-badge .iris-dialog-svg { width: 28px; height: 28px; }
+
+.iris-dialog-title {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: 0;
+    color: #f5f8ff;
+    overflow-wrap: anywhere;
+}
+
+.iris-dialog-close {
+    position: relative;
+    z-index: 1;
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(4, 8, 18, 0.72);
+    color: rgba(242, 248, 255, 0.9);
+    cursor: pointer;
+    transition: border-color 150ms ease, color 150ms ease, box-shadow 150ms ease;
+}
+
+.iris-dialog-close .iris-dialog-svg { width: 20px; height: 20px; }
+
+.iris-dialog-close:hover {
+    border-color: color-mix(in srgb, var(--dlg-a) 60%, transparent);
+    color: #fff;
+    box-shadow: 0 0 14px color-mix(in srgb, var(--dlg-a) 24%, transparent);
+}
+
+.iris-dialog-body { padding: 22px 26px 6px; }
+
+.iris-dialog-message {
+    margin: 0;
+    text-align: center;
+    font-size: 19px;
+    line-height: 1.45;
+    font-weight: 500;
+    color: rgba(242, 248, 255, 0.94);
+    overflow-wrap: anywhere;
+}
+
+.iris-dialog-question {
+    display: block;
+    margin-top: 2px;
+    font-weight: 700;
+    color: var(--dlg-b);
+}
+
+.iris-dialog-versions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    gap: 8px;
+    width: min(520px, 100%);
+    margin: 18px auto 0;
+    padding: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.iris-dialog-version {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+    padding: 12px 16px;
+    border: 1px solid color-mix(in srgb, var(--dlg-a) 20%, rgba(255, 255, 255, 0.05));
+    border-radius: 12px;
+    background: rgba(7, 12, 26, 0.78);
+}
+
+.iris-dialog-version > span:last-child { display: grid; gap: 2px; min-width: 0; }
+.iris-dialog-version small { font-size: 14px; color: rgba(222, 237, 246, 0.72); }
+.iris-dialog-version b { font-size: 20px; font-weight: 700; overflow-wrap: anywhere; }
+.iris-dialog-version[data-side="from"] b { color: var(--dlg-a); }
+.iris-dialog-version[data-side="to"] b,
+.iris-dialog-version[data-side="to"] small { color: var(--dlg-b); }
+
+.iris-dialog-version-icon {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    border: 1px solid color-mix(in srgb, var(--dlg-a) 26%, transparent);
+    background: color-mix(in srgb, var(--dlg-a) 8%, rgba(4, 8, 18, 0.9));
+    color: var(--dlg-a);
+}
+
+.iris-dialog-version[data-side="to"] .iris-dialog-version-icon {
+    border-color: color-mix(in srgb, var(--dlg-b) 30%, transparent);
+    background: color-mix(in srgb, var(--dlg-b) 9%, rgba(4, 8, 18, 0.9));
+    color: var(--dlg-b);
+}
+
+.iris-dialog-version-icon .iris-dialog-svg { width: 24px; height: 24px; }
+.iris-dialog-arrow { display: grid; place-items: center; color: rgba(222, 237, 246, 0.7); }
+.iris-dialog-arrow .iris-dialog-svg { width: 22px; height: 22px; }
+
+.iris-dialog-details {
+    max-height: 200px;
+    margin: 16px auto 0;
+    padding: 12px 16px;
+    overflow-y: auto;
+    border-left: 2px solid var(--dlg-a);
+    border-radius: 0 10px 10px 0;
+    background: rgba(255, 255, 255, 0.03);
+    color: rgba(232, 242, 250, 0.86);
+    font-size: 14px;
+    line-height: 1.6;
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--dlg-a) 50%, transparent) transparent;
+}
+
+.iris-dialog-details[hidden] { display: none; }
+.iris-dialog-details p { margin: 0; white-space: pre-wrap; }  /* release notes keep their lines */
+.iris-dialog-details ul { margin: 8px 0 0; padding-left: 18px; }
+
+.iris-dialog-form { display: grid; gap: 14px; margin-top: 16px; }
+.iris-dialog-field { display: grid; gap: 6px; font-size: 14px; color: rgba(232, 242, 250, 0.86); }
+.iris-dialog-field small { color: rgba(222, 237, 246, 0.6); font-size: 12px; }
+
+.iris-dialog-field input,
+.iris-dialog-field textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 11px 13px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 10px;
+    background: rgba(4, 8, 18, 0.78);
+    color: #f2f8ff;
+    font: inherit;
+    font-size: 15px;
+    resize: vertical;
+}
+
+.iris-dialog-field input:focus,
+.iris-dialog-field textarea:focus {
+    outline: none;
+    border-color: color-mix(in srgb, var(--dlg-a) 70%, transparent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--dlg-a) 18%, transparent);
+}
+
+.iris-dialog-error { margin: 0; color: #ff9bb0; font-size: 13px; }
+.iris-dialog-error[hidden] { display: none; }
+
+.iris-dialog-remember { display: flex; align-items: flex-start; gap: 10px; margin: 20px 0 6px; color: rgba(232,242,250,.86); font-size: 14px; line-height: 1.5; }
+.iris-dialog-remember input { flex: none; margin-top: 4px; accent-color: var(--dlg-b); }
+.iris-dialog-remember input:focus-visible { outline: 2px solid var(--dlg-a); outline-offset: 3px; }
+
+.iris-dialog-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 14px;
+    padding: 22px 26px 24px;
+}
+
+.iris-dialog-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 48px;
+    min-width: 132px;
+    padding: 0 22px;
+    border: 1px solid rgba(255, 255, 255, 0.24);
+    border-radius: 10px;
+    background: rgba(4, 8, 18, 0.72);
+    color: #eef4ff;
+    font: inherit;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 150ms ease, border-color 150ms ease, box-shadow 150ms ease, background 150ms ease;
+}
+
+.iris-dialog-btn .iris-dialog-svg { width: 20px; height: 20px; flex: none; }
+
+.iris-dialog-btn:hover {
+    transform: translateY(-1px);
+    border-color: color-mix(in srgb, var(--dlg-a) 58%, transparent);
+    box-shadow: 0 0 16px color-mix(in srgb, var(--dlg-a) 18%, transparent);
+}
+
+.iris-dialog-btn.primary {
+    border-color: color-mix(in srgb, var(--dlg-b) 70%, #fff 10%);
+    background: linear-gradient(90deg, color-mix(in srgb, var(--dlg-b) 88%, #fff 12%), color-mix(in srgb, var(--dlg-b) 82%, #6a1a8a));
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 0 22px color-mix(in srgb, var(--dlg-b) 38%, transparent);
+}
+
+.iris-dialog-btn.primary:hover {
+    border-color: #fff;
+    box-shadow: 0 0 30px color-mix(in srgb, var(--dlg-b) 55%, transparent);
+}
+
+.iris-dialog-btn:focus-visible,
+.iris-dialog-close:focus-visible {
+    outline: 2px solid var(--dlg-a);
+    outline-offset: 3px;
+}
+
+@media (max-width: 560px) {
+    .iris-dialog-body { padding: 18px 18px 4px; }
+    .iris-dialog-message { font-size: 17px; }
+    .iris-dialog-versions { grid-template-columns: 1fr; }
+    .iris-dialog-arrow { transform: rotate(90deg); }
+    .iris-dialog-actions { padding: 18px; }
+    .iris-dialog-btn { flex: 1 1 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .iris-dialog-backdrop,
+    .iris-dialog { transition: none; }
+}
+
+/* «Reducir movimiento» in the IRIS OS theme. */
+:root[data-iris-reduced-motion="true"] .iris-dialog-backdrop,
+:root[data-iris-reduced-motion="true"] .iris-dialog { transition: none; }

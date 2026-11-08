@@ -1,0 +1,22 @@
+{
+  "schema": "iris.app-manifest/v1",
+  "sdkVersion": 1,
+  "id": "continuity",
+  "name": "Perfiles y sesiones",
+  "version": "1.0.0",
+  "description": "Perfiles, contextos y conversaciones",
+  "icon": "continuity",
+  "accent": "cyan",
+  "presentation": "window",
+  "window": {
+    "width": 1120,
+    "height": 680
+  },
+  "launcher": {
+    "visible": true,
+    "order": 130
+  },
+  "ui": {
+    "adapter": "legacy"
+  }
+}

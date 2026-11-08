@@ -1,0 +1,25 @@
+/* Bundled, licensed faces. No discovery/installation of fonts on the computer. */
+@font-face { font-family: IrisOutfit; src: url('/face/companion/fonts/outfit-latin-400-normal.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+@font-face { font-family: IrisOutfit; src: url('/face/companion/fonts/outfit-latin-600-normal.woff2') format('woff2'); font-weight: 600; font-display: swap; }
+@font-face { font-family: IrisOutfit; src: url('/face/companion/fonts/outfit-latin-700-normal.woff2') format('woff2'); font-weight: 700; font-display: swap; }
+@font-face { font-family: IrisSyne; src: url('/face/companion/fonts/syne-latin-600-normal.woff2') format('woff2'); font-weight: 600; font-display: swap; }
+@font-face { font-family: IrisSyne; src: url('/face/companion/fonts/syne-latin-700-normal.woff2') format('woff2'); font-weight: 700; font-display: swap; }
+@font-face { font-family: IrisSyne; src: url('/face/companion/fonts/syne-latin-800-normal.woff2') format('woff2'); font-weight: 800; font-display: swap; }
+.os-font-studio { min-width: 0; font-family: var(--font-main, system-ui); }
+.os-font-studio h3 { font: 700 20px/1.3 var(--font-display, system-ui); margin: 0 0 10px; }
+.os-font-studio p { font-size: 13px; line-height: 1.55; overflow-wrap: anywhere; }
+.os-font-studio button, .os-font-studio select { font: inherit; color: var(--os-text, #edf3fc); background: #0b1322;
+    border: 1px solid color-mix(in srgb, var(--iris-os-accent) 30%, transparent); border-radius: 9px; padding: 9px 11px; max-width: 100%; min-height: 40px; }
+.os-font-studio button { cursor: pointer; margin: 3px; }
+.os-font-studio button:disabled, .os-font-studio select:disabled { opacity: .55; cursor: default; }
+.os-font-studio :focus-visible { outline: 2px solid var(--iris-os-accent); outline-offset: 2px; }
+.os-font-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(210px, 100%), 1fr)); gap: 12px; }
+.os-font-fields label { display: flex; flex-direction: column; gap: 7px; font-size: 13px; min-width: 0; }
+.os-font-actions { display: flex; gap: 5px; flex-wrap: wrap; }
+.os-font-sample { margin: 15px 0; padding: 16px; border-radius: 12px; background: color-mix(in srgb, var(--iris-os-accent) 5%, transparent); }
+.os-font-sample strong { font: 700 22px/1.4 var(--font-display, system-ui); }
+.os-font-pending strong { font: inherit; font-size: 24px; }
+.os-font-pending p { font-family: inherit; }
+.os-font-studio summary { cursor: pointer; padding: 10px 0; }
+.iris-dialog-backdrop { font-family: var(--iris-ui-font, var(--font-main, system-ui)); }
+.iris-dialog-title { font-family: var(--iris-ui-title-font, var(--font-display, system-ui)); }

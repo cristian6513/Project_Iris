@@ -1,0 +1,2 @@
+@font-face{font-family:Syne;src:url('fonts/syne-latin-700-normal.woff2') format('woff2');font-display:swap}
+:root{color-scheme:dark}body{background:#03070b;color:#f1f7ff;margin:0;font-family:Syne,sans-serif}main{margin:15vh 12vw;max-width:720px}.label{font-size:12px;letter-spacing:4px;color:#73f7ff}h1{font-family:Syne,sans-serif;font-weight:400;line-height:1.15;font-size:54px;margin:40px 0}#message{color:#73f7ff;line-height:1.6}#detail{font-size:13px;line-height:1.7;color:#a9bbc9;overflow-wrap:anywhere}

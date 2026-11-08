@@ -1,0 +1,16 @@
+/* Small manual controls; inherit the current IRIS theme and typography. */
+.room-atmosphere-controls { min-width: 0; }
+.room-atmosphere-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.room-atmosphere-row label { color: var(--iris-white, #edf4f6); font-size: 11px; }
+.room-atmosphere-select {
+    min-width: 0; width: 142px; max-width: 60%; padding: 7px 10px;
+    color: var(--iris-white, #edf4f6); background: var(--iris-dark-surface, #10101a);
+    border: 1px solid var(--glass-border, rgba(141,239,255,.22)); border-radius: 7px;
+    font: inherit; font-size: 11px;
+}
+.room-atmosphere-select:focus-visible { outline: 2px solid var(--iris-blue, #8defff); outline-offset: 3px; }
+.room-atmosphere-select:disabled { opacity: .45; }
+.room-atmosphere-note { display: block; margin-top: 7px; color: var(--iris-white, #edf4f6); opacity: .65; font-size: 10px; line-height: 1.5; overflow-wrap: anywhere; }
+@media (min-width: 901px) {
+    .inspect-room-hud { max-height: calc(100vh - 170px); overflow-y: auto; }
+}

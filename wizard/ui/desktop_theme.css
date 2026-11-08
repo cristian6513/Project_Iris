@@ -1,0 +1,88 @@
+/* The same glass, neon accents, artwork and type used by IRIS OS Theme Studio. */
+:root {
+    --iris-os-accent: #73f7ff;
+    --iris-os-accent-2: #ff74d4;
+    --iris-ready-color: #5cffad;
+    --iris-os-bg-image: url('/theme-assets/iris-os-bg-v1.png');
+    --iris-profile-bg-image: url('/theme-assets/iris-profile-icon-v1.png');
+    --iris-background-dim: .8;
+    --iris-card-opacity: .88;
+    --iris-blur-intensity: 24px;
+    --iris-accent-glow: .8;
+    --iris-neon-intensity: .8;
+    --iris-border-glow: .6;
+    --bg: #03070b;
+    --text: #f1f7ff;
+    --muted: #a9bbc9;
+    --gold: var(--iris-os-accent);
+    --line: color-mix(in srgb, var(--iris-os-accent) 17%, transparent);
+}
+body { background: var(--bg); }
+.shell-bar {
+    background: rgba(3, 10, 18, var(--iris-card-opacity));
+    backdrop-filter: blur(var(--iris-blur-intensity));
+    border-bottom-color: var(--line);
+    box-shadow: 0 1px 18px color-mix(in srgb, var(--iris-os-accent) 5%, transparent);
+}
+.brand { letter-spacing: 2px; }
+.brand-dot { box-shadow: 0 0 10px var(--iris-os-accent); }
+.connection { border-left: 1px solid var(--line); padding-left: 20px; }
+nav button { color: var(--muted); }
+nav button:hover { color: var(--iris-os-accent); }
+main {
+    background: linear-gradient(rgba(0, 6, 14, var(--iris-background-dim)), rgba(0, 4, 10, .86)),
+        var(--iris-os-bg-image) center / cover no-repeat;
+}
+main::before {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(ellipse at 80% 45%, color-mix(in srgb, var(--iris-os-accent-2) 9%, transparent), transparent 60%);
+}
+.welcome-copy {
+    width: 54%; max-width: 590px; padding: 32px 36px;
+    border: 1px solid var(--line); border-radius: 16px;
+    background: rgba(3, 10, 19, var(--iris-card-opacity));
+    backdrop-filter: blur(var(--iris-blur-intensity));
+    box-shadow: 0 22px 60px #0008, 0 0 35px color-mix(in srgb, var(--iris-os-accent) 6%, transparent);
+}
+.eyebrow { font-size: 10px; letter-spacing: 2.5px; }
+h1 { font-size: clamp(34px, 4.1vw, 54px); letter-spacing: -2px; }
+h1 em { font-family: Syne, sans-serif; font-weight: 700; font-style: normal; color: var(--iris-os-accent-2); }
+.step-number { color: color-mix(in srgb, var(--iris-os-accent) 58%, var(--muted)); }
+.progress li.done .step-status { color: var(--iris-ready-color); }
+.primary {
+    color: #07121c; background: linear-gradient(135deg, var(--iris-os-accent), var(--iris-os-accent-2));
+    border: 1px solid color-mix(in srgb, var(--iris-os-accent) 55%, transparent);
+    border-radius: 8px; font-weight: 600;
+    box-shadow: 0 0 18px color-mix(in srgb, var(--iris-os-accent) 11%, transparent);
+}
+.primary:hover { background: var(--iris-os-accent); }
+.iris-art { right: 6vw; width: 31vw; height: 31vw; }
+.orbit { border-color: color-mix(in srgb, var(--iris-os-accent) 25%, transparent); }
+.orbit-two { border-color: color-mix(in srgb, var(--iris-os-accent-2) 27%, transparent); }
+.orbit-one::after { background: var(--iris-os-accent); box-shadow: 0 0 20px var(--iris-os-accent); }
+.art-profile {
+    width: 53%; height: 53%; border-radius: 50%;
+    background: var(--iris-profile-bg-image) center / cover no-repeat;
+    border: 1px solid color-mix(in srgb, var(--iris-os-accent) 42%, transparent);
+    box-shadow: 0 0 50px color-mix(in srgb, var(--iris-os-accent-2) 16%, transparent);
+    transform: translateY(-20px);
+}
+.art-caption { bottom: 12%; color: var(--iris-os-accent); letter-spacing: 3px; }
+footer { color: var(--muted); }
+footer span:last-child { color: var(--iris-os-accent-2); }
+:root[data-reduced-motion='true'] *, :root[data-animated-glow='false'] * { animation: none !important; }
+:root[data-transparent-cards='false'] .welcome-copy, :root[data-transparent-cards='false'] .shell-bar { background: #07101b; backdrop-filter: none; }
+:root[data-compact-mode='true'] .welcome-copy { padding: 24px 30px; }
+@media(max-width: 950px) {
+    .welcome-copy { width: 72%; }
+    .iris-art { right: -14vw; width: 45vw; opacity: .28; }
+}
+@media(max-height: 800px) {
+    main { padding-top: 28px; }
+    .welcome-copy { padding: 24px 30px; }
+    h1 { font-size: 40px; margin-bottom: 16px; }
+    .eyebrow { margin-bottom: 14px; }
+    .intro { margin-bottom: 20px; }
+    .progress li { padding: 10px 0; }
+    .feedback { min-height: 38px; }
+}

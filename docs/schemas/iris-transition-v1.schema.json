@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:iris:transition:v1",
+  "title": "IRIS OS transition v1",
+  "description": "Paquete de fotogramas para entrada de escritorio y ventanas. El lector de Iris comprueba además los rangos y gramática de transform/easing/origin, offsets estrictamente crecientes y extremos 0/1. No es un formato de scripts o efectos de Linux.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "id", "name", "duration", "keyframes"],
+  "properties": {
+    "schema": { "const": "iris.transition/v1" },
+    "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]{0,63}$" },
+    "name": { "type": "string", "minLength": 1, "maxLength": 80 },
+    "author": { "type": "string", "maxLength": 120 },
+    "license": { "type": "string", "maxLength": 120 },
+    "attribution": { "type": "string", "maxLength": 4096 },
+    "duration": { "type": "number", "minimum": 80, "maximum": 2000 },
+    "easing": { "type": "string", "minLength": 1, "maxLength": 100 },
+    "keyframes": {
+      "type": "array", "minItems": 2, "maxItems": 32,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["offset"], "minProperties": 2,
+        "properties": {
+          "offset": { "type": "number", "minimum": 0, "maximum": 1 },
+          "opacity": { "type": "number", "minimum": 0, "maximum": 1 },
+          "transform": { "type": "string", "minLength": 1, "maxLength": 512 },
+          "transformOrigin": { "type": "string", "minLength": 1, "maxLength": 80 },
+          "easing": { "type": "string", "minLength": 1, "maxLength": 100 }
+        }
+      }
+    }
+  }
+}

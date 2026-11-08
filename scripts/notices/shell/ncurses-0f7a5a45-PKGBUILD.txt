@@ -1,0 +1,127 @@
+# Maintainer: Alexey Pavlov <Alexpux@gmail.com>
+
+pkgbase=ncurses
+pkgname=('ncurses' 'ncurses-devel')
+pkgver=6.6
+pkgrel=2
+pkgdesc="System V Release 4.0 curses emulation library"
+arch=('i686' 'x86_64')
+url="https://www.gnu.org/software/ncurses/"
+msys2_repository_url="https://github.com/ThomasDickey/ncurses-snapshots"
+msys2_references=(
+  "cpe: cpe:/a:gnu:ncurses"
+  "cpe: cpe:/a:ncurses_project:ncurses"
+)
+license=('spdx:MIT')
+makedepends=('autotools' 'gcc')
+source=(https://invisible-island.net/archives/ncurses/${pkgbase}-${pkgver}.tar.gz{,.asc}
+        "ncurses-6.3-pkgconfig.patch"
+        "ncurses-6.3-cflags-private.patch")
+sha256sums=('355b4cbbed880b0381a04c46617b7656e362585d52e9cf84a67e2009b749ff11'
+            'SKIP'
+            'b8544a607dfbeffaba2b087f03b57ed1fa81286afca25df65f61b04b5f3b3738'
+            '3107029dfb807e338d34641d78329cd6725c58e6b873352621f4b9611a8380bf')
+validpgpkeys=('19882D92DDA4C400C22C0D56CC2AF4472167BE03')  # "Thomas E. Dickey (self-signed w/o SHA1) <dickey@invisible-island.net>"
+
+prepare() {
+  cd ${srcdir}/${pkgbase}-${pkgver}
+
+  # do not leak build-time LDFLAGS into the pkgconfig files:
+  # https://bugs.archlinux.org/task/68523
+  patch -p1 -i ${srcdir}/ncurses-6.3-pkgconfig.patch
+
+  patch -p1 -i ${srcdir}/ncurses-6.3-cflags-private.patch
+}
+
+build() {
+  cd ${srcdir}/${pkgbase}-${pkgver}
+  msg2 "Configuring ${pkgname} with ${CHOST}"
+  local CHOST="${CHOST/-cygwin/-msys}"
+  ./configure \
+    --build=${CHOST} \
+    --with-install-prefix=/usr \
+    --without-ada \
+    --with-shared \
+    --with-cxx-shared \
+    --with-normal \
+    --without-debug \
+    --disable-relink \
+    --disable-rpath \
+    --with-ticlib \
+    --without-termlib \
+    --enable-widec \
+    --enable-ext-colors \
+    --enable-ext-mouse \
+    --enable-sp-funcs \
+    --with-wrap-prefix=ncwrap_ \
+    --enable-sigwinch \
+    --disable-term-driver \
+    --enable-colorfgbg \
+    --enable-tcap-names \
+    --disable-termcap \
+    --disable-mixed-case \
+    --with-pkg-config \
+    --enable-pc-files \
+    --with-manpage-format=normal \
+    --with-manpage-aliases \
+    --with-default-terminfo-dir=/usr/share/terminfo \
+    --enable-echo \
+    --mandir=/usr/share/man \
+    --includedir=/usr/include/ncursesw \
+    --with-build-cflags=-D_XOPEN_SOURCE_EXTENDED \
+    --with-pkg-config-libdir=/usr/lib/pkgconfig
+
+  make
+  make DESTDIR=${srcdir}/dest install
+}
+
+package_ncurses() {
+  depends=('gcc-libs')
+
+  mkdir -p ${pkgdir}/usr
+  cp -rf $srcdir/dest/usr/bin ${pkgdir}/usr/
+  rm -f ${pkgdir}/usr/bin/*-config
+  cp -rf $srcdir/dest/usr/share ${pkgdir}/usr/
+
+  mkdir -p ${pkgdir}/usr/lib
+  pushd ${pkgdir}/usr/lib
+  ln -s ../share/terminfo terminfo
+  popd
+
+  install -Dm644 "${srcdir}"/${pkgname}-${pkgver}/COPYING \
+    "${pkgdir}"/usr/share/licenses/${pkgname}/LICENSE
+}
+
+package_ncurses-devel() {
+  groups=('development')
+  options=('staticlibs')
+  depends=("ncurses=${pkgver}")
+  pkgdesc="NCURSES headers and libraries"
+
+  mkdir -p ${pkgdir}/usr/bin
+  cp -f $srcdir/dest/usr/bin/*-config ${pkgdir}/usr/bin/
+  cp -rf $srcdir/dest/usr/include ${pkgdir}/usr/
+  cp -rf $srcdir/dest/usr/lib ${pkgdir}/usr/
+  rm -rf ${pkgdir}/usr/lib/terminfo
+
+  cp -rf ${pkgdir}/usr/include/ncursesw ${pkgdir}/usr/include/ncurses
+  cp -f ${pkgdir}/usr/include/ncursesw/*.h ${pkgdir}/usr/include
+
+  cp -f ${pkgdir}/usr/lib/libncursesw.a ${pkgdir}/usr/lib/libncurses.a
+  cp -f ${pkgdir}/usr/lib/libncursesw.dll.a ${pkgdir}/usr/lib/libncurses.dll.a
+  cp -f ${pkgdir}/usr/lib/libncursesw.a ${pkgdir}/usr/lib/libcurses.a
+  cp -f ${pkgdir}/usr/lib/libncursesw.dll.a ${pkgdir}/usr/lib/libcurses.dll.a
+
+  cp -f ${pkgdir}/usr/lib/libpanelw.a ${pkgdir}/usr/lib/libpanel.a
+  cp -f ${pkgdir}/usr/lib/libpanelw.dll.a ${pkgdir}/usr/lib/libpanel.dll.a
+
+  cp -f ${pkgdir}/usr/lib/libmenuw.a ${pkgdir}/usr/lib/libmenu.a
+  cp -f ${pkgdir}/usr/lib/libmenuw.dll.a ${pkgdir}/usr/lib/libmenu.dll.a
+
+  cp -f ${pkgdir}/usr/lib/pkgconfig/formw.pc ${pkgdir}/usr/lib/pkgconfig/form.pc
+  cp -f ${pkgdir}/usr/lib/pkgconfig/menuw.pc ${pkgdir}/usr/lib/pkgconfig/menu.pc
+  cp -f ${pkgdir}/usr/lib/pkgconfig/ncurses++w.pc ${pkgdir}/usr/lib/pkgconfig/ncurses++.pc
+  cp -f ${pkgdir}/usr/lib/pkgconfig/ncursesw.pc ${pkgdir}/usr/lib/pkgconfig/ncurses.pc
+  cp -f ${pkgdir}/usr/lib/pkgconfig/panelw.pc ${pkgdir}/usr/lib/pkgconfig/panel.pc
+  cp -f ${pkgdir}/usr/lib/pkgconfig/ticw.pc ${pkgdir}/usr/lib/pkgconfig/tic.pc
+}

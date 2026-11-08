@@ -1,0 +1,22 @@
+{
+  "schema": "iris.app-manifest/v1",
+  "sdkVersion": 1,
+  "id": "agents",
+  "name": "Agentes",
+  "version": "1.0.0",
+  "description": "Tareas y delegación del asistente",
+  "icon": "agents",
+  "accent": "magenta",
+  "presentation": "window",
+  "window": {
+    "width": 920,
+    "height": 620
+  },
+  "launcher": {
+    "visible": true,
+    "order": 10
+  },
+  "ui": {
+    "adapter": "legacy"
+  }
+}

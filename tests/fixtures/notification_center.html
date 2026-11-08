@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="es">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>QA aislado · Notification Center</title>
+<link rel="stylesheet" href="../../face/css/notifications.css">
+<style>
+@font-face{font-family:Outfit;src:url("../../face/companion/fonts/outfit-latin-400-normal.woff2")}
+@font-face{font-family:Syne;src:url("../../face/companion/fonts/syne-latin-800-normal.woff2");font-weight:800}
+*{box-sizing:border-box}
+body{margin:0;background:#030711;color:#dde8f3;font-family:Outfit,sans-serif}
+header.qa{padding:12px 20px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:12px}
+header.qa button,header.qa select{background:#101d2a;border:1px solid #3c5065;color:inherit;padding:7px 10px}
+#frame{margin:0 auto;width:min(1120px,100%);height:680px;border:1px solid #2f4459;--os-text:#e7edf5;--os-muted:#a6b4c4;--os-cyan:#8defff;--os-line:#263441;--os-panel:#080e19;--font-body:Outfit,sans-serif;--font-display:Syne,sans-serif}
+#frame.sakura{--os-cyan:#f493d4;--os-panel:#170f20;--os-line:#493548;--os-muted:#c1acc4}
+#frame.narrow{width:390px;max-width:100%}
+</style>
+<header class="qa">
+<strong>QA aislado · datos simulados · sin cámara, audio ni conexión a Core</strong>
+<button id="theme">Cambiar tema</button><button id="size">Tamaño compacto</button>
+<button id="outage">Simular desconexión</button><span id="badge"></span>
+<button id="advance">Avanzar 31 min (QA)</button>
+<button id="return">Simular resumen de regreso (QA)</button>
+</header>
+<div id="frame"><div class="notification-center-host" id="root"></div></div>
+<section id="draft-preview" hidden style="padding:20px">
+<strong>Chat simulado · nada se envía</strong>
+<textarea id="draft-text" aria-label="Borrador de conversación" rows="4" style="width:100%"></textarea>
+<button id="draft-close">Cerrar y vaciar borrador de prueba</button>
+</section>
+<script type="module">
+import { NotificationCenterApp } from '../../face/js/notification_center.js';
+import { normalizeExperience } from '../../face/js/vision_tuning_panel.js';
+import { prepareNotificationChatDraft } from '../../face/js/notification_chat_draft.js';
+const now = Date.now()/1000;
+const notes = [
+  { id:'a'.repeat(32),kind:'long_session',title:'Un momento para ti',
+    body:'Llevas un rato con presencia observada. Si te viene bien, puedes hacer una pausa.',
+    created_at:now-120,unread:true },
+  { id:'b'.repeat(32),kind:'low_head_motion',title:'¿Te viene bien una pausa?',
+    body:'Se observó poco movimiento de cabeza durante varios minutos. Es una señal aproximada, no una evaluación de postura o salud.',
+    created_at:now-3800,unread:true },
+].map(note => ({ ...note, schema:'iris.notification/v1',source:'vision',delivery:'inbox',contains_media:false,
+  explanation:{observed_seconds:2700,threshold_seconds:2700,confidence:.91,basis:'head_pose'}}));
+let available = false, revision = 1, offline = false;
+let offset = 0;
+const prefs = {muted_until:0,disabled_kinds:[],return_summary:false};
+prefs.experience = normalizeExperience();
+let diagnostics = {sensor_status:'fresh',sensor:{surface:'face',state:'observing',
+  calibration:'idle',progress:0,latency_ms:12.4,interval_ms:67},rows:[
+  {at:now,kind:'long_session',outcome:'suppressed',reason:'activity_typing',
+   explanation:'No interrumpir mientras escribes.',surface:'face'},
+  {at:now-10,kind:'low_head_motion',outcome:'delivered',reason:'delivered',
+   explanation:'Aviso guardado en la bandeja local.',surface:'desktop_companion'}]};
+const currentTime = () => Date.now()/1000 + offset;
+window.fetch = async (url, options={}) => {
+  if (!String(url).startsWith('/api/notifications')) throw Error('Fixture: petición no permitida');
+  if (offline) throw Error('Core no responde. Puedes reintentar.');
+  const data = options.body ? JSON.parse(options.body) : {};
+  const note = notes.find(n=>n.id===data.id);
+  if (url.endsWith('/conversation')) return {ok:true,json:async()=>({draft:{
+    notification_id:data.id,text:'¿Me ayudas a organizar una pausa a mi ritmo?',
+    sent:false,contains_observation_data:false}})};
+  if (['/action','/preferences','/experience','/feedback'].some(path=>url.endsWith(path))) {
+    if (data.expected_revision !== revision) return {ok:false,json:async()=>({detail:'La bandeja cambió. Actualiza.'})};
+    revision++;
+  }
+  if (url.endsWith('/experience')) {
+    if (['profile','performance'].includes(data.action)) prefs.experience[data.action]=data[data.action];
+    else if (data.action==='reset_feedback') prefs.experience.feedback_delays={long_session:0,low_head_motion:0,returned:0};
+    else prefs.experience[data.action]=data.enabled;
+  }
+  if (url.endsWith('/feedback') && note) note.feedback=data.feedback;
+  if (url.endsWith('/calibration')) {
+    diagnostics.sensor.calibration=data.action==='start'?'ready':'idle';
+    diagnostics.sensor.progress=data.action==='start'?100:0;
+  }
+  if (url.endsWith('/clear-diagnostics')) diagnostics={rows:[],sensor:null,sensor_status:'unavailable'};
+  if (url.endsWith('/action') && note) {
+    if (data.action==='dismiss') {note.dismissed=true;note.snoozed_until=0;}
+    if (data.action==='restore') {note.dismissed=false;note.snoozed_until=0;note.unread=true;}
+    if (data.action==='snooze') {note.snoozed_until=currentTime()+data.minutes*60;note.unread=true;}
+  }
+  if (url.endsWith('/preferences')) {
+    if (data.action==='mute') prefs.muted_until=currentTime()+data.minutes*60;
+    if (data.action==='unmute') prefs.muted_until=0;
+    if (data.action==='enable_return') prefs.return_summary=true;
+    if (data.action==='disable_return') prefs.return_summary=false;
+    if (data.action==='disable_kind') prefs.disabled_kinds=[...new Set([...prefs.disabled_kinds,data.kind])];
+    if (data.action==='enable_kind') prefs.disabled_kinds=prefs.disabled_kinds.filter(kind=>kind!==data.kind);
+  }
+  if (url.endsWith('/read')) { const note = notes.find(n=>n.id===data.id); if(note)note.unread=!data.read; revision++; }
+  if (url.endsWith('/clear') && data.confirm === true) { notes.length=0; revision++; }
+  if (url.endsWith('/availability') && data.confirm === true) available=data.available;
+  const items=structuredClone(notes).map(note=>({...note,status:note.dismissed?'dismissed':note.snoozed_until>currentTime()?'snoozed':'active'}));
+  if (!prefs.experience.physical_suggestions || ['work','company'].includes(prefs.experience.profile)) {
+    for (const note of items.filter(n=>n.kind==='long_session')) {
+      note.title='Un momento para organizarte';
+      note.body='Llevas un rato en esta sesión. Puedes revisar prioridades o cambiar de ritmo a tu manera.';
+    }
+  }
+  const profile=prefs.experience.profile;
+  const cap={custom:2,silent:0,company:1,wellbeing:2,work:1}[profile];
+  const threshold={custom:2700,silent:2700,company:3600,wellbeing:2700,work:5400}[profile];
+  const cooldown={custom:25,silent:25,company:45,wellbeing:30,work:60}[profile];
+  const deadlines=[prefs.muted_until,...items.filter(n=>!n.dismissed).map(n=>n.snoozed_until)].filter(at=>at>currentTime());
+  return { ok:true,json:async()=>({items,revision,storage_available:true,
+    diagnostics:structuredClone(diagnostics),calibration_requested:url.endsWith('/calibration'),
+    server_now:currentTime(),preferences:structuredClone(prefs),next_change_at:deadlines.length?Math.min(...deadlines):0,
+    retention_days:7,availability:{available,expires_at:currentTime()+900},
+    vision:{enabled:true,paused:false,effective_cooldown_minutes:cooldown,
+      effective_policy:{max_per_hour:cap,long_session_seconds:threshold,
+        kind_cooldown_minutes:{long_session:45,low_head_motion:45,returned:45}},
+      decision:{explanation:'La actividad actual impide una nueva sugerencia.'}}})};
+};
+const app = new NotificationCenterApp({root:document.querySelector('#root'),isVisible:()=>true,
+  onPrepareConversation:draft=>prepareNotificationChatDraft(
+    {chatInput:document.querySelector('#draft-text'),_attachments:[]}, draft,
+    ()=>{document.querySelector('#draft-preview').hidden=false;}),
+  onSummary:count=>document.querySelector('#badge').textContent=count+' sin leer'});
+document.querySelector('#theme').onclick=()=>document.querySelector('#frame').classList.toggle('sakura');
+document.querySelector('#return').onclick=async()=>{
+  if (!prefs.return_summary || notes.some(n=>n.kind==='returned')) return;
+  notes.unshift({id:'c'.repeat(32),schema:'iris.notification/v1',source:'vision',
+    kind:'returned',title:'Tu resumen de regreso',
+    body:'Al regresar había 2 avisos de Vision pendientes sin resumir. No se marcaron como leídos.',
+    created_at:currentTime(),unread:true,delivery:'inbox',contains_media:false,
+    explanation:{observed_seconds:72,threshold_seconds:30,confidence:.9,basis:'presence',
+      related_ids:['a'.repeat(32),'b'.repeat(32)]}});
+  revision++;await app.load(true);
+};
+document.querySelector('#advance').onclick=async()=>{offset+=1860;await app.load(true);};
+document.querySelector('#draft-close').onclick=()=>{
+  document.querySelector('#draft-preview').hidden=true;document.querySelector('#draft-text').value='';
+};
+document.querySelector('#size').onclick=()=>document.querySelector('#frame').classList.toggle('narrow');
+document.querySelector('#outage').onclick=async event=>{
+  offline=!offline;event.target.textContent=offline?'Restaurar conexión':'Simular desconexión';await app.load(true);
+};
+await app.load();
+</script>
+</html>

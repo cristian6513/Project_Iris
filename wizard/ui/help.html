@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Manual de IRIS OS: configuración, escritorio, voz, cámara, cuentas, Calendario, Correo, automatizaciones y aplicaciones.">
+    <title>IRIS OS — Manual de uso</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="wizard.css?v=46">
+    <link rel="stylesheet" href="help.css?v=10">
+</head>
+<body class="help-page">
+    <div class="manual-noise" aria-hidden="true"></div>
+
+    <header class="manual-topbar">
+        <a class="manual-brand" href="index.html" aria-label="Volver a Configuración">
+            <span class="manual-brand-mark">I/O</span>
+            <span><strong>IRIS OS</strong><small>MANUAL DE USO · 26 OCT 2026</small></span>
+        </a>
+        <div class="manual-top-status">
+            <span><i></i><b id="manual-edition-label">CYBER EDITION · DOCUMENTACIÓN LOCAL</b></span>
+            <a href="index.html">Volver a Configuración →</a>
+        </div>
+    </header>
+
+    <div class="manual-shell">
+        <aside class="manual-rail" aria-label="Índice del manual">
+            <div class="manual-search-wrap">
+                <label for="manual-search">Buscar en el manual</label>
+                <div class="manual-search-field">
+                    <span>⌕</span>
+                    <input id="manual-search" type="search" placeholder="Widgets, Google, voz, Store…" autocomplete="off">
+                    <kbd>/</kbd>
+                </div>
+                <small id="manual-search-state" aria-live="polite">20 secciones disponibles</small>
+            </div>
+
+            <nav class="manual-nav">
+                <a href="#start" class="active"><b>00</b><span>Inicio rápido</span></a>
+                <a href="#install"><b>01</b><span>Configurar IRIS</span></a>
+                <a href="#themes"><b>02</b><span>Ediciones visuales</span></a>
+                <a href="#hardware"><b>03</b><span>Compatibilidad</span></a>
+                <a href="#hermes"><b>04</b><span>Proveedores y modelos</span></a>
+                <a href="#local-ai"><b>05</b><span>IA local</span></a>
+                <a href="#voice"><b>06</b><span>Voz y audio</span></a>
+                <a href="#identity"><b>07</b><span>Identidad y avatar</span></a>
+                <a href="#security"><b>08</b><span>Canales y seguridad</span></a>
+                <a href="#desktop"><b>09</b><span>Inicio y widgets</span></a>
+                <a href="#chat"><b>10</b><span>Chat y modelos</span></a>
+                <a href="#vision"><b>11</b><span>Cámara y fotos</span></a>
+                <a href="#connections"><b>12</b><span>Conectar Google</span></a>
+                <a href="#calendar"><b>13</b><span>Calendario</span></a>
+                <a href="#mail"><b>14</b><span>Correo</span></a>
+                <a href="#automations"><b>15</b><span>Tareas y Bandeja</span></a>
+                <a href="#player"><b>16</b><span>IRIS Player</span></a>
+                <a href="#store"><b>17</b><span>Iris Store</span></a>
+                <a href="#diagnostics"><b>18</b><span>Diagnóstico</span></a>
+                <a href="#licenses"><b>19</b><span>Licencias</span></a>
+            </nav>
+
+            <div class="rail-readout">
+                <span>CÓMO SE CONECTA</span>
+                <div><i class="cyan"></i><b>IRIS OS</b><small>Interfaz, voz y avatar</small></div>
+                <div><i class="magenta"></i><b>Motor de IA</b><small>Modelos, herramientas y memoria</small></div>
+                <div><i class="green"></i><b>Tu proveedor</b><small>Local, API u OAuth</small></div>
+            </div>
+        </aside>
+
+        <main class="manual-content">
+            <section id="start" class="manual-hero manual-module" data-search="inicio rápido iris os hermes asistente local instalar">
+                <div class="hero-grid-lines" aria-hidden="true"></div>
+                <div class="hero-copy">
+                    <span class="manual-kicker">IRIS OS / GUÍA DE USO</span>
+                    <h1>Tu sistema.<br><em>Tu asistente.</em></h1>
+                    <p>Empieza por configurar a IRIS y aprende a usar su escritorio, hablar con tu asistente, conectar tus cuentas y organizar tus aplicaciones. Tú eliges el proveedor de IA, qué funciones activar y qué datos compartir.</p>
+                    <div class="hero-actions">
+                        <a class="manual-primary" href="index.html">Abrir Configuración</a>
+                        <a class="manual-secondary" href="#desktop">Conocer el escritorio</a>
+                    </div>
+                </div>
+                <div class="hero-system-card" aria-label="Arquitectura de IRIS OS">
+                    <div class="system-card-head"><span>TÚ DECIDES</span><b>LOCAL O REMOTO</b></div>
+                    <div class="system-orbit">
+                        <span class="orbit orbit-a"></span>
+                        <span class="orbit orbit-b"></span>
+                        <strong>IRIS</strong>
+                        <i>OS</i>
+                    </div>
+                    <div class="system-path"><span>Tú</span><i>→</i><span>IRIS</span><i>→</i><span>Motor de IA</span><i>→</i><span>Modelo</span></div>
+                </div>
+                <div class="hero-facts">
+                    <div><b>06</b><span>pasos de configuración</span></div>
+                    <div><b>04</b><span>ediciones visuales</span></div>
+                    <div><b>03</b><span>rutas de inferencia</span></div>
+                    <div><b>20</b><span>secciones de ayuda</span></div>
+                </div>
+            </section>
+
+            <section id="install" class="manual-section manual-module" data-search="instalación primera existente rápida reparar avanzada pasos wizard">
+                <header class="module-heading">
+                    <span>01 / PRIMEROS PASOS</span>
+                    <div><h2>Tu apariencia y cinco pasos</h2><p>En la primera configuración eliges la apariencia antes de la bienvenida. Después, Configurar IRIS recorre cinco pasos. Los perfiles configurados conservan su elección.</p></div>
+                </header>
+
+                <div class="install-route">
+                    <div><b>00</b><strong>Apariencia</strong><span>Elige la edición y mira cómo cambia el asistente</span></div>
+                    <i>→</i>
+                    <div><b>01</b><strong>Tu asistente</strong><span>Nombre y personalidad opcional</span></div>
+                    <i>→</i>
+                    <div><b>02</b><strong>Inteligencia artificial</strong><span>Proveedor, sesión o clave y modelo</span></div>
+                    <i>→</i>
+                    <div><b>03</b><strong>Voz</strong><span>Motor y voz; escuchar es opcional</span></div>
+                    <i>→</i>
+                    <div><b>04</b><strong>Avatar</strong><span>Incluido o tu propio archivo VRM</span></div>
+                    <i>→</i>
+                    <div><b>05</b><strong>Resumen y abrir</strong><span>Comprueba el guardado y abre IRIS OS</span></div>
+                </div>
+
+                <div class="mode-manual-grid">
+                    <article data-runtime-only="development"><span>01</span><h3>Primera instalación</h3><p>Recorre el flujo completo. El wizard puede instalar Hermes cuando la plataforma y las dependencias pasan el precheck.</p><small>Ideal: equipo nuevo o sin Hermes</small></article>
+                    <article data-runtime-only="packaged"><span>01</span><h3>Primera configuración</h3><p>Elige apariencia, asistente, IA, voz y avatar. Hermes Agent ya viene incluido; no necesitas instalar otro Hermes ni Python, Git o uv.</p><small>Ideal: primer arranque de Iris</small></article>
+                    <article><span>02</span><h3>Cambiar una configuración</h3><p>Abre directamente Apariencia, Asistente, IA, Voz o Avatar y termina en el resumen. Sus enlaces permiten volver a corregir una sección sin repetir todo el recorrido.</p><small>Ideal: cambiar solo una sección</small></article>
+                    <article data-runtime-only="development"><span>03</span><h3>Reparar Hermes</h3><p>Clasifica una instalación dañada, muestra diagnóstico y permite reparar o reintentar conservando la configuración útil.</p><small>Ideal: CLI roto o gateway caído</small></article>
+                    <article data-runtime-only="packaged"><span>03</span><h3>Diagnóstico y reparación</h3><p>Abre IA con los detalles del equipo. Consultar no reinicia nada: elige y aplica una acción si hace falta. Si el motor falta o está dañado, se repara reinstalando Iris.</p><small>Ideal: el motor no responde</small></article>
+                    <article><span>+</span><h3>Opciones sin pasos extra</h3><p>Mensajería, diagnóstico, otros motores de voz, clonación, animaciones y Companion se despliegan cuando los necesitas. La activación por voz se configura después desde Ajustes de IRIS OS; se conserva la preferencia existente.</p><small>Todo sigue disponible</small></article>
+                </div>
+
+                <div class="manual-note" data-runtime-only="packaged"><b>Versión instalada de Iris</b><p>Esta instalación incluye Hermes Agent y sus dependencias esenciales. El asistente no instala ni actualiza otro Hermes, no necesita Python, Git ni uv en tu equipo y no crea un arranque automático externo. Las actualizaciones del motor llegarán junto con las de Iris.</p><p>Algunos canales de mensajería necesitan componentes o programas que esta versión no incluye. Aparecen como «No disponible», con su motivo, y no se pueden activar.</p></div>
+
+                <div class="manual-faq-grid">
+                    <details>
+                        <summary>¿Qué conserva una instalación existente?</summary>
+                        <div><p>El asistente carga lo guardado. Cambiar apariencia, identidad, voz o avatar no reemplaza por su cuenta el proveedor principal de IA. En Inteligencia artificial, revisa el proveedor y pulsa su acción de guardado cuando quieras cambiarlo.</p></div>
+                    </details>
+                    <details>
+                        <summary>¿Qué no instala automáticamente?</summary>
+                        <div><p>El wizard no instala Ollama, LM Studio, vLLM, llama.cpp ni Fish-Speech, y tampoco descarga modelos locales. Los detecta si sus endpoints están activos y solo los recomienda cuando existe una ruta viable.</p></div>
+                    </details>
+                    <details>
+                        <summary>¿Puedo continuar sin extras?</summary>
+                        <div><p>Sí. Mensajería, clonación, activación por voz, IA local, cámara y avatar personalizado son opcionales. No hay un paso obligatorio para probar sonido ni para activar la escucha. El resumen distingue las preferencias guardadas de una IA que aún necesita configurar su proveedor.</p></div>
+                    </details>
+                </div>
+            </section>
+
+            <section id="themes" class="manual-section manual-module" data-search="tema edición cyber sakura hacker classic theme studio apariencia wallpaper visual">
+                <header class="module-heading">
+                    <span>02 / APARIENCIA</span>
+                    <div><h2>El computador de IRIS, desde el primer arranque</h2><p>Las ediciones usan los mismos presets y fondos que Theme Studio; no son maquetas separadas.</p></div>
+                </header>
+
+                <div class="manual-theme-grid">
+                    <article class="manual-theme cyber"><div></div><span>IRIS://01</span><h3>Cyber</h3><p>Neón y estilo futurista</p><i>#73F7FF</i></article>
+                    <article class="manual-theme sakura"><div></div><span>IRIS://02</span><h3>Sakura</h3><p>Suave y elegante</p><i>#FF8ED7</i></article>
+                    <article class="manual-theme hacker"><div></div><span>IRIS://03</span><h3>Hacker</h3><p>Verde y ambiente de terminal</p><i>#5CFFAD</i></article>
+                    <article class="manual-theme classic"><div></div><span>IRIS://04</span><h3>Classic</h3><p>Limpio y discreto</p><i>#9ED8FF</i></article>
+                </div>
+
+                <div class="manual-callout split">
+                    <div><span>CONFIGURACIÓN</span><strong>Empieza por una edición</strong><p>La primera configuración abre Apariencia antes de la bienvenida. Al elegir Cyber, Sakura, Hacker o Classic, el asistente adopta sus colores en ese momento y guarda la elección.</p></div>
+                    <div><span>THEME STUDIO</span><strong>Ajusta el escritorio a tu gusto</strong><p>Abre Theme Studio desde Aplicaciones para cambiar colores, fondo, foto, transparencia, desenfoque, brillo, tipografía y transiciones. Su vista previa muestra el Inicio con datos de ejemplo.</p></div>
+                </div>
+
+                <div class="manual-note"><b>Tipografía propia</b><p>En <strong>Tipografía</strong>, elige por separado texto y títulos. Outfit y Syne vienen incluidas; Sistema usa la fuente del equipo. <strong>Añadir fuente WOFF2</strong> abre una vista previa y solo se guarda al pulsar <strong>Guardar para texto</strong> o <strong>Guardar para títulos</strong>. Se admiten hasta ocho archivos de 2 MB; no instala fuentes en Windows ni admite TTF/OTF.</p></div>
+                <div class="manual-note"><b>Transiciones de ventanas</b><p>En <strong>Transiciones → Añadir transición</strong>, importa un CSS compatible o un JSON de Iris, o pega su contenido. Usa <strong>Probar antes de guardar</strong> y después <strong>Guardar y usar</strong>. Se valida un conjunto limitado de movimientos; no se instalan extensiones de Linux ni se ejecuta JavaScript del archivo. <strong>Reducir movimiento</strong> también se respeta al arrastrar los elementos del Inicio.</p></div>
+                <div class="manual-note"><b>Qué comparte un tema</b><p><strong>Exportar tema</strong> descarga ajustes y transiciones en un JSON. No incluye imágenes, fuentes propias, cuentas, claves ni la organización del Inicio. Al importar un tema antiguo con referencias a archivos propios, puedes cancelar o <strong>Importar sin archivos propios</strong>: Iris no carga las imágenes desde servidores del autor. Añade tus fondos y fuentes desde los selectores locales.</p></div>
+
+                <details class="wide-detail">
+                    <summary>¿El wizard reemplaza mis ajustes personalizados de Theme Studio?</summary>
+                    <div><p>Solo cuando eliges explícitamente otra edición en el instalador. En el siguiente arranque esa edición se usa como nueva base una vez; desde ahí, Theme Studio vuelve a conservar tus ajustes locales. El tema de la habitación 3D es un control independiente.</p></div>
+                </details>
+            </section>
+
+            <section id="hardware" class="manual-section manual-module" data-search="hardware compatibilidad windows linux wsl macos apple silicon ram gpu cpu cuda metal termux nix">
+                <header class="module-heading">
+                    <span>03 / COMPATIBILIDAD</span>
+                    <div><h2>Tu equipo y el motor de IA</h2><p>El instalador integral de Iris corresponde a Windows 10/11 x64 y utiliza WebView2. La compatibilidad de Hermes desde código fuente es una ruta distinta.</p></div>
+                </header>
+
+                <div class="compat-layout">
+                    <div class="compat-matrix">
+                        <div class="compat-row head"><span>Plataforma</span><span>Nivel</span><span>Resultado</span></div>
+                        <div class="compat-row"><span>Windows 10/11 · x64</span><b>Iris</b><i class="ok">Paquete integral</i></div>
+                        <div class="compat-row" data-runtime-only="development"><span>Windows ARM64 / Linux / WSL2</span><b>Fuente</b><i class="warn">Sin instalador integral</i></div>
+                        <div class="compat-row" data-runtime-only="development"><span>macOS · Apple Silicon</span><b>Fuente</b><i class="warn">Requisitos propios</i></div>
+                        <div class="compat-row" data-runtime-only="development"><span>Nix / NixOS / Termux</span><b>Hermes</b><i class="warn">Soporte limitado</i></div>
+                        <div class="compat-row" data-runtime-only="development"><span>macOS Intel / otras combinaciones</span><b>—</b><i class="bad">No compatibles</i></div>
+                    </div>
+                    <div class="probe-stack">
+                        <div><span>CPU</span><p>Nombre, núcleos físicos cuando se pueden leer e hilos lógicos.</p></div>
+                        <div><span>RAM</span><p>Memoria física total. Menos de 4 GB desaconseja TTS local.</p></div>
+                        <div><span>GPU</span><p>CUDA o Metal confirmados; una GPU genérica no se vende como aceleración útil.</p></div>
+                        <div><span>LOCAL AI</span><p>Prueba endpoints de Ollama y LM Studio y enumera modelos cargados.</p></div>
+                    </div>
+                </div>
+
+                <div class="manual-note"><b>Regla de recomendación</b><p>Sin un servidor local activo que tenga un modelo disponible, el wizard recomienda proveedor remoto. Con hardware limitado puede ofrecer modelos pequeños, pero no promete una experiencia rápida.</p></div>
+            </section>
+
+            <section id="hermes" class="manual-section manual-module" data-search="hermes agent gateway proveedor modelo api key oauth openai anthropic google codex claude nous qwen">
+                <header class="module-heading">
+                    <span>04 / PROVEEDORES DE IA</span>
+                    <div><h2>Proveedor y modelo para tu asistente</h2><p>IRIS aporta la experiencia; Hermes administra modelos, tools, skills, memoria y el gateway compatible con OpenAI.</p></div>
+                </header>
+
+                <div class="hermes-map">
+                    <div><small>INPUT</small><strong>Voz / Texto</strong></div><i>→</i>
+                    <div class="hot"><small>IRIS</small><strong>Identidad + UX</strong></div><i>→</i>
+                    <div class="hot alt"><small>HERMES</small><strong>Agente + Gateway</strong></div><i>→</i>
+                    <div><small>MODEL</small><strong>Local / API / OAuth</strong></div>
+                </div>
+
+                <div class="auth-table-wrap">
+                    <table class="manual-table">
+                        <thead><tr><th>Proveedor</th><th>Método mostrado</th><th>Qué significa</th></tr></thead>
+                        <tbody>
+                            <tr><td>OpenAI</td><td>API Key u OAuth</td><td>API de Platform o sesión Codex/ChatGPT; son rutas distintas.</td></tr>
+                            <tr><td>Anthropic (Claude)</td><td>API Key u OAuth</td><td>Claude Platform API o flujo compatible con Claude Code.</td></tr>
+                            <tr><td>Google (Gemini)</td><td>API Key</td><td>La tarjeta normal usa Google AI Studio; no inventa OAuth.</td></tr>
+                            <tr><td>Nous / Qwen y otros</td><td>Según Hermes</td><td>El catálogo instalado decide si son API, OAuth, ambos o sin auth.</td></tr>
+                            <tr><td>Amazon Bedrock</td><td>Credenciales AWS</td><td>Usa la cadena de AWS SDK: perfil, variables, rol o token de Bedrock; no es una API key única.</td></tr>
+                            <tr><td>Azure Foundry</td><td>API Key + endpoint</td><td>Requiere la clave y la URL completa del deployment antes de guardar.</td></tr>
+                            <tr><td>GitHub Copilot (ACP)</td><td>CLI externa</td><td>Hermes reutiliza una Copilot CLI instalada y autenticada; IRIS verifica que el ejecutable exista.</td></tr>
+                            <tr><td>Ollama / LM Studio</td><td>Local</td><td>Ollama no requiere credencial. En LM Studio la clave es opcional y solo se usa si protegiste su servidor.</td></tr>
+                            <tr><td>OpenAI-compatible</td><td>Endpoint + key opcional</td><td>El wizard solicita la URL, admite servidores sin autenticación y comprueba el modelo antes de reemplazar una configuración funcional.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <ol class="manual-steps">
+                    <li>En <strong>Inteligencia artificial</strong>, elige proveedor y método de acceso. Conecta tu cuenta para cargar sus modelos, o pega la API key y pulsa <strong>Cargar modelos</strong>. Después elige el modelo y pulsa <strong>Guardar proveedor</strong>. Consultar la lista no cambia el principal ni guarda la clave nueva.</li>
+                    <li>Al guardarlo, aparece la tarjeta <strong>Proveedor configurado</strong>, con el principal. <strong>Cambiar proveedor</strong> modifica ese principal; <strong>Agregar otro proveedor</strong> guarda otra credencial sin sustituirlo. Sus modelos pueden usarse desde el selector del chat. Los servidores locales y endpoints propios se configuran como principal.</li>
+                    <li><strong>Mensajería</strong> es opcional. El botón <strong>Iniciar IRIS</strong> va después: espera a que el proveedor esté guardado y pase sus comprobaciones. Si ya está activo, ofrece <strong>Reiniciar IRIS</strong>. Reinicia el asistente sin cerrar tus ventanas; puede interrumpir una respuesta en curso. <strong>Abrir IRIS OS</strong> abre el escritorio.</li>
+                </ol>
+
+                <div class="manual-faq-grid">
+                    <details>
+                        <summary>API key y OAuth no son intercambiables</summary>
+                        <div><p>El wizard conserva el método elegido. Un perfil OAuth antiguo no activa OAuth por sí solo y una API key guardada no hace pasar una selección OAuth. Antes de escribir Hermes, se valida la ruta elegida. Cambiar proveedor, método, clave o endpoint descarta la lista de modelos anterior. Nous comprueba el plan actual; OpenRouter consulta la lista de la cuenta. Los modelos gratuitos de OpenCode Zen son exclusivos de la aplicación OpenCode. Desde Iris necesitas créditos y un modelo de pago de Zen, o una suscripción Go con un modelo incluido. Añadir créditos no desbloquea los gratuitos. El catálogo público no valida la clave ni la cuota.</p></div>
+                    </details>
+                    <details>
+                        <summary>¿Qué confirma el estado OAuth?</summary>
+                        <div><p>IRIS puede confirmar que Hermes guardó un perfil OAuth del tipo correcto. La vigencia real del token la confirma el proveedor cuando el gateway hace una petición; el diagnóstico offline no promete que la cuenta siga autorizada.</p></div>
+                    </details>
+                    <details>
+                        <summary>¿Dónde guarda Hermes la selección?</summary>
+                        <div><p>Proveedor y modelo viven en <code>config.yaml</code>; las keys de proveedores integrados y el api-server viven en <code>.env</code>; una key opcional de endpoint custom queda en <code>model.api_key</code>; OAuth vive en <code>auth.json</code>. IRIS no duplica esos secretos en su propia configuración.</p></div>
+                    </details>
+                </div>
+            </section>
+
+            <section id="local-ai" class="manual-section manual-module" data-search="ollama lm studio vllm llamacpp local modelos ram gpu servidor endpoint">
+                <header class="module-heading">
+                    <span>05 / IA LOCAL</span>
+                    <div><h2>IA local, sin falsas promesas</h2><p>IRIS integra servidores compatibles; no los instala ni descarga modelos en tu nombre.</p></div>
+                </header>
+
+                <div class="local-stack">
+                    <article><b>OLLAMA</b><code>127.0.0.1:11434</code><p>El wizard consulta <code>/api/tags</code>. Si está activo y tiene modelos, ofrece esos nombres reales.</p><span>Instalación externa requerida</span></article>
+                    <article><b>LM STUDIO</b><code>127.0.0.1:1234/v1</code><p>Se detecta mediante el endpoint compatible con OpenAI. “No detectado” no significa necesariamente “no instalado”.</p><span>Servidor local debe estar iniciado</span></article>
+                    <article><b>vLLM / llama.cpp</b><code>URL personalizada</code><p>Usan el proveedor custom de Hermes y requieren que indiques o mantengas un endpoint compatible.</p><span>Para usuarios avanzados</span></article>
+                </div>
+
+                <div class="decision-strip">
+                    <div><span>4–8 GB RAM</span><strong>Proveedor remoto</strong><p>La ruta más predecible; IA local solo con modelos muy pequeños.</p></div>
+                    <div><span>8–12 GB RAM</span><strong>Local limitado</strong><p>Modelos pequeños, CPU moderna y expectativas de latencia realistas.</p></div>
+                    <div><span>12+ GB + CUDA/Metal</span><strong>Local viable</strong><p>Sigue dependiendo del tamaño, cuantización y modelo cargado.</p></div>
+                </div>
+            </section>
+
+            <section id="voice" class="manual-section manual-module" data-search="voz tts stt whisper edge kokoro neutts coqui elevenlabs minimax fish speech hugging face qwen qwen3 clonación micrófono wake sensibilidad">
+                <header class="module-heading">
+                    <span>06 / VOZ Y MICRÓFONO</span>
+                    <div><h2>Escuchar, hablar y despertar</h2><p>La voz es una cadena de componentes; cada uno puede ser local, remoto u opcional.</p></div>
+                </header>
+
+                <div class="audio-pipeline">
+                    <div><span>01</span><b>Wake word de Hermes</b><small>Detección local y opcional</small></div><i>→</i>
+                    <div><span>02</span><b>voice.record</b><small>Captura y STT nativos</small></div><i>→</i>
+                    <div><span>03</span><b>Hermes</b><small>Comprende y actúa</small></div><i>→</i>
+                    <div><span>04</span><b>TTS</b><small>Genera la voz</small></div>
+                </div>
+
+                <div class="manual-note"><b>Hablar con el botón</b><p>Pulsa <strong>Hablar</strong>, revisa el destino del audio y después <strong>Hablar ahora</strong>. El silencio termina la toma; <strong>Enviar</strong> la termina antes. <strong>Cancelar</strong> o Escape descartan la intervención pendiente. La transcripción final va a la conversación actual; elegir un motor o una voz en Configuración no inicia una grabación.</p></div>
+                <div class="manual-note"><b>Transcribir mientras hablo</b><p>La casilla solicita transcripción provisional a un proveedor compatible. Solo el texto final se envía al chat; los parciales pueden corregirse y no ejecutan órdenes. Con un proveedor remoto, el audio puede salir del equipo durante la toma. Si no hay soporte de directo, se conserva la transcripción final de Hermes. Cancelar no retira audio que el proveedor ya haya recibido.</p></div>
+
+                <table class="manual-table voice-table">
+                    <thead><tr><th>Motor</th><th>Ruta</th><th>Requisito real</th><th>Úsalo cuando…</th></tr></thead>
+                    <tbody>
+                        <tr><td>Edge-TTS</td><td>Remota sin API key</td><td>Internet y disponibilidad del servicio externo</td><td>Quieres empezar rápido y ligero.</td></tr>
+                        <tr><td>Kokoro-82M</td><td>Local</td><td>Extra opcional, voces predefinidas y eSpeak-NG para español/otros idiomas</td><td>Quieres una opción ligera; no clona voces.</td></tr>
+                        <tr><td>NeuTTS</td><td>Local</td><td>Python 3.10–3.13, GGUF, NeuCodec, WAV mono de 3–15 s y transcripción exacta</td><td>Necesitas clonación local optimizada para CPU.</td></tr>
+                        <tr><td>HF speech-to-speech / Qwen3-TTS</td><td>Local opcional</td><td>Release fijada 0.2.12, Python 3.10–3.12, modelo 0.6B/1.7B; Base requiere WAV de 3–15 s + texto exacto. Admite español, pero sus 9 presets no son nativos de español.</td><td>Quieres voces predefinidas o una identidad española clonada localmente y aceptas una descarga grande.</td></tr>
+                        <tr><td>Coqui XTTS v2</td><td>Local</td><td><code>coqui-tts</code>, modelo grande y WAV de referencia</td><td>Quieres clonación local multilingüe y aceptas mayor consumo.</td></tr>
+                        <tr><td>Fish Speech S2</td><td>Servidor local</td><td>Servidor Linux/WSL/Docker instalado aparte; 24 GB de VRAM recomendados; referencia de 10–30 s + texto o <code>reference_id</code></td><td>Ya operas un servidor Fish Speech compatible.</td></tr>
+                        <tr><td>ElevenLabs</td><td>Cloud</td><td>Cuenta, API key, permiso de clonación en el plan y audio subido</td><td>Priorizas una clonación administrada.</td></tr>
+                        <tr><td>MiniMax</td><td>Cloud</td><td>API key de TTS; voz inicial <code>Spanish_Wiselady</code>; para clonar, WAV de 10 s–5 min y <code>voice_id</code> válido</td><td>Quieres voz multilingüe; OAuth de Hermes no sustituye esta key.</td></tr>
+                        <tr><td>Fish Audio</td><td>Cloud</td><td>API key propia y una voz del catálogo o clonada. El catálogo se filtra por idioma y cada voz tiene una muestra gratis, que no gasta cuota. Para crear una voz privada Iris acepta WAV de 10–60 s; la transcripción es opcional.</td><td>Quieres buscar voces o clonar sin ejecutar el modelo en tu equipo. El modelo de pruebas viene seleccionado; las opciones de pago están identificadas.</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="manual-note"><b>Qué hace realmente «Clonar»</b><p>El navegador normaliza la grabación o archivo a WAV PCM mono de 24 kHz. ElevenLabs, MiniMax y Fish Audio reciben ese audio en sus servicios cloud. En Fish Audio se pide una voz privada y no se genera una muestra automáticamente. Coqui cambia a XTTS v2 y guarda la ruta como <code>speaker_wav</code>. NeuTTS guarda WAV + transcripción y usa un codec con encoder. Fish Speech envía audio + transcripción al servidor o utiliza un <code>reference_id</code> ya registrado. Qwen3-TTS conserva WAV + texto y cambia al checkpoint Base del mismo tamaño; CustomVoice solo usa voces predefinidas.</p><p>La clonación requiere confirmar que tienes autorización para usar la voz. El wizard guarda el identificador o la referencia solamente después de que la operación termina correctamente.</p></div>
+
+                <div class="manual-note"><b>Por qué no se activa todo el pipeline de Hugging Face</b><p><code>speech-to-speech</code> también ofrece VAD, STT, LLM y un servidor Realtime. IRIS integra solo su handler Qwen3-TTS: Hermes continúa siendo el único dueño de la escucha, las sesiones, el razonamiento y las herramientas. Así se evita tener dos agentes y dos lectores de micrófono compitiendo.</p><p>La primera síntesis descarga pesos y puede tardar. CPU es una ruta funcional pero potencialmente lenta; una GPU AMD de Windows no equivale a CUDA y el wizard no promete aceleración que no pueda detectar.</p><p><a href="https://github.com/huggingface/speech-to-speech" target="_blank" rel="noopener noreferrer">Repositorio oficial de Hugging Face ↗</a> · <a href="https://huggingface.co/Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice" target="_blank" rel="noopener noreferrer">Modelo y voces oficiales de Qwen3-TTS ↗</a></p></div>
+
+                <div class="manual-note"><b>Fallos y privacidad</b><p>IRIS prueba el motor que seleccionaste, sin reproducir otra voz para aparentar éxito. Si un motor falla, el texto permanece en pantalla y el diagnóstico indica qué falta. El fallback remoto a Edge-TTS está apagado por defecto; solo se activa desde el paso de voz con una autorización visible que advierte que el texto saldrá del equipo.</p></div>
+
+                <div class="manual-note"><b>Wake word nativo de Hermes</b><p>La escucha está apagada por defecto. El icono de oreja llama al runtime oficial de Hermes y persiste tu decisión; IRIS no mantiene un segundo detector ni envía audio por el WebSocket. <strong>Hey Hermes</strong> usa el modelo openWakeWord incluido. Como alternativa puedes elegir <strong>Hey + nombre</strong>: el campo propone el nombre actual del asistente y solo cambia si lo editas; Hermes intentará procesarlo con su motor Sherpa cuando esté disponible. Si un perfil ya tiene una frase propia, IRIS la conserva hasta que elijas reemplazarla.</p><p>Guardar o elegir una frase no abre el micrófono. Al activarlo expresamente, Hermes abre una sesión nueva tras detectar la frase, captura una orden con <code>voice.record</code> y devuelve la transcripción a IRIS.</p><p>Hermes comprueba motor, micrófono, STT y TTS antes de armarse. El diagnóstico distingue entre un motor que puede instalarse al primer uso y uno realmente listo con micrófono verificado. Si falta algo, el botón no finge que la escucha quedó activa.</p><p>En <strong>Configuración avanzada</strong> puedes cambiar entre el preset y el nombre editable, además de ajustar la sensibilidad nativa: un valor más alto es más estricto y reduce activaciones accidentales. Hermes aplica además un cooldown fijo de dos segundos. «Activar ahora» inicia la escucha real y no es una prueba temporal; durante la respuesta, el listener pausa el micrófono para no activarse con la propia voz del asistente.</p><p><a href="https://hermes-agent.nousresearch.com/docs/user-guide/features/wake-word" target="_blank" rel="noopener noreferrer">Documentación oficial: Wake Word</a> · <a href="https://hermes-agent.nousresearch.com/docs/user-guide/features/voice-mode" target="_blank" rel="noopener noreferrer">Voice Mode</a></p></div>
+            </section>
+
+            <section id="identity" class="manual-section manual-module" data-search="identidad nombre personalidad rasgos prompt preview perfil importar exportar historial backstory memoria avatar voz tema">
+                <header class="module-heading">
+                    <span>07 / ASISTENTE Y AVATAR</span>
+                    <div><h2>Una identidad, varias capas</h2><p>La personalidad no está atada al proveedor ni al tema visual.</p></div>
+                </header>
+
+                <div class="identity-quadrants">
+                    <article><span>A</span><h3>Nombre compartido</h3><p>El mismo nombre se usa en la interfaz, los saludos y la identidad que recibe Hermes.</p></article>
+                    <article><span>B</span><h3>Rasgos combinables</h3><p>Selecciona hasta seis rasgos. Cada uno incorpora una instrucción concreta al prompt; el texto libre se aplica después y tiene prioridad si existe un conflicto.</p></article>
+                    <article><span>C</span><h3>Backstory opcional</h3><p>Puedes activar o quitar la historia oficial de IRIS. En un personaje personalizado, la personalidad es independiente y la biografía puede quedar vacía.</p></article>
+                    <article><span>D</span><h3>Sincronización real</h3><p>Los cambios se guardan en IRIS, actualizan SOUL.md e IDENTITY.md y, desde la configuración rápida, llegan al siguiente turno sin reiniciar.</p></article>
+                    <article><span>E</span><h3>Vista previa y muestra</h3><p>El contexto exacto se construye localmente sin proveedor. La muestra con IA es opcional, solo se envía al pulsar el botón y puede consumir tokens.</p></article>
+                    <article><span>F</span><h3>Perfil e historial</h3><p>Exporta identidad, voz, avatar y tema sin credenciales ni memoria. IRIS conserva hasta 12 revisiones locales que puedes restaurar.</p></article>
+                </div>
+
+                <div class="manual-note"><b>Backstory no es memoria</b><p>El backstory define la identidad permanente del personaje. Las conversaciones y preferencias aprendidas viven en la memoria local y no se exportan dentro del perfil de identidad. El JSON tampoco incluye API keys, tokens ni credenciales OAuth; las rutas de VRM y muestras de voz son referencias y sus archivos no se incrustan.</p></div>
+
+                <div class="manual-note"><b>Compatibilidad con personality.json</b><p>Un archivo anterior migrado a <code>~/.iris/personality.json</code> ya no reemplaza silenciosamente el wizard. Si se detecta, el apartado de identidad ofrece importarlo de forma explícita al perfil visible.</p></div>
+                <div class="manual-note"><b>Elegir un avatar</b><p>En el paso <strong>Avatar</strong> puedes conservar el incluido o seleccionar tu archivo VRM. Revisa el resumen y espera a que confirme el guardado antes de pulsar <strong>Lanzar IRIS</strong>. Una subida de archivo no sustituye el guardado final. En la habitación, <strong>Visual y Audio → Brisa (cabello y ropa)</strong> anima las físicas que tenga el modelo; el movimiento depende de cómo se creó ese VRM y se desactiva con movimiento reducido.</p></div>
+                <div class="manual-note"><b>Desktop Companion es opcional</b><p>Es la ventana flotante del avatar en Windows. El resumen permite diagnosticar, instalar o abrir su paquete cuando la configuración principal se haya guardado; también puedes gestionarlo desde <strong>Ajustes → Companion</strong>. No es obligatorio para usar IRIS OS ni para conversar con Hermes. El arranque en segundo plano es una preferencia separada.</p></div>
+            </section>
+
+            <section id="security" class="manual-section manual-module" data-search="seguridad privacidad api keys secretos telegram discord slack canales lan oauth local">
+                <header class="module-heading">
+                    <span>08 / PERMISOS Y SEGURIDAD</span>
+                    <div><h2>Canales, secretos y alcance</h2><p>Local-first no significa que cada proveedor sea local: revisa la ruta de datos que elegiste.</p></div>
+                </header>
+
+                <div class="security-grid">
+                    <article class="safe"><span>LOCAL</span><h3>En tu equipo</h3><ul><li>Preferencias y biblioteca musical</li><li>Perfil de Hermes</li><li>Modelos locales que configures</li><li>Copia de correo y calendario</li></ul></article>
+                    <article class="cloud"><span>REMOTO</span><h3>Puede salir de tu equipo</h3><ul><li>Mensajes al proveedor de IA</li><li>Audio de STT/TTS remoto</li><li>Fotos al modelo de visión elegido</li><li>Lecturas de cuentas conectadas</li></ul></article>
+                    <article class="optional"><span>OPCIONAL</span><h3>Tú decides</h3><ul><li>Canales de mensajería</li><li>Acceso LAN</li><li>Cámara y escucha</li><li>Clasificación y tareas con IA</li></ul></article>
+                </div>
+
+                <details class="wide-detail">
+                    <summary>Reglas prácticas para API keys y OAuth</summary>
+                    <div><ul><li>No pegues una key en campos que no correspondan al proveedor.</li><li>La contraseña OAuth se introduce en la página del proveedor, no en IRIS.</li><li>El wizard nunca devuelve secretos completos mediante <code>/api/current-config</code>; solo indicadores de presencia.</li><li>Si cambias de proveedor, valida el método seleccionado antes de reiniciar el gateway.</li></ul></div>
+                </details>
+                <div class="manual-note"><b>Permisos separados</b><p>Abre <strong>Aplicaciones → Permisos</strong> para revisar Preguntar, Permitir o Denegar, según la capacidad. Conectar Google no activa clasificación con IA; permitir la cámara no autoriza enviar fotos a cualquier destino; guardar la voz no activa la escucha. Ocultar una app del cajón tampoco cambia sus permisos ni detiene sus servicios.</p></div>
+            </section>
+
+            <section id="desktop" class="manual-section manual-module" data-search="inicio escritorio aplicaciones cajón apps widgets accesos arrastrar ordenar ocultar administrar ventanas dock personalizar teclado rendimiento fps límite consumo">
+                <header class="module-heading">
+                    <span>09 / TU ESCRITORIO</span>
+                    <div><h2>Un Inicio que puedes organizar</h2><p>Los accesos, widgets y ventanas tienen funciones distintas. Quitar un acceso no desinstala su app.</p></div>
+                </header>
+                <ol class="manual-steps">
+                    <li>Pulsa <strong>Aplicaciones</strong> en el dock y busca por nombre o descripción. Enter abre el primer resultado; Escape cierra el cajón. Dentro de Iris, <strong>Alt+A</strong> lo abre si no estás escribiendo en un campo.</li>
+                    <li>Haz <strong>clic derecho</strong> sobre una app, mantén pulsado en una pantalla táctil o usa <strong>Mayús+F10</strong> con el teclado. <strong>Agregar a inicio</strong> crea un acceso. <strong>Quitar de inicio</strong> lo retira sin cerrar la app.</li>
+                    <li>Arrastra un acceso o widget con el ratón para cambiar su lugar. En táctil, mantén pulsado y después mueve el dedo. Escape cancela el arrastre. El orden se guarda por perfil; no son posiciones libres sobre el fondo.</li>
+                    <li>En el espacio vacío, el mismo menú ofrece <strong>Widgets</strong>, <strong>Editar inicio</strong> y <strong>Administrar aplicaciones</strong>. También puedes pulsar <strong>Personalizar</strong>. En Editar inicio hay controles para ordenar con teclado; <strong>Listo</strong> termina.</li>
+                    <li>En <strong>Personalizar → Widgets</strong>, revisa la vista previa y pulsa <strong>Añadir</strong>. Las vistas previas usan ejemplos: no leen tus cuentas ni reproducen música. Puedes tener hasta cuatro widgets. Quitar uno conserva su app.</li>
+                </ol>
+                <div class="manual-note"><b>Ocultar no apaga una aplicación</b><p><strong>Ocultar del cajón</strong> solo oculta su icono. Correo, Calendario y los servicios que hayas activado pueden seguir funcionando. Para recuperar un icono, abre <strong>Ajustes → Administrar aplicaciones</strong>. Para dejar de consultar una cuenta, desconéctala desde <a href="#connections">Conexiones</a>.</p></div>
+                <div class="manual-note"><b>Ventanas y navegación</b><p>La barra de título permite mover una ventana; sus botones permiten minimizar, maximizar/restaurar y cerrar. Arrastrarla al borde superior la maximiza y Restaurar recupera su tamaño anterior. La barra inferior muestra la ventana al frente y un botón <strong>+N</strong> para elegir las demás. <strong>Inicio</strong> vuelve al escritorio y <strong>Panel</strong> muestra la actividad; el dock sigue disponible.</p></div>
+                <div class="manual-note"><b>Rendimiento · fuente posterior a QA16</b><p>En <strong>Ajustes → Rendimiento</strong> elige <strong>30 FPS</strong>, <strong>60 FPS</strong> (valor inicial) o <strong>Sin límite</strong> y pulsa <strong>Guardar rendimiento</strong>. Se conserva por perfil y se aplica a la habitación y Companion abiertos. Un límite menor puede reducir la carga de CPU/GPU; no cambia la voz ni el análisis de cámara. Son máximos: el equipo puede rendir por debajo.</p></div>
+            </section>
+
+            <section id="chat" class="manual-section manual-module" data-search="chat conversar conversación modelo selector model razonamiento predeterminado detener proveedores confirmado fallido">
+                <header class="module-heading">
+                    <span>10 / CONVERSAR</span>
+                    <div><h2>Hablar con IRIS y elegir su modelo</h2><p>El botón Chat del dock abre la conversación y deja listo el campo para escribir. Conserva tu borrador y tus ventanas; no envía nada por abrirlo.</p></div>
+                </header>
+                <ol class="manual-steps">
+                    <li>Escribe tu mensaje o utiliza <a href="#voice">Hablar</a>. El proveedor debe estar configurado para que IRIS pueda responder.</li>
+                    <li>Abre el botón de modelo sobre <strong>Razonamiento</strong>, o escribe <code>/model</code>. Busca un modelo de tus proveedores disponibles o elige <strong>Predeterminado</strong>.</li>
+                    <li>La elección pertenece a esa conversación. Si IRIS ya está respondiendo, el cambio se aplica en el siguiente mensaje. El estado <strong>Confirmado</strong> indica qué modelo respondió; elegirlo no confirma todavía una respuesta.</li>
+                    <li>Si aparece un fallo, lee el motivo y vuelve a Predeterminado o elige otro modelo. Que un nombre aparezca en el catálogo no garantiza acceso con tu cuenta. <strong>Detener</strong> interrumpe el turno, sin borrar la selección.</li>
+                </ol>
+                <div class="manual-note"><b>Principal y conversación no son lo mismo</b><p><strong>Cambiar el predeterminado de IRIS</strong> es una acción separada y pide confirmación: también puede afectar a otras conversaciones, canales y rutinas. En <strong>Aplicaciones → Modelos</strong> puedes organizar el selector y elegir la ruta de <strong>Visión</strong>; esta última es independiente del modelo del chat.</p></div>
+            </section>
+
+            <section id="vision" class="manual-section manual-module" data-search="cámara vision visión assistant foto tomar imagen mano permiso destino presencia movimiento apagar pantalla captura ventana monitor compartir">
+                <header class="module-heading">
+                    <span>11 / ASISTENCIA VISUAL</span>
+                    <div><h2>La cámara, cuando tú lo decides</h2><p>La vista de cámara, las señales locales de Vision Assistant y el análisis de una foto tienen permisos y usos diferentes.</p></div>
+                </header>
+                <ol class="manual-steps">
+                    <li>Abre <strong>Cámara</strong> y utiliza sus controles para permitir o apagar la captura. El permiso del sistema o del navegador también debe estar concedido.</li>
+                    <li>Para preguntar, por ejemplo, «¿qué tengo en la mano?», pide una foto en el chat o usa su acción de cámara. IRIS prepara <strong>una foto nueva para ese turno</strong>.</li>
+                    <li>Revisa el destino que muestra el diálogo y confirma si quieres tomarla. Puedes cancelar. Si recordaste el permiso, solo vale para ese destino; no autoriza cualquier proveedor futuro.</li>
+                    <li>La foto se analiza con la ruta de <strong>Modelos → Visión</strong>. Puede ser remota. El chat recibe la descripción del análisis, sin obtener acceso continuo a la cámara.</li>
+                </ol>
+                <div class="manual-note"><b>Vista cerrada y cámara apagada son estados distintos</b><p>Cerrar una vista previa no garantiza que se haya apagado una captura que otra parte de Iris sigue usando. Usa <strong>Apagar cámara</strong> para cerrarla y desactivar el asistente de visión. Las señales de presencia y movimiento se calculan localmente; una foto enviada a un modelo remoto tiene otra ruta. Si el dispositivo o el modelo fallan, se muestra el error, sin inventar el contenido de la imagen.</p></div>
+                <div class="manual-note"><b>Compartir pantalla · fuente posterior a QA16</b><p>Usa el botón de pantalla del chat o pide «Mira mi pantalla». Iris muestra el destino de Visión, te deja elegir ventana o pantalla y presenta una imagen para revisar. El flujo de vídeo se cierra antes de la revisión; solo <strong>Enviar esta captura</strong> manda la imagen al modelo. <strong>Capturas de pantalla a petición</strong> tiene permiso propio, no autoriza ratón ni teclado y no activa observación continua. Si cancelas o no hay imagen, Iris responde la pregunta por texto y explica que no vio la pantalla. Preguntar cómo compartir pantalla en Zoom no abre el selector. Si la vista no admite compartir pantalla, adjunta una captura manualmente. La selección nativa de Windows se comprobará en el próximo instalador.</p></div>
+                <div class="manual-note"><b>Cuando Iris decide mirar · fuente posterior a QA16</b><p>Si para responderte Iris necesita ver algo, puede pedir ella misma una foto de la cámara o una captura de pantalla, por ejemplo al final de un mensaje largo. Es una por turno y solo en conversaciones que empiezas en este equipo; Telegram y las automatizaciones no pueden. Tiene permisos propios en <strong>Permisos</strong>: <strong>Fotos que Iris decide pedir</strong> y <strong>Capturas que Iris decide pedir</strong>, inicialmente en «Preguntar». Con «Permitir», la foto se toma sin aviso si la cámara ya está encendida y la captura se envía sin revisión, aunque siempre eliges la ventana. El chat muestra una línea cada vez que Iris mira. Si cancelas, Iris responde por texto y no vuelve a intentarlo en ese turno.</p></div>
+                <div class="manual-note"><b>Tareas en segundo plano · fuente posterior a QA16</b><p>Si le pides algo largo, como buscar las noticias del día o comparar opciones, Iris puede dejarlo trabajando y seguir conversando contigo. Te avisa que empezó solo cuando la tarea ya está en marcha. Mientras tanto verás <strong>Trabajando en…</strong> sobre el chat y en el Companion, con <strong>Cancelar</strong>; un mensaje nuevo o <strong>Detener</strong> no la cancelan. Al terminar, Iris espera a no estar hablando y te presenta el resultado. Si cambiaste de conversación o no hay una ventana de Iris visible, el resultado queda en la <strong>Bandeja</strong>. Es una tarea a la vez, como máximo 10 minutos, y no da permisos nuevos.</p></div>
+            </section>
+
+            <section id="connections" class="manual-section manual-module" data-search="conexiones google gmail calendar oauth json cliente credencial archivo importar cuenta permisos desconectar revocar">
+                <header class="module-heading">
+                    <span>12 / CONEXIONES</span>
+                    <div><h2>Conectar tus cuentas de Google</h2><p>Conexiones se abre desde Aplicaciones o Ajustes → Cuentas conectadas. Sirve para Calendario y Correo; no es el acceso a Gemini como proveedor de IA.</p></div>
+                </header>
+                <ol class="manual-steps">
+                    <li>En tu proyecto de Google Cloud, prepara un cliente OAuth de tipo <strong>Aplicación de escritorio</strong> y activa las APIs de Calendar y Gmail para los servicios que vas a utilizar. Mientras el proyecto esté en pruebas, añade tu cuenta a sus usuarios de prueba.</li>
+                    <li>Abre <strong>Configura el acceso a Google → Importar archivo JSON</strong> y elige el archivo del cliente. También puedes pegarlo en <strong>Contenido JSON del cliente OAuth</strong>. Pulsa <strong>Guardar configuración</strong>. Un archivo incorrecto no sustituye el anterior.</li>
+                    <li>Selecciona Calendario, Correo o ambos y pulsa <strong>Conectar Google</strong>. Elige la cuenta y completa el permiso en la página de Google. La contraseña no se introduce en Iris.</li>
+                    <li>Vuelve a Conexiones y comprueba los permisos concedidos. Puedes conectar varias cuentas. <strong>Actualizar datos</strong> inicia una lectura; abrir la ventana por sí solo no la inicia. La actualización automática se activa por separado.</li>
+                </ol>
+                <div class="manual-note"><b>Qué autorizas</b><p>El JSON identifica tu aplicación de Google; no inicia sesión por sí solo. Iris admite un cliente personal de escritorio, no un cliente web. El acceso sencillo con un cliente oficial compartido no está habilitado. Iris solicita lectura: no envía correos, no crea eventos ni marca mensajes como leídos. Conectar una cuenta tampoco activa funciones de IA sobre su contenido.</p></div>
+                <div class="manual-note"><b>Desconectar, revocar y borrar datos</b><p><strong>Desconectar</strong> hace que Iris deje de usar esa cuenta. <strong>Revocar también el acceso en Google</strong> solicita además retirar el permiso; revisa si el resultado está confirmado. <strong>Borrar los datos</strong> es una opción independiente. Las credenciales se protegen con el usuario de Windows y el perfil de Iris: al cambiar de usuario o equipo puede ser necesario volver a conectar.</p></div>
+                <details class="wide-detail"><summary>¿Por qué Google no permite continuar?</summary><div><p>Comprueba que el archivo sea del cliente de escritorio correcto, que las APIs estén activadas y que la cuenta figure como usuario de prueba cuando corresponda. Cancela un intento que ya no avanza e inicia otro desde Conexiones. Si Google muestra un aviso de aplicación no verificada, revisa qué proyecto y permisos estás autorizando. Un permiso caducado o retirado requiere reconectar la cuenta.</p></div></details>
+            </section>
+
+            <section id="calendar" class="manual-section manual-module" data-search="calendario día semana mes agenda evento reunión recordatorio preparar notas ia zona horario cuenta">
+                <header class="module-heading">
+                    <span>13 / CALENDARIO</span>
+                    <div><h2>Eventos, recordatorios y preparación de reuniones</h2><p>Calendario muestra las cuentas conectadas con permiso de lectura. Abrirlo consulta la copia local; Actualizar datos solicita cambios a Google.</p></div>
+                </header>
+                <ol class="manual-steps">
+                    <li>Elige cuenta, calendarios y zona horaria. Cambia entre <strong>Día, Semana, Mes o Agenda</strong>; usa <strong>Hoy</strong> para volver a la fecha actual.</li>
+                    <li>Selecciona un día y un evento para ver su detalle. La búsqueda se aplica al periodo visible. Un error o una vista parcial se indican expresamente; no significan que tu cuenta esté vacía.</li>
+                    <li>Si quieres avisos, pulsa <strong>Activar recordatorios</strong> y confirma. Están apagados inicialmente: avisan 60 minutos antes y al inicio de los eventos con hora. No generan estos avisos los eventos de todo el día, las reuniones rechazadas ni los estados especiales como Fuera de la oficina.</li>
+                    <li>En <strong>Personalizar → Widgets</strong>, añade Calendario para ver hoy y hasta tres eventos. Un evento del widget abre su fecha y cuenta en la app completa.</li>
+                </ol>
+                <div class="manual-note"><b>Preparar con IRIS</b><p>Selecciona una reunión, pulsa <strong>Preparar con IRIS</strong> y elige el proveedor y modelo. Revisa las fuentes y el destino antes de autorizar cada petición: por defecto se incluye título y horario; puedes añadir tus notas y la descripción. La IA genera notas que se guardan localmente y pueden consumir cuota. No envía correo ni modifica el evento.</p></div>
+                <div class="manual-note"><b>Qué funciona en segundo plano</b><p>Los recordatorios pueden continuar con la ventana cerrada mientras Iris siga ejecutándose. No funcionan con Iris totalmente cerrado ni conocen una cancelación remota hasta actualizar los datos. Los avisos llegan a <strong>Notificaciones → Bandeja</strong>; verlos no los marca como leídos. Calendario es de lectura: no crea ni edita eventos. <strong>Unirse a la reunión</strong> solo aparece si el evento trae un enlace de conferencia válido, y se abre al pulsarlo.</p></div>
+            </section>
+
+            <section id="mail" class="manual-section manual-module" data-search="correo gmail bandeja entrada mensajes leer cuerpo texto html adjuntos búsqueda clasificar clasificación relevante importante ia">
+                <header class="module-heading">
+                    <span>14 / CORREO</span>
+                    <div><h2>Leer Gmail desde Iris</h2><p>Conecta una cuenta con permiso de Correo y abre Aplicaciones → Correo. La lista, los filtros y la búsqueda trabajan sobre los mensajes guardados en el equipo.</p></div>
+                </header>
+                <ol class="manual-steps">
+                    <li>Pulsa <strong>Actualizar Gmail</strong> para solicitar una lectura a Google. Elige una cuenta o Todas las cuentas y la carpeta que quieras consultar.</li>
+                    <li>Busca por remitente, destinatario, asunto o extracto. <strong>No leídos</strong> e <strong>Importantes</strong> filtran la copia local; no buscan en todo el buzón de Google.</li>
+                    <li>Selecciona un mensaje: primero se muestra el extracto guardado y después se consulta su <strong>cuerpo completo en texto</strong>. Si solo hay HTML, Iris lo convierte a texto. Esta lectura necesita conexión.</li>
+                    <li>Si falla la lectura, conserva el extracto y ofrece <strong>Reintentar lectura</strong>. Todo el correo significa todo lo guardado, no que se haya descargado tu buzón entero.</li>
+                </ol>
+                <div class="manual-note"><b>Lectura, sin modificar Gmail</b><p>Abrir un mensaje no lo marca como leído. Iris no envía respuestas, archiva, borra ni descarga adjuntos. No muestra imágenes remotas ni ejecuta HTML del mensaje. El cuerpo consultado no se guarda para leerlo sin conexión; la copia local conserva los datos básicos y el extracto. La lectura inicial abarca hasta 200 mensajes recientes de 30 días; las lecturas incrementales pueden ampliar esa copia.</p></div>
+                <div class="manual-note"><b>Relevancia con IA: opcional y apagada</b><p>En <strong>Configurar clasificación</strong>, elige cuentas, carpetas, criterios, proveedor/modelo, campos y máximo diario. <strong>Revisar destino</strong> permite ver qué enviarás antes de <strong>Autorizar y activar desde ahora</strong>. Puede enviar al modelo extractos y, si lo autorizas, texto del mensaje. No cambia el modelo del chat.</p><p>La primera actualización correcta de Gmail después de activar establece una base; después se admiten mensajes nuevos, sin clasificar el historial en bloque. Los importantes pueden llegar a Bandeja. Marcar normal, importante o incierto en Iris solo corrige el resultado local; no modifica Gmail. <strong>Pausar clasificación</strong> detiene nuevos trabajos, pero una petición que ya salió puede haber consumido cuota.</p></div>
+            </section>
+
+            <section id="automations" class="manual-section manual-module" data-search="automatizaciones regla inactividad windows tareas rutinas horario pausa activar bandeja notificaciones volver resumen voz focus silencio">
+                <header class="module-heading">
+                    <span>15 / TAREAS Y AVISOS</span>
+                    <div><h2>Dejar una tarea y consultar su resultado</h2><p>Automatizaciones usa condiciones de inactividad. Tareas programadas trabaja con horarios. Son aplicaciones distintas y necesitan que Iris y su motor sigan funcionando.</p></div>
+                </header>
+                <ol class="manual-steps">
+                    <li>Abre <strong>Automatizaciones → Nueva regla</strong>. Escribe una tarea, condición, modelo, plazo y máximo diario. Empieza por una tarea sencilla: puede ejecutar herramientas y gastar cuota.</li>
+                    <li>La regla se guarda <strong>en pausa</strong>. Revisa sus datos, el permiso de Automatizaciones en <strong>Permisos</strong> y la confirmación de <strong>Activar</strong>. Crear una regla no concede ese permiso.</li>
+                    <li>Consulta el historial para saber si está en curso, terminó, falló o quedó sin confirmar. Cancelar solicita detenerla; no deshace acciones que ya se hicieron. Un resultado sin confirmar no se reenvía automáticamente.</li>
+                    <li>Abre <strong>Notificaciones → Bandeja</strong> para leer resultados y recordatorios. Marcar leído, posponer, descartar y silenciar son acciones diferentes; mostrar el aviso no lo marca leído.</li>
+                </ol>
+                <div class="manual-note"><b>Qué significa inactividad</b><p><strong>Iris sin usar</strong> mide interacción dentro de Iris. <strong>Windows sin usar</strong> es otra opción, apagada inicialmente y con consentimiento propio; consulta el tiempo de la última entrada, no lo que escribes. Ninguna demuestra que te hayas ido físicamente. Bloquear, suspender o perder la observación interrumpe la continuidad. La ausencia ante la cámara no se ofrece como disparador habilitable.</p></div>
+                <div class="manual-note"><b>Leer resultados al volver</b><p>La entrega es visual por defecto. Para oír un resumen, activa <strong>Entregas por voz</strong> y <strong>Leer un resumen al volver</strong> en la tarea. Requiere una superficie local visible y con foco, y no interrumpe una conversación o captura activa. <strong>Focus de Iris</strong> y el silencio de Bandeja lo bloquean. Con TTS remoto, el resumen sale del equipo; los avisos de Cámara y Calendario siguen siendo silenciosos. No es un saludo automático de bienvenida.</p></div>
+            </section>
+
+            <section id="player" class="manual-section manual-module" data-search="iris player música audio canciones carpeta biblioteca reproducir pausar volumen favoritos widget skill local">
+                <header class="module-heading">
+                    <span>16 / IRIS PLAYER</span>
+                    <div><h2>Tu música local, en la app o en un widget</h2><p>El reproductor manual funciona sin conectar cuentas externas y aunque el servicio de IA esté detenido.</p></div>
+                </header>
+                <ol class="manual-steps">
+                    <li>Abre <strong>IRIS Player → Seleccionar carpeta</strong>. Solo se indexan esa carpeta y sus subcarpetas. Si no aparece el selector, utiliza <strong>Ruta manual avanzada</strong>.</li>
+                    <li>Busca, reproduce o pausa, cambia de pista y ajusta el volumen. Se respeta el silencio si guardaste volumen cero. Que una extensión esté en la biblioteca no garantiza que WebView2 tenga su códec.</li>
+                    <li>En <strong>Personalizar → Widgets</strong> añade IRIS Player. La ventana y el widget controlan el mismo audio. Añadirlo no empieza la reproducción; quitarlo o cerrar la ventana no corta la música.</li>
+                    <li>Con la skill de Iris disponible y el permiso correspondiente, puedes pedir a IRIS que reproduzca o busque música de esa biblioteca. Elegir otra carpeta sigue siendo una acción explícita de la interfaz.</li>
+                </ol>
+                <div class="manual-note"><b>Qué no hace</b><p>No sube tu audio al proveedor de IA, descarga música ni conecta Spotify o Apple Music. Las pistas se presentan a partir de sus archivos; no se promete que se hayan analizado musicalmente. La app y el widget también sirven como ejemplo de integración para quienes contribuyen al proyecto.</p></div>
+            </section>
+
+            <section id="store" class="manual-section manual-module" data-search="iris store tienda instalar aplicación aplicaciones zip carpeta archivo revisión permisos widget actualizar reinstalar desinstalar comunidad skill python">
+                <header class="module-heading">
+                    <span>17 / IRIS STORE</span>
+                    <div><h2>Instalar una app desde un archivo</h2><p>Esta Store sencilla acepta apps de IRIS OS con interfaz y widgets. El SDK 2 permite también lógica Python y una skill opcional para Hermes dentro del paquete. No instala programas de Windows, APK, skills sueltas ni extensiones de otros escritorios; todavía no es un catálogo de descargas en internet.</p></div>
+                </header>
+                <ol class="manual-steps">
+                    <li>Abre <strong>Aplicaciones → Iris Store</strong> y elige o arrastra el <strong>.zip</strong> o la <strong>carpeta</strong> de la app.</li>
+                    <li>Revisa nombre, versión, widgets, tamaño y las señales de <strong>Lo que hace su código</strong>. La revisión es automática y orientativa; no es una revisión por IA ni garantiza seguridad.</li>
+                    <li>Lee la advertencia y confirma <strong>Instalar</strong>. La app tendrá el mismo acceso que Iris: puede acceder a conversaciones, correo o funciones de Hermes. Usa únicamente paquetes cuyo origen y código consideres confiables.</li>
+                    <li>Al terminar, aparece en <strong>Aplicaciones</strong>, la Store ofrece <strong>Abrir</strong> y sus widgets están en la galería, sin recargar el escritorio. Si el escritorio no pudo incorporar el cambio, pulsa <strong>Reintentar</strong>; la recarga queda como último recurso.</li>
+                </ol>
+                <div class="manual-note"><b>Actualizar y desinstalar</b><p>Un paquete con el mismo identificador reemplaza la app completa. Si está en uso, el diálogo avisa que se reiniciará y se perderá lo no guardado; las otras apps conservan su estado. Para quitarla, usa <strong>Instaladas desde archivo → Desinstalar</strong>, también accesible desde Administrar aplicaciones. Se retiran sus ventanas, widgets, estilos, acceso del Inicio y componentes administrados. Los datos del backend se conservan por defecto; marca <strong>Eliminar también sus datos al desinstalar</strong> si quieres borrarlos. Una skill ajena o editada se conserva con aviso. Las apps incluidas con Iris están protegidas.</p></div>
+                <div class="manual-note"><b>Python y skills del SDK 2</b><p>La revisión del paquete muestra el backend, sus operaciones y la skill antes de instalar. Python se ejecuta en un proceso propio, con biblioteca estándar y módulos del paquete; no instala dependencias ni modifica el motor de Iris. Esta separación no es un sandbox de Windows: la app mantiene los permisos de tu usuario. Los servicios importados dentro de Core y los permisos reservados siguen requiriendo la vía de integración revisada.</p></div>
+                <div class="manual-note"><b>Paquetes y datos</b><p>Las apps se guardan en un almacén separado dentro de tu perfil. El backend y sus datos tienen ubicaciones propias; la skill se administra en el perfil de Hermes. No se descomprimen rutas del paquete libremente por el equipo. Eliminar los datos administrados no garantiza borrar lo que la app haya guardado fuera de ellos, incluido el almacenamiento del navegador.</p></div>
+                <details class="wide-detail"><summary>Quiero crear una app o un widget</summary><div><p>En el repositorio del proyecto, empieza por <code>docs/guides/community-apps-python.md</code>, <code>docs/guides/contributing-apps.md</code> y <code>tools/skills/iris-app-contributor/SKILL.md</code>. <strong>Contador</strong>, en <code>examples/apps/contador/</code>, es un ejemplo instalable con Python, acciones, widget y skill; Player es una referencia integrada. Antes de entregar una app, ejecuta <code>scripts/app_package_tool.py check</code> sobre su carpeta y prueba sus operaciones con el worker real de Iris. Las transiciones se importan desde Theme Studio, por separado.</p></div></details>
+            </section>
+
+            <section id="diagnostics" class="manual-section manual-module" data-search="diagnóstico reparar error gateway hermes api key oauth logs reintentar no responde lento">
+                <header class="module-heading">
+                    <span>18 / DIAGNÓSTICO</span>
+                    <div><h2>Cuando algo no arranca</h2><p>Empieza por el código y el diagnóstico que muestra el wizard; evita reinstalar a ciegas.</p></div>
+                </header>
+
+                <div class="diagnostic-codes">
+                    <div><code>missing_api_key</code><strong>Falta la key de la ruta API elegida</strong><p>Pégala en el proveedor correcto y reintenta.</p></div>
+                    <div><code>missing_oauth</code><strong>No hay perfil OAuth del tipo requerido</strong><p>Completa el login para ese proveedor.</p></div>
+                    <div><code>missing_base_url</code><strong>Falta el endpoint del proveedor</strong><p>Indica la URL completa de Azure Foundry o del servidor OpenAI-compatible.</p></div>
+                    <div><code>external_cli_missing</code><strong>Falta una CLI externa</strong><p>Instala Copilot CLI o configura su comando antes de iniciar el gateway.</p></div>
+                    <div><code>local_model_missing</code><strong>Servidor local sin modelos</strong><p>Carga o descarga un modelo fuera del wizard.</p></div>
+                    <div><code>gateway_crashed</code><strong>Hermes terminó durante el arranque</strong><p>Abre los registros del diagnóstico y revisa el motivo: modelo, credencial o componente no disponible.</p></div>
+                    <div><code>hermes_config_write_failed</code><strong>No se pudo guardar la selección</strong><p>Revisa permisos y espacio disponible. Conserva el mensaje del diagnóstico; no continúes suponiendo que el proveedor quedó guardado.</p></div>
+                    <div data-runtime-only="development"><code>damaged</code><strong>Runtime administrado incompleto</strong><p>Usa Reparar Hermes y conserva la configuración existente.</p></div>
+                    <div data-runtime-only="development"><code>residual</code><strong>Launcher global sin runtime administrado</strong><p>El wizard ofrece Instalar Hermes desde cero e ignora el launcher antiguo sin borrar el perfil.</p></div>
+                    <div data-runtime-only="packaged"><code>package_repair</code><strong>Motor incluido no disponible</strong><p>Repara o reinstala Iris desde su instalador. Tu perfil y tus credenciales se conservan; no se instala otro Hermes.</p></div>
+                    <div data-runtime-only="packaged"><code>unavailable</code><strong>Canal no disponible</strong><p>Esta versión no incluye sus componentes o el programa que necesita. Elige otro canal; no se instala nada en el motor.</p></div>
+                </div>
+
+                <div class="manual-faq-grid">
+                    <details><summary>El Gateway pide un proveedor que creí haber configurado</summary><div><p>Vuelve a Inteligencia artificial, revisa principal, método y modelo, y pulsa Guardar proveedor. Después usa el control del Gateway, situado tras la mensajería opcional. El resumen diferencia preferencias guardadas de una IA lista para responder.</p></div></details>
+                    <details><summary>No aparecen eventos o correos</summary><div><p>En Conexiones, comprueba cuenta, permisos, última lectura y si necesita reconexión. Solicita Actualizar datos o Actualizar Gmail y espera el resultado; abrir las apps solo consulta la copia local. Una búsqueda local no recorre toda la cuenta.</p></div></details>
+                    <details><summary>No aparece un icono o un widget</summary><div><p>Busca el icono en Aplicaciones o recupéralo desde Ajustes → Administrar aplicaciones. La galería solo ofrece widgets de apps compatibles. Si acabas de instalar una app y la Store muestra un error del escritorio, usa Reintentar antes de recargar.</p></div></details>
+                    <details><summary>El resumen sigue guardando o muestra un error</summary><div><p>Espera a que el asistente confirme el resultado. Si ofrece reintentar, revisa el mensaje y vuelve a guardar; los botones de lanzamiento y Companion dependen de ese guardado. Cerrar el asistente o pulsar Volver a Iris no confirma que se hayan aplicado la voz o el VRM elegidos.</p></div></details>
+                </div>
+
+                <div class="recovery-sequence">
+                    <span>1</span><p><b>Mostrar diagnóstico</b> · lee el estado, la ruta del CLI y el log.</p>
+                    <span>2</span><p><b>Corregir la causa</b> · credencial, dependencia, servidor o modelo.</p>
+                    <span>3</span><p><b>Reintentar</b> · el wizard conserva la selección válida.</p>
+                    <span>4</span><p><b>Reparar</b> · solo si Hermes está parcial o dañado.</p>
+                </div>
+
+                <div class="cost-privacy">
+                    <div><span>COSTOS</span><p>IRIS OS no cobra licencia. Los proveedores remotos, OAuth por suscripción y servicios de voz pueden cobrar según tu cuenta. Los modelos locales consumen almacenamiento, RAM, GPU y electricidad. Consulta siempre el panel oficial del proveedor: el wizard no fija precios.</p></div>
+                    <div><span>LÍMITES DE VALIDACIÓN</span><p>El preflight confirma presencia y formato de configuración. La disponibilidad del modelo, saldo, permisos de cuenta y vigencia real de un token solo se conocen al hacer una petición.</p></div>
+                </div>
+
+                <div class="official-links">
+                    <a href="https://hermes-agent.nousresearch.com/docs" target="_blank" rel="noopener noreferrer"><span>HERMES</span><strong>Documentación oficial ↗</strong></a>
+                    <a href="https://ollama.com/download" target="_blank" rel="noopener noreferrer"><span>OLLAMA</span><strong>Instalador oficial ↗</strong></a>
+                    <a href="https://lmstudio.ai/download" target="_blank" rel="noopener noreferrer"><span>LM STUDIO</span><strong>Descarga oficial ↗</strong></a>
+                    <a href="index.html"><span>IRIS OS</span><strong>Volver a Configuración →</strong></a>
+                </div>
+            </section>
+
+            <section id="licenses" class="manual-section manual-module" data-search="licencias avisos terceros copyright open source mit apache lgpl ofl hermes python ffmpeg fuentes atribución">
+                <header class="module-heading">
+                    <span>19 / LICENCIAS</span>
+                    <div><h2>Licencias de terceros</h2><p>Iris se distribuye con componentes de otros proyectos. Esta lista se lee del inventario de esta instalación, no de una copia escrita a mano.</p></div>
+                </header>
+
+                <div class="manual-note"><b>Qué incluye</b><p>IRIS OS se publica bajo licencia MIT. Hermes Agent pertenece a Nous Research y también usa MIT. En la versión instalada aparecen además los dos runtimes privados de Python, sus paquetes, las bibliotecas nativas de audio y aceleración, y las bibliotecas y fuentes de la interfaz. Los archivos de código fuente incluidos por cumplimiento (por ejemplo FFmpeg o LAME) se listan, pero no se abren como texto.</p></div>
+
+                <div class="license-toolbar">
+                    <input id="license-filter" type="search" placeholder="Filtrar por paquete o licencia…" autocomplete="off" aria-label="Filtrar licencias">
+                    <span id="license-summary" role="status" aria-live="polite">Leyendo el inventario…</span>
+                </div>
+                <div id="license-groups" class="license-groups"></div>
+                <section id="license-viewer" class="license-viewer" hidden aria-labelledby="license-viewer-title">
+                    <header><strong id="license-viewer-title">Aviso</strong><button type="button" id="license-viewer-close">Cerrar</button></header>
+                    <pre id="license-viewer-text" tabindex="0"></pre>
+                </section>
+            </section>
+
+            <div id="manual-empty" class="manual-empty" hidden>
+                <span>SIN RESULTADOS</span>
+                <h2>No encontré ese término</h2>
+                <p>Prueba con «widgets», «Google», «correo», «voz» o «Store». En el buscador, Escape limpia la consulta y muestra de nuevo el manual.</p>
+            </div>
+        </main>
+    </div>
+
+    <footer class="manual-footer">
+        <span>IRIS OS · MANUAL LOCAL · 26 OCT 2026</span>
+        <p>Las opciones disponibles dependen de tu versión y de los componentes que muestre Iris. Los servicios externos mantienen sus propios términos y disponibilidad.</p>
+        <a href="#start">↑ Volver arriba</a>
+    </footer>
+
+    <script>
+        const MANUAL_THEMES = Object.freeze({
+            iris: { label: 'CYBER EDITION' },
+            rose: { label: 'SAKURA EDITION' },
+            verdant: { label: 'HACKER EDITION' },
+            sunrise: { label: 'CLASSIC EDITION' },
+        });
+
+        function applyManualTheme(theme = 'iris') {
+            const safeTheme = MANUAL_THEMES[theme] ? theme : 'iris';
+            document.body.dataset.manualTheme = safeTheme;
+            const editionLabel = document.getElementById('manual-edition-label');
+            if (editionLabel) {
+                editionLabel.textContent = `${MANUAL_THEMES[safeTheme].label} · DOCUMENTACIÓN LOCAL`;
+            }
+        }
+
+        async function loadManualTheme() {
+            try {
+                const response = await fetch('/api/current-config');
+                if (!response.ok) return;
+                const config = await response.json();
+                applyManualTheme(config.visual_theme);
+            } catch {
+                // The manual remains fully usable with the Cyber default.
+            }
+        }
+
+        applyManualTheme('iris');
+        void loadManualTheme();
+
+        // Same runtime contract as the wizard: packaged hides installer-only copy.
+        async function loadManualRuntime() {
+            try {
+                const response = await fetch('/api/runtime-info', { cache: 'no-store' });
+                if (!response.ok) return;
+                const info = await response.json();
+                if (typeof info.mode === 'string') document.body.dataset.runtimeMode = info.mode;
+            } catch {
+                // Without the contract the manual keeps its development copy.
+            }
+        }
+        void loadManualRuntime();
+
+        if (new URLSearchParams(location.search).get('desktop') === '1') {
+            document.querySelectorAll('a[href="index.html"]').forEach(link => { link.href = 'index.html?desktop=1'; });
+        }
+
+        const licenseGroups = document.getElementById('license-groups');
+        const licenseSummary = document.getElementById('license-summary');
+        const licenseFilter = document.getElementById('license-filter');
+        const licenseViewer = document.getElementById('license-viewer');
+        const licenseViewerText = document.getElementById('license-viewer-text');
+        const licenseViewerTitle = document.getElementById('license-viewer-title');
+        let licenseCatalog = null;
+        let licenseReturnFocus = null;
+
+        function licenseNode(tag, text = '', className = '') {
+            const node = document.createElement(tag);
+            if (text) node.textContent = text;
+            if (className) node.className = className;
+            return node;
+        }
+
+        async function openLicenseText(source, path, label, trigger) {
+            licenseReturnFocus = trigger;
+            licenseViewer.hidden = false;
+            licenseViewerTitle.textContent = label;
+            licenseViewerText.textContent = 'Cargando…';
+            try {
+                const query = new URLSearchParams({ source, path });
+                const response = await fetch(`/api/licenses/text?${query}`, { cache: 'no-store' });
+                const data = await response.json().catch(() => ({}));
+                licenseViewerText.textContent = response.ok
+                    ? data.text
+                    : (data.detail || 'No se pudo abrir este aviso.');
+            } catch {
+                licenseViewerText.textContent = 'No se pudo abrir este aviso.';
+            }
+            licenseViewerText.focus();
+        }
+
+        function closeLicenseText() {
+            licenseViewer.hidden = true;
+            licenseViewerText.textContent = '';
+            licenseReturnFocus?.focus();
+        }
+
+        function renderLicenses() {
+            if (!licenseCatalog) return;
+            const query = normalize(licenseFilter.value.trim());
+            const groups = new Map();
+            let shown = 0;
+            for (const item of licenseCatalog.components) {
+                const haystack = normalize(`${item.package} ${item.version} ${item.license} ${item.group_label}`);
+                if (query && !haystack.includes(query)) continue;
+                if (!groups.has(item.group_label)) groups.set(item.group_label, []);
+                groups.get(item.group_label).push(item);
+                shown += 1;
+            }
+            licenseGroups.replaceChildren();
+            for (const [label, items] of groups) {
+                const group = licenseNode('details', '', 'license-group');
+                group.open = Boolean(query) || groups.size === 1;
+                const summary = licenseNode('summary');
+                summary.append(licenseNode('strong', label), licenseNode('span', `${items.length}`));
+                const list = licenseNode('ul');
+                for (const item of items) {
+                    const row = licenseNode('li');
+                    const head = licenseNode('div', '', 'license-head');
+                    head.append(licenseNode('b', item.package), licenseNode('span', item.version),
+                        licenseNode('code', item.license || 'Sin expresión declarada'));
+                    row.append(head);
+                    if (/^https:\/\//.test(item.url)) {
+                        const link = licenseNode('a', 'Origen ↗');
+                        Object.assign(link, { href: item.url, target: '_blank', rel: 'noopener noreferrer' });
+                        row.append(link);
+                    }
+                    const files = licenseNode('div', '', 'license-files');
+                    for (const file of item.files) {
+                        const name = file.path.split('/').pop();
+                        if (file.viewable) {
+                            const button = licenseNode('button', name);
+                            button.type = 'button';
+                            button.title = file.path;
+                            button.addEventListener('click', () => openLicenseText(item.source, file.path, `${item.package} · ${name}`, button));
+                            files.append(button);
+                        } else {
+                            const included = licenseNode('span', `Código fuente incluido: ${name}`, 'license-source');
+                            included.title = file.path;
+                            files.append(included);
+                        }
+                    }
+                    row.append(files);
+                    list.append(row);
+                }
+                group.append(summary, list);
+                licenseGroups.append(group);
+            }
+            const missing = licenseCatalog.sources.filter(source => !source.available).length;
+            licenseSummary.textContent = `${shown} de ${licenseCatalog.components.length} componentes`
+                + (licenseCatalog.mode === 'packaged'
+                    ? (missing ? ' · falta parte del inventario: repara Iris' : ' · inventario completo de esta instalación')
+                    : ' · desarrollo: el inventario completo se genera al preparar el paquete');
+        }
+
+        async function loadLicenses() {
+            try {
+                const response = await fetch('/api/licenses', { cache: 'no-store' });
+                if (!response.ok) throw new Error(String(response.status));
+                licenseCatalog = await response.json();
+                renderLicenses();
+            } catch {
+                licenseSummary.textContent = 'No se pudo leer el inventario de licencias.';
+            }
+        }
+
+        licenseFilter.addEventListener('input', renderLicenses);
+        document.getElementById('license-viewer-close').addEventListener('click', closeLicenseText);
+        licenseViewer.addEventListener('keydown', event => {
+            if (event.key === 'Escape') closeLicenseText();
+        });
+        void loadLicenses();
+
+        const search = document.getElementById('manual-search');
+        const modules = [...document.querySelectorAll('.manual-module')];
+        const empty = document.getElementById('manual-empty');
+        const state = document.getElementById('manual-search-state');
+        const normalize = value => String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+
+        function runManualSearch() {
+            const query = normalize(search.value.trim());
+            let visible = 0;
+            modules.forEach(module => {
+                const haystack = normalize(`${module.dataset.search || ''} ${module.textContent}`);
+                const match = !query || haystack.includes(query);
+                module.hidden = !match;
+                if (match) visible += 1;
+            });
+            empty.hidden = visible !== 0;
+            state.textContent = query
+                ? `${visible} ${visible === 1 ? 'sección encontrada' : 'secciones encontradas'}`
+                : `${modules.length} secciones disponibles`;
+        }
+
+        search.addEventListener('input', runManualSearch);
+        runManualSearch();
+        // A link to another chapter must work even if the current search hid its target.
+        document.querySelectorAll('a[href^="#"]').forEach(link => {
+            link.addEventListener('click', () => {
+                if (!search.value.trim()) return;
+                search.value = '';
+                runManualSearch();
+            });
+        });
+        document.addEventListener('keydown', event => {
+            if (event.key === '/' && !['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName)) {
+                event.preventDefault();
+                search.focus();
+            }
+            if (event.key === 'Escape' && document.activeElement === search) {
+                search.value = '';
+                search.blur();
+                runManualSearch();
+            }
+        });
+
+        const navLinks = [...document.querySelectorAll('.manual-nav a')];
+        const observer = new IntersectionObserver(entries => {
+            const current = entries
+                .filter(entry => entry.isIntersecting && !entry.target.hidden)
+                .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+            if (!current) return;
+            navLinks.forEach(link => {
+                const active = link.hash === `#${current.target.id}`;
+                link.classList.toggle('active', active);
+                if (active) link.setAttribute('aria-current', 'location');
+                else link.removeAttribute('aria-current');
+            });
+        }, { rootMargin: '-18% 0px -68% 0px', threshold: [0.02, 0.2, 0.6] });
+        modules.forEach(module => observer.observe(module));
+    </script>
+</body>
+</html>

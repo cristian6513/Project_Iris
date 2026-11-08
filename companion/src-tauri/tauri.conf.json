@@ -1,0 +1,75 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "IRIS Desktop Companion",
+  "version": "0.1.8",
+  "identifier": "os.iris.desktop-companion",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://127.0.0.1:1420/face/companion/",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "withGlobalTauri": false,
+    "security": {
+      "csp": "default-src 'self' customprotocol: asset:; script-src 'self' 'wasm-unsafe-eval'; connect-src 'self' blob: ipc: http://ipc.localhost http://127.0.0.1:* ws://127.0.0.1:*; img-src 'self' data: blob: asset: http://asset.localhost http://127.0.0.1:*; media-src 'self' blob:; worker-src 'self' blob:; style-src 'self' 'unsafe-inline'; font-src 'self'; object-src 'none'; frame-src 'none'; base-uri 'self'; form-action 'self'",
+      "freezePrototype": true,
+      "dangerousDisableAssetCspModification": false,
+      "assetProtocol": {
+        "enable": false,
+        "scope": []
+      }
+    },
+    "windows": [
+      {
+        "label": "companion",
+        "title": "IRIS Desktop Companion",
+        "url": "face/companion/index.html",
+        "width": 400,
+        "height": 520,
+        "minWidth": 300,
+        "minHeight": 390,
+        "resizable": true,
+        "fullscreen": false,
+        "decorations": false,
+        "transparent": true,
+        "shadow": false,
+        "alwaysOnTop": true,
+        "skipTaskbar": true,
+        "visible": false,
+        "focus": true
+      }
+    ]
+  },
+  "bundle": {
+    "active": true,
+    "useLocalToolsDir": true,
+    "targets": [
+      "nsis"
+    ],
+    "resources": [
+      "../third-party/Outfit-OFL-1.1.txt",
+      "../third-party/Syne-OFL-1.1.txt",
+      "../third-party/MediaPipe-Apache-2.0.txt"
+    ],
+    "icon": [
+      "icons/icon.png",
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.ico"
+    ],
+    "shortDescription": "La presencia flotante y opcional de IRIS OS.",
+    "windows": {
+      "allowDowngrades": false,
+      "webviewInstallMode": {
+        "type": "skip"
+      },
+      "nsis": {
+        "installMode": "currentUser",
+        "installerIcon": "icons/icon.ico",
+        "displayLanguageSelector": false
+      }
+    }
+  }
+}

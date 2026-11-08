@@ -1,0 +1,22 @@
+{
+  "schema": "iris.app-manifest/v1",
+  "sdkVersion": 1,
+  "id": "skills",
+  "name": "Skills",
+  "version": "1.0.0",
+  "description": "Habilidades disponibles para el asistente",
+  "icon": "skills",
+  "accent": "magenta",
+  "presentation": "window",
+  "window": {
+    "width": 920,
+    "height": 620
+  },
+  "launcher": {
+    "visible": true,
+    "order": 80
+  },
+  "ui": {
+    "adapter": "legacy"
+  }
+}

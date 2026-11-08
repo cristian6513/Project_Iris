@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Iris</title>
+  <link rel="stylesheet" href="/ui/desktop.css">
+  <link rel="stylesheet" href="/ui/desktop_theme.css">
+  <script type="module" src="/ui/desktop.js"></script>
+</head>
+<body>
+  <header class="shell-bar">
+    <button class="brand" id="home" aria-label="Inicio de Iris">IRIS<span class="brand-dot"></span></button>
+    <span class="connection" id="connection">Preparando tu espacio</span>
+    <nav aria-label="Aplicación">
+      <button id="return" hidden>Volver a Iris</button>
+      <button id="configure">Configuración <span aria-hidden="true">↗</span></button>
+    </nav>
+  </header>
+  <main id="welcome">
+    <section class="welcome-copy">
+      <p class="eyebrow">TU ASISTENTE. TU ESPACIO.</p>
+      <h1>Todo empieza<br>con un <em>hola.</em></h1>
+      <p class="intro">IRIS está arrancando motores y ordenando su habitación.<br>En unos momentos estaremos contigo.</p>
+      <ol class="progress" aria-label="Inicio de Iris">
+        <li data-phase="checking"><span class="step-number">01</span><span>Tu configuración</span><span class="step-status"></span></li>
+        <li data-phase="hermes"><span class="step-number">02</span><span>Arrancando motores</span><span class="step-status"></span></li>
+        <li data-phase="iris"><span class="step-number">03</span><span>Organizando la habitación</span><span class="step-status"></span></li>
+      </ol>
+      <div class="feedback" role="status" aria-live="polite">
+        <p id="message">Comprobando tu configuración…</p>
+        <p id="log" hidden></p>
+      </div>
+      <div class="actions">
+        <button class="primary" id="retry" hidden>Volver a comprobar <span aria-hidden="true">↗</span></button>
+        <button class="primary" id="setup" hidden>Configurar Iris <span aria-hidden="true">↗</span></button>
+        <button class="primary" id="enter" hidden>Entrar a Iris <span aria-hidden="true">↗</span></button>
+      </div>
+    </section>
+    <div class="iris-art" aria-hidden="true"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="orbit orbit-three"></div><span class="art-profile"></span><span class="art-caption">IRIS OS</span></div>
+    <footer><span>IRIS DESKTOP <b>·</b> <span id="build-label">VISTA PREVIA</span></span><span id="edition">Cyber Edition</span></footer>
+  </main>
+  <iframe id="workspace" title="Espacio Iris" hidden allow="camera; microphone; autoplay; fullscreen; display-capture" allowfullscreen></iframe>
+</body>
+</html>

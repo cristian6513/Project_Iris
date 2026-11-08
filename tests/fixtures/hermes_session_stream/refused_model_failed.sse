@@ -1,0 +1,15 @@
+event: run.started
+data: {"user_message": {"role": "user", "content": "hola [[T-3]]"}, "runtime": {"provider": "", "model": "", "route_source": "raw_request", "requested": {"provider": "fake-a", "model": "alpha-9"}, "model_lock": "accepted"}, "session_id": "IRIS-fixture", "run_id": "run_3abbf4b350a54175be93bd8fa13ef11a", "seq": 1, "ts": 1791418531.705875}
+
+event: message.started
+data: {"message": {"id": "msg_d230fcde8c7f42d5bfba745dbd645ac1", "role": "assistant"}, "session_id": "IRIS-fixture", "run_id": "run_3abbf4b350a54175be93bd8fa13ef11a", "seq": 2, "ts": 1791418531.705875}
+
+event: assistant.completed
+data: {"session_id": "IRIS-fixture", "message_id": "msg_d230fcde8c7f42d5bfba745dbd645ac1", "content": "Model 'alpha-9' isn't available on Custom endpoint. Pick a different model with /model (or `hermes model` in a terminal).\n\nProvider said: HTTP 404: The model `alpha-9` does not exist", "completed": false, "partial": false, "interrupted": false, "runtime": {"provider": "custom", "model": "alpha-9", "route_source": "raw_request", "requested": {"provider": "fake-a", "model": "alpha-9"}, "model_lock": "confirmed"}, "run_id": "run_3abbf4b350a54175be93bd8fa13ef11a", "seq": 3, "ts": 1791418531.9867244}
+
+event: run.failed
+data: {"session_id": "IRIS-fixture", "message_id": "msg_d230fcde8c7f42d5bfba745dbd645ac1", "completed": false, "partial": false, "interrupted": false, "messages": [{"role": "assistant", "content": "Your request was not processed. Send it again if you still want me to carry it out.", "timestamp": 1791418531.9827213}], "usage": {"input_tokens": 0, "output_tokens": 0, "total_tokens": 0, "runtime": {"provider": "custom", "model": "alpha-9", "route_source": "raw_request", "requested": {"provider": "fake-a", "model": "alpha-9"}, "model_lock": "confirmed"}}, "runtime": {"provider": "custom", "model": "alpha-9", "route_source": "raw_request", "requested": {"provider": "fake-a", "model": "alpha-9"}, "model_lock": "confirmed"}, "run_id": "run_3abbf4b350a54175be93bd8fa13ef11a", "seq": 4, "ts": 1791418531.9867244}
+
+event: done
+data: {"session_id": "IRIS-fixture", "run_id": "run_3abbf4b350a54175be93bd8fa13ef11a", "seq": 5, "ts": 1791418531.9867244}
+

@@ -1,0 +1,22 @@
+{
+  "schema": "iris.app-manifest/v1",
+  "sdkVersion": 1,
+  "id": "app-manager",
+  "name": "Administrar aplicaciones",
+  "version": "0.1.0",
+  "description": "Recuperar iconos y organizar accesos",
+  "icon": "apps",
+  "accent": "cyan",
+  "presentation": "window",
+  "window": {
+    "width": 780,
+    "height": 600
+  },
+  "launcher": {
+    "visible": true,
+    "order": 165
+  },
+  "ui": {
+    "module": "os_app_manager.js"
+  }
+}

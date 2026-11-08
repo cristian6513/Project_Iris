@@ -1,0 +1,22 @@
+{
+  "schema": "iris.app-manifest/v1",
+  "sdkVersion": 1,
+  "id": "missions",
+  "name": "Tablero de tareas",
+  "version": "1.0.0",
+  "description": "Tareas y proyectos del asistente",
+  "icon": "missions",
+  "accent": "magenta",
+  "presentation": "window",
+  "window": {
+    "width": 780,
+    "height": 560
+  },
+  "launcher": {
+    "visible": true,
+    "order": 30
+  },
+  "ui": {
+    "adapter": "legacy"
+  }
+}

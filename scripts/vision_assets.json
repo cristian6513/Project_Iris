@@ -1,0 +1,35 @@
+{
+  "schema": 1,
+  "component": "iris-local-vision",
+  "mediapipe_version": "0.10.35",
+  "npm_integrity": "sha512-HOvadwVRE6JC+45nyYhmnywnr5h/J8KZvOeUNVOG9q/0875pZgItznFB9bRTvLc264YSJqiZ1NsIpCStJw/egg==",
+  "license": "Apache-2.0",
+  "provenance": {
+    "runtime": "https://github.com/google-ai-edge/mediapipe/blob/v0.10.35/LICENSE",
+    "npm": "https://registry.npmjs.org/@mediapipe/tasks-vision/-/tasks-vision-0.10.35.tgz",
+    "model": "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task",
+    "model_guide": "https://developers.google.com/edge/mediapipe/solutions/vision/face_landmarker",
+    "model_cards": [
+      "https://storage.googleapis.com/mediapipe-assets/MediaPipe%20BlazeFace%20Model%20Card%20(Short%20Range).pdf",
+      "https://storage.googleapis.com/mediapipe-assets/Model%20Card%20MediaPipe%20Face%20Mesh%20V2.pdf",
+      "https://storage.googleapis.com/mediapipe-assets/Model%20Card%20Blendshape%20V2.pdf"
+    ],
+    "verified": "2026-10-01"
+  },
+  "model": {
+    "id": "face_landmarker/float16/1",
+    "sha256": "64184e229b263107bc2b804c6625db1341ff2bb731874b0bcc2fe6544e0bc9ff"
+  },
+  "files": [
+    { "source": "companion/node_modules/@mediapipe/tasks-vision/package.json", "size": 1084, "sha256": "5c96247445e57a2d087758114b116fed7d46eb401342aee19b1acc56d36fe707" },
+    { "source": "companion/node_modules/@mediapipe/tasks-vision/vision_bundle.mjs", "path": "vision_bundle.mjs", "size": 136993, "sha256": "55d7ab624fbb70dcc5adc4ae6d7ea9cfcb569139d3dbfbf2b1deafcb966bc0fe" },
+    { "source": "companion/node_modules/@mediapipe/tasks-vision/wasm/vision_wasm_internal.js", "path": "wasm/vision_wasm_internal.js", "size": 322044, "sha256": "e7fd9858e8e8f221d9b96eddc11f8e077f263e0b7bbd79d3cbe882b134274f8c" },
+    { "source": "companion/node_modules/@mediapipe/tasks-vision/wasm/vision_wasm_internal.wasm", "path": "wasm/vision_wasm_internal.wasm", "size": 11153617, "sha256": "6a5c64584c2ab61c763b6e204afbdbc7ce1caf7f5216187322bca8df94f646bc" },
+    { "source": "companion/node_modules/@mediapipe/tasks-vision/wasm/vision_wasm_module_internal.js", "path": "wasm/vision_wasm_module_internal.js", "size": 322082, "sha256": "1f1d6215324a1fe62f6742d49a3db911170987ca18ad8c1b75f1a1c82acf2b44" },
+    { "source": "companion/node_modules/@mediapipe/tasks-vision/wasm/vision_wasm_module_internal.wasm", "path": "wasm/vision_wasm_module_internal.wasm", "size": 11153641, "sha256": "617b8e0248dbd27e9d7ece4218004eae4cefb499196d1bb4fa0e3fef21708756" },
+    { "source": "companion/node_modules/@mediapipe/tasks-vision/wasm/vision_wasm_nosimd_internal.js", "path": "wasm/vision_wasm_nosimd_internal.js", "size": 321847, "sha256": "438d1fe8ff7f4d946025bc211c291543c037d8a3785ed4eee60f1f521b236296" },
+    { "source": "companion/node_modules/@mediapipe/tasks-vision/wasm/vision_wasm_nosimd_internal.wasm", "path": "wasm/vision_wasm_nosimd_internal.wasm", "size": 10481398, "sha256": "8a3092d34c79d3f57e6ba8592105e8a90f6b07c27891ffecd14cca428bfd3e31" },
+    { "source": "companion/vendor/mediapipe/face_landmarker.task", "path": "face_landmarker.task", "size": 3758596, "sha256": "64184e229b263107bc2b804c6625db1341ff2bb731874b0bcc2fe6544e0bc9ff" },
+    { "source": "companion/third-party/MediaPipe-Apache-2.0.txt", "path": "MediaPipe-Apache-2.0.txt", "size": 10531, "sha256": "8f543c19ecc14753a9b221dcc010c0b212b4b44ad648f7d9a01174ef5a924dc0" }
+  ]
+}

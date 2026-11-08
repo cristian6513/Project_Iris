@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="es"><meta charset="utf-8"><title>VRM pose regression QA</title>
+<style>body{margin:0;background:#171922;color:#eee;font:16px system-ui}label{position:fixed;top:18px;left:24px}canvas{display:block}</style>
+<link rel="icon" href="data:,">
+<label id="status">Cargando avatar local…</label>
+<script type="importmap">
+{"imports":{"three":"/vendor/three/build/three.module.js","three/addons/":"/vendor/three/examples/jsm/","@pixiv/three-vrm":"/vendor/@pixiv/three-vrm/lib/three-vrm.module.js","@pixiv/three-vrm-animation":"/vendor/@pixiv/three-vrm-animation/lib/three-vrm-animation.module.js","@pixiv/three-vrm-springbone":"/vendor/@pixiv/three-vrm-springbone/lib/three-vrm-springbone.module.js"}}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { AvatarManager } from '/face/js/avatar.js';
+import { IdleSystem } from '/face/js/idle_system.js';
+import { MicroLife } from '/face/js/micro_life.js';
+import { SpeechAnimator } from '/face/js/speech_animator.js';
+import { SceneActionManager } from '/face/js/scene_actions.js';
+const scene = new THREE.Scene(); scene.background = new THREE.Color(0x171922);
+scene.add(new THREE.HemisphereLight(0xffffff,0x52607a,2));
+const key=new THREE.DirectionalLight(0xffeedd,2);key.position.set(2,3,4);scene.add(key);
+const camera=new THREE.PerspectiveCamera(32,innerWidth/innerHeight,0.05,100);
+camera.position.set(0,0.3,5.5);camera.lookAt(0,0.05,0);
+const renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});
+renderer.setSize(innerWidth,innerHeight);document.body.append(renderer.domElement);
+const manager=new AvatarManager(scene,'vrm','/qa-avatar.vrm');await manager.init();
+if(!manager.avatar.vrm)throw Error('Expected the real VRM, not the procedural fallback');
+const idle=new IdleSystem(manager);idle._ensureBoneRefs();await idle._initVRMAPlayer();
+window.iris={idle,avatarManager:manager};
+const micro=new MicroLife({avatarManager:manager,camera});
+const speech=new SpeechAnimator(manager);
+const actions=new SceneActionManager(scene,manager,null,{}, {idleSystem:idle});
+manager.avatar.microLifeOwnsBlink=true;manager.avatar.microLifeOwnsBreathing=true;
+let elapsed=0;
+const nodes=[];manager.avatar.vrm.scene.traverse(node=>nodes.push(node));
+function step(dt=1/60){
+    elapsed+=dt;micro.beginFrame();micro.update(dt,elapsed);
+    manager.update(dt,elapsed,{deferVRM:true});idle.update(dt,elapsed);actions.update(dt,elapsed);
+    if(idle.isExplicitAnimationActive())speech.yieldToExternalClip();else speech.update(dt,elapsed);
+    micro.applyPost(dt);manager.finalizeFrame(dt);
+    for(const node of nodes)if(![...node.position.toArray(),...node.quaternion.toArray()].every(Number.isFinite))throw Error('Non-finite bone '+node.name);
+    for(const {node} of Object.values(manager.avatar.vrm.humanoid.normalizedHumanBones))
+        if(Math.abs(node.quaternion.lengthSq()-1)>0.005)throw Error('Invalid quaternion '+node.name);
+}
+function advance(seconds){for(let t=0;t<seconds-1e-9;t+=1/60)step(Math.min(1/60,seconds-t));renderer.render(scene,camera);}
+function play(name){document.querySelector('#status').textContent=name;return idle.playClipExternal(name);}
+window.poseQA={THREE,manager,idle,micro,speech,actions,advance,step,play,renderer,scene,camera};
+idle.nextAction=1000;advance(0.5);
+document.querySelector('#status').textContent='Avatar listo';
+</script></html>

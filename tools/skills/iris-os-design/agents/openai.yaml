@@ -1,0 +1,4 @@
+interface:
+  display_name: "Iris OS Design"
+  short_description: "Diseño coherente para Iris OS y su web"
+  default_prompt: "Usa $iris-os-design para crear esta interfaz con la identidad visual de Iris."

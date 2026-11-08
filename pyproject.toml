@@ -1,0 +1,284 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "iris-os"
+dynamic = ["version"]
+description = "IRIS OS: AI operating environment powered by Hermes Agent"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.11"
+authors = [
+    {name = "Project IRIS Contributors"}
+]
+keywords = ["robot", "ai", "assistant", "voice", "avatar", "hermes-agent", "threejs"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+dependencies = [
+    # Core
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.32.0",
+    "websockets>=13.0",
+    "httpx>=0.27.0",
+    "pydantic>=2.9.0",
+    "pydantic-settings>=2.5.0",
+    "python-multipart>=0.0.20",  # required by FastAPI Form(...) parsing
+    "pypdf>=5.0.0",             # bounded local text extraction for chat PDFs
+    # cryptography — used by core/tls.py to mint a zero-config self-signed
+    # cert on first boot so the avatar UI can serve HTTPS. Without it,
+    # mobile browsers block navigator.mediaDevices (camera / mic / WebRTC)
+    # because the page isn't a "secure context".
+    "cryptography>=43.0.0",
+
+
+    # Audio playback; active capture/transcription is provided by Hermes.
+    # Local voice engines are approved profile extras (core/extras_data, A08.5).
+    "sounddevice>=0.5.0",
+    "numpy>=1.26.0",
+
+    # Text-to-Speech
+    "edge-tts>=7.3.0",
+    "pydub>=0.25.1",          # MP3 decode for sounddevice playback
+
+    # Memory
+    "aiosqlite>=0.20.0",
+
+    # Utilities
+    "rich>=13.7.0",
+    "qrcode>=8.0",             # local QR rendering for Hermes channel linking
+    "click>=8.1.0",
+    "psutil>=6.0.0",           # fail-safe Companion process detection in Core and wizard
+    "json5>=0.9.25",          # legacy config reader (kept for `hermes claw migrate` flow)
+    "PyYAML>=6.0.2",         # Wizard/Core use YAML independently of Hermes and STT
+    "packaging==26.2",       # private-runtime dependency and compatibility checks
+    "python-dateutil==2.9.0.post0",  # F11: bounded RFC 5545 recurrence expansion
+    "tzdata==2026.5",              # F11: IANA zones on Windows without system tzdata
+]
+
+[project.optional-dependencies]
+# Development-only local engines. The packaged app installs approved locks into
+# isolated profile environments instead (core/extras.py); coqui and neutts have
+# no wheel-only Windows lock and are unsupported there. Faster-Whisper,
+# ElevenLabs SDK and perception lost their Iris consumers and were removed.
+coqui = ["coqui-tts>=0.27.5"]
+# Kokoro-82M — small local Apache-2.0 TTS; soundfile writes WAV output.
+kokoro = [
+    "kokoro>=0.9.4",
+    "soundfile>=0.12.0",
+]
+neutts = [
+    "neutts[all]>=1.4.1; python_version < '3.14'",
+    "soundfile>=0.12.0",
+]
+rigger = [
+    "trimesh>=4.4.0",
+    "scipy>=1.14.0",
+    "pygltflib>=1.16.0",
+]
+rigger-ml = [
+    "iris-os[rigger]",
+    "anymate",
+    "torch>=2.0.0",
+]
+hardware = ["pyserial-asyncio>=0.6"]
+wizard = []
+all = ["iris-os[coqui,kokoro,neutts,rigger,hardware,wizard]"]
+dev = [
+    "build>=1.2.2",
+    "setuptools==81.0.0",
+    "wheel==0.46.3",
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.24.0",
+    "mypy>=1.11.0",
+    "ruff>=0.6.0",
+]
+
+[project.scripts]
+iris = "core.agent:main"
+# Historical alias from the project's Alice stage; kept for compatibility.
+alice = "core.agent:main"
+
+[tool.setuptools.cmdclass]
+build_py = "scripts.distribution_build.BuildPy"
+sdist = "scripts.distribution_build.Sdist"
+
+[tool.setuptools.packages.find]
+include = ["core*", "pico*", "wizard*", "hardware*", "face*"]
+
+[tool.setuptools.dynamic]
+version = {attr = "core.version.__version__"}
+
+[tool.setuptools.package-data]
+# Approved optional-extra locks (A08.5); installed only into profile environments.
+core = ["extras_data/manifest.json", "extras_data/pylock.*.toml"]
+wizard = [
+    "ui/*.html", "ui/*.css", "ui/*.js",
+    "ui/vendor/*", "ui/vendor/fonts/*", "ui/vendor/fonts/files/*",
+    "ui/vendor/licenses/*",
+]
+face = [
+    "web-assets.json",
+    "assets/*.js",
+    "assets/*.css",
+    "vendor/fonts/*",
+    "vendor/fonts/files/*",
+    "vendor/licenses/*",
+    "vendor/qrcode/*",
+    "*.html",
+    "companion/*.html",
+    "companion/*.css",
+    "companion/*.js",
+    "companion/fonts/*.woff2",
+    "css/*.css",
+    "js/*.js",
+    "js/*.json",
+    "animations/manifest.json",
+    "animations/contexts.json",
+    "animations/emotions.json",
+    "animations/README.md",
+    "animations/iris_idle.vrma",
+    "animations/iris_idle_casual.vrma",
+    "animations/iris_idle_lazy.vrma",
+    "animations/iris_wave.vrma",
+    "animations/iris_wave_big.vrma",
+    "animations/iris_nod.vrma",
+    "animations/iris_shake.vrma",
+    "animations/iris_think.vrma",
+    "animations/iris_listen.vrma",
+    "animations/iris_talk.vrma",
+    "animations/iris_confirm.vrma",
+    "animations/iris_confused.vrma",
+    "animations/iris_celebrate.vrma",
+    "animations/iris_angry.vrma",
+    "animations/iris_surprised.vrma",
+    "animations/iris_attention.vrma",
+    "animations/iris_point.vrma",
+    "animations/iris_stretch.vrma",
+    # Approved room and Companion routines.
+    "animations/iris_sofa_sit_down.vrma",
+    "animations/iris_sofa_seated_idle.vrma",
+    "animations/iris_sofa_stand_up.vrma",
+    "animations/iris_walk.vrma",
+    "animations/iris_bed_lie_down.vrma",
+    "animations/iris_bed_lying_idle.vrma",
+    "animations/iris_bed_get_up.vrma",
+    "animations/iris_bed_sit_down.vrma",
+    "animations/iris_bed_seated_idle.vrma",
+    "animations/iris_bed_stand_up.vrma",
+    "animations/iris_bed_sit_up.vrma",
+    "animations/iris_book_take.vrma",
+    "animations/iris_book_read_idle.vrma",
+    "animations/iris_book_return.vrma",
+    "animations/iris_sofa_read_open.vrma",
+    "animations/iris_sofa_read_idle.vrma",
+    "animations/iris_sofa_read_close.vrma",
+    "animations/iris_bed_read_open.vrma",
+    "animations/iris_bed_read_idle.vrma",
+    "animations/iris_bed_read_close.vrma",
+    "animations/iris_sofa_tablet_open.vrma",
+    "animations/iris_sofa_tablet_idle.vrma",
+    "animations/iris_sofa_tablet_close.vrma",
+    "animations/iris_bed_tablet_open.vrma",
+    "animations/iris_bed_tablet_idle.vrma",
+    "animations/iris_bed_tablet_close.vrma",
+    "animations/iris_desk_sit_down.vrma",
+    "animations/iris_desk_seated_idle.vrma",
+    "animations/iris_desk_stand_up.vrma",
+    "animations/iris_desk_type_open.vrma",
+    "animations/iris_desk_type_idle.vrma",
+    "animations/iris_desk_type_close.vrma",
+    "animations/iris_stand_read_open.vrma",
+    "animations/iris_stand_read_idle.vrma",
+    "animations/iris_stand_read_close.vrma",
+    "animations/iris_stand_tablet_open.vrma",
+    "animations/iris_stand_tablet_idle.vrma",
+    "animations/iris_stand_tablet_close.vrma",
+    "animations/iris_window_lean_in.vrma",
+    "animations/iris_window_look_idle.vrma",
+    "animations/iris_window_lean_out.vrma",
+    # IRIS' default avatar, under its own licence (not MIT).
+    "animations/iris.vrm",
+    "animations/LICENSE-IRIS-VRM.txt",
+    "vendor/mediapipe/*",
+    "vendor/mediapipe/wasm/*",
+    "public/assets/os/*.png",
+    "public/assets/room/*.png",
+]
+
+[tool.setuptools.data-files]
+"share/iris-os/companion" = [
+    "companion/release-manifest.json",
+    "dist/companion/*.exe",
+]
+"share/iris-os/hermes-skills/iris-os" = [
+    ".hermes/skills/iris-os/SKILL.md",
+]
+"share/iris-os/hermes-skills/iris-os/scripts" = [
+    ".hermes/skills/iris-os/scripts/control_player.py",
+    ".hermes/skills/iris-os/scripts/app_action.py",
+    ".hermes/skills/iris-os/scripts/visual_request.py",
+    ".hermes/skills/iris-os/scripts/background_task.py",
+]
+"share/iris-os/hermes-skills/iris-os/references" = [
+    ".hermes/skills/iris-os/references/action-contracts.md",
+    ".hermes/skills/iris-os/references/background.md",
+    ".hermes/skills/iris-os/references/google.md",
+    ".hermes/skills/iris-os/references/player.md",
+    ".hermes/skills/iris-os/references/vision.md",
+]
+"share/iris-os/hermes-skills/iris-app-builder" = [
+    ".hermes/skills/iris-app-builder/SKILL.md",
+]
+"share/iris-os/hermes-skills/iris-app-builder/template" = [
+    ".hermes/skills/iris-app-builder/template/app.json",
+]
+"share/iris-os/hermes-skills/iris-app-builder/template/ui" = [
+    ".hermes/skills/iris-app-builder/template/ui/main.js",
+    ".hermes/skills/iris-app-builder/template/ui/style.css",
+    ".hermes/skills/iris-app-builder/template/ui/widget.js",
+]
+"share/iris-os/builder" = [
+    "apps/README.md",
+    "docs/guides/community-apps-python.md",
+]
+"share/iris-os/builder/sdk2" = [
+    "examples/apps/contador/app.json",
+    "examples/apps/contador/LICENSE",
+]
+"share/iris-os/builder/sdk2/ui" = [
+    "examples/apps/contador/ui/main.js",
+    "examples/apps/contador/ui/style.css",
+    "examples/apps/contador/ui/view.js",
+    "examples/apps/contador/ui/widget.js",
+]
+"share/iris-os/builder/sdk2/backend" = [
+    "examples/apps/contador/backend/main.py",
+]
+"share/iris-os/builder/sdk2/skill" = [
+    "examples/apps/contador/skill/SKILL.md",
+]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

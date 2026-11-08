@@ -1,0 +1,67 @@
+services:
+  iris-core:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: iris-core
+    ports:
+      - "127.0.0.1:8765:8765"
+    volumes:
+      - ./core:/app/core
+      # The volume's physical legacy name is retained below so upgrades keep
+      # existing memories; services use the canonical IRIS name.
+      - iris-data:/root/.iris
+    environment:
+      - IRIS_TTS_PROVIDER=edge-tts
+      - IRIS_STT_PROVIDER=whisper-api
+      - IRIS_HERMES_URL=http://host.docker.internal:8642
+      - IRIS_HERMES_API_KEY=${HERMES_API_KEY:-}
+      - IRIS_HERMES_MODEL=hermes-agent
+      - IRIS_CONTAINER_PROXY_MODE=true
+      - IRIS_WEBSOCKET_HOST=0.0.0.0
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+    networks:
+      - iris-net
+
+  iris-face:
+    image: nginx:alpine
+    container_name: iris-face
+    ports:
+      - "127.0.0.1:3000:80"
+    volumes:
+      - ./face:/usr/share/nginx/html:ro
+      - ./docker/nginx.conf:/etc/nginx/nginx.conf:ro
+    restart: unless-stopped
+    networks:
+      - iris-net
+
+  iris-wizard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: iris-wizard
+    command: uvicorn wizard.app:app --host 0.0.0.0 --port 8080
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - ./wizard:/app/wizard
+      - iris-data:/root/.iris
+    environment:
+      - IRIS_HERMES_URL=http://host.docker.internal:8642
+      - IRIS_HERMES_API_KEY=${HERMES_API_KEY:-}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+    networks:
+      - iris-net
+
+volumes:
+  iris-data:
+    # Reuse the former physical volume name so upgrades keep user memories.
+    name: alice-data
+
+networks:
+  iris-net:
+    driver: bridge

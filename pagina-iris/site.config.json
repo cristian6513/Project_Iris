@@ -1,0 +1,18 @@
+{
+    "siteUrl": "https://iris-os.cloud/",
+    "indexable": true,
+    "securityContact": "",
+    "social": {
+        "instagram": "",
+        "tiktok": "https://www.tiktok.com/@cristian_irisos",
+        "youtube": "https://www.youtube.com/@Cristian_IrisOS",
+        "x": "https://x.com/Cristian_IrisOS"
+    },
+    "support": {
+        "kofi": "https://ko-fi.com/cristian_irisos"
+    },
+    "deploy": {
+        "path": "/var/www/iris-os",
+        "keepReleases": 5
+    }
+}

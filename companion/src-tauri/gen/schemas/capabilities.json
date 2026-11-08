@@ -1,0 +1,1 @@
+{"companion-default":{"identifier":"companion-default","description":"Minimum native window access for the IRIS companion drag region.","local":true,"windows":["companion"],"permissions":["core:window:allow-start-dragging"]}}

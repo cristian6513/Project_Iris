@@ -1,0 +1,1341 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IRIS OS - Installer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="wizard.css?v=54">
+    <link rel="stylesheet" href="/ui/messaging.css?v=3">
+    <link rel="stylesheet" href="/shared/iris_dialog.css?v=6">
+</head>
+<body>
+    <div class="wizard-container os-installer-shell">
+        <div class="wizard-header">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+                <div>
+                    <h1>IRIS OS</h1>
+                    <p class="subtitle">Tu asistente de IA, a tu manera.</p>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px">
+                    <!-- Live status badge — populated by refreshIrisStatus() in wizard.js.
+                         Click stop to stop a running IRIS without leaving the wizard. -->
+                    <div id="iris-status-badge" class="iris-status-badge stopped" title="Estado de IRIS">
+                        <span class="dot"></span> IRIS detenida
+                    </div>
+                    <a href="help.html" target="_blank" class="help-btn" id="manual-link" title="Manual de IRIS OS">Manual</a>
+                    <a href="help.html#licenses" target="_blank" class="help-btn" id="licenses-link" title="Licencias y avisos de terceros incluidos en IRIS OS">Licencias</a>
+                </div>
+            </div>
+            <details class="setup-header-details"><summary>Estado de configuración</summary><div class="installer-status-grid" aria-label="Estado del instalador">
+                <div><span>Estado</span><strong id="installer-status-label">En espera</strong></div>
+                <div><span>Proceso</span><strong id="installer-tool-label">Configuración</strong></div>
+                <div><span>Recorrido</span><strong id="installer-mode-label">Primera configuración</strong></div>
+            </div></details>
+        </div>
+
+        <div id="step-indicator" class="step-indicator">Bienvenida</div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill"></div>
+        </div>
+
+        <!-- ── Step 0: Welcome ────────────────────── -->
+        <div class="wizard-step active" data-step="0">
+            <div class="installer-hero">
+                <span class="mission-kicker" data-runtime-text="hero-kicker">Configuración</span>
+                <h2>Preparar IRIS OS</h2>
+                <p data-runtime-text="hero-copy">Elige la apariencia, tu asistente, el proveedor de IA, la voz y el avatar sin salir del sistema.</p>
+                <div class="installer-core-readout">
+                    <span></span>
+                    <div>
+                        <strong id="installer-config-readout">Analizando configuración local...</strong>
+                        <small data-runtime-text="readout-note">El instalador detecta si ya tienes Hermes y conserva lo que funciona.</small>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+            <div class="setup-welcome-actions">
+                <button class="btn-primary btn-gold" type="button" onclick="startFirstInstall()">Configurar IRIS</button>
+                <span>Apariencia, asistente, IA, voz y avatar. Puedes cambiarlo después.</span>
+            </div>
+            <details class="setup-details" id="setup-sections">
+                <summary>Cambiar una configuración</summary>
+                <div class="setup-section-links">
+                    <button type="button" onclick="openWizardSection(2)"><wz-icon name="palette">🎨</wz-icon> Apariencia</button>
+                    <button type="button" onclick="openWizardSection(1)"><wz-icon name="identity">🎭</wz-icon> Tu asistente</button>
+                    <button type="button" onclick="openWizardSection(3)"><wz-icon name="brain">🧠</wz-icon> Inteligencia artificial</button>
+                    <button type="button" onclick="openWizardSection(4)"><wz-icon name="speaker">🔊</wz-icon> Voz</button>
+                    <button type="button" onclick="openWizardSection(5)"><wz-icon name="avatar">🎭</wz-icon> Avatar</button>
+                </div>
+            </details>
+            <div class="installer-launch-row">
+                <button class="btn-secondary" type="button" onclick="launchIris()">Abrir IRIS OS</button>
+                <button class="btn-back" type="button" onclick="startRepairFlow()">Diagnóstico y reparación</button>
+            </div>
+
+        </div>
+
+        <!-- ── Step 2: Appearance — the first numbered step: the setup takes its colours at once ── -->
+        <div class="wizard-step" data-step="2">
+            <div class="step-icon" aria-hidden="true"><wz-icon name="palette">🎨</wz-icon></div>
+            <h2 id="edition-step-title">Elige la apariencia</h2>
+            <section class="edition-picker" aria-labelledby="edition-step-title">
+                <div class="edition-picker-heading">
+                    <div>
+                        <span class="mission-kicker">EDICIÓN DE IRIS OS</span>
+                        <p>Como una distro: mismo sistema, distinta atmósfera. Este asistente cambia de color al elegir; puedes afinarla después en Theme Studio.</p>
+                    </div>
+                    <span id="edition-save-state" class="edition-save-state" role="status">LISTA PARA ELEGIR</span>
+                </div>
+
+                <div class="edition-picker-layout">
+                    <div class="edition-grid" role="radiogroup" aria-label="Edición visual">
+                        <label class="edition-card selected" data-edition="iris">
+                            <input type="radio" name="visual_theme" value="iris" checked>
+                            <span class="edition-art edition-art-cyber" aria-hidden="true"></span>
+                            <span class="edition-copy">
+                                <strong>Cyber</strong>
+                                <small>Neon / Futurista</small>
+                            </span>
+                            <span class="edition-code">IRIS://01</span>
+                        </label>
+                        <label class="edition-card" data-edition="rose">
+                            <input type="radio" name="visual_theme" value="rose">
+                            <span class="edition-art edition-art-sakura" aria-hidden="true"></span>
+                            <span class="edition-copy">
+                                <strong>Sakura</strong>
+                                <small>Suave / Elegante</small>
+                            </span>
+                            <span class="edition-code">IRIS://02</span>
+                        </label>
+                        <label class="edition-card" data-edition="verdant">
+                            <input type="radio" name="visual_theme" value="verdant">
+                            <span class="edition-art edition-art-hacker" aria-hidden="true"></span>
+                            <span class="edition-copy">
+                                <strong>Hacker</strong>
+                                <small>Terminal / Matrix</small>
+                            </span>
+                            <span class="edition-code">IRIS://03</span>
+                        </label>
+                        <label class="edition-card" data-edition="sunrise">
+                            <input type="radio" name="visual_theme" value="sunrise">
+                            <span class="edition-art edition-art-classic" aria-hidden="true"></span>
+                            <span class="edition-copy">
+                                <strong>Classic</strong>
+                                <small>Limpio / Profesional</small>
+                            </span>
+                            <span class="edition-code">IRIS://04</span>
+                        </label>
+                    </div>
+
+                    <div id="edition-live-preview" class="edition-live-preview" data-edition-preview="iris">
+                        <div class="edition-screen-bar">
+                            <span>IRIS OS</span>
+                            <b id="edition-preview-build">CYBER EDITION</b>
+                            <i>VISTA PREVIA</i>
+                        </div>
+                        <div class="edition-screen-body">
+                            <div class="edition-dock" aria-hidden="true">
+                                <span></span><span></span><span></span><span></span>
+                            </div>
+                            <div class="edition-desktop-card">
+                                <small>BIENVENIDO A</small>
+                                <strong id="edition-preview-name">CYBER</strong>
+                                <p id="edition-preview-copy">Cian eléctrico, magenta y profundidad de cristal.</p>
+                                <div class="edition-palette" aria-label="Paleta del tema">
+                                    <i></i><i></i><i></i>
+                                </div>
+                            </div>
+                            <div class="edition-terminal" aria-hidden="true">
+                                <span>&gt; loading visual profile</span>
+                                <span>&gt; syncing Theme Studio</span>
+                                <b>&gt; ready_</b>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="step-buttons">
+                <button class="btn-back" onclick="prevStep()">← Atrás</button>
+                <button class="btn-primary" onclick="nextStep()">Siguiente →</button>
+            </div>
+        </div>
+
+        <!-- ── Step 1: Identity ─────────────────────── -->
+        <div class="wizard-step" data-step="1">
+            <div class="step-icon" aria-hidden="true"><wz-icon name="identity">🎭</wz-icon></div>
+            <h2>Tu asistente <span class="help-tip" onclick="this.classList.toggle('active')">?<div class="tip-content"><div class="tip-title">Identidad del asistente</div>El nombre, la forma de hablar y el backstory se convierten en parte del contexto que recibe el motor de IA. Un texto breve suele dar resultados más consistentes y usa menos contexto.<br><br><wz-icon>✅</wz-icon> El backstory es opcional.<br><wz-icon>✅</wz-icon> Puedes cambiarlo después.<br><span class="tip-cost free">Sin costo adicional de proveedor</span></div></span></h2>
+            <p>Puedes usar IRIS tal como viene o darle tu propio nombre y personalidad.</p>
+
+            <div class="radio-group">
+                <label class="radio-card selected" data-value="iris">
+                    <input type="radio" name="personality" value="iris" checked>
+                    <div class="radio-content">
+                        <div class="radio-header">
+                            <strong>IRIS</strong>
+                            <span class="badge">Oficial</span>
+                        </div>
+                        <span>Inteligente, perceptiva y cercana · Personaliza su identidad</span>
+                    </div>
+                </label>
+                <label class="radio-card" data-value="custom">
+                    <input type="radio" name="personality" value="custom">
+                    <div class="radio-content">
+                        <div class="radio-header">
+                            <strong>Personalizado</strong>
+                            <span class="badge" style="background:color-mix(in srgb, var(--installer-accent) 20%, transparent);color:var(--cyan)">Tu personaje</span>
+                        </div>
+                        <span>Crea tu propio asistente con nombre, personalidad e historia únicos</span>
+                    </div>
+                </label>
+            </div>
+
+            <div class="identity-console">
+                <div class="identity-console-header">
+                    <span>TU ASISTENTE</span>
+                    <small>Los campos con * son necesarios</small>
+                </div>
+
+
+
+                <div class="identity-field">
+                    <label for="assistant-name"><strong>Nombre del asistente *</strong><span>Así se presentará tu asistente</span></label>
+                    <input type="text" id="assistant-name" value="IRIS" maxlength="48" placeholder="Ej: IRIS, Luna, Atlas…" autocomplete="off">
+                </div>
+
+<details class="setup-details" id="identity-customization"><summary>Personalizar personalidad e historia · opcional</summary><div class="setup-details-body">                <section class="identity-traits-panel" aria-labelledby="identity-traits-title">
+                    <div class="identity-traits-heading">
+                        <div>
+                            <strong id="identity-traits-title">Rasgos combinables</strong>
+                            <small>Cada rasgo añade una instrucción real al prompt. Puedes elegir hasta <span id="identity-trait-limit">6</span>.</small>
+                        </div>
+                        <span id="identity-trait-count">0 / 6</span>
+                    </div>
+                    <div id="identity-trait-grid" class="identity-trait-grid" aria-live="polite">
+                        <div class="identity-traits-loading">Cargando recetas de personalidad…</div>
+                    </div>
+                </section>
+
+                <div id="iris-personality-section" class="identity-mode-panel">
+                    <div class="identity-mode-title"><span>◉</span><div><strong>Esencia IRIS</strong><small>La base oficial sigue activa; puedes ajustar su manera de hablar.</small></div></div>
+                    <div class="identity-field">
+                        <label for="iris-personality-instructions"><strong>Ajustes de personalidad</strong><span>Opcional · tono, estilo, límites o forma de responder</span></label>
+                        <textarea id="iris-personality-instructions" rows="3" maxlength="4000" placeholder="Ej: Sé un poco más directa, usa humor ligero y explica los conceptos técnicos con ejemplos breves."></textarea>
+                    </div>
+                    <label class="identity-backstory-toggle" for="include-iris-backstory">
+                        <input type="checkbox" id="include-iris-backstory" checked>
+                        <span class="identity-toggle-track"></span>
+                        <span><strong>Incluir backstory oficial de IRIS</strong><small>Presencia visual, cercana y habitable dentro de IRIS OS.</small></span>
+                    </label>
+                    <details class="identity-backstory-preview">
+                        <summary>Leer el backstory oficial antes de incluirlo</summary>
+                        <p id="iris-backstory-preview">Cargando identidad oficial…</p>
+                    </details>
+                </div>
+
+                <div id="custom-personality-section" class="identity-mode-panel" style="display:none">
+                    <div class="identity-mode-title custom"><span><wz-icon>✦</wz-icon></span><div><strong>Personaje personalizado</strong><small>Describe su carácter; la historia puede quedar vacía.</small></div></div>
+                    <div class="identity-field">
+                        <label for="custom-personality-instructions"><strong>Personalidad</strong><span>Opcional si eliges uno o más rasgos combinables</span></label>
+                        <textarea id="custom-personality-instructions" rows="4" maxlength="4000" placeholder="Describe el tono, los rasgos y la forma de responder de tu asistente."></textarea>
+                    </div>
+                    <div class="identity-example">
+                        <div><span>EJEMPLO DE IRIS</span><p>“Perceptiva y cálida. Escucha antes de responder, es directa sin ser fría y combina criterio técnico con curiosidad.”</p></div>
+                        <button type="button" class="identity-example-btn" onclick="fillPersonalityExample()">Usar como guía</button>
+                    </div>
+                    <div class="identity-field">
+                        <label for="custom-backstory"><strong>Backstory</strong><span>Opcional · origen, propósito o relación con su mundo</span></label>
+                        <textarea id="custom-backstory" rows="3" maxlength="4000" placeholder="Ej: Nació como la guardiana de una biblioteca orbital y ahora organiza conocimiento para ayudar a su usuario."></textarea>
+                    </div>
+                </div>
+
+                <div class="identity-memory-note">
+                    <span>HISTORIA Y MEMORIA</span>
+                    <p><strong>Backstory</strong> define quién es el personaje. <strong>Memoria</strong> conserva conversaciones y preferencias por separado; no se exporta con el perfil ni se inventa desde la biografía.</p>
+                </div>
+
+                <div id="identity-legacy-notice" class="identity-legacy-notice" hidden>
+                    <div><strong>Configuración avanzada antigua detectada</strong><small>personality.json ya no reemplaza silenciosamente lo elegido aquí.</small></div>
+                    <button type="button" onclick="importLegacyPersonality()">Importarla al perfil</button>
+                </div>
+
+                <details class="identity-preview-panel">
+                    <summary>
+                        <span><strong>Vista previa del contexto</strong><small>Local, sin usar proveedor</small></span>
+                        <span class="identity-preview-live">VISTA LOCAL</span>
+                    </summary>
+                    <div class="identity-preview-body">
+                        <div class="identity-preview-metrics">
+                            <span><b id="identity-preview-traits">0</b> rasgos</span>
+                            <span><b id="identity-preview-chars">—</b> caracteres</span>
+                            <span><b id="identity-preview-tokens">—</b> tokens aprox.</span>
+                        </div>
+                        <div id="identity-preview-warnings" class="identity-preview-warnings"></div>
+                        <pre id="identity-prompt-preview">Completa el perfil para ver el contexto exacto que recibirá el motor de IA.</pre>
+                        <div class="identity-sample-row">
+                            <div><strong>Prueba opcional con IA</strong><small>Solo se envía al pulsar el botón y puede consumir tokens del proveedor configurado.</small></div>
+                            <button type="button" id="identity-sample-btn" onclick="testIdentityPreviewWithHermes()">Generar muestra</button>
+                        </div>
+                        <blockquote id="identity-sample-output" hidden></blockquote>
+                    </div>
+                </details>
+
+                <details class="identity-history-panel">
+                    <summary><span><strong>Versiones anteriores</strong><small>IRIS guarda hasta 12 revisiones locales antes de un cambio.</small></span></summary>
+                    <div id="identity-history-list" class="identity-history-list">
+                        <p>Aún no hay revisiones de identidad.</p>
+                    </div>
+                </details>
+
+</div></details><details class="setup-details"><summary>Importar o exportar un perfil</summary><div class="setup-details-body"><div class="identity-profile-toolbar" aria-label="Herramientas del perfil">
+                    <div>
+                        <strong>Perfil portable</strong>
+                        <small>Incluye identidad, rasgos, voz, avatar y tema; nunca credenciales.</small>
+                    </div>
+                    <div class="identity-profile-actions">
+                        <button type="button" onclick="exportIdentityProfile()">Exportar</button>
+                        <button type="button" onclick="triggerIdentityProfileImport()">Importar</button>
+                        <input id="identity-profile-file" type="file" accept="application/json,.json" hidden onchange="importIdentityProfile(event)">
+                    </div>
+                </div></div></details>
+                <div id="identity-validation" class="identity-validation" role="alert" aria-live="polite"></div>
+            </div>
+
+            <div class="step-buttons">
+                <button class="btn-back" onclick="prevStep()">← Atrás</button>
+                <button class="btn-primary" onclick="nextStep()">Siguiente →</button>
+            </div>
+        </div>
+
+
+
+        <!-- ── Step 3: Hermes — Full Setup ─────── -->
+        <div class="wizard-step" data-step="3">
+            <div class="step-icon" aria-hidden="true"><wz-icon name="brain">🧠</wz-icon></div>
+            <h2><span data-runtime-text="brain-title">Inteligencia artificial</span> <span class="help-tip" onclick="this.classList.toggle('active')">?<div class="tip-content"><div class="tip-title">¿Cómo funciona la IA?</div><span data-runtime-text="brain-tip">El motor de IA es el <strong>cerebro</strong> de IRIS. Se conecta a modelos de IA (Claude, GPT, Gemini, etc.) y canales de mensajería (WhatsApp, Telegram, Discord).<br><br><wz-icon>✅</wz-icon> Aquí eliges qué IA piensa por tu asistente<br><wz-icon>✅</wz-icon> Todo se configura visualmente<br><wz-icon>✅</wz-icon> No necesitas abrir la consola</span><br><span class="tip-cost free">Configuración gratuita</span></div></span></h2>
+
+            <!-- Status panel -->
+            <p class="dim">Elige un proveedor, inicia sesión o pega su clave y selecciona un modelo.</p>
+
+            <!-- Engine actions live in the optional diagnostic section. -->
+
+
+
+            <!-- ── Security acknowledgement (mirrors `hermes onboard`) ──
+                 Shown ONCE before the install button becomes active.
+                 Hermes's onboard flow forces the user to read this and
+                 click "I understand" — we do the same so non-technical
+                 users don't blast through a security warning that exists
+                 for a real reason (LLMs + tools can do unsafe things if
+                 the prompt is malicious). -->
+
+
+            <!-- ── Existing config detected (mirrors `onboard`) ──
+                 Filled by checkExistingHermesConfig() if a previous
+                 setup is found. Lets the user reuse or overwrite without
+                 silently steamrolling their config. -->
+            <div id="oc-existing-config" class="existing-config" style="display:none">
+                <div class="existing-config-header">
+                    <wz-icon>📂</wz-icon> <strong>Configuración existente detectada</strong>
+                </div>
+                <div class="existing-config-body">
+                    <!-- Filled dynamically -->
+                </div>
+                <div class="existing-config-actions">
+                    <button class="btn-primary btn-sm" onclick="reuseExistingConfig()"><wz-icon>♻</wz-icon> Reusar valores</button>
+                    <button class="btn-primary btn-sm btn-outline" onclick="overwriteExistingConfig()"><wz-icon>✏</wz-icon> Reconfigurar</button>
+                </div>
+            </div>
+
+            <!-- ── Setup checklist ───────────────────────
+                 Replaces the legacy `hermes onboard` interactive TUI
+                 with a visible 5-step pipeline. Each step's status pill
+                 is flipped from "pending" → "active" → "done"/"err" by
+                 wizard.js (see `_setSetupStep`). -->
+
+
+            <!-- Installing or repairing an external Hermes (development runtime only).
+                 Starting the Gateway lives below, after the provider and messaging. -->
+
+
+
+            <!-- ── LLM Provider Selection ───────────
+                 Folds into a summary once the main provider is saved and ready
+                 (llm_setup.js); «Agregar otro proveedor» only stores a credential. -->
+            <div id="llm-section" class="hermes-section" data-view="change">
+                <h3><wz-icon>🤖</wz-icon> Proveedor de IA <span class="help-tip" onclick="this.classList.toggle('active')">?<div class="tip-content"><div class="tip-title">¿Qué proveedor elegir?</div>La lista y los modelos se sincronizan con el catálogo compatible con esta versión de IRIS; revisa la fecha y los contadores que aparecen debajo.<br><br><wz-icon>☁</wz-icon> <strong>Cloud</strong> — requiere API key, OAuth u otra autenticación indicada en la tarjeta.<br><wz-icon>🏠</wz-icon> <strong>Local</strong> — requiere que Ollama, LM Studio u otro servidor compatible ya esté iniciado y tenga un modelo.<br><wz-icon>🌐</wz-icon> <strong>Agregador</strong> — una sola cuenta puede dar acceso a varios modelos.<br><br><wz-icon>💡</wz-icon> La etiqueta <strong>Recomendado</strong> usa la detección de tu equipo. Los precios, límites y disponibilidad los decide cada proveedor.<br><br><wz-icon>➕</wz-icon> Puedes conectar <strong>más de un proveedor</strong>: el principal responde por defecto y los demás aparecen en el selector de modelos de cada conversación.</div></span></h3>
+
+                <section id="llm-configured" class="llm-configured" hidden aria-labelledby="llm-configured-name">
+                    <div class="llm-configured-head">
+                        <span class="llm-configured-mark" aria-hidden="true"><wz-icon>✓</wz-icon></span>
+                        <div class="llm-configured-text">
+                            <span class="llm-configured-eyebrow">Proveedor configurado</span>
+                            <strong id="llm-configured-name">—</strong>
+                            <span id="llm-configured-detail" class="llm-configured-detail"></span>
+                        </div>
+                        <span class="llm-configured-badge">Principal</span>
+                    </div>
+                    <div id="llm-configured-others" class="llm-configured-others" hidden></div>
+                    <div class="llm-configured-actions">
+                        <button class="btn-primary btn-sm btn-outline" type="button" onclick="changeLlmProvider()">Cambiar proveedor</button>
+                        <button class="btn-primary btn-sm btn-outline" type="button" onclick="addLlmProvider()">＋ Agregar otro proveedor</button>
+                    </div>
+                    <p id="llm-configured-status" class="llm-save-status" role="status"></p>
+                </section>
+
+                <div id="llm-editor">
+                <p id="llm-editor-intro" class="llm-editor-intro" hidden></p>
+
+                <!-- Live-sync header. Left side = pill indicating catalog
+                     source + date ("Actualizado hasta DD/MM/AAAA"). A stale
+                     snapshot refreshes automatically once per day without
+                     blocking the form; the button on the right is an explicit
+                     retry. Success overwrites the runtime snapshot atomically.
+                     Both are populated by `_renderProviderSyncPill()` in
+                     wizard.js after /api/providers returns. -->
+                <div class="provider-sync-header">
+                    <div id="provider-sync-pill" class="sync-pill">
+                        <wz-icon>⏳</wz-icon> Comprobando el motor de IA…
+                    </div>
+                    <button id="provider-refresh-btn"
+                            class="sync-refresh-btn"
+                            type="button"
+                            onclick="startCatalogRefresh()"
+                            hidden
+                            title="Actualiza ahora la lista de proveedores y modelos de IA. El wizard también lo intenta automáticamente una vez al día.">
+                        <wz-icon>🔄</wz-icon> Actualizar catálogo
+                    </button>
+                </div>
+
+                <!-- Progress panel — shown only while a refresh is in
+                     flight. Driven by SSE events from POST
+                     /api/providers/refresh. The progress bar advances
+                     proportionally to elapsed / 45s so the user has a
+                     sense of time without us having to fake a
+                     "percent complete". -->
+                <div id="provider-refresh-panel" class="refresh-panel" hidden>
+                    <div class="refresh-panel-header">
+                        <span class="refresh-panel-icon"><wz-icon>🔄</wz-icon></span>
+                        <span class="refresh-panel-title">Actualizando proveedores y modelos…</span>
+                    </div>
+                    <div class="refresh-panel-body">
+                        <div class="refresh-progress-wrapper">
+                            <div class="refresh-progress-bar" id="refresh-progress-bar"></div>
+                        </div>
+                        <div class="refresh-panel-meta">
+                            <span id="refresh-elapsed">0:00</span> / hasta 0:45
+                        </div>
+                        <p class="refresh-panel-hint" data-runtime-text="refresh-hint">
+                            Consultando el inventario oficial de proveedores y modelos del motor de IA instalado.
+                        </p>
+                        <div class="refresh-panel-actions">
+                            <button class="refresh-panel-cancel"
+                                    type="button"
+                                    onclick="cancelCatalogRefresh()">
+                                Cancelar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Search filter -->
+                <input type="text" id="provider-search" class="provider-search" placeholder="Buscar proveedor…" oninput="filterProviders()">
+
+                <!-- Dynamic provider list (rendered by JS) -->
+                <div class="radio-group provider-grid" id="provider-list">
+                    <!-- Populated dynamically by renderProviderList() -->
+                </div>
+
+                <!-- Per-provider warning bubble. Filled by
+                     `renderProviderWarning()` when the user picks a
+                     provider whose entry has a `warning` field (Gemini
+                     CLI account suspension, Codex 403, etc.). Mirrors
+                     the cautions `hermes onboard` shows in the TUI. -->
+                <div id="provider-warning" class="provider-warning" style="display:none"></div>
+
+                <!-- Conditional: API Key input (shown for cloud providers) -->
+                <div id="llm-key-section" class="api-key-field" style="display:none; margin-top:12px">
+                    <label>
+                        <strong><wz-icon>🔑</wz-icon> API Key</strong>
+                        <span class="dim" id="llm-key-hint">Pega tu API Key del proveedor seleccionado</span>
+                    </label>
+                    <div class="key-row">
+                        <input type="password" id="llm-api-key" placeholder="Pega tu API key aquí..." autocomplete="off" required oninput="invalidateProviderModels()" onblur="if(!this.value.trim()) this.classList.add('field-attention'); else this.classList.remove('field-attention');">
+                        <button class="btn-eye" type="button" aria-label="Mostrar u ocultar la clave" title="Mostrar u ocultar la clave" onclick="toggleKeyVisibility('llm-api-key', this)"><wz-icon>👁</wz-icon></button>
+                    </div>
+                    <a href="#" id="llm-key-link" target="_blank" class="key-link"><wz-icon>📎</wz-icon> Obtener API Key</a>
+                    <p class="dim key-privacy"><wz-icon>🔒</wz-icon> Al consultar modelos, la clave solo se envía al proveedor elegido. Se guarda en este equipo al pulsar «Guardar proveedor». IRIS no la sube a servidores propios.</p>
+                </div>
+
+                <!-- Conditional endpoint for Azure/custom/self-hosted providers. -->
+                <div id="llm-base-url-section" class="api-key-field" style="display:none; margin-top:12px">
+                    <label for="llm-base-url">
+                        <strong><wz-icon>🌐</wz-icon> Endpoint del proveedor</strong>
+                        <span class="dim" id="llm-base-url-hint">URL completa de la API</span>
+                    </label>
+                    <input type="url" id="llm-base-url" placeholder="https://host.example/v1" autocomplete="off" style="width:100%; box-sizing:border-box">
+                </div>
+
+                <!-- Conditional: OAuth sign-in (only for OAuth-capable providers). QA12: a visible
+                     «Conectar cuenta» starts it; the hidden checkbox only keeps the chosen method. -->
+                <div id="llm-oauth-section" style="display:none; margin-top:12px">
+                    <input type="checkbox" id="use-oauth" hidden onchange="toggleOAuthMode()">
+                    <div id="oauth-offer" class="api-key-field oauth-offer">
+                        <label>
+                            <strong><wz-icon>🔐</wz-icon> Iniciar sesión con tu cuenta</strong>
+                            <span class="dim">Sin API key: autorizas el acceso en la página del proveedor.</span>
+                        </label>
+                        <div class="oauth-row">
+                            <button type="button" id="btn-oauth-offer" class="btn-primary btn-sm" onclick="chooseOAuthLogin()">Conectar cuenta</button>
+                            <span class="help-tip" onclick="event.stopPropagation();this.classList.toggle('active')">?<div class="tip-content"><div class="tip-title">API Key vs OAuth</div><strong><wz-icon>🔑</wz-icon> API Key (recomendado)</strong><br>Pagas solo lo que usas.<br><br><strong><wz-icon>🔐</wz-icon> OAuth (Login)</strong><br>Iris muestra el enlace y el código cuando el proveedor lo permite. Autoriza en la página del proveedor; Iris detectará el resultado. Algunos proveedores reutilizan una sesión de su herramienta oficial.</div></span>
+                        </div>
+                    </div>
+
+                    <div id="llm-oauth-action-section" class="api-key-field" style="display:none">
+                        <label>
+                            <strong><wz-icon>🔐</wz-icon> Cuenta del proveedor</strong>
+                            <span class="dim">Autoriza el acceso en la página del proveedor; Iris detectará cuando termines.</span>
+                        </label>
+                        <div class="oauth-row">
+                            <button id="btn-auth-oauth" class="btn-primary btn-sm" onclick="authenticateProvider()">Conectar cuenta</button>
+                            <button type="button" id="btn-oauth-use-key" class="btn-secondary btn-sm" onclick="chooseApiKey()" hidden>Usar API key</button>
+                        </div>
+
+                        <!-- Live OAuth flow panel -->
+                        <div id="oauth-flow-panel" style="display:none; margin-top:12px">
+                            <!-- URL Display Box -->
+                            <div id="oauth-url-box" style="display:none; margin-bottom:10px; padding:14px 16px; background:rgba(255,213,79,0.07); border:1px solid rgba(255,213,79,0.25); border-radius:10px"></div>
+
+                            <!-- Log output -->
+                            <div id="oauth-flow-log" style="
+                                max-height:140px; overflow-y:auto;
+                                background:rgba(0,0,0,0.35); border:1px solid rgba(255,255,255,0.07);
+                                border-radius:8px; padding:8px 12px;
+                                font:400 11px/1.6 'JetBrains Mono', monospace;
+                                color:rgba(255,255,255,0.65);
+                            "></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="llm-model-access" class="api-key-field" hidden>
+                    <p id="llm-model-access-status" class="dim" role="status" aria-live="polite"></p>
+                    <button id="btn-load-provider-models" class="btn-secondary btn-sm" type="button" onclick="loadProviderModels()">Cargar modelos</button>
+                </div>
+                <!-- Conditional: Model selector -->
+                <div id="llm-model-section" class="api-key-field" style="display:none; margin-top:12px">
+                    <label><strong><wz-icon>🧪</wz-icon> Modelo</strong> <span class="dim">Selecciona el modelo de IA</span></label>
+                    <input type="search" id="llm-model-filter" class="model-filter" hidden autocomplete="off" aria-label="Buscar modelo" oninput="filterModelOptions()">
+                    <select id="llm-model" class="model-select">
+                        <option value="__custom__">Otro modelo (escribir manualmente)</option>
+                    </select>
+                    <p id="llm-model-availability" class="dim" role="status" hidden></p>
+                </div>
+
+                <!-- Custom model input (shown when "Otro" selected) -->
+                <div id="custom-model-section" class="api-key-field" style="display:none; margin-top:8px">
+                    <label><strong><wz-icon>✏</wz-icon> Modelo personalizado</strong> <span class="dim">Escribe el ID del modelo</span></label>
+                    <input type="text" id="llm-custom-model" placeholder="Ej: proveedor/modelo-o modelo-local" autocomplete="off">
+                </div>
+
+                <!-- Conditional: Ollama local model -->
+                <div id="ollama-section" style="display:none">
+                    <div class="api-key-field" style="margin-top:12px">
+                        <label><strong><wz-icon>📦</wz-icon> Modelo local</strong> <span class="dim">Elige un modelo ya disponible en Ollama</span></label>
+                        <select id="ollama-model" class="model-select">
+                            <option value="" selected disabled>No se detectaron modelos de Ollama</option>
+                        </select>
+                    </div>
+                    <div class="note" style="margin-top:6px">
+                        <wz-icon>💡</wz-icon> IRIS no instala Ollama ni descarga modelos. Inicia <a href="https://ollama.com/download" target="_blank" style="color:var(--gold)">Ollama</a> y ejecuta <code>ollama pull &lt;modelo&gt;</code> antes de iniciar el Gateway.
+                    </div>
+                </div>
+
+                <div class="llm-editor-actions">
+                    <button class="btn-primary btn-sm" id="btn-save-llm" type="button" onclick="saveLlmProvider()">Guardar proveedor</button>
+                    <button class="btn-primary btn-sm btn-outline" id="btn-cancel-llm" type="button" onclick="cancelLlmEdit()" hidden>Cancelar</button>
+                    <span id="llm-save-status" class="llm-save-status" role="status"></span>
+                </div>
+                </div>
+            </div>
+            <details class="setup-details"><summary>Aviso de seguridad de IRIS · antes de iniciar</summary><div class="setup-details-body"><div id="oc-security-ack" class="security-ack" style="display:none">
+                <div class="security-ack-header">
+                    <wz-icon>⚠</wz-icon> <strong>Aviso de seguridad — léelo antes de continuar</strong>
+                </div>
+                <div class="security-ack-body">
+                    <p>IRIS OS integra un agente de IA en beta (Hermes Agent). Por defecto es un agente
+                    <strong>personal</strong> — un solo operador de confianza.</p>
+                    <ul>
+                        <li>El bot puede leer archivos y ejecutar acciones si
+                        habilitas herramientas.</li>
+                        <li>Un prompt malicioso podría engañarlo para que haga algo
+                        inseguro.</li>
+                        <li>NO está diseñado para multi-usuario hostil. Si varios
+                        usuarios pueden mensajearle, comparten esa autoridad
+                        delegada.</li>
+                    </ul>
+                    <p class="dim">Recomendado: pairing/allowlists, sandbox,
+                    herramientas con permisos mínimos. Lee la guía completa en
+                    <a href="https://hermes-agent.nousresearch.com/docs/gateway/security" target="_blank">hermes-agent.nousresearch.com/docs/gateway/security</a>.</p>
+                </div>
+                <label class="security-ack-check">
+                    <input type="checkbox" id="oc-security-check" onchange="onSecurityAckToggle(event)">
+                    <span>Entiendo que esto es de uso personal por defecto y que
+                    el uso compartido / multi-usuario requiere endurecimiento manual.</span>
+                </label>
+            </div></div></details>
+
+            <!-- Messaging catalog comes from the installed Hermes runtime. -->
+            <details class="setup-details"><summary>Mensajería · opcional</summary><div class="setup-details-body"><div class="hermes-section messaging-section" style="margin-top:20px">
+                <div class="messaging-heading">
+                    <span class="messaging-eyebrow">CONECTA TU ASISTENTE</span>
+                    <h3>Canales de mensajería <span class="optional-pill">Opcional</span></h3>
+                    <p class="dim">Conversa con Iris también desde Telegram, Discord y otros canales. Puedes saltarte esto y añadirlos después: Iris funciona sin ellos. Cada canal se guarda en este equipo y se aplica al iniciar o reiniciar IRIS.</p>
+                </div>
+                <div id="messaging-panel"></div>
+            </div></div></details>
+
+            <!-- ── Gateway: after the provider (required) and messaging (optional) ──
+                 Started before a provider was saved, it only answered "falta el
+                 proveedor": the button waits for a ready one (llm_setup.js). -->
+            <div id="gateway-section" class="hermes-section gateway-section" data-state="blocked">
+                <div class="gateway-heading">
+                    <span class="messaging-eyebrow">ACTIVA EL CEREBRO</span>
+                    <h3 data-runtime-text="gateway-title">Iniciar IRIS</h3>
+                    <p class="dim" data-runtime-text="gateway-copy">El servicio de IA conecta a Iris con tu proveedor y con los canales que hayas activado. Inícialo cuando el proveedor esté guardado.</p>
+                </div>
+                <div class="gateway-row">
+                    <span id="gateway-state" class="gateway-state">Esperando proveedor</span>
+                    <button class="btn-primary btn-sm" id="btn-start-gateway" type="button" onclick="startGateway()" disabled><wz-icon>🚀</wz-icon> Iniciar IRIS</button>
+                </div>
+                <p id="gateway-hint" class="gateway-hint" role="status">Primero elige y guarda tu proveedor de IA.</p>
+                <div id="gateway-log" class="install-log" style="display:none"></div>
+
+                <!-- ── Autostart: persist gateway across reboots (development only) ── -->
+                <div class="autostart-row">
+                    <label class="toggle-label autostart-label">
+                        <input type="checkbox" id="autostart-toggle" onchange="toggleAutostart(event)">
+                        <span><strong><wz-icon>🔁</wz-icon> Arrancar Hermes al iniciar sesión</strong></span>
+                    </label>
+                    <span id="autostart-state" class="autostart-pill off">—</span>
+                    <span class="help-tip" onclick="this.classList.toggle('active')">?<div class="tip-content"><div class="tip-title">¿Cómo funciona?</div><strong>Windows:</strong> se deja un archivo oculto en la carpeta <em>Inicio</em> del usuario (sin admin, sin registro).<br><br><strong>Linux/macOS:</strong> se usa <code>hermes daemon install</code> (systemd o launchd).<br><br>Desactivar lo deshace en ambos casos.</div></span>
+                </div>
+                <div id="autostart-detail" class="dim autostart-detail"></div>
+            </div>
+            <details class="setup-details" id="setup-diagnostics"><summary>Equipo, conexión y diagnóstico</summary><div class="setup-details-body"><div id="hardware-info" class="info-panel">
+                <div class="loading-spinner"></div>
+                <p>Detectando tu sistema...</p>
+            </div><div id="hermes-info" class="info-panel">
+                <div class="loading-spinner"></div>
+                <p>Comprobando el motor de IA…</p>
+            </div><div class="api-key-field">
+                    <label for="key-hermes">
+                        <strong><wz-icon>⚔</wz-icon> Hermes Token</strong>
+                        <span class="dim">Solo si tu Gateway lo requiere (la mayoría no)</span>
+                    </label>
+                    <div class="key-row">
+                        <input type="password" id="key-hermes" placeholder="Opcional" autocomplete="off">
+                        <button class="btn-eye" type="button" aria-label="Mostrar u ocultar la clave" title="Mostrar u ocultar la clave" onclick="toggleKeyVisibility('key-hermes', this)"><wz-icon>👁</wz-icon></button>
+                    </div>
+                </div><div id="hermes-mode-panel" class="mode-panel" style="display:none; margin-top:16px">
+                <div id="hermes-mode-message" class="mode-message"></div>
+
+                <div id="mode-cards" class="radio-group mode-cards">
+                    <!-- Modo Completo (Beta) -->
+                    <div class="radio-card mode-card" id="card-modo-full" onclick="selectHermesMode('full')">
+                        <input type="radio" name="hermes_mode" value="full" aria-labelledby="mode-full-title" aria-describedby="mode-full-desc">
+                        <div class="mode-card-icon"><wz-icon>🧠</wz-icon></div>
+                        <div class="mode-card-title" id="mode-full-title" data-runtime-text="card-full-title">Modo Completo <span class="badge-beta">BETA</span></div>
+                        <div class="mode-card-desc" id="mode-full-desc" data-runtime-text="card-full-desc">Instalar Hermes desde cero, configurar proveedor de IA, y todo el flujo de instalación completa.</div>
+                    </div>
+
+                    <!-- Modo Rápido -->
+                    <div class="radio-card mode-card" id="card-modo-skip" onclick="selectHermesMode('skip')">
+                        <input type="radio" name="hermes_mode" value="skip" aria-labelledby="mode-skip-title" aria-describedby="mode-skip-desc">
+                        <div class="mode-card-icon"><wz-icon>⚡</wz-icon></div>
+                        <div class="mode-card-title" id="mode-skip-title">Modo Rápido</div>
+                        <div class="mode-card-desc" id="mode-skip-desc" data-runtime-text="card-skip-desc">Omite la instalación de Hermes. Ve directo a configurar voz y avatar.</div>
+                    </div>
+
+                    <!-- Reparar Hermes -->
+                    <div class="radio-card mode-card" id="card-modo-repair" onclick="selectHermesMode('repair')">
+                        <input type="radio" name="hermes_mode" value="repair" aria-labelledby="mode-repair-title" aria-describedby="mode-repair-desc">
+                        <div class="mode-card-icon"><wz-icon>🔧</wz-icon></div>
+                        <div class="mode-card-title" id="mode-repair-title" data-runtime-text="card-repair-title">Reparar Hermes</div>
+                        <div class="mode-card-desc" id="mode-repair-desc" data-runtime-text="card-repair-desc">Hermes está instalado pero no responde. Intenta reiniciar o reconfigurar el gateway.</div>
+                    </div>
+                </div>
+            </div><div id="beta-warning" class="warning-banner" style="display:none; margin-top:12px">
+                <wz-icon>⚠</wz-icon> <strong>Modo Completo (Beta):</strong> Esta opción está en fase de pruebas y podría presentar fallas.
+                Si Hermes ya está instalado, te recomendamos usar el <strong>Modo Rápido</strong>.
+            </div><button type="button" class="btn-secondary" id="modo-continue-btn" onclick="confirmHermesMode()" style="display:none">Aplicar opción</button><button type="button" id="hw-next-fallback" class="btn-back" onclick="nextStep()" style="display:none">Continuar sin cambiar el motor</button><ol id="hermes-checklist" class="setup-checklist" style="display:none">
+                <li id="oc-step-install"  class="setup-step pending">
+                    <span class="step-num">1</span>
+                    <span class="step-text" data-runtime-text="setup-install">Instalar Hermes con el instalador oficial</span>
+                    <span class="step-status"><wz-icon>⏳</wz-icon></span>
+                </li>
+                <li id="oc-step-setup" class="setup-step pending">
+                    <span class="step-num">2</span>
+                    <span class="step-text" data-runtime-text="setup-setup">Preparar workspace de Hermes</span>
+                    <span class="step-status"><wz-icon>⏳</wz-icon></span>
+                </li>
+                <li id="oc-step-model" class="setup-step pending">
+                    <span class="step-num">3</span>
+                    <span class="step-text">Elegir proveedor + modelo de IA</span>
+                    <span class="step-status"><wz-icon>⏳</wz-icon></span>
+                </li>
+                <li id="oc-step-daemon" class="setup-step pending">
+                    <span class="step-num">4</span>
+                    <span class="step-text">Auto-arranque (opcional)</span>
+                    <span class="step-status"><wz-icon>⏳</wz-icon></span>
+                </li>
+                <li id="oc-step-gateway" class="setup-step pending">
+                    <span class="step-num">5</span>
+                    <span class="step-text" data-runtime-text="setup-gateway">Iniciar API server en :8642</span>
+                    <span class="step-status"><wz-icon>⏳</wz-icon></span>
+                </li>
+            </ol><div id="oc-os-precheck" class="os-precheck" style="display:none">
+                <div class="os-precheck-header">
+                    <span class="os-precheck-icon" id="oc-os-icon"><wz-icon>🖥</wz-icon></span>
+                    <strong id="oc-os-title">Comprobando entorno…</strong>
+                    <span class="os-precheck-badge" id="oc-os-badge">…</span>
+                </div>
+                <div class="os-precheck-body">
+                    <p class="os-precheck-hint" id="oc-os-hint">Detectando sistema operativo y herramientas…</p>
+                    <ul class="os-precheck-deps" id="oc-os-deps">
+                        <li><span class="dep-name">Comprobando dependencias…</span> <span class="dep-val">…</span></li>
+                    </ul>
+                </div>
+            </div><div id="hermes-actions" style="margin:12px 0; display:flex; gap:8px; flex-wrap:wrap">
+                <button class="btn-primary btn-sm" id="btn-install-hermes" onclick="installHermes()" style="display:none"><wz-icon>📦</wz-icon> Instalar Hermes</button>
+            </div><div id="hermes-install-log" class="install-log" style="display:none"></div><div class="hermes-section" style="margin-top:20px">
+                <h3><wz-icon>🩺</wz-icon> Verificar conexión <span class="help-tip" onclick="this.classList.toggle('active')">?<div class="tip-content"><div class="tip-title">¿Qué comprueba?</div><span data-runtime-text="health-tip">Corre 7 chequeos para confirmar la ruta de ejecución:<br><br>1️⃣ CLI <code>hermes</code> instalada<br>2️⃣ <code>config.yaml</code> de Hermes válido<br>3️⃣ API server escuchando (puerto configurado; 8642 por defecto)<br>4️⃣ <code>/health</code> responde<br>5️⃣ Credencial o perfil OAuth disponible, sin consumir tokens<br>6️⃣ WebSocket de IRIS activo (8765)<br>7️⃣ Voz local en su entorno aislado<br><br><wz-icon>💡</wz-icon> Si falla un requisito, solo se omiten los chequeos que dependen de él; los independientes continúan.</span></div></span></h3>
+                <p class="dim">Comprueba que IRIS puede comunicarse con el proveedor y el modelo elegidos.</p>
+
+                <div style="display:flex; gap:8px; flex-wrap:wrap; margin:8px 0 12px">
+                    <button class="btn-primary btn-sm" id="btn-run-healthcheck" onclick="runHealthCheck()"><wz-icon>🔍</wz-icon> Ejecutar verificación</button>
+                    <span id="healthcheck-summary" class="dim" style="align-self:center"></span>
+                </div>
+
+                <!-- 6 traffic lights, rendered dynamically -->
+                <div id="healthcheck-grid" class="healthcheck-grid">
+                    <!-- Rows injected by renderHealthChecks() -->
+                </div>
+            </div></div></details>
+
+            <!-- ── End-to-end Health Check ─────────── -->
+
+
+            <div class="step-buttons">
+                <button class="btn-back" onclick="prevStep()">← Atrás</button>
+                <button class="btn-primary" onclick="nextStep()">Siguiente →</button>
+            </div>
+        </div>
+
+        <!-- ── Step 4: TTS Configuration ───────────── -->
+        <div class="wizard-step" data-step="4">
+            <div class="step-icon" aria-hidden="true"><wz-icon name="speaker">🔊</wz-icon></div>
+            <h2>Voz de IRIS <span class="help-tip" onclick="this.classList.toggle('active')">?<div class="tip-content"><div class="tip-title">¿Qué es TTS?</div>Text-to-Speech convierte las respuestas de texto en audio hablado. Es lo que le da <strong>voz</strong> a tu asistente.<br><br>Cada motor tiene diferentes costos, calidad y privacidad. Selecciona uno y mira su detalle abajo.</div></span></h2>
+            <p>Edge-TTS es una opción sencilla en español y necesita internet. También puedes elegir un motor local u otro servicio.</p>
+            <div class="voice-engine-options" aria-label="Motor de voz"><div class="voice-engine-recommended"><label class="radio-card selected" data-value="edge-tts">
+                    <input type="radio" name="tts" value="edge-tts" checked>
+                    <div class="radio-content">
+                        <div class="radio-header">
+                            <strong>Edge-TTS</strong>
+                            <span class="badge">Recomendado</span>
+                            <span class="help-tip" onclick="event.stopPropagation();this.classList.toggle('active')">?<div class="tip-content"><div class="tip-title">Edge-TTS (Microsoft)</div>Usa el servicio de voz en línea de Microsoft Edge y su catálogo de voces.<br><br><wz-icon>✅</wz-icon> Calidad neural<br><wz-icon>✅</wz-icon> No solicita API key<br><wz-icon>⚠</wz-icon> Necesita internet y depende de un servicio externo<br><wz-icon>❌</wz-icon> No soporta voice cloning<br><span class="tip-cost free">Sin API key · disponibilidad sujeta al servicio</span></div></span>
+                        </div>
+                        <span>Gratis · Español nativo · Alta calidad · Requiere internet</span>
+                    </div>
+                </label></div>
+            <details class="setup-details" id="voice-local-engines"><summary>Voces locales · sin enviar texto a un servicio</summary><div class="setup-details-body"><div class="radio-group"><label class="radio-card" data-value="kokoro">
+                    <input type="radio" name="tts" value="kokoro">
+                    <div class="radio-content">
+                        <div class="radio-header">
+                            <strong>Kokoro-82M</strong>
+                            <span class="badge" style="background:rgba(152,251,152,0.2);color:#9cffa0">Local · Ligero</span>
+                            <span class="help-tip" onclick="event.stopPropagation();this.classList.toggle('active')">?<div class="tip-content"><div class="tip-title">Kokoro-82M (Local)</div>Modelo open-weight Apache-2.0 con voces predefinidas. No realiza voice cloning.<br><br><wz-icon>✅</wz-icon> 100% local y privado<br><wz-icon>✅</wz-icon> Ligero frente a XTTS/Fish Speech<br><wz-icon>✅</wz-icon> Español y otros idiomas según la voz<br><wz-icon>⚠</wz-icon> Descarga el modelo en el primer uso<br><span class="tip-cost free">Sin API key · cómputo local</span></div></span>
+                        </div>
+                        <span>Open Source · 100% local · Ligero · Multilingüe · Apache-2.0</span>
+                    </div>
+                </label><label class="radio-card" data-value="hf-s2s">
+                    <input type="radio" name="tts" value="hf-s2s">
+                    <div class="radio-content">
+                        <div class="radio-header">
+                            <strong>HF speech-to-speech · Qwen3-TTS</strong>
+                            <span class="badge" style="background:rgba(255,211,106,0.18);color:#ffd36a">Local · Clonación 3 s</span>
+                            <span class="help-tip" onclick="event.stopPropagation();this.classList.toggle('active')">?<div class="tip-content"><div class="tip-title">Hugging Face speech-to-speech</div>IRIS integra únicamente el componente Qwen3-TTS del proyecto oficial. Hermes sigue controlando micrófono, wake word, STT, sesiones, LLM y herramientas; no se inicia un segundo agente de voz.<br><br><wz-icon>✅</wz-icon> Español y otros 9 idiomas<br><wz-icon>✅</wz-icon> 9 voces predefinidas o clonación local desde unos 3 s<br><wz-icon>✅</wz-icon> Apache-2.0<br><wz-icon>⚠</wz-icon> No hay una voz predefinida nativa en español; para mayor identidad en español usa una muestra autorizada<br><wz-icon>⚠</wz-icon> Modelos de 0.6B/1.7B y primera descarga grande<br><wz-icon>⚠</wz-icon> En CPU puede ser lento; IRIS no promete aceleración para GPU AMD en Windows<br><span class="tip-cost free">Sin API key · cómputo local</span></div></span>
+                        </div>
+                        <span>Qwen3-TTS · Voces predefinidas o clonación local · Modelo pesado</span>
+                    </div>
+                </label></div></div></details><details class="setup-details" id="voice-more-engines"><summary>Más motores · servicios y servidores propios</summary><div class="setup-details-body"><div class="radio-group"><label class="radio-card" data-value="elevenlabs">
+                    <input type="radio" name="tts" value="elevenlabs">
+                    <div class="radio-content">
+                        <strong>ElevenLabs</strong>
+                        <span class="help-tip" onclick="event.stopPropagation();this.classList.toggle('active')">?<div class="tip-content"><div class="tip-title">ElevenLabs (Cloud)</div>Servicio alojado con clonación instantánea de voz.<br><br><wz-icon>✅</wz-icon> Alta calidad y voces multilingües<br><wz-icon>✅</wz-icon> Devuelve un <code>voice_id</code> reutilizable<br><wz-icon>⚠</wz-icon> El audio sale del equipo<br><wz-icon>⚠</wz-icon> Requiere API key y un plan con clonación disponible<br><span class="tip-cost paid">Costo y límites según tu cuenta</span></div></span>
+                        <span>En línea · Alta calidad · API key · Según plan</span>
+                    </div>
+                </label><label class="radio-card" data-value="minimax">
+                    <input type="radio" name="tts" value="minimax">
+                    <div class="radio-content">
+                        <div class="radio-header">
+                            <strong>MiniMax</strong>
+                            <span class="badge" style="background:color-mix(in srgb, var(--installer-accent) 20%, transparent);color:var(--cyan)">Integrado</span>
+                            <span class="help-tip" onclick="event.stopPropagation();this.classList.toggle('active')">?<div class="tip-content"><div class="tip-title">MiniMax TTS</div>Servicio cloud con voces del sistema y clonación mediante subida de archivo + <code>/v1/voice_clone</code>.<br><br><wz-icon>✅</wz-icon> Alta calidad neural y multilingüe<br><wz-icon>✅</wz-icon> Voice cloning<br><wz-icon>⚠</wz-icon> Requiere una API key de MiniMax; el OAuth de Hermes no autoriza TTS<br><wz-icon>⚠</wz-icon> Las voces clonadas sin uso pueden caducar según las reglas del proveedor<br><span class="tip-cost paid">Costo según consumo y cuenta</span></div></span>
+                        </div>
+                        <span>Catálogo en línea · Multilingüe · Voice cloning · Credencial TTS propia</span>
+                    </div>
+                </label><label class="radio-card" data-value="fish-audio">
+                    <input type="radio" name="tts" value="fish-audio">
+                    <div class="radio-content">
+                        <strong>Fish Audio</strong>
+                        <span>En línea · Catálogo de voces · Clonación privada · API key</span>
+                    </div>
+                </label><label class="radio-card" data-value="fish-speech">
+                    <input type="radio" name="tts" value="fish-speech">
+                    <div class="radio-content">
+                        <div class="radio-header">
+                            <strong>Fish-Speech</strong>
+                            <span class="badge" style="background:color-mix(in srgb, var(--installer-accent) 20%, transparent);color:var(--cyan)">Servidor propio</span>
+                            <span class="help-tip" onclick="event.stopPropagation();this.classList.toggle('active')">?<div class="tip-content"><div class="tip-title">Fish Speech S2 (servidor local)</div>IRIS se conecta a un servidor Fish Speech que tú instalas y levantas aparte, normalmente en Linux/WSL o Docker.<br><br><wz-icon>✅</wz-icon> Clonación rápida con audio + transcripción o <code>reference_id</code><br><wz-icon>✅</wz-icon> Procesamiento local si el servidor es local<br><wz-icon>⚠</wz-icon> S2 recomienda una GPU con 24 GB de VRAM<br><wz-icon>⚠</wz-icon> IRIS no instala el servidor, sus pesos ni una capa de autenticación<br><span class="tip-cost free">Servidor administrado por ti</span></div></span>
+                        </div>
+                        <span>Servidor propio · Voice cloning · Requiere Fish-Speech corriendo</span>
+                    </div>
+                </label><label class="radio-card" data-value="coqui">
+                    <input type="radio" name="tts" value="coqui">
+                    <div class="radio-content">
+                        <strong>Coqui TTS</strong>
+                        <span class="help-tip" onclick="event.stopPropagation();this.classList.toggle('active')">?<div class="tip-content"><div class="tip-title">Coqui XTTS v2 (Local)</div>El wizard usa el fork mantenido <code>coqui-tts</code>. Una voz predefinida puede funcionar sin muestra; al clonar cambia a XTTS v2 y usa tu WAV como <code>speaker_wav</code>.<br><br><wz-icon>✅</wz-icon> 100% local y privado<br><wz-icon>✅</wz-icon> Clonación multilingüe con XTTS v2<br><wz-icon>⚠</wz-icon> Descarga modelos grandes<br><wz-icon>⚠</wz-icon> En CPU puede ser lento<br><span class="tip-cost free">Software libre · cómputo local</span></div></span>
+                        <span>Open Source · Local · XTTS v2 para clonación · Modelo pesado</span>
+                    </div>
+                </label><label class="radio-card" data-value="neutts">
+                    <input type="radio" name="tts" value="neutts">
+                    <div class="radio-content">
+                        <div class="radio-header">
+                            <strong>NeuTTS (Neuphonic)</strong>
+                            <span class="badge" style="background:rgba(212,160,23,0.25);color:#ffd54f">Local · Clonación 3s</span>
+                            <span class="help-tip" onclick="event.stopPropagation();this.classList.toggle('active')">?<div class="tip-content"><div class="tip-title">NeuTTS (on-device voice cloning)</div>Clona localmente desde un WAV mono de 3-15 segundos y su transcripción exacta. IRIS usa por defecto el modelo Nano español y NeuCodec completo para poder codificar la muestra.<br><br><wz-icon>✅</wz-icon> Local y privado<br><wz-icon>✅</wz-icon> Codifica la referencia una vez al cargar el motor<br><wz-icon>✅</wz-icon> GGUF compatible con CPU<br><wz-icon>⚠</wz-icon> Rendimiento e idiomas dependen del modelo y hardware<br><wz-icon>⚠</wz-icon> Las salidas incorporan marca de agua Perth<br><span class="tip-cost free">Apache-2.0 / NeuTTS Open License según modelo</span></div></span>
+                        </div>
+                        <span>Clonación on-device · Referencia desde 3 s · Español según modelo</span>
+                    </div>
+                </label></div></div></details></div>
+
+            <div id="hf-s2s-section" style="display:none; margin-top:16px; padding:12px; background:rgba(255,211,106,0.06); border:1px solid rgba(255,211,106,0.25); border-radius:8px;">
+                <strong>Qwen3-TTS mediante HF speech-to-speech 0.2.12</strong>
+                <p class="dim" style="font-size:11px; margin:6px 0 12px;">Integración parcial e intencional: solo síntesis/clonación. El pipeline Realtime completo de Hugging Face no se activa para evitar duplicar a Hermes.</p>
+                <label for="hf-s2s-model" style="font-weight:600; display:block; margin-bottom:6px;">Modelo</label>
+                <select id="hf-s2s-model" onchange="updateVoiceSelectorVisibility()" style="width:100%; background:var(--void); color:var(--text); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:8px; font:400 13px 'Syne',sans-serif;">
+                    <optgroup label="Voces predefinidas">
+                        <option value="Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice" selected>0.6B CustomVoice · más ligero</option>
+                        <option value="Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice">1.7B CustomVoice · mayor calidad</option>
+                    </optgroup>
+                    <optgroup label="Clonación desde referencia">
+                        <option value="Qwen/Qwen3-TTS-12Hz-0.6B-Base">0.6B Base · requiere muestra clonada</option>
+                        <option value="Qwen/Qwen3-TTS-12Hz-1.7B-Base">1.7B Base · requiere muestra clonada</option>
+                    </optgroup>
+                </select>
+                <label for="hf-s2s-speaker" style="font-weight:600; display:block; margin:12px 0 6px;">Voz predefinida</label>
+                <select id="hf-s2s-speaker" style="width:100%; background:var(--void); color:var(--text); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:8px; font:400 13px 'Syne',sans-serif;">
+                    <option value="Aiden" selected>Aiden · inglés</option>
+                    <option value="Ryan">Ryan · inglés</option>
+                    <option value="Vivian">Vivian · chino</option>
+                    <option value="Serena">Serena · chino</option>
+                    <option value="Uncle_Fu">Uncle Fu · chino</option>
+                    <option value="Dylan">Dylan · chino de Pekín</option>
+                    <option value="Eric">Eric · chino de Sichuan</option>
+                    <option value="Ono_Anna">Ono Anna · japonés</option>
+                    <option value="Sohee">Sohee · coreano</option>
+                </select>
+                <p id="hf-s2s-mode-note" class="dim" style="font-size:11px; margin-top:6px;">CustomVoice puede hablar español, aunque sus timbres son nativos de otros idiomas. Para una identidad española propia, graba/sube una muestra autorizada; el wizard cambiará al modelo Base del mismo tamaño.</p>
+                <p id="hf-s2s-hw-note" class="dim" style="font-size:11px; margin-top:6px;" aria-live="polite"></p>
+                <div style="margin-top:12px; display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                    <button type="button" id="btn-install-hf-s2s" onclick="installExtra('hf-s2s')" class="btn-test"><wz-icon>📥</wz-icon> Instalar HF Qwen3-TTS</button>
+                    <span id="hf-s2s-install-status" class="dim" style="font-size:12px;">Comprobando…</span>
+                </div>
+                <div id="hf-s2s-install-log" class="install-log" style="display:none; margin-top:8px; max-height:180px; overflow-y:auto; font:12px/1.45 'JetBrains Mono',monospace; background:rgba(0,0,0,0.35); border-radius:6px; padding:8px;"></div>
+                <p class="dim" style="font-size:11px; margin-top:8px;"><strong>Experimental.</strong> En Windows usa la CPU: cada frase tarda unas 12 veces su duración con 0.6B y 17 con 1.7B (medido en un Ryzen 5 5600G), así que sirve para frases cortas más que para conversar. La primera prueba descarga los pesos (unos 2,4 GB con 0.6B y 4,5 GB con 1.7B); en uso, 1.7B ocupa unos 12 GB de RAM. Se instala con versiones aprobadas en su propio entorno aislado dentro de tu perfil; no modifica el runtime de Iris.</p>
+            </div>
+
+            <div id="coqui-install-section" style="display:none; margin-top:16px; padding:12px; background:rgba(152,251,152,0.05); border:1px solid rgba(152,251,152,0.2); border-radius:8px;">
+                <strong>Motor local Coqui</strong>
+                <p class="dim" style="font-size:11px; margin:6px 0;">Motor del fork mantenido <code>coqui-tts</code>. Iris solo instala extras con versiones verificadas; el estado de abajo indica si este equipo admite uno.</p>
+                <button type="button" id="btn-install-coqui" onclick="installExtra('coqui')" class="btn-test"><wz-icon>📥</wz-icon> Instalar Coqui</button>
+                <span id="coqui-install-status" class="dim" style="font-size:12px; margin-left:8px;">Comprobando…</span>
+                <div id="coqui-install-log" class="install-log" style="display:none; margin-top:8px; max-height:180px; overflow-y:auto; font:12px/1.45 'JetBrains Mono',monospace; background:rgba(0,0,0,0.35); border-radius:6px; padding:8px;"></div>
+            </div>
+
+            <div id="neutts-install-section" style="display:none; margin-top:16px; padding:12px; background:rgba(212,160,23,0.07); border:1px solid rgba(212,160,23,0.25); border-radius:8px;">
+                <strong><wz-icon>🧬</wz-icon> Motor local NeuTTS</strong>
+                <p class="dim" style="font-size:11px; margin:6px 0;">NeuTTS con soporte GGUF y codec completo. Iris solo instala extras con versiones verificadas; el estado de abajo indica si este equipo admite uno.</p>
+                <button type="button" id="btn-install-neutts" onclick="installExtra('neutts')" class="btn-test"><wz-icon>📥</wz-icon> Instalar NeuTTS</button>
+                <span id="neutts-install-status" class="dim" style="font-size:12px; margin-left:8px;">Comprobando…</span>
+                <div id="neutts-install-log" class="install-log" style="display:none; margin-top:8px; max-height:180px; overflow-y:auto; font:12px/1.45 'JetBrains Mono',monospace; background:rgba(0,0,0,0.35); border-radius:6px; padding:8px;"></div>
+            </div>
+
+            <!-- Kokoro voice selector -->
+            <div id="kokoro-voice-section" style="display:none; margin-top:16px; padding:12px; background:rgba(152,251,152,0.05); border:1px solid rgba(152,251,152,0.2); border-radius:8px;">
+                <label for="kokoro-voice" style="font-weight:600; display:block; margin-bottom:6px;">
+                    <wz-icon>🎤</wz-icon> Voz Kokoro
+                </label>
+                <select id="kokoro-voice" style="width:100%; background:var(--void); color:var(--text); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:8px; font:400 13px 'Syne',sans-serif;">
+                    <optgroup label="Español (EU)">
+                        <option value="ef_dora" selected>Dora ♀ (español · cálida)</option>
+                        <option value="em_alex">Alex ♂ (neutral)</option>
+                        <option value="em_santa">Santa ♂ (grave)</option>
+                    </optgroup>
+                    <optgroup label="English (US)">
+                        <option value="af_heart">Heart ♀ (cálida)</option>
+                        <option value="af_bella">Bella ♀ (suave)</option>
+                        <option value="af_sarah">Sarah ♀ (neutral)</option>
+                        <option value="am_adam">Adam ♂ (claro)</option>
+                        <option value="am_michael">Michael ♂ (grave)</option>
+                    </optgroup>
+                    <optgroup label="English (UK)">
+                        <option value="bf_emma">Emma ♀</option>
+                        <option value="bm_george">George ♂</option>
+                    </optgroup>
+                    <optgroup label="日本語">
+                        <option value="jf_alpha">Alpha ♀</option>
+                        <option value="jm_kumo">Kumo ♂</option>
+                    </optgroup>
+                    <optgroup label="中文">
+                        <option value="zf_xiaoxiao">Xiaoxiao ♀</option>
+                        <option value="zm_yunjian">Yunjian ♂</option>
+                    </optgroup>
+                </select>
+                <p class="dim" style="font-size:11px; margin-top:6px;">
+                    Elige el idioma + voz. El modelo se descargará la primera vez que IRIS hable y se guarda en tu perfil. El extra de Kokoro incluye su propio eSpeak-NG para español: no hay que instalar nada en el sistema. Las voces en inglés, japonés y chino necesitan componentes que este extra aún no incluye.
+                </p>
+
+                <!-- ── One-click install button ─────────────────────
+                     Installs the approved Kokoro lock into an isolated
+                     environment of the profile (core/extras.py) and
+                     streams progress via SSE. Never pip, never the
+                     bundled runtime.
+                ───────────────────────────────────────── -->
+                <div style="margin-top:12px; display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                    <button type="button" id="btn-install-kokoro"
+                            onclick="installExtra('kokoro')"
+                            class="btn-test"
+                            style="background:rgba(152,251,152,0.15); border:1px solid rgba(152,251,152,0.4); color:#9cffa0;">
+                        <wz-icon>📥</wz-icon> Instalar paquetes de Kokoro
+                    </button>
+                    <span id="kokoro-install-status" class="dim" style="font-size:12px;">Comprobando…</span>
+                </div>
+                <div id="kokoro-install-log" class="install-log" style="display:none; margin-top:8px; max-height:180px; overflow-y:auto; font:12px/1.45 'JetBrains Mono',monospace; background:rgba(0,0,0,0.35); border-radius:6px; padding:8px;"></div>
+            </div>
+
+            <!-- Fish-Speech config (server URL + optional reference audio) -->
+            <div id="fish-speech-section" style="display:none; margin-top:16px; padding:12px; background:color-mix(in srgb, var(--installer-accent) 5%, transparent); border:1px solid color-mix(in srgb, var(--installer-accent) 20%, transparent); border-radius:8px;">
+                <label for="fish-speech-url" style="font-weight:600; display:block; margin-bottom:6px;">
+                     URL del servidor Fish-Speech
+                </label>
+                <input type="text" id="fish-speech-url"
+                       placeholder="http://127.0.0.1:8080"
+                       value="http://127.0.0.1:8080"
+                       style="width:100%; background:var(--void); color:var(--text); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:8px; font:400 13px 'Syne',sans-serif;" />
+                <p class="dim" style="font-size:11px; margin-top:6px;">
+                    URL del servidor Fish-Speech que tengas corriendo localmente (debe exponer <code>/v1/health</code>).
+                </p>
+
+                <label for="fish-speech-ref-audio" style="font-weight:600; display:block; margin:12px 0 6px;">
+                    <wz-icon>🎙</wz-icon> Audio de referencia (opcional)
+                </label>
+                <input type="text" id="fish-speech-ref-audio"
+                       placeholder="Ruta absoluta a un .wav para clonación (déjalo vacío para voz por defecto)"
+                       style="width:100%; background:var(--void); color:var(--text); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:8px; font:400 13px 'Syne',sans-serif;" />
+                <p class="dim" style="font-size:11px; margin-top:6px;">
+                    Para clonación: pega la ruta a un archivo <code>.wav</code> limpio de 10-30 segundos. Vacío = voz por defecto del servidor.
+                </p>
+
+                <label for="fish-speech-ref-text" style="font-weight:600; display:block; margin:12px 0 6px;">
+                    <wz-icon>📝</wz-icon> Transcripción exacta de la referencia
+                </label>
+                <textarea id="fish-speech-ref-text" rows="2"
+                          placeholder="Escribe exactamente lo que se escucha en el WAV"
+                          style="width:100%; background:var(--void); color:var(--text); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:8px; font:400 13px 'Syne',sans-serif;"></textarea>
+
+                <label for="fish-speech-reference-id" style="font-weight:600; display:block; margin:12px 0 6px;">
+                    <wz-icon>🪪</wz-icon> Reference ID del servidor (alternativa)
+                </label>
+                <input type="text" id="fish-speech-reference-id"
+                       placeholder="ID de una voz ya registrada en Fish Speech"
+                       style="width:100%; background:var(--void); color:var(--text); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:8px; font:400 13px 'Syne',sans-serif;" />
+                <p class="dim" style="font-size:11px; margin-top:6px;">Usa un <code>reference_id</code> o el par audio + transcripción; no ambos.</p>
+            </div>
+
+<div class="api-key-field" id="elevenlabs-key-section" style="display:none">
+                    <label for="key-elevenlabs">
+                        <strong><wz-icon>🎤</wz-icon> ElevenLabs (TTS Premium)</strong>
+                        <span class="dim">Clave y voz de ElevenLabs; deja la clave vacía para conservar la guardada.</span>
+                    </label>
+                    <div class="key-row">
+                        <input type="password" id="key-elevenlabs" placeholder="xi-api-key..." autocomplete="off" oninput="resetTTSPreview()">
+                        <button class="btn-eye" type="button" aria-label="Mostrar u ocultar la clave" title="Mostrar u ocultar la clave" onclick="toggleKeyVisibility('key-elevenlabs', this)"><wz-icon>👁</wz-icon></button>
+                    </div>
+                    <input type="text" aria-label="Identificador de voz de ElevenLabs" id="key-elevenlabs-voice" placeholder="Voice ID (ej: 21m00Tcm4TlvDq8ikWAM)" class="key-sub-input">
+                    <a href="https://elevenlabs.io/" target="_blank" class="key-link"><wz-icon>📎</wz-icon> Obtener en elevenlabs.io</a>
+                    <p class="dim key-privacy"><wz-icon>🔒</wz-icon> Tus claves se guardan en este equipo, en tu perfil de Iris. IRIS solo las envía al proveedor elegido cuando usas su servicio; no las sube a servidores propios.</p>
+                </div><div class="api-key-field" id="minimax-key-section" style="display:none">
+                    <label for="key-minimax">
+                        <strong>MiniMax · voz</strong>
+                        <span class="dim">Clave y voz de MiniMax; deja la clave vacía para conservar la guardada.</span>
+                    </label>
+                    <div class="key-row">
+                        <input type="password" id="key-minimax" placeholder="Pega tu API key aquí" autocomplete="off" oninput="resetTTSPreview()">
+                        <button class="btn-eye" type="button" aria-label="Mostrar u ocultar la clave" title="Mostrar u ocultar la clave" onclick="toggleKeyVisibility('key-minimax', this)"><wz-icon>👁</wz-icon></button>
+                    </div>
+                    <input type="text" aria-label="Identificador de voz de MiniMax" id="key-minimax-voice" placeholder="Voice ID (ej: Spanish_Wiselady)" class="key-sub-input">
+                    <a href="https://platform.minimax.io/" target="_blank" class="key-link"><wz-icon>📎</wz-icon> Obtener en platform.minimax.io</a>
+                    <p class="dim key-privacy"><wz-icon>🔒</wz-icon> Tus claves se guardan en este equipo, en tu perfil de Iris. IRIS solo las envía al proveedor elegido cuando usas su servicio; no las sube a servidores propios.</p>
+                    <p class="dim" style="margin-top:4px"><wz-icon>💡</wz-icon> La autenticación OAuth de Hermes es independiente y no autoriza la API de voz.</p>
+                </div>
+                <div class="api-key-field" id="fish-audio-key-section" style="display:none">
+                    <label for="key-fish-audio"><strong>Fish Audio · voz en la nube</strong>
+                        <span class="dim">Necesitas una clave de tu cuenta. Déjala vacía para conservar la guardada.</span>
+                    </label>
+                    <div class="key-row">
+                        <input type="password" id="key-fish-audio" placeholder="Pega tu API key aquí" autocomplete="off" oninput="resetFishAudioAccount()">
+                        <button class="btn-eye" type="button" aria-label="Mostrar u ocultar la clave" onclick="toggleKeyVisibility('key-fish-audio', this)"><wz-icon>👁</wz-icon></button>
+                    </div>
+                    <a href="https://fish.audio/app/api-keys/" target="_blank" rel="noopener noreferrer" class="key-link">Obtener una clave en Fish Audio</a>
+                    <label for="fish-audio-model">Modelo de voz</label>
+                    <select id="fish-audio-model" class="key-sub-input" onchange="resetTTSPreview()">
+                        <option value="s2.1-pro-free">S2.1 Pro Free · pruebas, sujeto a límites</option>
+                        <option value="s2.1-pro">S2.1 Pro · de pago</option>
+                        <option value="s2-pro">S2 Pro · de pago</option>
+                    </select>
+                    <p class="dim">Las tarifas y la disponibilidad dependen de Fish. Elegir una opción de pago puede consumir saldo al escuchar o usar la voz.</p>
+                    <label for="fish-audio-query">Buscar en las voces de Fish Audio</label>
+                    <div class="key-row">
+                        <input type="search" id="fish-audio-query" placeholder="Nombre de la voz (opcional)" maxlength="80" style="min-width:0;" onkeydown="if (event.key === 'Enter') { event.preventDefault(); searchFishAudioVoices(); }">
+                        <button type="button" class="btn-test" id="fish-audio-search" onclick="searchFishAudioVoices()">Buscar voces</button>
+                    </div>
+                    <label for="fish-audio-language">Idioma de las voces</label>
+                    <select id="fish-audio-language" class="key-sub-input">
+                        <option value="es" selected>Español</option>
+                        <option value="en">English</option>
+                        <option value="pt">Português</option>
+                        <option value="fr">Français</option>
+                        <option value="de">Deutsch</option>
+                        <option value="it">Italiano</option>
+                        <option value="ja">日本語</option>
+                        <option value="ko">한국어</option>
+                        <option value="zh">中文</option>
+                        <option value="ru">Русский</option>
+                        <option value="ar">العربية</option>
+                        <option value="">Todos los idiomas</option>
+                    </select>
+                    <label style="display:flex;flex-direction:row;justify-content:flex-start;align-items:center;gap:8px;"><input type="checkbox" id="fish-audio-self" style="width:auto;margin:0;"> Solo mis voces</label>
+                    <label for="fish-audio-voices">Resultados</label>
+                    <select id="fish-audio-voices" class="key-sub-input" onchange="chooseFishAudioVoice()" disabled>
+                        <option value="">Busca una voz o clona la tuya abajo</option>
+                    </select>
+                    <button type="button" class="btn-secondary" id="fish-audio-more" onclick="searchFishAudioVoices({ more: true })" style="display:none; align-self:flex-start;">Ver más voces</button>
+                    <p id="fish-audio-search-status" class="dim" role="status">El catálogo se consulta solo al pulsar Buscar voces: 20 voces por página, las más populares primero.</p>
+                    <p id="fish-audio-voice-name" class="dim" style="display:none"></p>
+                    <label for="key-fish-audio-voice">Identificador de la voz elegida</label>
+                    <input type="text" id="key-fish-audio-voice" class="key-sub-input" placeholder="También puedes pegar el ID de una voz de Fish" maxlength="128" oninput="fishAudioVoiceTyped()">
+                    <button type="button" class="btn-test" id="fish-audio-sample" onclick="playFishAudioSample()" disabled style="align-self:flex-start;">▶ Escuchar muestra de Fish · gratis</button>
+                    <div id="fish-audio-sample-player" style="display:none"></div>
+                    <p class="dim">La muestra es el audio que Fish publicó con esa voz: no gasta tu cuota, aunque la frase sea otra. «Escuchar voz seleccionada», más abajo, genera tu frase con Fish y sí la gasta.</p>
+                    <p class="dim key-privacy"><wz-icon>🔒</wz-icon> La clave se guarda en tu perfil de Iris. Fish recibe el texto cuando usas su voz y la muestra cuando clonas. Las voces creadas aquí son privadas en tu cuenta de Fish.</p>
+                </div>
+            <!-- Voice Selector (appears for Edge-TTS) -->
+            <div id="voice-selector-section" class="voice-browser">
+                <div class="voice-browser-header">
+                    <h3><wz-icon>🎤</wz-icon> Elige la voz <span class="help-tip" onclick="this.classList.toggle('active')">?<div class="tip-content"><div class="tip-title">Selector de voz</div>IRIS consulta el catálogo disponible de Edge-TTS. Filtra por idioma y género.<br><br>Haz click en ▶ para <strong>escuchar</strong> una voz antes de elegirla. La estrella <wz-icon>⭐</wz-icon> marca las voces recomendadas.<br><span class="tip-cost free">Sin API key · servicio externo</span></div></span></h3>
+                    <div class="voice-filters">
+                        <select aria-label="Idioma de la voz" id="voice-lang-filter" onchange="filterVoices()" style="background:var(--void);color:var(--text);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:4px 8px;font:400 12px 'Syne',sans-serif">
+                            <option value="">Todos los idiomas</option>
+                            <option value="es" selected>Español</option>
+                            <option value="en">English</option>
+                            <option value="ja">日本語</option>
+                            <option value="pt">Português</option>
+                            <option value="fr">Français</option>
+                            <option value="de">Deutsch</option>
+                            <option value="ko">한국어</option>
+                            <option value="zh">中文</option>
+                        </select>
+                        <select aria-label="Tipo de voz" id="voice-gender-filter" onchange="filterVoicesLocal()" style="background:var(--void);color:var(--text);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:4px 8px;font:400 12px 'Syne',sans-serif">
+                            <option value="">Todos</option>
+                            <option value="Female">♀ Femenina</option>
+                            <option value="Male">♂ Masculina</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="voice-list" class="voice-list">
+                    <div class="loading-spinner"></div>
+                    <p class="dim">Cargando voces disponibles...</p>
+                </div>
+                <div id="voice-selected" class="voice-selected" style="display:none">
+                    <wz-icon>✅</wz-icon> Voz seleccionada: <strong id="voice-selected-name"></strong>
+                </div>
+            </div>
+
+            <!-- TTS preview row with editable phrase and result panel. -->
+            <p id="voice-current-choice" class="setup-choice" role="status"></p><div class="tts-test-row">
+                <label for="tts-test-text" class="tts-test-label">Frase de prueba:</label>
+                <input type="text"
+                       id="tts-test-text"
+                       class="tts-test-input"
+                       maxlength="240"
+                       value="Hola mundo, soy IRIS."
+                       placeholder="Frase para probar la voz" />
+            </div>
+<button type="button" id="test-selected-voice" class="btn-secondary" onclick="testTTS(document.querySelector('input[name=tts]:checked')?.value, event)"><wz-icon name="speaker">🔊</wz-icon> Escuchar voz seleccionada</button>
+            <p class="dim setup-privacy">Solo se reproduce al pulsar. Los servicios en línea reciben la frase; un motor local puede descargar su modelo en la primera prueba.</p>
+            <div id="tts-test-result" class="info-panel" style="display:none"></div>
+
+            <!-- Voice cloning for providers with a real backend path -->
+            <details id="voice-clone-section" class="voice-clone setup-details" style="display:none">
+                <summary>Clonar una voz · opcional</summary>
+                <div class="setup-details-body"><div class="voice-clone-header">
+                    <h3><wz-icon>🧬</wz-icon> Clonar una voz <span class="help-tip" onclick="this.classList.toggle('active')">?<div class="tip-content"><div class="tip-title">Clonación responsable</div>La muestra se convierte a WAV mono antes de enviarse. Los motores cloud reciben el audio; los locales lo guardan en tu equipo.<br><br>Usa únicamente tu propia voz o una voz para la que tengas autorización expresa. IRIS no intenta saltarse verificaciones del proveedor.<span class="tip-cost tokens">Privacidad y costo dependen del motor</span></div></span></h3>
+                    <span class="dim">Dale a tu asistente la voz que quieras</span>
+                </div>
+                <p id="clone-provider-requirements" class="dim" style="font-size:11px;margin:4px 0 12px">Selecciona un motor para ver la duración y los datos requeridos.</p>
+
+
+
+                <div id="clone-transcript-section" style="display:none; margin-bottom:10px;">
+                    <label for="clone-transcript"><strong><wz-icon>📝</wz-icon> Transcripción exacta del audio</strong></label>
+                    <textarea id="clone-transcript" rows="2" placeholder="Escribe exactamente lo que dijiste"
+                              style="width:100%; margin-top:5px; padding:8px; background:var(--void); color:var(--text); border:1px solid rgba(255,255,255,0.08); border-radius:6px;"></textarea>
+                    <p id="clone-transcript-optional" class="dim" style="display:none; font-size:11px; margin:4px 0 0">Opcional con Fish Audio: si la dejas vacía, Fish transcribe la muestra. Si la escribes, debe coincidir exactamente con lo que dices.</p>
+                </div>
+
+                <div class="clone-options">
+                    <!-- Option 1: Microphone -->
+                    <div class="clone-option">
+                        <button id="btn-record-clone" class="btn-record" onclick="toggleCloneRecording()">
+                            <wz-icon>🎙</wz-icon> Grabar con micrófono
+                        </button>
+                        <div id="recording-status" class="recording-status" style="display:none">
+                            <div class="recording-dot"></div>
+                            <span id="recording-time">0:00</span>
+                            <button class="btn-stop" onclick="stopCloneRecording()"><wz-icon>⏹</wz-icon> Detener</button>
+                        </div>
+                    </div>
+
+                    <div class="clone-divider">ó</div>
+
+                    <!-- Option 2: Upload file -->
+                    <div class="clone-option">
+                        <label class="btn-upload" for="clone-audio-file">
+                            <wz-icon>📁</wz-icon> Subir audio (.wav, .mp3)
+                        </label>
+                        <input type="file" id="clone-audio-file" accept="audio/*,.wav,.mp3,.ogg,.m4a,.flac,.webm"
+                               style="display:none" onchange="handleCloneFile(this)">
+                    </div>
+                </div>
+
+                <!-- Clone result -->
+                <div id="clone-result" style="display:none">
+                    <div class="clone-preview">
+                        <span id="clone-filename"></span>
+                        <audio id="clone-audio-player" controls style="height:28px;max-width:200px"></audio>
+                        <button class="btn-text" onclick="clearCloneSample()"><wz-icon>✕</wz-icon> Quitar</button>
+                    </div>
+                    <div class="clone-name-row">
+                        <input type="text" id="clone-voice-name" placeholder="Nombre para la voz (ej: Mi voz, Narración autorizada)"
+                               style="flex:1;padding:6px 10px;background:var(--void);color:var(--text);border:1px solid rgba(255,255,255,0.08);border-radius:6px;font:400 12px 'Syne',sans-serif">
+                        <button class="btn-primary" style="padding:6px 14px;font-size:12px" onclick="cloneVoice()">
+                            <wz-icon>🧬</wz-icon> Clonar
+                        </button>
+                    </div>
+                    <label style="display:flex; gap:8px; align-items:flex-start; margin-top:10px; font-size:11px; color:var(--text-dim);">
+                        <input type="checkbox" id="clone-consent-confirmed" style="margin-top:2px;">
+                        <span>Confirmo que la voz es mía o que tengo autorización expresa para clonarla y usarla.</span>
+                    </label>
+                    <div id="clone-status" class="clone-status" style="display:none"></div>
+                </div>
+
+                <div class="note" style="margin-top:8px">
+                    <wz-icon>☁</wz-icon> <strong>ElevenLabs/MiniMax/Fish Audio:</strong> el audio se envía al proveedor y se guarda el <code>voice_id</code>.<br>
+                    <wz-icon>🏠</wz-icon> <strong>Coqui/NeuTTS/Fish Speech/HF Qwen3-TTS:</strong> IRIS guarda una referencia WAV local.<br>
+                    <wz-icon>🎙</wz-icon> <strong>Edge-TTS/Kokoro:</strong> usan voces predefinidas y no ofrecen clonación.
+                </div>
+            </div></details>
+
+            <div id="tts-fallback-section" class="note" style="display:none; margin-top:12px;">
+                <label style="display:flex; gap:8px; align-items:flex-start; cursor:pointer;">
+                    <input type="checkbox" id="tts-allow-remote-fallback" style="margin-top:2px;">
+                    <span><strong>Usar Edge-TTS si falla este motor</strong><br>
+                    <span class="dim">Opcional. Puede mantener la voz activa, pero enviará el texto a un servicio de Microsoft. Apagado por defecto.</span></span>
+                </label>
+            </div>
+
+            <div class="voice-save-row">
+                <button type="button" class="btn-primary" id="save-voice-selection" onclick="saveVoiceSelection()">Guardar voz elegida</button>
+                <span id="voice-save-status" class="dim" role="status" aria-live="polite"></span>
+                <p class="dim">Guarda solo esta voz. La IA, el avatar y los demás pasos se guardan por separado o al terminar.</p>
+            </div>
+
+            <div class="step-buttons">
+                <button class="btn-back" onclick="prevStep()">← Atrás</button>
+                <button class="btn-primary" onclick="nextStep()">Siguiente →</button>
+            </div>
+        </div>
+
+        <!-- ── Step 5: Avatar Selection ───────────── -->
+        <div class="wizard-step" data-step="5">
+            <div class="step-icon" aria-hidden="true"><wz-icon name="avatar">🎭</wz-icon></div>
+            <h2>Avatar de IRIS</h2>
+            <div class="radio-group">
+                <label class="radio-card selected" data-value="iris">
+                    <input type="radio" name="avatar" value="iris" checked>
+                    <div class="radio-content">
+                        <div class="radio-header">
+                            <strong>IRIS</strong>
+                            <span class="badge">Incluida</span>
+                        </div>
+                        <span>El modelo 3D de IRIS que viene con IRIS OS. No necesitas descargar nada.</span>
+                    </div>
+                </label>
+                <label class="radio-card" data-value="vrm">
+                    <input type="radio" name="avatar" value="vrm">
+                    <div class="radio-content">
+                        <strong>Tu propio modelo VRM</strong>
+                        <span>Dale tu estilo: carga un archivo <b>.vrm</b> hecho en VRoid Studio o descargado de VRoid Hub o Booth. Puedes cambiarlo después en Configuración rápida.</span>
+                    </div>
+                </label>
+            </div>
+
+            <!-- Model Upload (shown when VRM is selected) -->
+            <div id="model-upload-section" style="display:none">
+                <div class="upload-zone" id="upload-zone">
+                    <input type="file" id="model-file" accept=".vrm" hidden>
+                    <div class="upload-content">
+                        <span class="upload-icon"><wz-icon>📦</wz-icon></span>
+                        <p>Arrastra tu modelo VRM aquí</p>
+                        <p class="dim">o <a href="#" onclick="document.getElementById('model-file').click(); return false;">selecciona un archivo</a></p>
+                        <p class="dim">Formato aceptado: <b>.vrm</b> únicamente</p>
+                    </div>
+                </div>
+                <details class="setup-details"><summary>Sobre los modelos VRM y dónde conseguirlos</summary><div class="setup-details-body"><div class="info-panel" style="display:block; margin-top:12px; font-size: 0.9em; line-height:1.5">
+                    <b>¿Por qué solo .vrm?</b><br>
+                    Los archivos <b>.vrm</b> garantizan: esqueleto humanoide estándar,
+                    huesos individuales de dedos, cadenas de tela (falda, cabello,
+                    corbata) y springbones para física secundaria. Otros formatos
+                    (.glb genérico, OBJ, FBX, STL) no contienen esta información y
+                    producen errores visuales.<br><br>
+                    <b>¿Dónde conseguir archivos .vrm?</b>
+                    <ul style="margin: 4px 0 0 18px; padding: 0;">
+                        <li><a href="https://hub.vroid.com/" target="_blank">VRoid Hub</a> — biblioteca oficial de Pixiv (gratis)</li>
+                        <li><a href="https://vroid.com/studio" target="_blank">VRoid Studio</a> — crea tu propio VRM (gratis, Win/Mac)</li>
+                        <li><a href="https://booth.pm/" target="_blank">Booth.pm</a> — marketplace (muchos gratis)</li>
+                        <li><a href="https://vrm-addon-for-blender.info/" target="_blank">VRM Add-on for Blender</a> — exporta .vrm desde Blender</li>
+                    </ul>
+                </div></div></details>
+                <div id="model-info" class="info-panel" style="display:none"></div>
+            </div>
+
+            <!-- Animation library (optional, collapsible) -->
+            <details id="animations-section" class="animations-section">
+                <summary>
+                    <span class="anim-summary-title"><wz-icon>🎭</wz-icon> Biblioteca de animaciones</span>
+                    <span class="anim-summary-hint">(opcional) — sube tus propios .vrma o .bvh</span>
+                </summary>
+                <div class="info-panel" style="display:block; margin-top:12px; font-size: 0.9em; line-height:1.5">
+                    IRIS ya trae animaciones por defecto, pero puedes
+                    reemplazarlas o añadir las tuyas para cualquiera de los
+                    "slots" (idle, saludo, bailar, sentarse, etc.).<br><br>
+                    <b>Formatos aceptados (IRIS los retargetea al vuelo sobre tu avatar):</b>
+                    <ul style="margin: 4px 0 0 18px; padding: 0;">
+                        <li><b>.fbx</b> <wz-icon>⭐</wz-icon> — el más común. <a href="https://www.mixamo.com/" target="_blank">Mixamo</a> tiene ~2,600 animaciones gratis (solo necesitas cuenta Adobe) — descarga "Without Skin" y sube aquí. También sirven los .fbx de packs gratis del <a href="https://assetstore.unity.com/" target="_blank">Unity Asset Store</a>.</li>
+                        <li><b>.vrma</b> — formato nativo de VRM, máxima calidad. Busca en <a href="https://vroid.pixiv.help/hc/en-us/articles/9514934831513" target="_blank">VRoid</a> o <a href="https://booth.pm/en/search/VRMA" target="_blank">Booth.pm</a>.</li>
+                        <li><b>.bvh</b> — mocap genérico. Librerías gratis: <a href="http://mocap.cs.cmu.edu/" target="_blank">CMU Motion Capture DB</a>, <a href="https://truebones.gumroad.com/" target="_blank">Truebones</a>.</li>
+                    </ul>
+                    <div class="dim" style="margin-top:8px; font-size:11px">
+                        ¿Tienes un <b>.anim</b> de Unity? No se puede leer directo (es formato interno), pero dentro del proyecto Unity haz <i>Right-click → Export FBX</i> sobre el clip para obtener un .fbx equivalente. Casi todos los packs de Unity Asset Store ya incluyen el .fbx fuente junto al .anim.
+                    </div>
+                </div>
+                <div id="animation-slots" class="animation-slots">
+                    <div class="dim" style="padding:12px">Cargando slots…</div>
+                </div>
+            </details>
+
+            <div class="step-buttons">
+                <button class="btn-back" onclick="prevStep()">← Atrás</button>
+                <button class="btn-primary" onclick="nextStep()">Siguiente →</button>
+            </div>
+        </div>
+
+<!-- ── Step 8: Summary & Launch ───────────── -->
+        <div class="wizard-step" data-step="8">
+            <div class="step-icon" aria-hidden="true"><wz-icon name="sparkle">✨</wz-icon></div>
+            <h2 id="summary-title">Guardando tu configuración…</h2>
+            <p id="summary-status" class="dim" hidden></p>
+            <button type="button" id="summary-retry" class="btn-secondary" hidden onclick="showSummaryAndSave()">Reintentar guardado</button>
+            <button type="button" id="summary-configure-ai" class="btn-primary" hidden onclick="reviewWizardSection(3)">Configurar IA ahora</button>
+            <div id="config-summary" class="info-panel"></div><div class="setup-summary-links" aria-label="Corregir configuración"><button type="button" class="btn-back" onclick="reviewWizardSection(2)">Apariencia</button><button type="button" class="btn-back" onclick="reviewWizardSection(1)">Asistente</button><button type="button" class="btn-back" onclick="reviewWizardSection(3)">Configurar IA</button><button type="button" class="btn-back" onclick="reviewWizardSection(4)">Voz</button><button type="button" class="btn-back" onclick="reviewWizardSection(5)">Avatar</button></div><p class="dim">La activación por voz se configura después en IRIS OS. En perfiles nuevos permanece apagada; se conserva la preferencia existente.</p>
+            <div class="launch-info">
+                <p data-runtime-text="launch-copy">Para iniciar IRIS:</p>
+                <code id="launch-command" data-runtime-only="development">python -m core.agent</code>
+                <p class="dim" data-runtime-only="development">El avatar se abrirá en <strong>http://localhost:8765/face/</strong></p>
+            </div>
+            <details class="setup-details"><summary>Desktop Companion · opcional</summary><div class="setup-details-body"><section class="wizard-companion-card" id="wizard-companion-card" data-state="standby">
+                <header>
+                    <div>
+                        <span class="wizard-companion-kicker">PRESENCIA OPCIONAL · WINDOWS</span>
+                        <h3>IRIS en ventana · Desktop Companion</h3>
+                    </div>
+                    <strong id="wizard-companion-pill">SCAN</strong>
+                </header>
+                <p>Activa el avatar flotante y su presencia en segundo plano. Instalarlo es opcional y omitirlo no limita IRIS OS ni su asistente.</p>
+                <div class="wizard-companion-grid" aria-label="Diagnóstico del Desktop Companion">
+                    <article data-wizard-companion-channel="package"><span>PACKAGE</span><strong>WAIT</strong><small>Buscando paquete…</small></article>
+                    <article data-wizard-companion-channel="app"><span>APP</span><strong>WAIT</strong><small>Comprobando instalación…</small></article>
+                    <article data-wizard-companion-channel="webview"><span>WEBVIEW</span><strong>WAIT</strong><small>Comprobando runtime…</small></article>
+                    <article data-wizard-companion-channel="core"><span>CORE</span><strong>WAIT</strong><small>Comprobando loopback…</small></article>
+                </div>
+                <label class="wizard-companion-autostart">
+                    <span><strong>Mantener IRIS disponible en segundo plano</strong><small>Se habilita después de instalar o reparar la ventana. Es independiente del servicio de IA.</small></span>
+                    <input id="wizard-companion-autostart" type="checkbox" disabled>
+                </label>
+                <div class="wizard-companion-actions">
+                    <button type="button" id="wizard-companion-refresh" onclick="runWizardCompanionAction('refresh')">Diagnosticar</button>
+                    <button type="button" id="wizard-companion-install" onclick="runWizardCompanionAction('install')" disabled>Instalar Companion</button>
+                    <button type="button" id="wizard-companion-launch" onclick="runWizardCompanionAction('launch')" disabled>Abrir Companion</button>
+                </div>
+                <div class="wizard-companion-status" id="wizard-companion-status" role="status" aria-live="polite">Este diagnóstico no instala, descarga ni compila nada.</div>
+            </section></div></details>
+            <div class="step-buttons">
+                <button class="btn-back" onclick="prevStep()">← Atrás</button>
+                <button class="btn-primary btn-gold" onclick="launchIris()">Abrir IRIS OS</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Consent to Hermes' security notice before the bundled engine first starts (A08.6). -->
+    <dialog id="engine-consent-dialog" class="engine-consent-dialog" aria-labelledby="engine-consent-title">
+        <form method="dialog">
+            <h3 id="engine-consent-title"><wz-icon>⚠</wz-icon> Aviso de seguridad de IRIS</h3>
+            <div id="engine-consent-body" class="engine-consent-body"></div>
+            <p class="dim">Iris lo pregunta una vez por perfil antes de iniciar el motor incluido.</p>
+            <div class="engine-consent-actions">
+                <button value="cancel" class="btn-back" type="submit">Ahora no</button>
+                <button value="accept" class="btn-primary" type="submit">Entiendo y acepto</button>
+            </div>
+        </form>
+    </dialog>
+
+    <script src="/ui/provider_auth.js?v=1"></script>
+    <script src="/ui/provider_login_ui.js?v=6"></script>
+    <script src="/ui/wizard_runtime.js?v=7"></script>
+    <script src="/ui/llm_setup.js?v=2"></script>
+    <script src="/ui/provider_catalog_ui.js?v=2"></script>
+    <script src="/ui/messaging.js?v=8"></script>
+    <script type="module" src="/shared/iris_dialog.js?v=9"></script>
+    <script type="module" src="/ui/wizard_icons.js?v=4"></script>
+    <script src="/ui/wizard.js?v=91"></script>
+</body>
+</html>

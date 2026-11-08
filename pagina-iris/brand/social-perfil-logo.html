@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <title>IRIS OS — foto de perfil (logo)</title>
+    <!-- Foto de perfil 1080×1080 para Instagram, TikTok, YouTube y X. Todas la recortan en
+         círculo: el logo queda dentro del círculo central. La renderiza
+         scripts/render-images.mjs --redes. -->
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { width: 1080px; height: 1080px; overflow: hidden; background: #020711; }
+
+        .card {
+            position: relative;
+            width: 1080px;
+            height: 1080px;
+            display: grid;
+            place-items: center;
+            background:
+                radial-gradient(circle at 50% 46%, rgba(115, 247, 255, 0.26), transparent 52%),
+                radial-gradient(circle at 70% 78%, rgba(255, 116, 212, 0.22), transparent 46%),
+                #020711;
+        }
+
+        .ring {
+            position: absolute;
+            inset: 150px;
+            border-radius: 50%;
+            border: 3px solid rgba(255, 116, 212, 0.35);
+            box-shadow: 0 0 120px rgba(115, 247, 255, 0.18) inset;
+        }
+
+        svg { width: 560px; height: 560px; filter: drop-shadow(0 0 36px rgba(115, 247, 255, 0.45)); }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="ring"></div>
+        <!-- Mismo trazo que brand/logo-iris-os.svg -->
+        <svg viewBox="0 0 48 48" aria-label="IRIS OS">
+            <defs>
+                <linearGradient id="stroke" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0" stop-color="#73f7ff"/>
+                    <stop offset="1" stop-color="#ff74d4"/>
+                </linearGradient>
+            </defs>
+            <g fill="none" stroke="url(#stroke)" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M24 6l14 8v20l-14 8-14-8V14l14-8z"/>
+                <path d="M24 16l7 4v8l-7 4-7-4v-8l7-4z"/>
+                <path d="M24 6v10m0 16v10"/>
+            </g>
+        </svg>
+    </div>
+</body>
+</html>

@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <title>IRIS OS — cabecera de X</title>
+    <!-- Cabecera de X, 1500×500. IRIS queda a la derecha; el texto va a la izquierda, por encima
+         de la esquina inferior izquierda que tapa la foto de perfil en escritorio, y en la franja
+         central que no recorta el móvil (.content). Fondo: brand/iris-arte.webp.
+         La renderiza scripts/render-images.mjs --redes. -->
+    <style>
+        @font-face { font-family: 'Syne'; font-weight: 800; src: url('../fonts/syne-latin-800-normal.woff2') format('woff2'); }
+        @font-face { font-family: 'Outfit'; font-weight: 600; src: url('../fonts/outfit-latin-600-normal.woff2') format('woff2'); }
+        @font-face { font-family: 'JetBrains Mono'; font-weight: 600; src: url('../fonts/jetbrains-mono-latin-600-normal.woff2') format('woff2'); }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { width: 1500px; height: 500px; overflow: hidden; background: #020711; }
+
+        .card {
+            position: relative;
+            width: 1500px;
+            height: 500px;
+            background: url('iris-arte.webp') center 40% / cover no-repeat;
+            color: #f8fdff;
+        }
+
+        .card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(90deg, rgba(0, 5, 13, 0.86), rgba(0, 5, 13, 0.7) 34%, rgba(0, 5, 13, 0.2) 52%, transparent 62%),
+                radial-gradient(circle at 22% 40%, rgba(115, 247, 255, 0.12), transparent 30%);
+        }
+
+        .content {
+            position: absolute;
+            left: 80px;
+            top: 70px;
+            width: 640px;
+            height: 270px;
+            display: grid;
+            align-content: center;
+            gap: 18px;
+        }
+
+        .kicker {
+            justify-self: start;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 16px 8px 12px;
+            border-radius: 999px;
+            border: 1.5px solid rgba(115, 247, 255, 0.32);
+            background: rgba(1, 7, 15, 0.6);
+            font: 600 15px/1 'JetBrains Mono', monospace;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: rgba(220, 240, 248, 0.88);
+        }
+
+        .kicker i { width: 10px; height: 10px; border-radius: 50%; background: #5cffad; box-shadow: 0 0 14px #5cffad; }
+
+        h1 { display: flex; gap: 0.16em; font: 800 98px/0.86 'Syne', sans-serif; letter-spacing: -0.03em; }
+
+        .iris {
+            background: linear-gradient(100deg, #ffffff 18%, #b9fcff 58%, #ff74d4 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .os { color: transparent; -webkit-text-stroke: 2.5px #ffb6ea; }
+
+        .lede { font: 600 31px/1.18 'Outfit', sans-serif; text-shadow: 0 2px 18px rgba(0, 5, 13, 0.9); }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="content">
+            <span class="kicker"><i></i>Project IRIS · impulsada por Hermes Agent</span>
+            <h1><span class="iris">IRIS</span><span class="os">OS</span></h1>
+            <p class="lede">Una IA que puedes ver, escuchar y hacer tuya.</p>
+        </div>
+    </div>
+</body>
+</html>

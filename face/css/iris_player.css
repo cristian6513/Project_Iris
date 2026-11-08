@@ -1,0 +1,1119 @@
+/* IRIS Player — local hi-fi instrument panel.
+   It inherits Theme Studio tokens and never paints a second OS shell. */
+
+.iris-player-host {
+    container-type: inline-size;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+    color: rgba(236, 249, 255, 0.92);
+    font-family: "Outfit", sans-serif;
+}
+
+/* Player is a complete application surface; the generic window padding would
+   turn its three-column layout into a nested card and waste scarce height. */
+.os-window-body > .workbench-view[data-workbench-view="player"] {
+    padding: 0;
+    overflow: hidden;
+    scrollbar-gutter: auto;
+}
+
+.iris-player-surface,
+.iris-player {
+    height: 100%;
+    min-height: 0;
+}
+
+.iris-player {
+    --player-cyan: var(--iris-os-accent, #73f7ff);
+    --player-pink: var(--iris-os-accent-2, #ff74d4);
+    --player-ready: var(--iris-ready-color, #5cffad);
+    position: relative;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    overflow: hidden;
+    background:
+        radial-gradient(circle at 48% 40%, color-mix(in srgb, var(--player-cyan) 8%, transparent), transparent 32%),
+        linear-gradient(135deg, rgba(3, 12, 23, 0.92), rgba(4, 8, 18, 0.97));
+}
+
+.iris-player::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.18;
+    background-image:
+        linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
+    background-size: 28px 28px;
+    mask-image: linear-gradient(to bottom, black, transparent 72%);
+}
+
+.iris-player button,
+.iris-player input {
+    font: inherit;
+}
+
+.iris-player button:focus-visible,
+.iris-player input:focus-visible,
+.iris-player summary:focus-visible {
+    outline: 2px solid color-mix(in srgb, var(--player-cyan) 76%, white);
+    outline-offset: 2px;
+}
+
+.iris-player-icon {
+    display: inline-grid;
+    width: 18px;
+    height: 18px;
+    place-items: center;
+    flex: 0 0 auto;
+}
+
+.iris-player-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+.iris-player-toolbar {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    grid-template-columns: minmax(210px, 0.75fr) minmax(260px, 1.35fr) minmax(180px, 0.7fr);
+    align-items: center;
+    gap: 20px;
+    min-height: 70px;
+    padding: 12px 18px;
+    border-bottom: 1px solid color-mix(in srgb, var(--player-cyan) 17%, rgba(255,255,255,.05));
+    background: rgba(2, 10, 20, 0.68);
+    backdrop-filter: blur(20px);
+}
+
+.iris-player-brand,
+.iris-player-runtime,
+.iris-player-search,
+.iris-player-folder > div,
+.iris-player-now,
+.iris-player-volume,
+.iris-player-insight {
+    display: flex;
+    align-items: center;
+}
+
+.iris-player-brand {
+    gap: 12px;
+}
+
+.iris-player-brand > div {
+    display: grid;
+    gap: 2px;
+}
+
+.iris-player-brand > div > span {
+    font-family: "Syne", sans-serif;
+    font-size: 17px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+}
+
+.iris-player-brand small,
+.iris-player-runtime small {
+    color: rgba(190, 216, 230, 0.56);
+    font-size: 11px;
+}
+
+.iris-player-brand-wave {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    width: 43px;
+    height: 30px;
+    padding: 0 5px;
+    color: var(--player-cyan);
+}
+
+.iris-player-brand-wave i {
+    width: 2px;
+    height: 16px;
+    max-height: 27px;
+    border-radius: 2px;
+    background: currentColor;
+    box-shadow: 0 0 8px color-mix(in srgb, currentColor 70%, transparent);
+}
+
+.iris-player-search {
+    gap: 10px;
+    min-width: 0;
+    height: 40px;
+    padding: 0 14px;
+    border: 1px solid color-mix(in srgb, var(--player-cyan) 16%, rgba(255,255,255,.06));
+    border-radius: 12px;
+    background: rgba(0, 7, 15, 0.68);
+    color: rgba(187, 225, 238, 0.54);
+    transition: border-color .2s ease, box-shadow .2s ease;
+}
+
+.iris-player-search:focus-within {
+    border-color: color-mix(in srgb, var(--player-cyan) 52%, transparent);
+    box-shadow: 0 0 22px color-mix(in srgb, var(--player-cyan) 12%, transparent);
+}
+
+.iris-player-search input {
+    width: 100%;
+    min-width: 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: rgba(242, 252, 255, 0.93);
+}
+
+.iris-player-runtime {
+    justify-content: flex-end;
+    gap: 13px;
+}
+
+.iris-player-runtime > span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 10px;
+    border: 1px solid color-mix(in srgb, var(--player-cyan) 28%, transparent);
+    border-radius: 999px;
+    color: var(--player-cyan);
+    background: color-mix(in srgb, var(--player-cyan) 7%, rgba(0,0,0,.35));
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.iris-player-runtime small::before {
+    content: "";
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    margin-right: 6px;
+    border-radius: 50%;
+    background: #80909d;
+}
+
+.iris-player-runtime small.is-ready::before {
+    background: var(--player-ready);
+    box-shadow: 0 0 9px var(--player-ready);
+}
+
+.iris-player-grid {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: minmax(220px, .72fr) minmax(360px, 1.5fr) minmax(250px, .82fr);
+    min-height: 0;
+}
+
+.iris-player-library,
+.iris-player-queue {
+    min-width: 0;
+    min-height: 0;
+    padding: 17px 14px;
+    background: rgba(1, 8, 16, 0.56);
+    overflow: auto;
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--player-cyan) 38%, transparent) transparent;
+}
+
+.iris-player-library {
+    display: grid;
+    grid-template-rows: auto auto minmax(88px, 1fr) auto;
+    border-right: 1px solid color-mix(in srgb, var(--player-cyan) 12%, rgba(255,255,255,.04));
+}
+
+.iris-player-queue {
+    display: grid;
+    grid-template-rows: auto minmax(100px, 1fr) auto;
+    border-left: 1px solid color-mix(in srgb, var(--player-cyan) 12%, rgba(255,255,255,.04));
+}
+
+.iris-player-label,
+.iris-player-folder > span,
+.iris-player-queue header span,
+.iris-player-recommendations > span,
+.iris-player-now > div > span {
+    color: var(--player-cyan);
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: .13em;
+    text-transform: uppercase;
+}
+
+.iris-player-library nav {
+    display: grid;
+    gap: 3px;
+    margin: 9px 0 11px;
+}
+
+.iris-player-library nav button,
+.iris-player-track-list button,
+.iris-player-queue-list button,
+.iris-player-recommendations button {
+    width: 100%;
+    border: 0;
+    color: rgba(224, 242, 249, 0.74);
+    background: transparent;
+    cursor: pointer;
+}
+
+.iris-player-library nav button {
+    display: grid;
+    grid-template-columns: 23px 1fr auto;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 9px;
+    border-left: 2px solid transparent;
+    border-radius: 6px;
+    text-align: left;
+}
+
+.iris-player-library nav button:hover,
+.iris-player-library nav button.active {
+    color: var(--player-cyan);
+    border-left-color: var(--player-cyan);
+    background: linear-gradient(90deg, color-mix(in srgb, var(--player-cyan) 13%, transparent), transparent);
+}
+
+.iris-player-library nav b {
+    font-size: 10px;
+    color: rgba(220, 241, 250, 0.42);
+}
+
+.iris-player-track-list,
+.iris-player-queue-list {
+    min-height: 0;
+    overflow: auto;
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--player-cyan) 38%, transparent) transparent;
+}
+
+.iris-player-track-list button,
+.iris-player-queue-list button {
+    display: grid;
+    grid-template-columns: 34px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 9px;
+    padding: 6px 7px;
+    border-radius: 8px;
+    text-align: left;
+}
+
+.iris-player-track-list button:hover,
+.iris-player-track-list button.active,
+.iris-player-queue-list button:hover,
+.iris-player-queue-list button.active {
+    color: rgba(245, 253, 255, .96);
+    background: linear-gradient(90deg, color-mix(in srgb, var(--player-pink) 13%, transparent), color-mix(in srgb, var(--player-cyan) 6%, transparent));
+}
+
+.iris-player-track-list button > span:nth-child(2),
+.iris-player-queue-list button > span:nth-child(3),
+.iris-player-recommendations button > span:nth-child(2) {
+    min-width: 0;
+    display: grid;
+    gap: 1px;
+}
+
+.iris-player-track-list strong,
+.iris-player-queue-list strong,
+.iris-player-recommendations strong {
+    overflow: hidden;
+    font-size: 11px;
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.iris-player-track-list small,
+.iris-player-queue-list small,
+.iris-player-recommendations small {
+    overflow: hidden;
+    color: rgba(180, 207, 219, .48);
+    font-size: 9px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.iris-player-track-list em {
+    color: var(--player-pink);
+    font-style: normal;
+}
+
+.iris-player-mini-cover {
+    display: grid;
+    width: 32px;
+    height: 32px;
+    place-items: center;
+    overflow: hidden;
+    border: 1px solid hsl(var(--player-cover-hue) 76% 58% / .3);
+    border-radius: 7px;
+    color: rgba(255,255,255,.78);
+    background:
+        linear-gradient(135deg, hsl(var(--player-cover-hue) 78% 42% / .78), hsl(calc(var(--player-cover-hue) + 105deg) 82% 18% / .92));
+    font-family: "Syne", sans-serif;
+    font-size: 10px;
+}
+
+.iris-player-folder {
+    margin-top: 12px;
+    padding: 12px;
+    border: 1px solid color-mix(in srgb, var(--player-cyan) 35%, transparent);
+    border-radius: 12px;
+    background:
+        linear-gradient(145deg, color-mix(in srgb, var(--player-cyan) 8%, rgba(0,0,0,.25)), rgba(0,5,12,.7));
+    box-shadow: inset 0 0 22px color-mix(in srgb, var(--player-cyan) 4%, transparent);
+}
+
+.iris-player-folder > div {
+    gap: 9px;
+    margin: 9px 0;
+    color: var(--player-cyan);
+}
+
+.iris-player-folder p {
+    display: grid;
+    min-width: 0;
+    margin: 0;
+}
+
+.iris-player-folder p small {
+    color: rgba(181, 207, 220, .46);
+    font-size: 9px;
+}
+
+.iris-player-folder p strong {
+    overflow: hidden;
+    color: rgba(235, 249, 255, .86);
+    font-size: 11px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.iris-player-folder > button,
+.iris-player-empty button,
+.iris-player-folder form button {
+    border: 1px solid color-mix(in srgb, var(--player-cyan) 30%, transparent);
+    border-radius: 8px;
+    color: var(--player-cyan);
+    background: color-mix(in srgb, var(--player-cyan) 7%, rgba(0,0,0,.25));
+    cursor: pointer;
+}
+
+.iris-player-folder > button {
+    width: 100%;
+    padding: 7px 8px;
+}
+
+.iris-player-folder details {
+    margin-top: 7px;
+    color: rgba(178, 207, 220, .44);
+    font-size: 9px;
+}
+
+.iris-player-folder summary {
+    cursor: pointer;
+}
+
+.iris-player-folder form {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 5px;
+    margin-top: 7px;
+}
+
+.iris-player-folder form input {
+    min-width: 0;
+    padding: 6px;
+    border: 1px solid rgba(255,255,255,.09);
+    border-radius: 6px;
+    background: rgba(0,0,0,.35);
+    color: rgba(235,249,255,.85);
+    font-size: 9px;
+}
+
+.iris-player-folder form button {
+    padding: 5px 8px;
+}
+
+.iris-player-folder footer {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 8px;
+    color: rgba(181, 207, 220, .45);
+    font-size: 8px;
+}
+
+.iris-player-folder footer b {
+    color: rgba(235,249,255,.82);
+}
+
+.iris-player-folder footer i {
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: var(--player-ready);
+}
+
+.iris-player-stage {
+    position: relative;
+    display: flex;
+    min-width: 0;
+    min-height: 0;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 18px clamp(18px, 4cqw, 48px) 14px;
+    overflow: auto;
+}
+
+.iris-player-cover {
+    position: relative;
+    display: grid;
+    width: clamp(150px, 26cqw, 248px);
+    aspect-ratio: 1;
+    place-items: center;
+    overflow: hidden;
+    border: 1px solid hsl(var(--player-cover-hue) 78% 62% / .54);
+    border-radius: 18px 6px 18px 6px;
+    background:
+        radial-gradient(circle at 66% 28%, rgba(255,255,255,.68) 0 2px, transparent 3px),
+        radial-gradient(circle at 64% 28%, hsl(var(--player-cover-hue) 86% 70% / .28), transparent 18%),
+        linear-gradient(155deg, hsl(calc(var(--player-cover-hue) + 28deg) 78% 35% / .7), hsl(var(--player-cover-hue) 80% 9% / .98) 58%, hsl(calc(var(--player-cover-hue) + 130deg) 82% 22% / .8));
+    box-shadow:
+        0 24px 55px rgba(0,0,0,.42),
+        0 0 32px hsl(var(--player-cover-hue) 78% 55% / .15),
+        inset 0 0 35px rgba(255,255,255,.035);
+}
+
+.iris-player-cover::before,
+.iris-player-cover::after {
+    content: "";
+    position: absolute;
+    pointer-events: none;
+}
+
+.iris-player-cover::before {
+    inset: 0;
+    background:
+        repeating-linear-gradient(90deg, transparent 0 9px, rgba(255,255,255,.025) 10px),
+        linear-gradient(20deg, transparent 48%, hsl(calc(var(--player-cover-hue) + 70deg) 96% 58% / .28) 49% 51%, transparent 52%);
+}
+
+.iris-player-cover::after {
+    left: -20%;
+    right: -20%;
+    bottom: -28%;
+    height: 62%;
+    border-radius: 50% 50% 0 0;
+    background:
+        repeating-radial-gradient(ellipse at 50% 100%, transparent 0 13px, hsl(var(--player-cover-hue) 90% 65% / .18) 14px 15px);
+    transform: perspective(100px) rotateX(20deg);
+}
+
+.iris-player-cover img {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.iris-player-cover > span {
+    position: relative;
+    z-index: 2;
+    color: rgba(255,255,255,.88);
+    font-family: "Syne", sans-serif;
+    font-size: clamp(34px, 6cqw, 68px);
+    font-weight: 800;
+    letter-spacing: -.08em;
+    text-shadow: 0 0 24px hsl(var(--player-cover-hue) 90% 65% / .45);
+}
+
+.iris-player-now {
+    width: min(100%, 560px);
+    justify-content: center;
+    gap: 12px;
+    margin-top: 13px;
+    text-align: center;
+}
+
+.iris-player-now > div {
+    display: grid;
+    gap: 1px;
+}
+
+.iris-player-now strong {
+    max-width: 460px;
+    overflow: hidden;
+    font-family: "Syne", sans-serif;
+    font-size: clamp(18px, 3cqw, 25px);
+    letter-spacing: -.035em;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.iris-player-now p {
+    margin: 0;
+    color: rgba(189, 214, 227, .58);
+    font-size: 11px;
+}
+
+.iris-player-now > button {
+    width: 36px;
+    height: 36px;
+    border: 0;
+    color: rgba(218,238,247,.56);
+    background: transparent;
+    cursor: pointer;
+}
+
+.iris-player-now > button.active {
+    color: var(--player-pink);
+}
+
+.iris-player-spectrum {
+    display: flex;
+    width: min(100%, 540px);
+    height: 42px;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    margin-top: 7px;
+    color: var(--player-cyan);
+}
+
+.iris-player-spectrum i {
+    width: max(2px, 1.2%);
+    height: 38%;
+    min-height: 3px;
+    max-height: 90%;
+    border-radius: 3px;
+    background: linear-gradient(to top, var(--player-cyan), var(--player-pink));
+    opacity: .54;
+    transform-origin: center;
+}
+
+.iris-player[data-player-active="true"] .iris-player-spectrum i,
+.iris-player[data-player-active="true"] .iris-player-brand-wave i {
+    animation: iris-player-pulse .72s ease-in-out infinite alternate;
+    animation-delay: calc(var(--bar) * -11ms);
+    opacity: .9;
+}
+
+@keyframes iris-player-pulse {
+    from { transform: scaleY(.45); filter: saturate(.75); }
+    to { transform: scaleY(1); filter: saturate(1.3); }
+}
+
+@media (max-height: 820px) {
+    .iris-player-toolbar {
+        min-height: 56px;
+        padding-block: 7px;
+    }
+
+    .iris-player-library,
+    .iris-player-queue {
+        padding-block: 10px;
+    }
+
+    .iris-player-stage {
+        padding-block: 5px;
+    }
+
+    .iris-player-empty-orbit {
+        width: 48px;
+        height: 48px;
+        margin-bottom: 4px;
+    }
+
+    .iris-player-empty-orbit .iris-player-icon {
+        width: 21px;
+        height: 21px;
+    }
+
+    .iris-player-empty > strong {
+        margin-top: 2px;
+        font-size: clamp(18px, 3cqw, 23px);
+    }
+
+    .iris-player-empty > p {
+        margin-block: 3px 6px;
+        font-size: 10px;
+        line-height: 1.25;
+    }
+
+    .iris-player-empty button {
+        padding: 6px 10px;
+    }
+
+    .iris-player-insight {
+        min-height: 44px;
+        padding-block: 5px;
+    }
+
+    .iris-player-insight-avatar {
+        width: 30px;
+        height: 30px;
+    }
+}
+
+.iris-player-progress {
+    display: grid;
+    grid-template-columns: 36px 1fr 36px;
+    align-items: center;
+    gap: 9px;
+    width: min(100%, 520px);
+    color: rgba(190,216,228,.55);
+    font-size: 9px;
+}
+
+.iris-player-progress input,
+.iris-player-volume input {
+    accent-color: var(--player-cyan);
+    cursor: pointer;
+}
+
+.iris-player-controls {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    margin-top: 10px;
+}
+
+.iris-player-controls button {
+    position: relative;
+    display: grid;
+    width: 37px;
+    height: 37px;
+    place-items: center;
+    border: 1px solid transparent;
+    border-radius: 50%;
+    color: rgba(217, 238, 247, .68);
+    background: transparent;
+    cursor: pointer;
+}
+
+.iris-player-controls button:hover,
+.iris-player-controls button.active {
+    color: var(--player-cyan);
+    border-color: color-mix(in srgb, var(--player-cyan) 20%, transparent);
+    background: color-mix(in srgb, var(--player-cyan) 7%, transparent);
+}
+
+.iris-player-controls .iris-player-primary {
+    width: 57px;
+    height: 57px;
+    color: white;
+    border-color: color-mix(in srgb, var(--player-cyan) 70%, white 5%);
+    background:
+        radial-gradient(circle, color-mix(in srgb, var(--player-cyan) 14%, rgba(2,10,20,.96)), rgba(2,8,18,.98));
+    box-shadow:
+        0 0 0 3px color-mix(in srgb, var(--player-pink) 18%, transparent),
+        0 0 25px color-mix(in srgb, var(--player-cyan) 28%, transparent);
+}
+
+.iris-player-controls button small {
+    position: absolute;
+    right: 2px;
+    bottom: 1px;
+    font-size: 8px;
+}
+
+.iris-player-volume {
+    gap: 8px;
+    width: min(100%, 340px);
+    margin-top: 8px;
+    color: rgba(193,220,231,.58);
+    font-size: 9px;
+}
+
+.iris-player-volume input {
+    flex: 1;
+}
+
+.iris-player-empty {
+    display: grid;
+    max-width: 470px;
+    justify-items: center;
+    text-align: center;
+}
+
+.iris-player-empty-orbit {
+    position: relative;
+    display: grid;
+    width: 104px;
+    height: 104px;
+    place-items: center;
+    margin-bottom: 18px;
+    border: 1px solid color-mix(in srgb, var(--player-cyan) 28%, transparent);
+    border-radius: 50%;
+    color: var(--player-cyan);
+    box-shadow: inset 0 0 28px color-mix(in srgb, var(--player-cyan) 8%, transparent), 0 0 38px color-mix(in srgb, var(--player-cyan) 9%, transparent);
+}
+
+.iris-player-empty-orbit::before,
+.iris-player-empty-orbit::after {
+    content: "";
+    position: absolute;
+    border: 1px solid color-mix(in srgb, var(--player-pink) 22%, transparent);
+    border-radius: 50%;
+}
+
+.iris-player-empty-orbit::before { inset: 13px -19px; transform: rotate(28deg); }
+.iris-player-empty-orbit::after { inset: -14px 19px; transform: rotate(-24deg); }
+.iris-player-empty-orbit .iris-player-icon { width: 35px; height: 35px; }
+
+.iris-player-empty > span {
+    color: var(--player-cyan);
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+}
+
+.iris-player-empty > strong {
+    margin-top: 5px;
+    font-family: "Syne", sans-serif;
+    font-size: clamp(20px, 4cqw, 31px);
+    letter-spacing: -.04em;
+}
+
+.iris-player-empty > p {
+    max-width: 410px;
+    margin: 10px 0 17px;
+    color: rgba(185, 211, 223, .58);
+    font-size: 11px;
+    line-height: 1.55;
+}
+
+.iris-player-empty button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+}
+
+.iris-player-queue header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.iris-player-queue header > div {
+    display: grid;
+    gap: 2px;
+}
+
+.iris-player-queue header strong {
+    color: rgba(189, 216, 228, .46);
+    font-size: 9px;
+    font-weight: 500;
+}
+
+.iris-player-queue header button {
+    display: grid;
+    width: 30px;
+    height: 30px;
+    place-items: center;
+    border: 1px solid rgba(255,255,255,.07);
+    border-radius: 8px;
+    color: rgba(202,229,239,.55);
+    background: rgba(255,255,255,.025);
+    cursor: pointer;
+}
+
+.iris-player-queue-list button {
+    grid-template-columns: 18px 34px minmax(0, 1fr) auto;
+}
+
+.iris-player-queue-list button > b,
+.iris-player-queue-list time {
+    color: rgba(185, 211, 222, .35);
+    font-size: 8px;
+    font-weight: 500;
+}
+
+.iris-player-recommendations {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255,255,255,.055);
+}
+
+.iris-player-recommendations > span {
+    display: block;
+    margin-bottom: 7px;
+}
+
+.iris-player-recommendations button {
+    display: grid;
+    grid-template-columns: 32px minmax(0, 1fr);
+    align-items: center;
+    gap: 9px;
+    padding: 5px;
+    border-radius: 7px;
+    text-align: left;
+}
+
+.iris-player-recommendations button:hover {
+    background: color-mix(in srgb, var(--player-pink) 8%, transparent);
+}
+
+.iris-player-recommendations > p,
+.iris-player-list-empty {
+    margin: 10px 5px;
+    color: rgba(180, 207, 219, .43);
+    font-size: 9px;
+    line-height: 1.45;
+}
+
+.iris-player-insight {
+    position: relative;
+    z-index: 3;
+    gap: 10px;
+    min-height: 54px;
+    padding: 8px 16px;
+    border-top: 1px solid color-mix(in srgb, var(--player-pink) 20%, rgba(255,255,255,.04));
+    background: linear-gradient(90deg, color-mix(in srgb, var(--player-pink) 8%, rgba(2,8,17,.92)), rgba(2,8,17,.92));
+}
+
+.iris-player-insight-avatar {
+    display: grid;
+    width: 36px;
+    height: 36px;
+    place-items: center;
+    border: 1px solid color-mix(in srgb, var(--player-cyan) 48%, transparent);
+    border-radius: 50%;
+    color: var(--player-cyan);
+    background: radial-gradient(circle, color-mix(in srgb, var(--player-cyan) 15%, transparent), rgba(0,0,0,.6));
+    font-family: "Syne", sans-serif;
+    font-size: 8px;
+    box-shadow: 0 0 15px color-mix(in srgb, var(--player-cyan) 13%, transparent);
+}
+
+.iris-player-insight > div:nth-child(2) {
+    display: grid;
+    min-width: 0;
+    flex: 1;
+}
+
+.iris-player-insight span {
+    color: var(--player-pink);
+    font-size: 9px;
+    font-weight: 700;
+}
+
+.iris-player-insight p {
+    overflow: hidden;
+    margin: 1px 0 0;
+    color: rgba(205, 228, 238, .65);
+    font-size: 10px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.iris-player-insight > strong {
+    color: rgba(198, 224, 235, .45);
+    font-size: 9px;
+    font-weight: 600;
+}
+
+.iris-player-notice {
+    position: absolute;
+    z-index: 10;
+    right: 14px;
+    bottom: 68px;
+    max-width: min(420px, calc(100% - 28px));
+    padding: 9px 12px;
+    border: 1px solid color-mix(in srgb, var(--player-ready) 36%, transparent);
+    border-radius: 9px;
+    color: rgba(225, 250, 239, .9);
+    background: rgba(5, 24, 20, .95);
+    box-shadow: 0 12px 28px rgba(0,0,0,.4);
+    font-size: 10px;
+}
+
+.iris-player-notice.is-error {
+    border-color: color-mix(in srgb, #ff6b88 46%, transparent);
+    color: #ffd3dc;
+    background: rgba(35, 8, 18, .96);
+}
+
+.iris-player button:disabled {
+    opacity: .4;
+    cursor: wait;
+}
+
+.iris-player-audio {
+    display: none;
+}
+
+.hermes-workbench[data-reduced-motion="true"] .iris-player *,
+.hermes-workbench[data-animated-glow="false"] .iris-player * {
+    animation: none !important;
+}
+
+@container (max-width: 900px) {
+    .iris-player-toolbar {
+        grid-template-columns: minmax(190px, .8fr) minmax(220px, 1.2fr);
+    }
+
+    .iris-player-runtime {
+        display: none;
+    }
+
+    .iris-player-grid {
+        grid-template-columns: minmax(205px, .72fr) minmax(340px, 1.45fr);
+        grid-template-rows: minmax(340px, 1fr) minmax(190px, .52fr);
+        overflow: auto;
+    }
+
+    .iris-player-queue {
+        grid-column: 1 / -1;
+        grid-template-columns: minmax(230px, .7fr) minmax(260px, 1.3fr);
+        grid-template-rows: auto minmax(120px, 1fr);
+        column-gap: 18px;
+        border-top: 1px solid color-mix(in srgb, var(--player-cyan) 12%, rgba(255,255,255,.04));
+        border-left: 0;
+    }
+
+    .iris-player-queue header {
+        grid-column: 1 / -1;
+    }
+
+    .iris-player-recommendations {
+        min-height: 0;
+        margin-top: 0;
+        padding-top: 0;
+        padding-left: 14px;
+        border-top: 0;
+        border-left: 1px solid rgba(255,255,255,.055);
+        overflow: auto;
+    }
+}
+
+@container (max-width: 640px) {
+    .iris-player-toolbar {
+        grid-template-columns: 1fr;
+        gap: 8px;
+        padding: 10px 12px;
+    }
+
+    .iris-player-brand {
+        display: none;
+    }
+
+    .iris-player-search {
+        height: 36px;
+    }
+
+    .iris-player-grid {
+        display: block;
+        overflow: auto;
+    }
+
+    .iris-player-library {
+        display: grid;
+        grid-template-rows: auto auto minmax(130px, 210px) auto;
+        padding: 9px 11px;
+        border-right: 0;
+        border-bottom: 1px solid rgba(255,255,255,.055);
+    }
+
+    .iris-player-label {
+        display: block;
+    }
+
+    .iris-player-track-list {
+        display: block;
+        max-height: 210px;
+    }
+
+    .iris-player-folder {
+        display: block;
+        margin-top: 10px;
+    }
+
+    .iris-player-library nav {
+        display: flex;
+        margin: 0;
+        overflow-x: auto;
+        scrollbar-width: none;
+    }
+
+    .iris-player-library nav::-webkit-scrollbar { display: none; }
+
+    .iris-player-library nav button {
+        grid-template-columns: 20px auto auto;
+        min-width: max-content;
+    }
+
+    .iris-player-stage {
+        min-height: 380px;
+        overflow: auto;
+    }
+
+    .iris-player-queue {
+        display: grid;
+        min-height: 300px;
+        max-height: 420px;
+        grid-template-columns: 1fr;
+        grid-template-rows: auto minmax(120px, 1fr) auto;
+        padding: 13px 11px;
+    }
+
+    .iris-player-queue header {
+        grid-column: auto;
+    }
+
+    .iris-player-recommendations {
+        margin-top: 10px;
+        padding-top: 10px;
+        padding-left: 0;
+        border-top: 1px solid rgba(255,255,255,.055);
+        border-left: 0;
+    }
+
+    .iris-player[data-player-state="empty"] .iris-player-stage {
+        min-height: 150px;
+    }
+
+    .iris-player[data-player-state="empty"] .iris-player-empty-orbit {
+        width: 34px;
+        height: 34px;
+        margin-bottom: 2px;
+    }
+
+    .iris-player[data-player-state="empty"] .iris-player-empty > strong {
+        font-size: 18px;
+    }
+
+    .iris-player[data-player-state="empty"] .iris-player-empty > p {
+        display: none;
+    }
+
+    .iris-player[data-player-state="empty"] .iris-player-empty button {
+        padding: 5px 9px;
+    }
+
+    .iris-player-cover {
+        width: min(66cqw, 225px);
+    }
+
+    .iris-player-insight {
+        position: sticky;
+        bottom: 0;
+    }
+
+    .iris-player-insight > strong {
+        display: none;
+    }
+}

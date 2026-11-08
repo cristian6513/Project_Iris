@@ -1,0 +1,22 @@
+{
+  "schema": "iris.app-manifest/v1",
+  "sdkVersion": 1,
+  "id": "doctor",
+  "name": "Diagnóstico",
+  "version": "1.0.0",
+  "description": "Comprobar IRIS OS y su motor de IA",
+  "icon": "doctor",
+  "accent": "cyan",
+  "presentation": "window",
+  "window": {
+    "width": 780,
+    "height": 560
+  },
+  "launcher": {
+    "visible": true,
+    "order": 60
+  },
+  "ui": {
+    "adapter": "legacy"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "schema": "iris.app-manifest/v1",
+  "sdkVersion": 1,
+  "id": "calendar",
+  "name": "Calendario",
+  "version": "0.1.0",
+  "description": "Tus calendarios, eventos y reuniones en un solo lugar",
+  "icon": "calendar",
+  "accent": "magenta",
+  "presentation": "window",
+  "window": { "width": 1180, "height": 720 },
+  "launcher": { "visible": true, "order": 116 },
+  "ui": { "entry": "main.js", "style": "style.css" },
+  "widgets": [
+    { "id": "calendar.month", "name": "Calendario", "entry": "widget.js", "style": "widget.css", "size": "compact", "configVersion": 1,
+      "preview": { "layout": "agenda", "title": "Tu día, de un vistazo", "subtitle": "Hoy · agenda de ejemplo", "items": [
+        { "label": "09:00", "detail": "Preparar el proyecto" },
+        { "label": "11:30", "detail": "Reunión de equipo" },
+        { "label": "17:00", "detail": "Un momento para ti" }
+      ] }
+    }
+  ]
+}

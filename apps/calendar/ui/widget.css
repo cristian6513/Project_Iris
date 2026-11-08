@@ -1,0 +1,30 @@
+.iris-calendar-widget { color: var(--os-text, #edf3fc); padding: 14px; font: 400 13px/1.45 var(--font-main, system-ui); }
+.iris-calendar-widget *, .iris-calendar-widget *::before { box-sizing: border-box; }
+.iris-calendar-widget-header { display: flex; align-items: center; gap: 8px; }
+.iris-calendar-widget-header { justify-content: space-between; margin-bottom: 10px; }
+.iris-calendar-widget-title { font: 700 18px/1.25 var(--font-display, system-ui); margin: 2px 0 0; }
+.iris-calendar-widget-today { display: flex; align-items: center; gap: 13px; padding: 6px 0; }
+.iris-calendar-widget-date-number { font: 700 34px/1 var(--font-display, system-ui); color: var(--iris-os-accent); }
+.iris-calendar-widget-date-label { font-size: 14px; }
+.iris-calendar-widget-period { display: block; margin: 8px 0; font-size: 10px; color: var(--os-muted, #a9b4c6); }
+.iris-calendar-widget-filters { margin: 4px 0; }
+.iris-calendar-widget-filter-summary { cursor: pointer; padding: 8px 0; color: var(--iris-os-accent); }
+.iris-calendar-widget :focus-visible { outline: 2px solid var(--iris-os-accent); outline-offset: 2px; }
+.iris-calendar-widget-eyebrow { color: var(--iris-os-accent); font-size: 9px; letter-spacing: .15em; }
+.iris-calendar-widget-button { color: inherit; border: 1px solid color-mix(in srgb, var(--iris-os-accent) 22%, transparent); border-radius: 9px;
+    background: color-mix(in srgb, var(--iris-os-accent) 6%, transparent); cursor: pointer; padding: 7px 9px; font: inherit; }
+.iris-calendar-widget-button:hover { background: color-mix(in srgb, var(--iris-os-accent) 14%, transparent); }
+.iris-calendar-widget-button:focus-visible, .iris-calendar-widget-select:focus-visible { outline: 2px solid var(--iris-os-accent); outline-offset: 2px; }
+.iris-calendar-widget-header > button { max-width: 115px; font-size: 11px; }
+.iris-calendar-widget-status, .iris-calendar-widget-empty { font-size: 11px; color: var(--os-muted, #a9b4c6); margin: 9px 0; }
+.iris-calendar-widget-status[role="alert"] { color: #ff9aad; }
+.iris-calendar-widget-filter { display: grid; gap: 4px; font-size: 10px; margin-top: 12px; }
+.iris-calendar-widget-select { width: 100%; min-width: 0; color: inherit; background: var(--os-panel-strong, #0c1120); border: 1px solid color-mix(in srgb, var(--iris-os-accent) 24%, transparent); border-radius: 8px; padding: 7px; font: inherit; }
+.iris-calendar-widget-select option { color: #edf3fc; background: #0c1120; }
+.iris-calendar-widget-day-title { font-size: 12px; margin: 10px 0 8px; font-weight: 600; }
+.iris-calendar-widget-event { display: grid; grid-template-columns: 76px minmax(0, 1fr); width: 100%; text-align: left; margin: 6px 0; gap: 2px 9px; border-left: 2px solid var(--iris-os-accent-2, var(--iris-os-accent)); }
+.iris-calendar-widget-event-title { overflow-wrap: anywhere; font-weight: 500; }
+.iris-calendar-widget-event-time { color: var(--iris-os-accent); font-size: 10px; grid-row: span 2; align-self: center; }
+.iris-calendar-widget-event-account { grid-column: 2; }
+.iris-calendar-widget-event-account, .iris-calendar-widget-last-sync, .iris-calendar-widget-zone { display: block; color: var(--os-muted, #a9b4c6); font-size: 10px; overflow-wrap: anywhere; }
+.iris-calendar-widget-last-sync { margin-top: 12px; }

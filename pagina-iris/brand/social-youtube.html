@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <title>IRIS OS — banner de YouTube</title>
+    <!-- Banner del canal, 2560×1440. YouTube solo garantiza el centro de 1546×423 en todos los
+         dispositivos (móvil, escritorio, TV): el texto vive en su mitad izquierda (.safe) y la
+         cara de IRIS cae en la derecha. La página del canal en escritorio muestra una franja aún más
+         baja (unos 2560×410), así que el bloque de texto es compacto y va centrado en vertical. Fondo: brand/iris-arte.webp (ilustración sin texto).
+         La renderiza scripts/render-images.mjs --redes. -->
+    <style>
+        @font-face { font-family: 'Syne'; font-weight: 800; src: url('../fonts/syne-latin-800-normal.woff2') format('woff2'); }
+        @font-face { font-family: 'Outfit'; font-weight: 600; src: url('../fonts/outfit-latin-600-normal.woff2') format('woff2'); }
+        @font-face { font-family: 'JetBrains Mono'; font-weight: 600; src: url('../fonts/jetbrains-mono-latin-600-normal.woff2') format('woff2'); }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { width: 2560px; height: 1440px; overflow: hidden; background: #020711; }
+
+        .card {
+            position: relative;
+            width: 2560px;
+            height: 1440px;
+            background: url('iris-arte.webp') center / cover no-repeat;
+            color: #f8fdff;
+        }
+
+        /* Oscurece solo detrás del texto; la cara queda limpia */
+        .card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(90deg, rgba(0, 5, 13, 0.55), rgba(0, 5, 13, 0.82) 22%, rgba(0, 5, 13, 0.62) 46%, transparent 62%),
+                radial-gradient(circle at 34% 50%, rgba(115, 247, 255, 0.12), transparent 30%);
+        }
+
+        .safe {
+            position: absolute;
+            left: 560px;
+            top: 508px;
+            width: 900px;
+            height: 423px;
+            display: grid;
+            align-content: center;
+            justify-items: start;
+            gap: 16px;
+        }
+
+        .kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: 14px;
+            padding: 10px 20px 10px 16px;
+            border-radius: 999px;
+            border: 1.5px solid rgba(115, 247, 255, 0.32);
+            background: rgba(1, 7, 15, 0.6);
+            font: 600 20px/1 'JetBrains Mono', monospace;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: rgba(220, 240, 248, 0.88);
+        }
+
+        .kicker i { width: 13px; height: 13px; border-radius: 50%; background: #5cffad; box-shadow: 0 0 16px #5cffad; }
+
+        h1 { display: flex; gap: 0.16em; font: 800 124px/0.86 'Syne', sans-serif; letter-spacing: -0.03em; }
+
+        .iris {
+            background: linear-gradient(100deg, #ffffff 18%, #b9fcff 58%, #ff74d4 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .os { color: transparent; -webkit-text-stroke: 3px #ffb6ea; }
+
+        .lede { max-width: 600px; font: 600 42px/1.15 'Outfit', sans-serif; text-wrap: balance; text-shadow: 0 2px 24px rgba(0, 5, 13, 0.9); }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="safe">
+            <span class="kicker"><i></i>Project IRIS · impulsada por Hermes Agent</span>
+            <h1><span class="iris">IRIS</span><span class="os">OS</span></h1>
+            <p class="lede">Una IA que puedes ver, escuchar y hacer tuya.</p>
+        </div>
+    </div>
+</body>
+</html>

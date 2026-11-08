@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>IRIS Room - isolated visual QA</title>
+<style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#08111d}canvas{display:block}</style>
+<script type="importmap">{"imports":{"three":"/vendor/three/build/three.module.js","three/addons/":"/vendor/three/examples/jsm/"}}</script>
+</head><body>
+<script type="module">
+import * as THREE from 'three';
+import {RoomEnvironment} from '/face/js/room.js';
+import {ROOM_DETAIL_PRESETS,frameRoomPreset} from '/face/js/room_framing.js';
+import {IrisPlayerApp} from '/face/js/iris_player.js';
+import {bindRoomAtmosphereControls} from '/face/js/room_atmosphere_controls.js';
+import {SceneActionManager} from '/face/js/scene_actions.js';
+import {IdleSystem} from '/face/js/idle_system.js';
+const scene=new THREE.Scene(); scene.fog=new THREE.FogExp2(0x08111d,0.011);
+const renderer=new THREE.WebGLRenderer({antialias:true});
+renderer.domElement.id='IRIS-canvas';
+renderer.setSize(innerWidth,innerHeight); renderer.setPixelRatio(1);
+renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=1.05;
+document.body.append(renderer.domElement);
+const camera=new THREE.PerspectiveCamera(45,innerWidth/innerHeight,0.1,1000);
+scene.add(new THREE.AmbientLight(0xcfe6ff,0.2),new THREE.HemisphereLight(0xcfefff,0x2a1430,0.24));
+for(const [color,intensity,position] of [[0xf2f8ff,0.28,[1.8,3.2,5]],[0x9fe4ff,0.14,[-3.2,1.15,2.2]]]){
+ const light=new THREE.DirectionalLight(color,intensity);light.position.set(...position);scene.add(light);
+}
+const room=new RoomEnvironment(scene);await room.init();
+const playerHost=document.createElement('div');playerHost.hidden=true;document.body.append(playerHost);
+const player=new IrisPlayerApp({root:playerHost,onPlayback:state=>room.setPlayerPlayback(state)});
+// A real media element, but only synthetic silence from the isolated QA server.
+player.audio.muted=true;
+player._applyLibrary({configured:true,tracks:[{id:'qa-track',title:'Neon Horizon · QA',artist:'IRIS local test',stream_url:'/qa-silence.wav'}]});
+const start=document.createElement('button');start.textContent='QA playback';start.id='qa-start';
+start.style.cssText='position:fixed;top:0;left:0;z-index:2';
+start.onclick=()=>player.playTrack('qa-track');document.body.append(start);
+function frame(position,target,fov=45){camera.position.set(...position);camera.fov=fov;camera.aspect=innerWidth/innerHeight;camera.lookAt(...target);camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);renderer.render(scene,camera);}
+frame([5.2,2.65,7.4],[0,0.45,-0.55]);
+function preset(name){const key={iso:'isometricView',sofa:'sofaView',bed:'bedView'}[name]||name;const p=frameRoomPreset(ROOM_DETAIL_PRESETS[key],innerWidth/innerHeight);frame(p.position,p.target,p.fov);}
+function verify(){
+ const checks=[];const check=(name,ok)=>{checks.push({name,ok});if(!ok)throw Error(name);};
+ const cloth=new Set();let triangles=0;
+ scene.traverse(o=>{
+  if(!o.isMesh)return;
+  triangles+=(o.geometry.index?.count??o.geometry.attributes.position.count)/3;
+  for(const v of o.geometry.attributes.position.array)if(!Number.isFinite(v))throw Error('Non-finite vertex');
+  for(const m of Array.isArray(o.material)?o.material:[o.material])if(m.bumpMap)cloth.add(m);
+ });
+ check('14 existing room lights; no dynamic shadows',room.roomLights.length===14&&room.roomLights.every(l=>!l.castShadow));
+ // The sofa and bed are baked GLB models now; the shared fabric remains on the lounge rug.
+ check('Shared textile albedo and relief',cloth.size>=1&&new Set([...cloth].map(m=>m.map)).size===1&&new Set([...cloth].map(m=>m.bumpMap)).size===1);
+ const maps=[...cloth].map(m=>m.map);
+ const initial=room.currentTheme;
+ for(const theme of ['classic','cyber','hacker','sakura'])room.setTheme(theme);
+ check('Themes do not recreate textile textures',[...cloth].every((m,i)=>m.map===maps[i]));room.setTheme(initial);
+ const facing=new THREE.Vector3(0,0,-1).applyQuaternion(room.getObject('sofa').quaternion);
+ check('Sofa faces its coffee table',facing.z>0.99);
+ const shadows=scene.getObjectByName('fake_contact_shadows');
+ check('Contact shadows share one feather texture',new Set(shadows.children.map(m=>m.material.map)).size===1&&!!shadows.children[0].material.map);
+ for(const [name,object]of [['sofa','sofa'],['bed','bed']]){
+  preset(name);scene.updateMatrixWorld(true);camera.updateMatrixWorld(true);
+  const box=new THREE.Box3().setFromObject(room.getObject(object)),projections=[];
+  for(const x of [box.min.x,box.max.x])for(const y of [box.min.y,box.max.y])for(const z of [box.min.z,box.max.z])projections.push(new THREE.Vector3(x,y,z).project(camera));
+  check(name+' stays framed at current viewport',projections.every(p=>Math.abs(p.x)<1&&Math.abs(p.y)<1&&p.z<1));
+ }
+ return {ok:true,checks,triangles,clothMaterials:cloth.size};
+}
+const sceneActions=Object.create(SceneActionManager.prototype);sceneActions.room=room;
+window.roomQA={room,scene,camera,renderer,frame,preset,verify,THREE,player,bindRoomAtmosphereControls,sceneActions,IdleSystem,SceneActionManager};
+let previousFrame=0;
+renderer.setAnimationLoop(now=>{room.atmosphere.update(Math.min((now-previousFrame)/1000,0.1));previousFrame=now;renderer.render(scene,camera);});
+</script></body></html>

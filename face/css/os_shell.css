@@ -1,0 +1,66 @@
+/* Compact shared chrome. Keep room and chat controls outside this scope. */
+.hermes-workbench .workbench-shell, .hermes-workbench[data-active-tab][data-desktop-mode] .workbench-shell { grid-template-rows: 64px 210px minmax(0, 1fr); }
+.hermes-workbench .workbench-header { display: grid; grid-template-columns: minmax(140px,1fr) minmax(0,1.5fr) auto;
+    align-items: center; gap: 16px; padding: 10px 18px; min-width: 0; }
+.hermes-workbench .workbench-brand { gap: 10px; min-width: 0; }
+.hermes-workbench .workbench-brand h2 { margin: 0; font-size: 17px; line-height: 1.2; white-space: nowrap; }
+.hermes-workbench .os-mark { width: 40px; height: 40px; border-radius: 13px; }
+.hermes-workbench .os-mark::after { inset: 7px; border-radius: 9px; }
+.hermes-workbench .os-mark .os-icon svg { width: 24px; height: 24px; }
+.hermes-workbench .os-top-status { display: flex; align-items: center; justify-content: center; align-self: center;
+    min-width: 0; padding: 0 12px; gap: 9px; border: 0; background: none; color: var(--iris-os-accent); }
+.hermes-workbench .os-status-readout { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    color: inherit; font: 500 14px/1.4 var(--font-main,system-ui); letter-spacing: 0; text-transform: none; }
+.hermes-workbench .os-status-dot { flex: 0 0 6px; width: 6px; height: 6px; border-radius: 50%; background: currentColor;
+    color: inherit; box-shadow: 0 0 12px color-mix(in srgb,currentColor 35%,transparent); }
+.hermes-workbench .os-top-status[data-tone="error"], .hermes-workbench .os-top-status[data-tone="offline"] { color: #ff9aad; }
+.hermes-workbench .os-top-status[data-tone="waiting"] { color: #ffd77a; }
+.hermes-workbench .os-top-status[data-tone="checking"] { color: var(--os-muted,#a9b4c6); }
+.hermes-workbench .workbench-actions { gap: 10px; }
+.hermes-workbench .workbench-actions > button { min-width: 40px; min-height: 40px; }
+.hermes-workbench .os-header-metrics { display: block; min-width: 112px; padding-right: 12px; text-align: right; }
+.hermes-workbench .os-header-metrics small { font: 400 10px/1.4 var(--font-main,system-ui); }
+.hermes-workbench .os-header-metrics strong { font: 600 16px/1.3 var(--font-main,system-ui); }
+
+/* One dock, a sibling of the home and panel scroll areas: it never scrolls away. */
+.hermes-workbench .workbench-view[data-workbench-view="desktop"] { position: relative; overflow: hidden; padding: 0;
+    --os-dock-clearance: calc(90px + clamp(14px,2.4vh,24px) + 12px); }
+.hermes-workbench:not([data-desktop-mode="dashboard"]) .workbench-view[data-workbench-view="desktop"] > .os-home-dock { display: grid !important; }
+.hermes-workbench .workbench-view[data-workbench-view="desktop"] > .os-home-dock { position: absolute; left: 50%;
+    bottom: clamp(14px,2.4vh,24px); transform: translateX(-50%); width: max-content; max-width: calc(100% - 24px); z-index: 12; }
+.hermes-workbench .os-dashboard-content { position: absolute; inset: 0 0 var(--os-dock-clearance) 0; min-height: 0; overflow: auto; padding: 18px;
+    scrollbar-gutter: stable; scrollbar-width: thin; }
+.hermes-workbench .os-dashboard-content .os-app-grid { grid-template-columns: repeat(auto-fit,minmax(min(200px,100%),1fr)); }
+.hermes-workbench .os-dashboard-content .os-dashboard-grid { grid-template-columns: repeat(auto-fit,minmax(min(220px,100%),1fr)); }
+.hermes-workbench .os-dashboard-content .os-activity-log-panel { grid-column: 1 / -1; }
+.hermes-workbench .os-dashboard-content .os-lower-grid { grid-template-columns: repeat(auto-fit,minmax(min(280px,100%),1fr)); }
+.hermes-workbench .os-dashboard-content > * + * { margin-top: 16px; }
+.hermes-workbench .os-app-card strong { white-space: normal; overflow: visible; text-overflow: clip; overflow-wrap: anywhere; line-height: 1.3; }
+.hermes-workbench .os-home-personalized .os-widgets-list { scrollbar-width: auto; scrollbar-gutter: stable; scroll-padding: 12px; }
+
+@media (max-width: 920px) {
+    .hermes-workbench[data-active-tab][data-desktop-mode][data-sidebar-collapsed] .workbench-shell { grid-template-columns: 74px minmax(0,1fr) 0; }
+    .hermes-workbench[data-active-tab][data-desktop-mode] .os-right-rail { display: none; }
+    .hermes-workbench .workbench-header { gap: 8px; padding-inline: 12px; }
+    .hermes-workbench .os-header-metrics { display: none; }
+}
+@media (max-width: 640px) {
+    .hermes-workbench[data-active-tab][data-desktop-mode][data-sidebar-collapsed] .workbench-shell { grid-template-columns: 62px minmax(0,1fr) 0; }
+    .hermes-workbench .workbench-shell, .hermes-workbench[data-active-tab][data-desktop-mode] .workbench-shell { grid-template-rows: 64px 148px minmax(0,1fr); }
+    .hermes-workbench .workbench-header { grid-template-columns: 40px minmax(0,1fr) auto; padding: 10px; gap: 6px; }
+    .hermes-workbench .workbench-brand > div { display: none; }
+    .hermes-workbench .os-top-status { display: flex; padding: 0 4px; gap: 6px; }
+    .hermes-workbench .os-status-readout { font-size: 12px; }
+    .hermes-workbench .workbench-actions { gap: 6px; }
+    .hermes-workbench .workbench-view[data-workbench-view="desktop"] { --os-dock-clearance: calc(72px + clamp(14px,2.4vh,24px) + 12px); }
+    .hermes-workbench .os-dashboard-content { padding: 12px; }
+    .hermes-workbench .os-dashboard-content .os-hero { grid-template-columns: minmax(0,1fr); gap: 14px; }
+    .hermes-workbench .os-dashboard-content .os-hero > .os-orb { display: none; }
+    .hermes-workbench .os-dashboard-content .os-active-ring { width: 100px; height: 100px; justify-self: start; }
+    .hermes-workbench .os-dashboard-content .os-device-core { grid-template-columns: repeat(2,minmax(0,1fr)); }
+    .hermes-workbench .os-dashboard-content .os-holo-core { display: none; }
+    .hermes-workbench .workbench-view[data-workbench-view="desktop"] > .os-home-dock { width: calc(100% - 24px); grid-template-columns: repeat(4,minmax(0,1fr)); grid-auto-flow: row; gap: 4px; }
+    .hermes-workbench .workbench-view[data-workbench-view="desktop"] > .os-home-dock button { min-width: 0; min-height: 72px; padding: 6px 4px; gap: 4px; }
+    .hermes-workbench .os-home-dock .os-icon { width: 30px; height: 30px; }
+    .hermes-workbench .os-home-dock strong { font-size: 10px; overflow-wrap: anywhere; }
+}

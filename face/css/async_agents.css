@@ -1,0 +1,64 @@
+/* Async Agents: two clear origins within the existing IRIS workbench. */
+.os-agents-sources { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.os-agents-sources > button { --source-accent: var(--iris-os-accent); display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 18px; text-align: left; color: var(--iris-text, #dbeaf3); font: inherit; border: 1px solid color-mix(in srgb, var(--source-accent) 20%, transparent); border-radius: 15px; background: rgba(4, 12, 22, .52); cursor: pointer; }
+.os-agents-sources > button[data-agent-source="chat"] { --source-accent: var(--iris-os-accent-2); }
+.os-agents-sources > button[aria-selected="true"] { border-color: var(--source-accent); background: color-mix(in srgb, var(--source-accent) 11%, #07111d); box-shadow: inset 0 -3px 0 var(--source-accent); }
+.os-agents-sources strong { display: block; font-size: 15px; }
+.os-agents-sources small { display: block; margin-top: 5px; color: #a4b5c9; font-size: 11px; line-height: 1.5; }
+.os-agent-source-icon { color: var(--source-accent); }
+.os-agent-source-count { display: grid; place-items: center; min-width: 28px; height: 28px; padding: 0 5px; border-radius: 8px; background: rgba(255,255,255,.05); color: #b8cadb; font: 600 14px var(--iris-font-mono, monospace); }
+.os-agent-source-count[data-active="true"] { color: var(--source-accent); background: color-mix(in srgb, var(--source-accent) 14%, transparent); }
+button.os-agent-run-card { width: 100%; font: inherit; color: inherit; text-align: left; }
+button.os-agent-run-card > .os-agent-run-copy { display: block; width: auto; min-width: 0; height: auto; border: 0; background: none; color: inherit; }
+.os-agent-run-copy strong { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow-wrap: anywhere; }
+.os-agent-run-preview { display: block; margin: 5px 0; color: #a4b5c9; font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+button.os-agent-run-card > .os-agent-state { display: block; width: auto; height: auto; padding: 5px 7px; border: 0; border-radius: 6px; background: color-mix(in srgb, var(--agent-accent) 9%, transparent); color: var(--agent-accent); font-size: 10px; }
+.os-agents-sources button:focus-visible, .os-agent-run-card:focus-visible { outline: 2px solid var(--iris-os-accent); outline-offset: 3px; }
+.os-agents-result { margin: 16px 0; }
+.os-agent-result-text { white-space: pre-wrap; overflow-wrap: anywhere; color: #d4e2ef; font-size: 13px; line-height: 1.8; max-height: 360px; overflow: auto; scrollbar-gutter: stable; padding: 12px 14px; border-left: 2px solid var(--iris-os-accent); background: rgba(0,0,0,.12); }
+.os-agents-prompt-label { display: grid; gap: 8px; min-width: 0; color: #bacdde; font-size: 12px; }
+.os-agents-prompt-label input { width: 100%; box-sizing: border-box; }
+.os-agents-create { align-items: end; }
+.os-agents-create > button { min-height: 42px; }
+.os-agents-section [hidden] { display: none !important; }
+.os-agents-empty { display: grid; justify-items: start; gap: 10px; padding: 24px 14px; }
+.os-agents-empty > .os-icon { color: var(--iris-os-accent); }
+.os-agents-empty strong { color: #d4e2ef; font-size: 14px; }
+.os-agents-empty p { margin: 0; line-height: 1.7; }
+@media (max-width: 700px) {
+    .os-agents-sources { gap: 8px; }
+    .os-agents-sources > button { grid-template-columns: minmax(0,1fr) auto; padding: 13px 10px; gap: 6px; }
+    .os-agent-source-icon { display: none; }
+    .os-agents-sources strong { font-size: 12px; }
+    .os-agents-sources small { font-size: 10px; }
+    .os-agents-console { grid-template-columns: minmax(0,1fr); }
+    .os-agents-create { grid-template-columns: minmax(0,1fr); }
+}
+
+/* Use the app window's width as well as the viewport (docked windows). */
+.os-agents-section { min-width: 0; }
+.os-agents-section .os-section-head { flex-wrap: wrap; }
+.os-agents-section .os-section-head > div:first-child { flex: 1 1 200px; min-width: 0; }
+.os-agents-topology, .os-agents-console, .os-agents-sources { min-width: 0; }
+.os-agents-topology > *, .os-agents-console > * { min-width: 0; }
+.os-agent-selected-card strong { overflow-wrap: anywhere; }
+@container (max-width: 760px) {
+    .os-agents-topology, .os-agents-console { grid-template-columns: minmax(0, 1fr); }
+    .os-agents-metrics article { min-height: 70px; padding: 12px; }
+    .os-agents-signal { min-height: 70px; }
+    .os-agents-list-panel, .os-agents-detail-panel { min-height: 0; }
+}
+@container (max-width: 460px) {
+    .os-agents-sources { gap: 8px; }
+    .os-agents-sources > button { grid-template-columns: minmax(0,1fr) auto; padding: 12px 9px; gap: 6px; }
+    .os-agent-source-icon { display: none; }
+    .os-agents-sources strong { font-size: 12px; }
+    .os-agents-sources small { font-size: 10px; }
+    .os-agents-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .os-agents-create { grid-template-columns: minmax(0,1fr); }
+    button.os-agent-run-card { grid-template-columns: minmax(0,1fr); gap: 5px; }
+    button.os-agent-run-card > span:first-child { display: none; }
+    button.os-agent-run-card > .os-agent-state { justify-self: start; }
+    .os-agents-signal { grid-template-columns: minmax(0,1fr); }
+    .os-agents-signal .os-orb { display: none; }
+}

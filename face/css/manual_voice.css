@@ -1,0 +1,28 @@
+.manual-voice-panel {
+    position: fixed; z-index: 10050; bottom: 104px; left: 50%; transform: translateX(-50%);
+    width: min(380px, calc(100vw - 32px)); box-sizing: border-box; padding: 16px;
+    color: var(--text-primary, #e7edf5); background: var(--bg-panel, #0b1420);
+    border: 1px solid var(--voice-accent, var(--companion-accent, var(--iris-theme-accent, #73f7ff))); border-radius: 16px;
+    box-shadow: 0 12px 36px #0008; font: inherit; pointer-events: auto;
+    max-height: calc(100dvh - 124px); overflow-y: auto; scrollbar-width: thin;
+}
+.manual-voice-panel[hidden], .manual-voice-panel button[hidden] { display: none; }
+.manual-voice-panel strong { color: var(--voice-accent, var(--companion-accent, var(--iris-theme-accent, #73f7ff))); font-size: 11px; letter-spacing: .12em; }
+.manual-voice-panel p { margin: 10px 0; font-size: 13px; line-height: 1.5; }
+.manual-voice-panel small { display: block; opacity: .72; font-size: 11px; line-height: 1.5; }
+.manual-voice-panel .voice-streaming-option { display: flex; align-items: center; gap: 8px; margin: 14px 0 6px; font-size: 13px; }
+.manual-voice-panel input { accent-color: var(--voice-accent); width: 18px; height: 18px; flex-shrink: 0; }
+.manual-voice-panel .voice-partial { padding: 12px; margin-top: 12px; border: 1px solid var(--voice-accent); border-radius: 10px; background: var(--bg-panel, #0b1420); }
+.manual-voice-panel .voice-partial[hidden] { display: none; }
+.manual-voice-panel .voice-partial p { max-height: 140px; overflow-y: auto; overflow-wrap: anywhere; white-space: pre-wrap; margin-bottom: 0; }
+.manual-voice-panel button:disabled { opacity: .5; cursor: default; }
+.manual-voice-panel input:focus-visible { outline: 2px solid var(--voice-accent); outline-offset: 3px; }
+@media (max-height: 520px) { .manual-voice-panel { bottom: 16px; max-height: calc(100dvh - 32px); } }
+.manual-voice-panel > div { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
+.manual-voice-panel button {
+    font: inherit; font-size: 12px; color: inherit; background: transparent;
+    border: 1px solid var(--voice-accent, var(--companion-accent, var(--iris-theme-accent, #73f7ff))); border-radius: 8px; padding: 8px 12px; cursor: pointer;
+}
+.manual-voice-panel button:focus-visible { outline: 2px solid var(--companion-accent-2, var(--voice-accent, var(--iris-theme-accent-2, #ff74d4))); outline-offset: 3px; }
+#btn-hermes-voice .quick-icon { color: var(--voice-accent, #73f7ff); }
+#btn-hermes-voice[aria-pressed="true"] .quick-icon { color: var(--voice-accent, #ff74d4); }

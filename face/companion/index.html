@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="IRIS Desktop Companion, superficie local de Hermes Agent">
+    <meta name="color-scheme" content="dark">
+    <title>IRIS Companion</title>
+    <link rel="icon" type="image/png" href="../public/assets/os/iris-profile-icon-v1.png?v=2">
+    <link rel="stylesheet" href="./companion.css?v=6">
+    <link rel="stylesheet" href="../css/manual_voice.css?v=3">
+    <link rel="stylesheet" href="../css/iris_dialog.css?v=6">
+    <script>
+        if (new URLSearchParams(location.search).has('preview')) {
+            document.documentElement.dataset.preview = 'true';
+        }
+    </script>
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/",
+            "@pixiv/three-vrm": "https://cdn.jsdelivr.net/npm/@pixiv/three-vrm@3/lib/three-vrm.module.min.js",
+            "@pixiv/three-vrm-animation": "https://cdn.jsdelivr.net/npm/@pixiv/three-vrm-animation@3/lib/three-vrm-animation.module.min.js",
+            "@pixiv/three-vrm-springbone": "https://cdn.jsdelivr.net/npm/@pixiv/three-vrm-springbone@3/lib/three-vrm-springbone.module.min.js"
+        }
+    }
+    </script>
+</head>
+<body data-operational-state="offline">
+    <main id="iris-companion" aria-label="IRIS Desktop Companion">
+        <header class="signal-header" aria-live="polite" title="Arrastra para mover la ventana">
+            <div class="identity-mark" aria-hidden="true"><span></span><i></i></div>
+            <div class="identity-copy">
+                <strong id="assistant-name">IRIS</strong>
+                <span id="surface-label">Desktop presence</span>
+            </div>
+            <div class="connection-state" id="connection-state">
+                <i class="status-dot"></i>
+                <span class="status-text">Sin conexión</span>
+            </div>
+            <button id="hide-companion" class="window-action" type="button" aria-label="Ocultar IRIS Companion" title="Ocultar ventana">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/></svg>
+            </button>
+        </header>
+
+        <section id="avatar-stage" class="avatar-stage" aria-label="Avatar de IRIS">
+            <div class="presence-halo" aria-hidden="true">
+                <i class="halo-orbit halo-orbit-a"></i>
+                <i class="halo-orbit halo-orbit-b"></i>
+                <span class="halo-scan"></span>
+            </div>
+            <div class="avatar-shell">
+                <canvas id="companion-canvas"></canvas>
+            </div>
+            <div class="speech-bubble" id="speech-bubble" role="status" aria-live="polite" hidden>
+                <span class="speech-kicker" id="speech-kicker">IRIS</span>
+                <p id="speech-text"></p>
+            </div>
+            <div class="privacy-chip" id="camera-privacy" data-analysis-state="off" hidden>
+                <video id="camera-preview" muted playsinline aria-label="Vista local de cámara"></video>
+                <span><i></i><b id="camera-privacy-label">Cámara local · sin envío</b></span>
+            </div>
+        </section>
+
+        <section id="companion-chat" class="companion-chat" aria-label="Chat compacto" hidden>
+            <header>
+                <div>
+                    <span>Canal directo</span>
+                    <strong>Hablar con <b id="chat-assistant-name">IRIS</b></strong>
+                </div>
+                <button id="close-chat" class="icon-quiet" type="button" aria-label="Cerrar chat">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+                </button>
+            </header>
+            <div id="chat-log" class="chat-log" aria-live="polite"></div>
+            <form id="chat-form">
+                <label class="sr-only" for="chat-input">Mensaje o comando de Hermes</label>
+                <input id="chat-input" autocomplete="off" maxlength="12000" placeholder="Escribe o usa /comando…">
+                <button id="send-chat" type="submit" aria-label="Enviar mensaje">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 5 16 7-16 7 3-7-3-7Z"/><path d="M7 12h13"/></svg>
+                </button>
+            </form>
+            <small id="chat-hint">Mismo agente, memoria y sesión de IRIS OS</small>
+        </section>
+
+        <nav class="signal-rail" aria-label="Controles de IRIS Companion">
+            <div class="rail-rule" aria-hidden="true"><span></span></div>
+            <button id="voice-manual" class="rail-button" type="button" aria-label="Abrir micrófono de Hermes" aria-pressed="false" data-state="off" disabled>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M6 11a6 6 0 0 0 12 0M12 17v4M9 21h6"/></svg>
+                <span data-voice-label>Hablar</span>
+                <i></i>
+            </button>
+            <button id="camera-toggle" class="rail-button" type="button" aria-label="Activar cámara local" aria-pressed="false" data-state="off">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12s3.2-5.5 9-5.5 9 5.5 9 5.5-3.2 5.5-9 5.5S3 12 3 12Z"/><circle cx="12" cy="12" r="2.6"/></svg>
+                <span>Cámara</span>
+                <i></i>
+            </button>
+            <button id="chat-toggle" class="rail-button" type="button" aria-label="Abrir chat compacto" aria-expanded="false">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5h16v11H9l-5 3v-14Z"/><path d="M8 10h8M8 13h5"/></svg>
+                <span>Chat</span>
+                <i></i>
+            </button>
+            <button id="open-iris-os" class="rail-button rail-button-primary" type="button" aria-label="Abrir IRIS OS">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="12" rx="2"/><path d="M8 20h8M12 16.5V20M7.5 8.5h9M7.5 12h5"/></svg>
+                <span>IRIS OS</span>
+                <i></i>
+            </button>
+        </nav>
+
+        <div id="loading-state" class="loading-state" role="status">
+            <span class="loader-glyph"><i></i></span>
+            <div><strong>Materializando IRIS</strong><small>Preparando superficie ligera</small></div>
+        </div>
+    </main>
+    <link rel="stylesheet" href="../css/inbox.css">
+    <script type="module" src="./companion.js?v=75"></script>
+</body>
+</html>

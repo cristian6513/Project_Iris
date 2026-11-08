@@ -1,0 +1,24 @@
+event: run.started
+data: {"user_message": {"role": "user", "content": "hola [[T-2]]"}, "runtime": {"provider": "", "model": "", "route_source": "raw_request", "requested": {"provider": "", "model": "alpha-1"}, "model_lock": "accepted"}, "session_id": "IRIS-fixture", "run_id": "run_5b0488c1be45479e891e315a8ca4f4ec", "seq": 1, "ts": 1791418531.467018}
+
+event: message.started
+data: {"message": {"id": "msg_fbc0afb100fa471a9fced8f27fc4e381", "role": "assistant"}, "session_id": "IRIS-fixture", "run_id": "run_5b0488c1be45479e891e315a8ca4f4ec", "seq": 2, "ts": 1791418531.467018}
+
+event: assistant.delta
+data: {"message_id": "msg_fbc0afb100fa471a9fced8f27fc4e381", "delta": "respuesta ", "session_id": "IRIS-fixture", "run_id": "run_5b0488c1be45479e891e315a8ca4f4ec", "seq": 3, "ts": 1791418531.673848}
+
+event: assistant.delta
+data: {"message_id": "msg_fbc0afb100fa471a9fced8f27fc4e381", "delta": "de fake-a/alpha-1 [[T-2]]", "session_id": "IRIS-fixture", "run_id": "run_5b0488c1be45479e891e315a8ca4f4ec", "seq": 4, "ts": 1791418531.6752868}
+
+event: tool.progress
+data: {"message_id": "msg_fbc0afb100fa471a9fced8f27fc4e381", "tool_name": "_thinking", "delta": "respuesta de fake-a/alpha-1 [[T-2]]", "session_id": "IRIS-fixture", "run_id": "run_5b0488c1be45479e891e315a8ca4f4ec", "seq": 5, "ts": 1791418531.6786914}
+
+event: assistant.completed
+data: {"session_id": "IRIS-fixture", "message_id": "msg_fbc0afb100fa471a9fced8f27fc4e381", "content": "respuesta de fake-a/alpha-1 [[T-2]]", "completed": true, "partial": false, "interrupted": false, "runtime": {"provider": "custom", "model": "alpha-1", "route_source": "raw_request", "requested": {"provider": "", "model": "alpha-1"}, "model_lock": "confirmed"}, "run_id": "run_5b0488c1be45479e891e315a8ca4f4ec", "seq": 6, "ts": 1791418531.6925275}
+
+event: run.completed
+data: {"session_id": "IRIS-fixture", "message_id": "msg_fbc0afb100fa471a9fced8f27fc4e381", "completed": true, "partial": false, "interrupted": false, "messages": [{"role": "assistant", "content": "respuesta de fake-a/alpha-1 [[T-2]]", "timestamp": 1791418531.6786914, "finish_reason": "stop", "reasoning": null}], "usage": {"input_tokens": 5, "output_tokens": 5, "total_tokens": 10, "runtime": {"provider": "custom", "model": "alpha-1", "route_source": "raw_request", "requested": {"provider": "", "model": "alpha-1"}, "model_lock": "confirmed"}}, "runtime": {"provider": "custom", "model": "alpha-1", "route_source": "raw_request", "requested": {"provider": "", "model": "alpha-1"}, "model_lock": "confirmed"}, "run_id": "run_5b0488c1be45479e891e315a8ca4f4ec", "seq": 7, "ts": 1791418531.6925275}
+
+event: done
+data: {"session_id": "IRIS-fixture", "run_id": "run_5b0488c1be45479e891e315a8ca4f4ec", "seq": 8, "ts": 1791418531.6925275}
+

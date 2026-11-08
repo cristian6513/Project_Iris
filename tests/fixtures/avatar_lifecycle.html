@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="es"><meta charset="utf-8"><title>A06 avatar lifecycle QA</title>
+<style>body{margin:0;background:#171922;color:#eee;font:16px system-ui}label{position:fixed;top:18px;left:24px}canvas{display:block}</style>
+<link rel="icon" href="data:,"><label id="status">Preparando A06…</label>
+<script type="importmap">
+{"imports":{"three":"/vendor/three/build/three.module.js","three/addons/":"/vendor/three/examples/jsm/","@pixiv/three-vrm":"/vendor/@pixiv/three-vrm/lib/three-vrm.module.js","@pixiv/three-vrm-animation":"/vendor/@pixiv/three-vrm-animation/lib/three-vrm-animation.module.js","@pixiv/three-vrm-springbone":"/vendor/@pixiv/three-vrm-springbone/lib/three-vrm-springbone.module.js"}}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { AvatarManager } from '/face/js/avatar.js';
+import { AvatarSwapCoordinator, commitAvatarReplacement } from '/face/js/avatar_lifecycle.js?v=2';
+import { IdleSystem } from '/face/js/idle_system.js';
+import { MicroLife } from '/face/js/micro_life.js';
+import { SpeechAnimator } from '/face/js/speech_animator.js';
+import { SceneActionManager } from '/face/js/scene_actions.js';
+const check = (value, message) => { if (!value) throw Error(message); };
+const scene = new THREE.Scene(); scene.background = new THREE.Color(0x171922);
+scene.add(new THREE.HemisphereLight(0xffffff, 0x52607a, 2));
+const light = new THREE.DirectionalLight(0xffeedd, 2); light.position.set(2, 3, 4); scene.add(light);
+const camera = new THREE.PerspectiveCamera(32, innerWidth / innerHeight, 0.05, 100);
+camera.position.set(0, 0.3, 5.5); camera.lookAt(0, 0.05, 0);
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setSize(innerWidth, innerHeight); document.body.append(renderer.domElement);
+const roomMaterial = new THREE.MeshBasicMaterial({ color: 0x52607a });
+let roomDisposals = 0; roomMaterial.addEventListener('dispose', () => roomDisposals++);
+const roomMesh = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.2, 0.2), roomMaterial);
+roomMesh.position.set(-1.4, -0.8, 0); scene.add(roomMesh);
+const app = { scene, renderer, room: { sentinel: roomMesh } };
+const IRIS = '/face/animations/iris.vrm';
+app.avatarManager = new AvatarManager(scene, IRIS); await app.avatarManager.init();
+app.idle = new IdleSystem(app.avatarManager);
+// A real, silent audio graph verifies that changing rigs does not close shared audio.
+const context = new AudioContext(); const oscillator = context.createOscillator(), gain = context.createGain();
+gain.gain.value = 0; oscillator.connect(gain).connect(context.destination); oscillator.start();
+await context.resume();
+app.lipSync = { avatar: app.avatarManager, audioContext: context, currentAudio: oscillator };
+app.speechAnimator = new SpeechAnimator(app.avatarManager); app.speechAnimator.start();
+app.microLife = new MicroLife({ avatarManager: app.avatarManager, camera }); app.microLife.setListening(true);
+app.sceneActions = new SceneActionManager(scene, app.avatarManager, null, {}, { idleSystem: app.idle });
+const speech = app.speechAnimator, micro = app.microLife, lipSync = app.lipSync;
+let elapsed = 0, commits = 0, releases = 0;
+const coordinator = new AvatarSwapCoordinator({
+    create: url => new AvatarManager(new THREE.Scene(), url, IRIS),
+    commit: candidate => {
+        candidate.avatar.group.userData.qaAvatar = true;
+        const previous = commitAvatarReplacement(app, candidate, {
+            createIdle: manager => new IdleSystem(manager), createSpeech: manager => new SpeechAnimator(manager),
+        });
+        // Simulate an avatar borrowing a room material, without owning it.
+        candidate.avatar.group.add(new THREE.Mesh(new THREE.BoxGeometry(0.01, 0.01, 0.01), roomMaterial));
+        commits++; return previous;
+    },
+    release: manager => { if (manager) { manager.dispose(); releases++; } },
+});
+function renderFrames(count = 60) {
+    for (let i = 0; i < count; i++) {
+        const dt = 1 / 60; elapsed += dt;
+        micro.beginFrame(); micro.update(dt, elapsed);
+        app.avatarManager.update(dt, elapsed, { deferVRM: true }); app.idle.update(dt, elapsed);
+        app.sceneActions.update(dt, elapsed);
+        if (app.idle.isExplicitAnimationActive()) speech.yieldToExternalClip(); else speech.update(dt, elapsed);
+        micro.applyPost(dt); app.avatarManager.finalizeFrame(dt); renderer.render(scene, camera);
+    }
+}
+async function swap(mode, url) {
+    const oldIdle = app.idle, oldPlayer = oldIdle._vrmaPlayer, oldMixer = oldPlayer?.mixer;
+    await coordinator.replace(url);
+    await app.idle._initVRMAPlayer(); app.idle.nextAction = 100000;
+    app.idle.setActivity('listening'); renderFrames();
+    check(oldIdle._disposed && !oldIdle.avatar, 'old idle retained the rig');
+    if (oldMixer) check(oldMixer.stats.actions.total === 0 && oldMixer.stats.bindings.total === 0, 'old mixer retained bindings');
+    check(scene.children.filter(n => n.userData.qaAvatar).length === 1, 'more than one visible avatar');
+    check(app.speechAnimator === speech && speech._talking, 'speech continuity lost');
+    check(app.lipSync === lipSync && context.state === 'running', 'shared audio interrupted');
+    check(app.microLife === micro && micro._listening, 'listening lost');
+    check(roomDisposals === 0 && roomMesh.parent === scene, 'room disposed');
+    check(app.idle._vrmaPlayer.mixer.stats.actions.inUse === 1, 'more than one settled activity action');
+    scene.traverse(node => check([...node.position.toArray(), ...node.quaternion.toArray()].every(Number.isFinite), 'invalid transform'));
+    document.querySelector('#status').textContent = `A06 · cambio ${commits} · ${mode}`;
+    return { mode, commits, releases, geometries: renderer.info.memory.geometries, textures: renderer.info.memory.textures,
+        programs: renderer.info.programs.length, actions: app.idle._vrmaPlayer?.mixer.stats.actions.inUse || 0,
+        roomDisposals, audioState: context.state };
+}
+window.lifecycleQA = { swap, renderFrames, app, coordinator, renderer, context };
+document.querySelector('#status').textContent = 'A06 listo';
+</script></html>

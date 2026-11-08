@@ -1,0 +1,23 @@
+{
+  "schema": "iris.app-manifest/v1",
+  "sdkVersion": 1,
+  "id": "marketplace",
+  "name": "IRIS Marketplace",
+  "version": "1.0.0",
+  "description": "Descubrir Skills y MCP",
+  "icon": "marketplace",
+  "accent": "magenta",
+  "presentation": "window",
+  "window": {
+    "width": 920,
+    "height": 620
+  },
+  "launcher": {
+    "visible": true,
+    "order": 90,
+    "label": "Marketplace"
+  },
+  "ui": {
+    "adapter": "legacy"
+  }
+}

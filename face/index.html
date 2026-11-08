@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="IRIS OS — Tu asistente de IA personalizable">
+    <title>IRIS OS - AI Avatar</title>
+    <link rel="icon" type="image/png" href="/face/public/assets/os/iris-profile-icon-v1.png?v=1">
+    <link rel="apple-touch-icon" href="/face/public/assets/os/iris-profile-icon-v1.png?v=1">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="css/styles.css?v=84">
+    <link rel="stylesheet" href="css/notifications.css?v=3">
+    <link rel="stylesheet" href="css/automations.css?v=6">
+    <link rel="stylesheet" href="css/inbox.css?v=3">
+    <link rel="stylesheet" href="css/os_widgets.css?v=3">
+    <link rel="stylesheet" href="css/os_desktop_home.css?v=8">
+    <link rel="stylesheet" href="css/os_theme_preview.css?v=1">
+    <link rel="stylesheet" href="css/os_transitions.css?v=2">
+    <link rel="stylesheet" href="css/iris_dialog.css?v=6">
+    <link rel="stylesheet" href="css/iris_os_responsive.css?v=6">
+    <link rel="stylesheet" href="css/command_palette.css?v=2">
+    <link rel="stylesheet" href="css/iris_player.css?v=3">
+    <link rel="stylesheet" href="css/room_atmosphere.css?v=1">
+    <link rel="stylesheet" href="css/manual_voice.css?v=3">
+    <link rel="stylesheet" href="css/async_agents.css?v=1">
+
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/",
+            "@pixiv/three-vrm": "https://cdn.jsdelivr.net/npm/@pixiv/three-vrm@3/lib/three-vrm.module.min.js",
+            "@pixiv/three-vrm-animation": "https://cdn.jsdelivr.net/npm/@pixiv/three-vrm-animation@3/lib/three-vrm-animation.module.min.js",
+            "@pixiv/three-vrm-springbone": "https://cdn.jsdelivr.net/npm/@pixiv/three-vrm-springbone@3/lib/three-vrm-springbone.module.min.js"
+        }
+    }
+    </script>
+</head>
+<body>
+    <div id="IRIS-app">
+        <!-- Three.js Canvas -->
+        <canvas id="IRIS-canvas"></canvas>
+
+        <!-- Cinematic vignette overlay -->
+        <div id="vignette"></div>
+
+        <!-- Loading Screen -->
+        <div id="loading-screen">
+            <div class="loader-ring"></div>
+            <p class="loader-text">Iniciando IRIS…</p>
+        </div>
+
+        <!-- Status Bar -->
+        <div id="status-bar">
+            <div class="status-indicator" id="connection-status">
+                <span class="status-dot"></span>
+                <span class="status-text">Conectando…</span>
+            </div>
+            <div id="vision-privacy-indicator" class="vision-privacy-indicator" data-state="off" hidden>
+                <span class="vision-privacy-dot"></span>
+                <strong>VISION LOCAL</strong>
+                <span class="vision-privacy-state">OFF</span>
+            </div>
+            <div class="IRIS-identity">
+                <span class="IRIS-name">IRIS</span>
+                <span class="IRIS-version">v&mdash;</span>
+            </div>
+        </div>
+
+        <!-- Emotion Indicator -->
+        <div id="emotion-display">
+            <span class="emotion-emoji" id="emotion-emoji">ÁNIMO</span>
+            <span class="emotion-label" id="emotion-label">neutral</span>
+            <div class="emotion-energy">
+                <div class="emotion-energy-fill" id="emotion-energy-bar"></div>
+            </div>
+        </div>
+
+        <!-- Speaking Ring Indicator -->
+        <div id="speaking-ring"></div>
+
+        <!-- Quick Action Buttons -->
+        <div id="action-buttons">
+            <button id="btn-cam" class="action-btn" title="Abrir cámara" aria-label="Abrir vista de la cámara">
+                <span class="quick-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M2.5 12s3.4-5.5 9.5-5.5S21.5 12 21.5 12s-3.4 5.5-9.5 5.5S2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="2.6"/></svg></span>
+                <span class="btn-label">Visión</span>
+            </button>
+            <button id="btn-chat" class="action-btn" title="Chat" aria-label="Abrir o cerrar el chat">
+                <span class="quick-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 6.5h14v9H9l-4 3v-12Z"/><path d="M8 10h8M8 13h5"/></svg></span>
+                <span class="btn-label">Chat</span>
+            </button>
+            <button id="btn-brain" class="action-btn" title="Estado de Iris" aria-label="Ver datos del cerebro de IRIS">
+                <span class="quick-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5.5h8l2.5 2.5v8L16 18.5H8L5.5 16V8L8 5.5Z"/><path d="M9 9h6v6H9z"/><path d="M12 2.8v2.7M12 18.5v2.7M2.8 12h2.7M18.5 12h2.7"/></svg></span>
+                <span class="btn-label">Estado</span>
+            </button>
+            <button id="btn-iris-os" class="action-btn" title="Abrir IRIS OS" aria-label="Abrir el escritorio de IRIS OS">
+                <span class="quick-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="12" rx="2"/><path d="M8 20h8M12 16.5V20M7.5 8.5h9M7.5 12h5"/></svg></span>
+                <span class="btn-label">Inicio</span>
+            </button>
+            <button id="btn-inspector" class="action-btn" title="Explorar la habitación - órbita libre" aria-label="Activar modo inspector de camara libre">
+                <span class="quick-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 7.5 12 3l8 4.5v9L12 21l-8-4.5v-9Z"/><path d="M12 12 4.5 7.8M12 12l7.5-4.2M12 12v8.5"/></svg></span>
+                <span class="btn-label">Habitación</span>
+            </button>
+            <button id="btn-hermes-voice" class="action-btn" title="Hablar directamente con IRIS" aria-label="Hablar con IRIS" aria-pressed="false" disabled>
+                <span class="quick-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 4.5a3 3 0 0 0-3 3V12a3 3 0 0 0 6 0V7.5a3 3 0 0 0-3-3Z"/><path d="M6.5 11.5a5.5 5.5 0 0 0 11 0M12 17v3M9 20h6"/></svg></span>
+                <span class="btn-label" data-voice-label>Hablar</span>
+            </button>
+            <button id="btn-memory" class="action-btn" title="Memoria - recordar a IRIS cosas de antes" aria-label="Abrir panel de memoria de IRIS">
+                <span class="quick-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="6.5" rx="6.5" ry="3"/><path d="M5.5 6.5v5c0 1.7 2.9 3 6.5 3s6.5-1.3 6.5-3v-5"/><path d="M5.5 11.5v5c0 1.7 2.9 3 6.5 3s6.5-1.3 6.5-3v-5"/></svg></span>
+                <span class="btn-label">Memoria</span>
+            </button>
+        </div>
+
+        <!-- ════════════════════════════════════════════════════════════
+             Memory Panel Modal
+             ────────────────────────────────────────────────────────────
+             Local SQLite memory browser. Lets the user push selected
+             past turns back to Hermes as a priming reminder, clear
+             local history, or reset Hermes' server-side session
+             memory. All wiring lives in face/js/memory_panel.js. ─── -->
+        <div id="memory-modal" class="memory-modal hidden" role="dialog" aria-hidden="true">
+            <div class="memory-backdrop"></div>
+            <div class="memory-panel">
+                <header class="memory-header">
+                    <div class="memory-title">
+                        <span class="memory-icon">ME</span>
+                        <h2>Memoria de IRIS</h2>
+                    </div>
+                    <button class="memory-close" id="memory-close" aria-label="Cerrar">x</button>
+                </header>
+
+                <div class="memory-stats" id="memory-stats">
+                    <span>Cargando...</span>
+                </div>
+
+                <div class="memory-filters">
+                    <select id="memory-range" class="memory-input">
+                        <option value="0">Todo el historial</option>
+                        <option value="1">Ultimas 24 h</option>
+                        <option value="7" selected>Ultimos 7 dias</option>
+                        <option value="30">Ultimos 30 dias</option>
+                    </select>
+                    <input id="memory-search" type="text" class="memory-input"
+                           placeholder="Buscar palabra..." />
+                    <label class="memory-checkbox">
+                        <input type="checkbox" id="memory-allsessions" />
+                        Todas las sesiones
+                    </label>
+                </div>
+
+                <div class="memory-list" id="memory-list">
+                    <p class="memory-empty">Selecciona un filtro para ver tus conversaciones.</p>
+                </div>
+
+                <div class="memory-selection-bar" id="memory-selection-bar">
+                    <span id="memory-selection-count">0 turnos seleccionados</span>
+                    <span id="memory-token-estimate" class="memory-tokens">~0 tokens</span>
+                    <button class="memory-btn-link" id="memory-select-all">Seleccionar todo</button>
+                    <button class="memory-btn-link" id="memory-select-none">Limpiar seleccion</button>
+                </div>
+
+                <footer class="memory-footer">
+                    <button class="memory-btn memory-btn-primary" id="memory-recall">
+                        Recordar a IRIS
+                    </button>
+                    <button class="memory-btn memory-btn-warn" id="memory-delete">
+                        Borrar seleccionados
+                    </button>
+                    <button class="memory-btn memory-btn-danger" id="memory-clear-all">
+                        Limpiar todo
+                    </button>
+                    <button class="memory-btn memory-btn-secondary" id="memory-reset-hermes"
+                            title="Borra todas las sesiones guardadas por Hermes. La memoria local de IRIS no se toca.">
+                        Borrar sesiones del motor de IA
+                    </button>
+                </footer>
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════════════════════════════
+             Skills Panel Modal (Fase 2.A)
+             ────────────────────────────────────────────────────────────
+             Lists Hermes' installed skills. The user toggles which
+             ones IRIS should be aware of; enabled skills are appended
+             to the system prompt at every turn via
+             core/skills_bridge.py. ─────────────────────────────────── -->
+        <div id="skills-modal" class="memory-modal hidden" role="dialog" aria-hidden="true">
+            <div class="memory-backdrop"></div>
+            <div class="memory-panel">
+                <header class="memory-header">
+                    <div class="memory-title">
+                        <span class="memory-icon">SK</span>
+                        <h2>Skills disponibles</h2>
+                    </div>
+                    <button class="memory-close" id="skills-close" aria-label="Cerrar">x</button>
+                </header>
+
+                <div class="memory-stats" id="skills-stats">
+                    <span>Cargando...</span>
+                </div>
+
+                <div class="memory-filters">
+                    <input id="skills-search" type="text" class="memory-input"
+                           placeholder="Buscar skill..." />
+                    <label class="memory-checkbox">
+                        <input type="checkbox" id="skills-only-eligible" />
+                        Solo elegibles
+                    </label>
+                    <label class="memory-checkbox">
+                        <input type="checkbox" id="skills-only-enabled" />
+                        Solo habilitadas
+                    </label>
+                </div>
+
+                <div class="memory-list" id="skills-list">
+                    <p class="memory-empty">Cargando habilidades…</p>
+                </div>
+
+                <footer class="memory-footer">
+                    <button class="memory-btn memory-btn-secondary" id="skills-refresh">
+                        Refrescar
+                    </button>
+                </footer>
+            </div>
+        </div>
+
+        <!-- Room Skin Selector HUD -->
+        <div id="room-selector" title="Cambiar estilo de la habitación">
+            <span class="room-sel-label">Habitación</span>
+            <button class="room-btn active" data-room="cyber" title="Habitación Cyber">Cyber</button>
+            <button class="room-btn" data-room="sakura" title="Habitación Sakura">Sakura</button>
+            <button class="room-btn" data-room="hacker" title="Habitación Hacker">Hacker</button>
+            <button class="room-btn" data-room="classic" title="Habitación Classic">Classic</button>
+        </div>
+
+        <div id="inspect-room-hud" class="inspect-room-hud" title="Controles de la habitación" hidden>
+            <div class="inspect-hud-header">
+                <div>
+                    <span class="inspect-hud-kicker">Explorar habitación</span>
+                    <strong id="inspect-selected-zone">Vista general</strong>
+                </div>
+                <div class="inspect-hud-controls" aria-label="Controles de exploración">
+                    <button id="inspect-reset-camera" class="inspect-icon-btn" type="button" title="Restablecer vista">Restablecer</button>
+                    <button id="inspect-exit" class="inspect-icon-btn" type="button" title="Salir de la exploración">Salir</button>
+                </div>
+            </div>
+
+            <div class="inspect-section">
+                <div class="room-atmosphere-controls" id="inspect-room-atmosphere-controls">
+                    <div class="room-atmosphere-row">
+                        <label for="inspect-room-atmosphere">Ambiente de luz</label>
+                        <select id="inspect-room-atmosphere" class="room-atmosphere-select" data-room-atmosphere aria-describedby="inspect-room-atmosphere-note"></select>
+                    </div>
+                    <small id="inspect-room-atmosphere-note" class="room-atmosphere-note" data-room-atmosphere-note role="status"></small>
+                </div>
+            </div>
+            <div class="inspect-section">
+                <span class="inspect-section-label">Cámara</span>
+            <div id="inspect-camera-presets" class="inspect-presets" aria-label="Vistas de la habitación">
+                <button class="inspect-preset-btn" data-camera-preset="frontView" data-zone="overview">Frente</button>
+                <button class="inspect-preset-btn" data-camera-preset="leftView" data-zone="overview">Izquierda</button>
+                <button class="inspect-preset-btn" data-camera-preset="rightView" data-zone="overview">Derecha</button>
+                <button class="inspect-preset-btn" data-camera-preset="backView" data-zone="overview">Atrás</button>
+                <button class="inspect-preset-btn" data-camera-preset="topView" data-zone="overview">Arriba</button>
+                <button class="inspect-preset-btn" data-camera-preset="isometricView" data-zone="overview">Isométrica</button>
+                <button class="inspect-preset-btn" data-camera-preset="deskView" data-zone="pc">Escritorio</button>
+                <button class="inspect-preset-btn" data-camera-preset="sofaView" data-zone="sofa">Sofá</button>
+                <button class="inspect-preset-btn" data-camera-preset="bedView" data-zone="bed">Cama</button>
+                <button class="inspect-preset-btn" data-camera-preset="windowView" data-zone="window">Ventana</button>
+                <button class="inspect-preset-btn" data-camera-preset="avatarCloseUp" data-zone="platform">Avatar de cerca</button>
+            </div>
+            </div>
+
+            <div class="inspect-section">
+                <span class="inspect-section-label">Zonas de la habitación</span>
+            <div class="inspect-zone-map" aria-label="Zonas de la habitación">
+                <button class="inspect-zone-card" data-zone="sofa" data-room-action="go_sofa" style="--zone-x:18%;--zone-y:62%">
+                    <span class="zone-dot"></span><span>Sofá</span>
+                </button>
+                <button class="inspect-zone-card" data-zone="bookshelf" data-room-action="go_bookshelf" style="--zone-x:18%;--zone-y:28%">
+                    <span class="zone-dot"></span><span>Librero</span>
+                </button>
+                <button class="inspect-zone-card" data-zone="platform" data-room-action="stand_platform" style="--zone-x:50%;--zone-y:54%">
+                    <span class="zone-dot"></span><span>Plataforma</span>
+                </button>
+                <button class="inspect-zone-card" data-zone="window" data-room-action="look_window" style="--zone-x:50%;--zone-y:14%">
+                    <span class="zone-dot"></span><span>Ventana</span>
+                </button>
+                <button class="inspect-zone-card" data-zone="pc" data-room-action="go_pc" style="--zone-x:80%;--zone-y:32%">
+                    <span class="zone-dot"></span><span>Escritorio</span>
+                </button>
+                <button class="inspect-zone-card" data-zone="bed" data-room-action="go_bed" style="--zone-x:80%;--zone-y:68%">
+                    <span class="zone-dot"></span><span>Cama</span>
+                </button>
+            </div>
+            </div>
+
+            <div class="inspect-section">
+                <span class="inspect-section-label">Acciones</span>
+            <div id="room-hotspot-actions" class="room-hotspot-actions" aria-label="Acciones de la habitación">
+                <button class="room-hotspot-btn" data-room-action="return_center" data-zone="platform">Centro</button>
+                <button class="room-hotspot-btn" data-room-action="read_center" data-zone="platform">Leer de pie</button>
+                <button class="room-hotspot-btn" data-room-action="tablet_center" data-zone="platform">Tablet de pie</button>
+                <button class="room-hotspot-btn" data-room-action="sit_desk" data-zone="pc">Sentarse en la silla</button>
+                <button class="room-hotspot-btn" data-room-action="use_pc" data-zone="pc">Usar PC</button>
+                <button class="room-hotspot-btn" data-room-action="use_pc_2" data-zone="pc">Usar PC 2</button>
+                <button class="room-hotspot-btn" data-room-action="sit_sofa" data-zone="sofa">Sentarse en el sofá</button>
+                <button class="room-hotspot-btn" data-room-action="read_sofa" data-zone="sofa">Leer en el sofá</button>
+                <button class="room-hotspot-btn" data-room-action="tablet_sofa" data-zone="sofa">Tablet en el sofá</button>
+                <button class="room-hotspot-btn" data-room-action="sit_bed" data-zone="bed">Sentarse en la cama</button>
+                <button class="room-hotspot-btn" data-room-action="read_bed" data-zone="bed">Leer en la cama</button>
+                <button class="room-hotspot-btn" data-room-action="tablet_bed" data-zone="bed">Tablet en la cama</button>
+                <button class="room-hotspot-btn" data-room-action="lie_bed" data-zone="bed">Acostarse</button>
+                <button class="room-hotspot-btn" data-room-action="look_window" data-zone="window">Ventana</button>
+                <button class="room-hotspot-btn" data-room-action="go_bookshelf" data-zone="bookshelf">Librero</button>
+                <button class="room-hotspot-btn" data-room-action="read_book" data-zone="bookshelf">Leer</button>
+            </div>
+            </div>
+        </div>
+
+        <!-- Pose Menu HUD (dynamic — buttons are rebuilt from idle_system) -->
+        <div id="pose-menu" title="Poses predeterminadas">
+            <button id="pose-menu-toggle" class="pose-toggle">Poses</button>
+            <div id="pose-menu-items" class="pose-items hidden">
+                <p class="pose-empty" style="opacity:0.65; font-size:0.85em; padding:6px 8px; margin:0;">
+                    Cargando poses disponibles...
+                </p>
+            </div>
+        </div>
+
+        <button id="inspect-top-toggle" class="pose-toggle inspect-top-toggle" type="button"
+                title="Explorar la habitacion" aria-label="Abrir modo inspector de habitacion">
+            Explorar
+        </button>
+
+        <!-- VRMA Uploader HUD — drop a .vrma file, give it a pose name,
+             and the server saves it into face/animations/ and updates
+             manifest.json. Fresh animations appear in the pose menu
+             after a quick idle-system refresh. -->
+        <div id="vrma-uploader" title="Subir animacion (VRMA / FBX / GLB / BVH)">
+            <button id="vrma-uploader-toggle" class="pose-toggle">Subir animacion</button>
+            <div id="vrma-uploader-panel" class="pose-items hidden" style="min-width:260px;">
+                <label style="display:block; font-size:0.8em; opacity:0.8; margin:4px 0 2px;">
+                    Nombre de la pose
+                </label>
+                <input id="vrma-name-input" type="text" placeholder="ej: kawaii_dance"
+                    style="width:100%; padding:6px 8px; background:rgba(0,0,0,0.45); border:1px solid rgba(255,255,255,0.15); border-radius:6px; color:#fff; font-size:0.9em; box-sizing:border-box;">
+                <label style="display:block; font-size:0.8em; opacity:0.8; margin:8px 0 2px;">
+                    Archivo (.vrma, .fbx, .glb, .gltf, .bvh)
+                </label>
+                <input id="vrma-file-input" type="file" accept=".vrma,.fbx,.glb,.gltf,.bvh"
+                    style="width:100%; font-size:0.8em; color:#ddd;">
+                <div style="display:flex; gap:6px; margin-top:8px;">
+                    <button id="vrma-upload-btn" class="pose-btn" style="flex:1;">Subir</button>
+                </div>
+                <p id="vrma-upload-status" style="font-size:0.78em; margin:6px 2px 2px; min-height:1.1em; opacity:0.85;"></p>
+                <details style="margin-top:8px; font-size:0.78em; opacity:0.82;">
+                    <summary style="cursor:pointer;">Donde conseguir archivos .vrma?</summary>
+                    <ul style="padding-left:18px; margin:6px 0;">
+                        <li><a href="https://vroid.pixiv.help/hc/en-us/articles/9524681282201" target="_blank" rel="noopener">VRoid Hub - Motion library</a></li>
+                        <li><a href="https://booth.pm/en/search/vrma" target="_blank" rel="noopener">Booth.pm - VRMA gratis y pago</a></li>
+                        <li><a href="https://booth.pm/ja/items/5512385" target="_blank" rel="noopener">VRMA_MotionPack (pixiv, 7 poses)</a></li>
+                        <li><a href="https://booth.pm/ja/items/5801234" target="_blank" rel="noopener">Wonderful VRMA Set</a></li>
+                        <li><a href="https://vrm-c.github.io/vrm-animation/" target="_blank" rel="noopener">vrm-c - Spec + demos</a></li>
+                        <li><a href="https://github.com/vrm-c/vrm-specification/tree/master/specification/VRMC_vrm_animation-1.0" target="_blank" rel="noopener">VRMC_vrm_animation 1.0 spec</a></li>
+                    </ul>
+                    <p style="margin:4px 0 0;">
+                        Si tienes FBX o BVH, convertilos con
+                        <a href="https://vrm-c.github.io/vrm-animation/converter/" target="_blank" rel="noopener">VRM Animation Converter</a>.
+                    </p>
+                </details>
+            </div>
+        </div>
+        <script>
+            /**
+             * VRMA uploader wiring.
+             *
+             * Posts file + name to /api/upload-vrma. On success, asks the
+             * idle system to reload its manifest so the new pose shows up
+             * in the selector without a page refresh.
+             */
+            (function () {
+                const toggle    = document.getElementById('vrma-uploader-toggle');
+                const panel     = document.getElementById('vrma-uploader-panel');
+                const nameInput = document.getElementById('vrma-name-input');
+                const fileInput = document.getElementById('vrma-file-input');
+                const uploadBtn = document.getElementById('vrma-upload-btn');
+                const status    = document.getElementById('vrma-upload-status');
+
+                toggle.addEventListener('click', () => panel.classList.toggle('hidden'));
+
+                const sanitize = (s) =>
+                    (s || '').trim().toLowerCase().replace(/[^a-z0-9_]+/g, '_').replace(/^_|_$/g, '');
+
+                uploadBtn.addEventListener('click', async () => {
+                    const rawName = nameInput.value;
+                    const safe    = sanitize(rawName);
+                    const file    = fileInput.files?.[0];
+
+                    if (!safe) {
+                        status.textContent = 'Error: Escribe un nombre de pose valido.';
+                        status.style.color = '#ff8a8a';
+                        return;
+                    }
+                    if (!file) {
+                        status.textContent = 'Error: Selecciona un archivo de animacion.';
+                        status.style.color = '#ff8a8a';
+                        return;
+                    }
+                    // Accept any format the backend's /api/upload-vrma knows
+                    // about: native VRMA + the retargeted formats (Mixamo
+                    // FBX, Blender GLB/GLTF, generic BVH). Keep this list
+                    // in sync with `_LIVE_UPLOAD_EXTS` in
+                    // ``core/websocket_server.py``.
+                    const acceptedExts = ['vrma', 'fbx', 'glb', 'gltf', 'bvh'];
+                    const lower = file.name.toLowerCase();
+                    const ok = acceptedExts.some(e => lower.endsWith('.' + e));
+                    if (!ok) {
+                        status.textContent =
+                            'Error: Formato no aceptado. Usa: ' +
+                            acceptedExts.map(e => '.' + e).join(', ');
+                        status.style.color = '#ff8a8a';
+                        return;
+                    }
+
+                    const fd = new FormData();
+                    fd.append('file', file);
+                    fd.append('name', safe);
+
+                    status.style.color = '#ddd';
+                    status.textContent = 'Subiendo...';
+                    uploadBtn.disabled = true;
+
+                    try {
+                        const res = await fetch('/api/upload-vrma', {
+                            method: 'POST',
+                            body: fd,
+                        });
+                        const data = await res.json().catch(() => ({}));
+                        if (!res.ok) {
+                            throw new Error(data?.detail || `HTTP ${res.status}`);
+                        }
+                        status.style.color = '#8aff9a';
+                        status.textContent = `OK: '${data.name}' guardado (${(data.size/1024).toFixed(1)} KB).`;
+                        nameInput.value = '';
+                        fileInput.value = '';
+
+                        // Refresh the idle system so the new pose surfaces
+                        // in the pose selector immediately. The reload also
+                        // attempts to retarget any non-.vrma file (.fbx/.glb/
+                        // .bvh) against the current VRM — if the source rig
+                        // isn't humanoid we tell the user explicitly so they
+                        // know to find a humanoid version.
+                        try {
+                            let loaded = null;
+                            const irisApp = window.iris;
+                            if (irisApp?.idle?.reloadManifest) {
+                                await irisApp.idle.reloadManifest();
+                            } else if (irisApp?.idle?.loadManifest) {
+                                await irisApp.idle.loadManifest();
+                            }
+                            // Verify the upload actually surfaced as a usable clip.
+                            // hasAnimation() lives on the underlying VRMAnimationPlayer.
+                            const player = (window.iris)?.idle?._vrmaPlayer;
+                            if (player && typeof player.hasAnimation === 'function') {
+                                loaded = player.hasAnimation(data.name);
+                            }
+                            if (loaded === false) {
+                                status.style.color = '#ffce6a';
+                                status.textContent =
+                                    `Aviso: '${data.name}' guardado pero NO se pudo retargetear. ` +
+                                    `Necesita un esqueleto humanoide estandar ` +
+                                    `(Mixamo / VRoid / Blender humanoid rig). ` +
+                                    `Mira la consola para los huesos no reconocidos.`;
+                            }
+                        } catch (e) {
+                            console.warn('[VRMA upload] manifest reload failed:', e);
+                        }
+                    } catch (e) {
+                        console.error('[VRMA upload] failed:', e);
+                        status.style.color = '#ff8a8a';
+                        status.textContent = `Error: ${e.message || e}`;
+                    } finally {
+                        uploadBtn.disabled = false;
+                    }
+                });
+            })();
+        </script>
+        <script>
+            /**
+             * Pose menu populator.
+             *
+             * The list of buttons is not hard-coded — it is rebuilt from
+             * `window.iris.idle.availablePoses()` whenever the idle
+             * system emits `IRIS:posesChanged`. This way:
+             *   • 'safe' poses (head/neck only) always show
+             *   • 'risky' poses (arms/legs) only show if a .vrma for
+             *      them is loaded in /face/animations/
+             *   • custom poses added in code appear automatically
+             *
+             * If the idle system hasn't initialised yet (happens during
+             * first seconds), we poll briefly then stop.
+             */
+            (function () {
+                const toggle = document.getElementById('pose-menu-toggle');
+                const items  = document.getElementById('pose-menu-items');
+                toggle.addEventListener('click', () => items.classList.toggle('hidden'));
+
+                const render = (poses) => {
+                    if (!poses || poses.length === 0) {
+                        items.innerHTML = '<p class="pose-empty" style="opacity:0.65; font-size:0.85em; padding:6px 8px; margin:0;">No hay poses disponibles.</p>';
+                        return;
+                    }
+                    // Group tier order: custom → safe → risky
+                    const order = { custom: 0, safe: 1, risky: 2 };
+                    poses = [...poses].sort((a, b) =>
+                        (order[a.tier] ?? 9) - (order[b.tier] ?? 9)
+                    );
+                    items.innerHTML = '';
+                    for (const p of poses) {
+                        const btn = document.createElement('button');
+                        btn.className = 'pose-btn';
+                        if (p.hasVRMA) btn.classList.add('has-vrma');
+                        if (p.tier === 'custom') btn.classList.add('is-custom');
+                        btn.dataset.pose = p.name;
+                        btn.textContent = p.label;
+                        if (p.hasVRMA) {
+                            btn.title = 'Usa animacion VRMA profesional';
+                        } else if (p.tier === 'custom') {
+                            btn.title = 'Accion de escena - camina e interactua con el entorno';
+                        } else {
+                            btn.title = 'Pose procedural';
+                        }
+                        btn.addEventListener('click', () => {
+                            const irisApp = window.iris;
+                            if (irisApp?.idle?.trigger) {
+                                const ok = irisApp.idle.trigger(p.name);
+                                if (!ok) console.warn('Pose not available:', p.name);
+                            }
+                        });
+                        items.appendChild(btn);
+                    }
+                };
+
+                // Refresh whenever idle_system tells us something changed
+                window.addEventListener('IRIS:posesChanged', (e) => render(e.detail.poses));
+
+                // Initial poll — keep trying for ~10s until idle is ready
+                let tries = 0;
+                const poll = () => {
+                    const idle = (window.iris)?.idle;
+                    if (idle?.availablePoses) {
+                        render(idle.availablePoses());
+                        return;
+                    }
+                    if (++tries < 50) setTimeout(poll, 200);
+                };
+                poll();
+            })();
+        </script>
+
+        <!-- Backdrop shown behind the side panel on mobile so the
+             user can tap outside the panel to close it. Hidden on
+             desktop via CSS. -->
+        <div id="panel-backdrop" class="panel-backdrop" aria-hidden="true"></div>
+
+        <!-- The handle is deliberately outside the scrollable panel.  A child
+             handle is clipped by overflow-y:auto and can look present while
+             remaining impossible to click at the viewport edge. -->
+        <button id="panel-toggle" class="panel-toggle-btn" title="Mostrar u ocultar centro de control"
+                aria-label="Mostrar u ocultar centro de control" aria-controls="side-panel" aria-expanded="false">&lt;</button>
+
+        <!-- Side Panel -->
+        <div id="side-panel" class="side-panel" role="region" aria-label="Centro de control de IRIS OS">
+            <!-- Mobile-only close button rendered inside the panel so
+                 it's reachable when the panel covers the whole screen.
+                 Hidden on desktop via CSS. -->
+            <button id="panel-close-mobile" class="panel-close-mobile" title="Cerrar panel" aria-label="Cerrar panel">x</button>
+
+            <!-- Camera Section -->
+            <div id="panel-camera" class="panel-section">
+                <div class="panel-section-header">
+                    <span>Visión</span>
+                    <span class="panel-section-header-right">
+                        <span id="cam-status" class="cam-dot"></span>
+                        <span class="collapse-arrow" aria-hidden="true">v</span>
+                    </span>
+                </div>
+                <div class="panel-section-body">
+                    <video id="cam-preview" class="cam-video" autoplay muted playsinline></video>
+                    <p class="cam-hint">Vista local de la cámara</p>
+                    <button id="cam-toggle" type="button" class="btn">Activar cámara</button>
+                </div>
+            </div>
+
+            <!-- Chat Section -->
+            <div id="panel-chat" class="panel-section">
+                <div class="panel-section-header">
+                    <span>Chat</span>
+                    <span class="collapse-arrow" aria-hidden="true">v</span>
+                </div>
+                <div class="panel-section-body">
+                    <div id="chat-messages" class="chat-messages"></div>
+                    <div id="chat-composer" class="chat-composer">
+                        <!-- Attachment chips (images + files) appear here -->
+                        <div id="chat-attachments" class="chat-attachments" hidden></div>
+                        <div class="chat-input-row">
+                            <textarea id="chat-input" class="chat-input"
+                                      placeholder="Escribe a IRIS…  / comandos · Ctrl+K paleta"
+                                      aria-label="Mensaje para IRIS"
+                                      rows="1"
+                                      autocomplete="off"
+                                      spellcheck="true"></textarea>
+                            <div class="chat-input-actions">
+                                <button id="chat-attach" class="chat-icon-btn" type="button"
+                                        title="Adjuntar imagen, PDF, texto o referencia de archivo"
+                                        aria-label="Adjuntar imagen, PDF, texto o referencia de archivo">+</button>
+                                <button id="chat-camera-ask" class="chat-icon-btn chat-camera-ask" type="button"
+                                        title="Preguntar con una foto: Iris toma una foto de la cámara y la mira"
+                                        aria-label="Preguntar con una foto de la cámara"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 8h4l1.5-2h5L16 8h4v10H4z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="13" r="3" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></button>
+                                <button id="chat-screen-ask" class="chat-icon-btn chat-camera-ask" type="button"
+                                        title="Compartir una captura de pantalla para esta pregunta"
+                                        aria-label="Compartir una captura de pantalla"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="4" width="18" height="13" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8 21h8m-4-4v4" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></button>
+                                <input id="chat-file-input" type="file" multiple hidden
+                                       accept="image/png,image/jpeg,image/webp,image/gif,image/bmp,image/svg+xml,.txt,.md,.markdown,.json,.yaml,.yml,.toml,.ini,.cfg,.csv,.tsv,.log,.rtf,.py,.js,.mjs,.ts,.tsx,.jsx,.html,.htm,.css,.scss,.xml,.svg,.sh,.bat,.ps1,.c,.cpp,.h,.hpp,.cs,.java,.go,.rs,.rb,.php,.sql,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip">
+                                <button id="chat-send" class="chat-send-btn" type="button"
+                                        title="Enviar" aria-label="Enviar mensaje">&gt;</button>
+                            </div>
+                        </div>
+                        <!-- Composer footer: reasoning-effort selector.
+                             Lets the user pick how much "extended thinking"
+                             the model does per turn, like ChatGPT/Claude. -->
+                        <div class="composer-footer">
+                            <div class="reasoning-pill" id="reasoning-pill" title="Cuanto piensa IRIS antes de responder. Mas esfuerzo = mejores respuestas pero mas lentas. El cambio se aplica al instante.">
+                                <span class="reasoning-pill-icon" aria-hidden="true">Medio</span>
+                                <label class="reasoning-pill-label" for="reasoning-select">Razonamiento</label>
+                                <select id="reasoning-select" class="reasoning-pill-select" aria-label="Nivel de razonamiento">
+                                    <option value="none">Ninguno</option>
+                                    <option value="low">Bajo</option>
+                                    <option value="medium" selected>Medio</option>
+                                    <option value="high">Profundo</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Brain Section -->
+            <div id="panel-brain" class="panel-section">
+                <div class="panel-section-header">
+                    <span>Estado de Iris</span>
+                    <span class="collapse-arrow" aria-hidden="true">v</span>
+                </div>
+                <div class="panel-section-body">
+                    <pre id="brain-json" class="brain-json">{ "status": "waiting..." }</pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Subtitle Overlay -->
+        <div id="subtitle-container">
+            <div id="subtitle-text"></div>
+        </div>
+
+        <!-- Listening Indicator -->
+        <div id="listening-indicator" class="hidden">
+            <div class="listening-waves">
+                <span></span><span></span><span></span><span></span><span></span>
+            </div>
+            <p>Escuchando...</p>
+        </div>
+    </div>
+
+    <!-- These two must load after every other stylesheet: their rules override styles.css.
+         Vite bundles the relative links above into one file it puts in <head>, but leaves
+         absolute ones where they are, so here they stay last in the installed build too. -->
+    <link rel="stylesheet" href="/face/css/os_shell.css?v=3">
+    <link rel="stylesheet" href="/face/css/os_fonts.css?v=2">
+    <script type="module" src="js/app.js?v=394"></script>
+    <script type="module" src="js/memory_panel.js?v=4"></script>
+    <script type="module" src="js/skills_panel.js?v=5"></script>
+</body>
+</html>
