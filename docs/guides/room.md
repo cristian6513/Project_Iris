@@ -4,18 +4,18 @@
 > Los resultados fechados de esta guía corresponden a aquella comprobación,
 > no a una validación nueva de todos los ejecutables.
 
-La habitación es la escena visual de IRIS OS. Esta primera pasada de acabado
-(7 de septiembre de 2026) mejora el descanso sin cambiar el contrato de acciones
-del agente ni la cámara habitual de conversación.
+La habitación es la escena visual de IRIS OS. Esta guía describe el corte
+**QA22 (2026-11-06)**: muebles texturizados, acciones del avatar, Vida propia y
+controles visuales. Los informes fechados mantienen sus mediciones originales.
 
 ## Qué incluye
 
-En la fuente posterior a `qa11`, los controles de la habitación y el **Centro
+Los controles de la habitación y el **Centro
 de control** se muestran en español: **Visión**, **Chat**, **Estado de Iris**,
 **Configuración rápida**, **Conexión con Hermes** y **Conectar dispositivos**.
 Los estilos Cyber, Sakura, Hacker y Classic conservan sus nombres.
 
-En fuente posterior a QA16, la cabecera del Centro de control incluye
+La cabecera del Centro de control incluye
 **Donaciones**, que abre la página de [Ko-fi de Iris](https://ko-fi.com/cristian_irisos)
 en el navegador únicamente al pulsarla. No añade un pago dentro de Iris.
 
@@ -27,11 +27,10 @@ de texto. Entrar o salir del escritorio no inicia cámara, micrófono ni un env�
 La comprobación de fuente/exportación y los límites están en el
 informe de idioma y accesibilidad (informe interno no distribuido).
 
-- Sofá orientado hacia la mesa, cojines redondeados, manta y telas legibles.
-- Cama con almohadas, pliegues discretos y un acento fino en el cabecero.
-- Sombras de contacto difuminadas y luz cálida localizada en sofá y cama.
-- Materiales adaptados a los temas Classic, Cyber, Hacker y Sakura.
-- Vistas de inspección **Iso**, **Sofa** y **Bed** ajustadas al ancho disponible.
+- Muebles modelados y texturizados para escritorio, silla, sofá, cama y estantería.
+- Libro y tablet que el avatar puede coger, usar y guardar.
+- Materiales, luz de relleno y acentos adaptados a Classic, Cyber, Hacker y Sakura.
+- Vistas de **Explorar** para encuadrar cada zona y controles de acciones visuales.
 
 Abre la inspección de la habitación y selecciona una de esas vistas. Al cambiar
 el tamaño de ventana se conserva el encuadre automático; si mueves la cámara
@@ -43,14 +42,66 @@ acción visual, y el avatar vuelve al centro. Se limpia la pose y se recupera la
 altura anterior a sentarse, evitando que un retorno pendiente lo desplace otra
 vez. Esto no detiene la respuesta hablada ni cancela trabajo de Hermes.
 
-Se conservan las 14 luces de la habitación y no se activan sombras dinámicas.
-Las telas comparten un mapa de color neutro y otro de relieve; cambiar el tema
-no vuelve a crear esas texturas. No cambia la posición de los destinos del
-avatar ni se añaden acciones de Hermes.
+La escena reutiliza materiales y texturas y evita sombras dinámicas. Cambiar
+el tema conserva las pantallas y los mapas compartidos. Las medidas, los puntos
+de interacción y las animaciones se ajustaron a los muebles nuevos; cambiar
+una malla exige revisar de nuevo asientos, manos, recorridos y cámaras.
+
+## Acciones del avatar
+
+Abre **Explorar → Acciones** para volver al centro, leer o usar la tablet de
+pie, sentarte en la silla/sofá/cama, usar el PC, leer en un asiento, acostarte,
+mirar por la ventana o ir al librero. **Usar PC** incluye la silla y las manos
+sobre teclado/mouse. **Ventana** apoya la mano en el cristal y cambia el encuadre.
+Los controles solo ejecutan acciones que tengan recursos compatibles disponibles.
+
+Son acciones visuales del avatar: no conceden control de Windows ni hacen que
+Iris lea un documento o una pantalla. La cámara, las capturas y las herramientas
+siguen sus permisos separados. Una orden manual tiene prioridad sobre una rutina.
+
+## Vida propia
+
+En **Centro de control → Configuración rápida → Avatar → Vida propia** elige
+**Apagada**, **Tranquila** (inicial) o **Activa**. La elección de la habitación
+se guarda por navegador y origen; es independiente de la preferencia de Companion.
+
+| Tiempo sin interacción | Tranquila | Activa |
+| --- | --- | --- |
+| Lectura o tablet cerca del centro | 1 minuto | 25 segundos |
+| Visita al sofá, cama, silla o ventana | 4 minutos | 1 minuto y medio |
+| Descanso acostada | 15 minutos | 10 minutos |
+
+Son umbrales de decisión, no alarmas exactas. Las órdenes y la conversación van
+por delante. No empieza rutinas con movimiento reducido, la sala/ventana oculta,
+Explorar abierto o mientras escucha, piensa o habla. Abrir el micrófono evita
+que empiece otra actividad; no equivale por sí solo a una frase enviada.
+
+Al hablarle guarda el libro o la tablet. Puede responder sentada; si está
+acostada se incorpora. Si caminaba por iniciativa propia o estaba mirando la
+ventana de espaldas, vuelve al centro. En un asiento admite gestos de cabeza y
+omite los de cuerpo completo que la sacarían de la pose. Una tarea real con
+herramientas de más de unos 20 segundos puede llevarla al PC a teclear; es una
+señal visual, no una tarea nueva. Detener o cerrar el turno cancela esa intención.
+
+### Teletransporte
+
+Cuando una visita fue iniciativa de Iris, al comenzar una conversación puede
+volver al centro con un efecto de unos 1,2 s. La decisión se toma una vez tras
+al menos cinco minutos sin interacción, con un máximo de un salto cada quince
+minutos. Los valores actuales son 15 % en Tranquila y 40 % en Activa.
+
+No se usa si la enviaste tú, va caminando, está en el centro, la sala está
+oculta, está en Explorar, hay movimiento reducido, Vida propia está Apagada o
+la calidad es Ahorro. No es un efecto garantizado en cada conversación. Una
+orden nueva o el comienzo del habla lo cancela para que no siga desapareciendo
+mientras responde.
+
+Diseño y comprobaciones de rutinas (informe interno no distribuido) ·
+Recursos empaquetados y límites de QA22 (informe interno no distribuido).
 
 ## Acercar el avatar
 
-En la fuente posterior a QA18, **Centro de control → Configuración rápida → Avatar**
+**Centro de control → Configuración rápida → Avatar**
 incluye **Acercar el avatar**. Mueve la barra de **Normal** a **Más cerca** para ver
 mejor a Iris o tu VRM, sin entrar en Explorar. El cambio es inmediato; la cámara
 mantiene su posición y aumenta el encuadre hasta 2,5 veces. **Restablecer vista**
@@ -66,7 +117,7 @@ Comprobación fechada: acercamiento del avatar (informe interno no distribuido).
 
 ## Ánimo y voz
 
-En fuente posterior a QA19, el indicador de ánimo cambia al empezar la respuesta,
+El indicador de ánimo cambia al empezar la respuesta,
 sin esperar a que Iris termine de hablar. La boca conserva la sincronización con
 el audio; al terminar se aplica la expresión emocional y vuelve a neutral tras
 unos 3,5 segundos. Si llega otra respuesta, el temporizador anterior se cancela.
@@ -77,7 +128,7 @@ No se añaden animaciones ni se modifica la selección de voz o de proveedor.
 
 ## Paisaje de la ventana
 
-En fuente posterior a QA19, cada tema de habitación tiene un paisaje local:
+Cada tema de habitación tiene un paisaje local:
 **Cyber**, ciudad nocturna azul y magenta; **Sakura**, ciudad al atardecer con
 cerezos; **Hacker**, ciudad nocturna en verde; **Classic**, ciudad y río de día.
 Se cambia desde los botones de la habitación o su selector en Configuración
@@ -220,22 +271,25 @@ sentada y avanzar frames sin volver al destino anterior, conservando la pausa
 del sistema de movimiento durante una respuesta hablada. No usa una cuenta de
 Hermes ni reproduce una conversación real para esa comprobación.
 
-La revisión de esta pasada comprobó los cuatro temas, vistas a 1440 × 960 y
-encuadres a 390 × 844, geometría finita y reutilización de texturas. La suite
-general terminó con **778 pruebas Python aprobadas, 3 omitidas y 143 JavaScript
-aprobadas**. El build web de Companion pasó con el aviso conocido de tamaño de
-Three.js.
+La revisión histórica del acabado de septiembre comprobó los cuatro temas y
+encuadres estrechos con una escena aislada. Para los recursos que hoy contiene
+el instalador y las pruebas recientes, consulta el informe QA22 (informe interno no distribuido);
+los conteos de aquella escena no validan por sí solos el candidato actual.
 
 ## Límites y próximos pasos
 
-La escena de prueba usa el renderizador real, pero no el avatar personal ni
-todos los paneles y efectos de la aplicación. Queda por comprobar en la sesión
-real el encaje de las animaciones de sentarse/acostarse y el rendimiento del
-equipo, incluida la posición del avatar en el sofá con su nueva orientación.
-Acostarse y leer siguen deshabilitados hasta disponer de animaciones compatibles.
-La integración con Player es únicamente visual y local; clima, ciclo
-día/noche automático y decoración adicional son mejoras futuras, no requisitos
-para cerrar esta etapa de Room. No se reconstruye ni
-reinstala el Companion nativo.
+QA22 incluye estas acciones y sus animaciones, y Companion 0.1.8 incorpora las
+alternativas de pie. La comprobación automática de recursos empaquetados usa
+IRIS y Cantarella en Edge, con fotogramas adelantados en muchos casos; no
+sustituye voz real, WebView2 instalado ni tiempos normales de Vida propia.
+
+Las proporciones, los pesos y las físicas de cada VRM pueden producir cruces
+con ropa o muebles. Un modelo con falda muy larga puede sobresalir del barrido
+de teletransporte. Cambiar el modelo de una cama o silla requiere revisar sus
+puntos de interacción. El rendimiento en el equipo mínimo sigue pendiente.
+
+La integración con Player continúa siendo visual y local; clima, ciclo día/noche
+automático y decoración adicional son mejoras futuras. Los FPS y la calidad
+se administran por separado en [Rendimiento](configuration.md#rendimiento-del-avatar-y-la-habitación).
 
 [← Documentación](../README.md)

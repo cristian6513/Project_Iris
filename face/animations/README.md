@@ -40,19 +40,18 @@ straight into an unrelated second action.
 
 ## Where to get free VRMA files
 
-1. **[VRoid Hub Animations](https://hub.vroid.com/en/motions)** — Pixiv's
-   official, most are free. Filter by "VRMA".
+1. **[VRoid Project VRMA pack](https://booth.pm/en/items/5512385)** — seven free sample animations
+   from Pixiv. Review the usage terms on the product page.
 
-2. **[Booth.pm](https://booth.pm/)** — search `VRMA` or `.vrma`. Filter by
-   price `0 JPY` for free.
+2. **[BOOTH VRMA listings](https://booth.pm/en/search/VRMA)** — community animations, including
+   free and paid packs.
 
 3. **[three-vrm examples](https://github.com/pixiv/three-vrm/tree/dev/packages/three-vrm/examples)** —
    a few sample VRMA files in the examples folder.
 
-4. **Mixamo + converter** — grab FBX animations from
-   [Mixamo](https://www.mixamo.com/) and convert to VRMA with:
-   - [VRM Converter for Mixamo](https://github.com/vrm-c/mixamo-converter)
-   - [bUnofficial VRM Animation converter](https://github.com/saturday06/VRM_Addon_for_Blender)
+4. **Convert existing motion** — retarget FBX motion from
+   [Mixamo](https://www.mixamo.com/) to a VRM 1.0 rig in Blender and
+   [export it as VRMA](https://vrm-addon-for-blender.info/en-us/ui/export_scene.vrma/). For BVH files, see [bvh2vrma](https://github.com/vrm-c/bvh2vrma).
 
 ---
 

@@ -70,6 +70,22 @@ export const ROOM_HOTSPOTS = Object.freeze({
         description: 'Seated at the desk, on the chair.',
         enabled: true,
     },
+    deskEdgeSpot: {
+        id: 'deskEdgeSpot',
+        label: 'Sit on the desk',
+        // On the free left end of the desk top (y -0.16, 0.71 m), facing the room, her legs
+        // hanging in front of it; the chair stays clear to her left. She can't walk up onto it:
+        // a line of light takes her there and back (`teleport`).
+        position: [1.75, 0, -2.25],
+        rotation: [0, 0, 0],
+        teleport: true,
+        view: { position: [0.45, 0.25, 0.35], target: [1.75, -0.35, -2.2], minimumAspect: 1.5 },
+        cameraPreset: 'deskView',
+        defaultExpression: 'feliz',
+        defaultPoseOrAnimation: 'desk_edge',
+        description: 'Sitting on the edge of the desk, swinging her legs.',
+        enabled: true,
+    },
     sofaSpot: {
         id: 'sofaSpot',
         label: 'Go to sofa',
@@ -121,6 +137,16 @@ export const ROOM_HOTSPOTS = Object.freeze({
         defaultExpression: 'neutral',
         defaultPoseOrAnimation: 'bed_lying',
         description: 'Beside the bed, where the lie-down clip starts.',
+        enabled: true,
+    },
+    bedProneSpot: {
+        id: 'bedProneSpot',
+        label: 'Lie face down on bed',
+        ...BED_SIDE,
+        cameraPreset: 'bedView',
+        defaultExpression: 'neutral',
+        defaultPoseOrAnimation: 'bed_prone',
+        description: 'Beside the bed: she lies down there and rolls onto her front.',
         enabled: true,
     },
     bedSeatSpot: {

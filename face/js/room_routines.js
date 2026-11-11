@@ -23,8 +23,11 @@ const PLACES = Object.freeze([
     Object.freeze(['sit_bed', 'read_bed', 'tablet_bed']),
     Object.freeze(['sit_desk', 'use_pc']),
     Object.freeze(['look_window']),
+    Object.freeze(['sit_desk_edge']),
 ]);
-const REST = 'lie_bed';
+// Resting she lies on her back, or now and then on her front with her feet swinging.
+const RESTS = Object.freeze(['lie_bed', 'lie_bed_prone']);
+const PRONE_REST = 0.35;     // chance of the front when both can be played
 const HOME = 'return_center';
 const WORK = 'use_pc';
 const WORK_AFTER = 20;       // seconds of tools running before she goes to the PC
@@ -221,7 +224,7 @@ export class RoomRoutines {
     }
 
     _start(settings, quiet) {
-        if (quiet >= settings.rest && this._begin(REST, 'rest', Infinity)) return;
+        if (quiet >= settings.rest && this._rest()) return;
         if (quiet >= settings.visit) {
             for (const place of this._shuffled(PLACES)) {
                 for (const order of this._shuffled(place)) {
@@ -234,6 +237,13 @@ export class RoomRoutines {
         }
     }
 
+    /** Lie down to rest: on her back, or on her front; the other one if this one can't play. */
+    _rest() {
+        const first = this.random() < PRONE_REST ? 'lie_bed_prone' : 'lie_bed';
+        return [first, ...RESTS.filter((order) => order !== first)]
+            .some((order) => this._begin(order, 'rest', Infinity));
+    }
+
     _next(settings) {
         const { kind, place } = this.step;
         const quiet = this.now() - this.quietSince;
@@ -242,7 +252,7 @@ export class RoomRoutines {
                 && this._begin(order, 'visit', this._length(settings.visitFor), place));
             if (next) return;
         }
-        if (quiet >= settings.rest && this._begin(REST, 'rest', Infinity)) return;
+        if (quiet >= settings.rest && this._rest()) return;
         this._goHome();
         this.nextAt = this.now() + settings.near;
     }

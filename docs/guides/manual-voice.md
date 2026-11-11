@@ -27,6 +27,14 @@ El texto reconocido se envía a la **conversación actual** de IRIS. No crea la
 sesión nueva que puede crear Wake. Una vez enviada al agente, cancelar la
 grabación no deshace esa orden; el panel indica que ya fue enviada.
 
+## Cambiar la voz que responde
+
+En QA22, **Guardar voz** aplica la selección a la siguiente respuesta, sin
+cerrar la ventana ni detener Core. La primera frase con un modelo local puede
+tardar mientras lo carga. Esto no cambia STT ni abre el micrófono. Consulta
+[Guardar y cambiar la voz](configuration.md#guardar-y-cambiar-la-voz) para las
+claves guardadas, errores y cancelación durante la carga.
+
 ## Transcripción en directo (F16)
 
 Incluida en QA16; consultar la [matriz](../estado-actual.md) para su QA instalada.
@@ -87,7 +95,8 @@ Las regresiones están en `tests/test_manual_voice.py`, `tests/test_voice_stream
 consentimiento, envío, cancelación y encaje visual en ambas superficies con una
 API simulada; no activa sensores ni usa cuentas reales.
 
-Después de actualizar el código, reinicia IRIS Core y recarga la habitación.
+Después de actualizar el código del programa, reinicia IRIS Core y recarga la
+habitación. Ese paso de desarrollo no es necesario al guardar una voz.
 La versión **instalada** del Companion contiene sus propios archivos: requiere
 una nueva compilación/actualización nativa para recibir el botón. Ejecutar la
 compilación web no sustituye por sí solo ese ejecutable.

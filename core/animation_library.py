@@ -24,7 +24,16 @@ from core.animation_store import (
 )
 from core.asset_uploads import AssetUploadError, read_bounded, validate_asset
 
-_MAP_FIELDS = frozenset({"pose_map", "activity_clips", "facial_profiles", "_source_mapping"})
+_MAP_FIELDS = frozenset(
+    {
+        "pose_map",
+        "activity_clips",
+        "facial_profiles",
+        "_source_mapping",
+        "variants",
+        "variant_weights",
+    }
+)
 
 
 def validate_library_roots(factory: Path, user: Path) -> None:

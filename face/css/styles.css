@@ -2882,6 +2882,24 @@ body.drag-hover::after {
     cursor: pointer;
 }
 
+.avatar-model-sources { margin: 6px 0 8px; }
+.avatar-model-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 10px;
+    font-size: 11px;
+    line-height: 1.6;
+}
+.avatar-model-links a {
+    color: var(--iris-os-accent, var(--iris-gold, #D4A017));
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+.avatar-model-links a:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+}
+
 /* Only the conversation-view zoom; the ambient volume keeps its compact range. */
 .avatar-zoom-controls .setting-range {
     display: block;

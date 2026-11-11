@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFileSync } from 'node:fs';
 import * as THREE from '../../companion/node_modules/three/build/three.module.js';
+import { isPmxArchive } from '../../face/js/avatar_state.js';
 import {
     AvatarSwapCoordinator, commitAvatarReplacement, disposeAvatarTree, retainAvatarResources,
 } from '../../face/js/avatar_lifecycle.js';
@@ -144,8 +145,8 @@ function managerHarness() {
         dispose() { this.disposals++; }
     }
     const limitTextures = async (root, max) => { limited.push([root, max]); };
-    const AvatarManager = new Function('THREE', 'VRMAvatar', 'disposeAvatarTree', 'retainAvatarResources', 'limitTextures',
-        'return class AvatarManager' + managerClass)(THREE, FakeAvatar, disposeAvatarTree, retainAvatarResources, limitTextures);
+    const AvatarManager = new Function('THREE', 'VRMAvatar', 'disposeAvatarTree', 'retainAvatarResources', 'limitTextures', 'isPmxArchive',
+        'return class AvatarManager' + managerClass)(THREE, FakeAvatar, disposeAvatarTree, retainAvatarResources, limitTextures, isPmxArchive);
     return { AvatarManager, created, gates, limited };
 }
 

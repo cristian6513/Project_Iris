@@ -34,7 +34,8 @@ def run(command, cwd):
     env["PATH"] = ""
     env["PIP_NO_INDEX"] = "1"
     env["PYTHONDONTWRITEBYTECODE"] = "1"
-    result = subprocess.run(command, cwd=cwd, env=env, capture_output=True, text=True, timeout=180)
+    # Building and compressing the full asset inventory can take several minutes on Windows.
+    result = subprocess.run(command, cwd=cwd, env=env, capture_output=True, text=True, timeout=480)
     log = cwd / "build-check.log"
     with log.open("a", encoding="utf-8") as handle:
         handle.write(result.stdout + result.stderr)
@@ -215,7 +216,7 @@ def test_installed_wheel_resources_outside_checkout(distributions, index):
         "assert not (root / 'scripts/release_assets.json').exists()\n"
         f"assert {{p.name for p in assets.iterdir()}} == {public_files(contract)!r}\n"
         "manifest = json.loads((assets / 'manifest.json').read_text('utf-8'))\n"
-        "assert len(manifest['clips']) == 59\n"
+        "assert len(manifest['clips']) == len(expected['clips'])\n"
         "profile = pathlib.Path.cwd() / 'qa-profile'\n"
         "library = library_api.AnimationLibrary(assets, profile / 'animations')\n"
         # This no-deps resource probe supplies an explicit profile and no live

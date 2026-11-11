@@ -46,7 +46,7 @@
     "selectors==0.36.1": {
       "license": "MPL-2.0",
       "source": "https://github.com/servo/stylo",
-      "provenance": "El crate declara MPL-2.0 y no trae el texto; la MPL 2.0 no lleva datos propios del autor. Código fuente: https://crates.io/crates/selectors/0.36.1",
+      "provenance": "El crate declara MPL-2.0 y no trae el texto; la MPL 2.0 no lleva datos propios del autor. Código fuente: https://docs.rs/crate/selectors/0.36.1/source/",
       "files": {
         "LICENSE": "common/MPL-2.0.txt"
       }

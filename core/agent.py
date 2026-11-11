@@ -141,7 +141,6 @@ class IRISAgent:
                     logger.warning("%s", builder["detail"])
             except (OSError, ValueError) as exc:
                 logger.warning("No se pudo sincronizar la skill de creación de apps: %s", exc)
-
         await self.bridge.initialize()
         if self.bridge.is_available:
             console.print("  ✅ Hermes connected", style="green")
@@ -730,7 +729,9 @@ class IRISAgent:
         except Exception as exc:
             logger.debug("_on_tool_progress dropped event: %s", exc)
 
-    async def interrupt(self, *, reason: str = "user_speech") -> None:
+    async def interrupt(
+        self, *, reason: str = "user_speech", expected_turn: asyncio.Task[Any] | None = None,
+    ) -> None:
         """Halt the current turn — Fase 3 (barge-in support).
 
         Called when the user starts speaking while IRIS is still
@@ -755,42 +756,33 @@ class IRISAgent:
              to tell the speech ended on the listener's terms vs
              her own.
 
-        Safe to call when nothing is happening — each step is
-        idempotent.
+        A provider comparison supplies the task it observed before waiting
+        for configuration. A newer turn must never receive that interrupt.
         """
-        logger.info("⏹  Interrupt: %s", reason)
-
-        # 1. Stop the speakers.
-        try:
-            await self.tts.stop()
-        except Exception as exc:
-            logger.debug("tts.stop() during interrupt: %s", exc)
-
-        # 2. Cancel the active turn (think + respond) locally AND
-        #    server-side. Quick Win #2 — without the bridge stop call,
-        #    Hermes (and whichever upstream provider it's routing to)
-        #    keeps the run going to completion, billing the user for
-        #    tokens we throw away. Fire-and-forget: stop_current_run
-        #    is bounded to a 5s timeout internally and tolerates 404s
-        #    when the run already finished naturally.
+        # Keep the next turn from registering until this run has received Stop
+        # and its speech state is cleared. The bridge bounds its HTTP request.
         async with self._turn_lock:
-            t = self._current_turn_task
-            if t is not None and not t.done():
-                t.cancel()
-        try:
-            await self.bridge.stop_current_run()
-        except Exception as exc:
-            logger.debug("bridge.stop_current_run during interrupt: %s", exc)
-
-        # 3. Tell the face to clean up its speech-state UI. We send
-        # speech_end unconditionally — sending it twice is harmless
-        # (the front-end is idempotent on this event), sending zero
-        # times leaves the avatar stuck in "speaking" pose.
-        try:
-            await send_speech_end()
-            await send_status("idle")
-        except Exception as exc:
-            logger.debug("face cleanup during interrupt: %s", exc)
+            turn = self._current_turn_task
+            if expected_turn is not None and (
+                turn is not expected_turn or expected_turn.done() or expected_turn.cancelling()
+            ):
+                return
+            logger.info("⏹  Interrupt: %s", reason)
+            try:
+                await self.tts.stop()
+            except Exception as exc:
+                logger.debug("tts.stop() during interrupt: %s", exc)
+            if turn is not None and not turn.done():
+                turn.cancel()
+            try:
+                await self.bridge.stop_current_run()
+            except Exception as exc:
+                logger.debug("bridge.stop_current_run during interrupt: %s", exc)
+            try:
+                await send_speech_end()
+                await send_status("idle")
+            except Exception as exc:
+                logger.debug("face cleanup during interrupt: %s", exc)
 
         # 4. Annotate memory so Hermes's session reflects reality.
         try:

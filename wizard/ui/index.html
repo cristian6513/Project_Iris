@@ -583,7 +583,7 @@
                     </ul>
                     <p class="dim">Recomendado: pairing/allowlists, sandbox,
                     herramientas con permisos mínimos. Lee la guía completa en
-                    <a href="https://hermes-agent.nousresearch.com/docs/gateway/security" target="_blank">hermes-agent.nousresearch.com/docs/gateway/security</a>.</p>
+                    <a href="https://hermes-agent.nousresearch.com/docs/user-guide/security" target="_blank" rel="noopener">Seguridad de Hermes</a>.</p>
                 </div>
                 <label class="security-ack-check">
                     <input type="checkbox" id="oc-security-check" onchange="onSecurityAckToggle(event)">
@@ -1204,7 +1204,7 @@
                     <input type="radio" name="avatar" value="vrm">
                     <div class="radio-content">
                         <strong>Tu propio modelo VRM</strong>
-                        <span>Dale tu estilo: carga un archivo <b>.vrm</b> hecho en VRoid Studio o descargado de VRoid Hub o Booth. Puedes cambiarlo después en Configuración rápida.</span>
+                        <span>Carga un archivo <b>.vrm</b>. Una vez en IRIS, Configuración rápida también te permite importar modelos PMX con sus texturas.</span>
                     </div>
                 </label>
             </div>
@@ -1220,23 +1220,22 @@
                         <p class="dim">Formato aceptado: <b>.vrm</b> únicamente</p>
                     </div>
                 </div>
-                <details class="setup-details"><summary>Sobre los modelos VRM y dónde conseguirlos</summary><div class="setup-details-body"><div class="info-panel" style="display:block; margin-top:12px; font-size: 0.9em; line-height:1.5">
-                    <b>¿Por qué solo .vrm?</b><br>
-                    Los archivos <b>.vrm</b> garantizan: esqueleto humanoide estándar,
-                    huesos individuales de dedos, cadenas de tela (falda, cabello,
-                    corbata) y springbones para física secundaria. Otros formatos
-                    (.glb genérico, OBJ, FBX, STL) no contienen esta información y
-                    producen errores visuales.<br><br>
-                    <b>¿Dónde conseguir archivos .vrm?</b>
-                    <ul style="margin: 4px 0 0 18px; padding: 0;">
-                        <li><a href="https://hub.vroid.com/" target="_blank">VRoid Hub</a> — biblioteca oficial de Pixiv (gratis)</li>
-                        <li><a href="https://vroid.com/studio" target="_blank">VRoid Studio</a> — crea tu propio VRM (gratis, Win/Mac)</li>
-                        <li><a href="https://booth.pm/" target="_blank">Booth.pm</a> — marketplace (muchos gratis)</li>
-                        <li><a href="https://vrm-addon-for-blender.info/" target="_blank">VRM Add-on for Blender</a> — exporta .vrm desde Blender</li>
-                    </ul>
-                </div></div></details>
                 <div id="model-info" class="info-panel" style="display:none"></div>
             </div>
+
+            <details class="setup-details">
+                <summary>Dónde conseguir avatares</summary>
+                <div class="setup-details-body">
+                    <div class="info-panel" style="margin:0; line-height:1.5">
+                        <ul style="margin:0 0 8px; padding-left:18px;">
+                            <li><a href="https://www.aplaybox.com/" target="_blank" rel="noopener noreferrer">Aplaybox</a> — está en chino y puede tardar en cargar; tu navegador puede traducirlo. Busca un <b>.pmx</b> humanoide con sus texturas. En IRIS, abre <b>Configuración rápida → Usar mi propio avatar</b> y elige el ZIP (hasta 128 MiB).</li>
+                            <li><a href="https://hub.vroid.com/en/models?is_downloadable=1&amp;is_other_users_available=1" target="_blank" rel="noopener noreferrer">VRoid Hub</a> — abre la lista de avatares con descarga habilitada.</li>
+                            <li><a href="https://booth.pm/en/browse/3D%20Models?q=VRM" target="_blank" rel="noopener noreferrer">BOOTH</a> — comprueba que la descarga incluya un archivo <b>.vrm</b>.</li>
+                        </ul>
+                        <p>Revisa las condiciones de uso del autor. Para crear tu propio VRM, puedes usar <a href="https://vroid.com/studio" target="_blank" rel="noopener noreferrer">VRoid Studio</a> o el <a href="https://vrm-addon-for-blender.info/" target="_blank" rel="noopener noreferrer">complemento VRM de Blender</a>.</p>
+                    </div>
+                </div>
+            </details>
 
             <!-- Animation library (optional, collapsible) -->
             <details id="animations-section" class="animations-section">
@@ -1251,7 +1250,7 @@
                     <b>Formatos aceptados (IRIS los retargetea al vuelo sobre tu avatar):</b>
                     <ul style="margin: 4px 0 0 18px; padding: 0;">
                         <li><b>.fbx</b> <wz-icon>⭐</wz-icon> — el más común. <a href="https://www.mixamo.com/" target="_blank">Mixamo</a> tiene ~2,600 animaciones gratis (solo necesitas cuenta Adobe) — descarga "Without Skin" y sube aquí. También sirven los .fbx de packs gratis del <a href="https://assetstore.unity.com/" target="_blank">Unity Asset Store</a>.</li>
-                        <li><b>.vrma</b> — formato nativo de VRM, máxima calidad. Busca en <a href="https://vroid.pixiv.help/hc/en-us/articles/9514934831513" target="_blank">VRoid</a> o <a href="https://booth.pm/en/search/VRMA" target="_blank">Booth.pm</a>.</li>
+                        <li><b>.vrma</b> — formato nativo de VRM, máxima calidad. Busca en <a href="https://booth.pm/en/items/5512385" target="_blank" rel="noopener">el pack oficial de VRoid</a> o <a href="https://booth.pm/en/search/VRMA" target="_blank">Booth.pm</a>.</li>
                         <li><b>.bvh</b> — mocap genérico. Librerías gratis: <a href="http://mocap.cs.cmu.edu/" target="_blank">CMU Motion Capture DB</a>, <a href="https://truebones.gumroad.com/" target="_blank">Truebones</a>.</li>
                     </ul>
                     <div class="dim" style="margin-top:8px; font-size:11px">

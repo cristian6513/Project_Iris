@@ -9,19 +9,19 @@
     },
     "idle_casual": {
       "filename": "iris_idle_casual.vrma",
-      "sha256": "1826bb51ed4b17f2d63577d13019db1821d1a1cbad45c8c3070f63b5c6437e49"
+      "sha256": "f3e8fac32deba9adc312b294cd5b569d34d533b624c3e0ba9f87843bc75e14ec"
     },
     "idle_lazy": {
       "filename": "iris_idle_lazy.vrma",
-      "sha256": "066c1759fa63a3f834dba17a9f33a35a816f653c937d4148ac016346deeccd06"
+      "sha256": "090e89e843091268ffd3984abad2ff5348891739a4c2121a7912f87d794e583f"
     },
     "wave": {
       "filename": "iris_wave.vrma",
-      "sha256": "0397caac6c33df5e9262954e65a6067c60953242e049afc82a0bcd68bf29ff35"
+      "sha256": "b4f4e7427be0639727d4e9b6990ada099b4d9d3b6a69112446344312df6c554e"
     },
     "wave_big": {
       "filename": "iris_wave_big.vrma",
-      "sha256": "c7295e20eec4e3e1e8111d059900c9d159c04f109658015d465e3ece79396178"
+      "sha256": "d555fe2ce1cf295a7dabe1cb6d390e251479b90f9a9de0e3daef29b450202edb"
     },
     "nod": {
       "filename": "iris_nod.vrma",
@@ -37,11 +37,11 @@
     },
     "listen": {
       "filename": "iris_listen.vrma",
-      "sha256": "5c81f7512e64b223834220e15597fced1103c6dfbad89c368e6ee57e84727502"
+      "sha256": "0800e75464d802f7894c48c2c239b9e34b86729812ae0232bb2e0f16bf68c3d8"
     },
     "talk": {
       "filename": "iris_talk.vrma",
-      "sha256": "9e1953c2a8b4a4819fcdecba335606708daf3f29cf1c4ff5ee19a067bddb7557"
+      "sha256": "d3f7edb52336c7a4ac219cd6968d62d448c34ed3e62db45d71aa2d191dc1f2f9"
     },
     "confirm": {
       "filename": "iris_confirm.vrma",
@@ -53,11 +53,11 @@
     },
     "celebrate": {
       "filename": "iris_celebrate.vrma",
-      "sha256": "9e585319dbd33196572b6c33e2b87a374acbdbeb9e5b29e3335b404a23efed7c"
+      "sha256": "9db0e9cdf41361c3c2d80c4601ac974d41a406be1cd090e1f5debef1fad3c852"
     },
     "angry": {
       "filename": "iris_angry.vrma",
-      "sha256": "4950a3699a58eae8e4e558d4e66c55917df6dade87d065237e66988083410a5a"
+      "sha256": "ded8bf2bb0362fbcb20d8ccf333f6dd57307dd64f1a4cc21725704c9a537c6aa"
     },
     "surprised": {
       "filename": "iris_surprised.vrma",
@@ -73,7 +73,7 @@
     },
     "stretch": {
       "filename": "iris_stretch.vrma",
-      "sha256": "6eef201d9fc10df0f1b627389b248f9951ccdfa20704ef00324c0c5ec5759360"
+      "sha256": "2e4dee401abd4a8b954cc809bc95585447412e983e7459fc4a89d942d5a66c43"
     },
     "sofa_sit_down": {
       "filename": "iris_sofa_sit_down.vrma",
@@ -238,6 +238,150 @@
     "window_lean_out": {
       "filename": "iris_window_lean_out.vrma",
       "sha256": "259cd68f0a0c833d71db21fed80e56ae5a888f3b5cee7893792fe733ece4d230"
+    },
+    "talk_2": {
+      "filename": "iris_talk_2.vrma",
+      "sha256": "445fa0c59dbd9daaf4001faa6915bff2d1f6c3d1903d07210a8382822801091d"
+    },
+    "talk_3": {
+      "filename": "iris_talk_3.vrma",
+      "sha256": "05de15cb6702a49bb52d74037d5843d78d4946f257d04eb2f63a476bff89a00c"
+    },
+    "wave_2": {
+      "filename": "iris_wave_2.vrma",
+      "sha256": "877131ef545d15e230265b2dfc7fc163da6d0988498d3fb63edd27bb517a468e"
+    },
+    "wave_big_2": {
+      "filename": "iris_wave_big_2.vrma",
+      "sha256": "72cac5d22ad3adbaba70f40510618acb46285656552875285143dd25cba529f9"
+    },
+    "angry_2": {
+      "filename": "iris_angry_2.vrma",
+      "sha256": "3fdf88648a312e172d8a0814d92eaed8c50fb2013af237e36e05bdf6d2d08730"
+    },
+    "angry_3": {
+      "filename": "iris_angry_3.vrma",
+      "sha256": "874d8d3ad6db7a7758409a5712bee056182ca1b00d4ae8452a9276e1d8a2476b"
+    },
+    "celebrate_2": {
+      "filename": "iris_celebrate_2.vrma",
+      "sha256": "3fdb9dc9bafb386cac45540c530952f83c61488c88c22dff6a96066e3ebffb0b"
+    },
+    "jump": {
+      "filename": "iris_jump.vrma",
+      "sha256": "900ff37e1b076dd7a67f0e9c8bbd05c95cae487d4a2097e70b8c8028dd533f98"
+    },
+    "attention_2": {
+      "filename": "iris_attention_2.vrma",
+      "sha256": "b69f5a6a396aee1cb8f8e527e35ebd26026e9fdbcabd4d14f15fb94fc3ad32ec"
+    },
+    "attention_3": {
+      "filename": "iris_attention_3.vrma",
+      "sha256": "9eeb1cc8d22c48dfdea886cd564c234dcc723e907ba39ae32c80753cba13389b"
+    },
+    "think_2": {
+      "filename": "iris_think_2.vrma",
+      "sha256": "96e36db2bc01329c39f6544fd5447e1b6e0287596575099e6ff581ee1cc08066"
+    },
+    "idle_lazy_2": {
+      "filename": "iris_idle_lazy_2.vrma",
+      "sha256": "9a414108b16fba782c3c99e6f923c1f87735fb8f91e22f944ab131118c5dec1d"
+    },
+    "sad": {
+      "filename": "iris_sad.vrma",
+      "sha256": "1281f67453211999c04ec3b9ce247f8b30f5e63e1af10b132f264b9435fbcc2f"
+    },
+    "laugh": {
+      "filename": "iris_laugh.vrma",
+      "sha256": "226d45e9775b8ba98b2ce525d69920f432d77a8569daf2a52b203b0062461b66"
+    },
+    "shy": {
+      "filename": "iris_shy.vrma",
+      "sha256": "b9ddea3bb7d98cfe8696364d19251ab57b4947e7e645c2e40b28aa4b68b57406"
+    },
+    "scared": {
+      "filename": "iris_scared.vrma",
+      "sha256": "f8d8c9139e57b2f7bc4757f9aa54133c01dac1d1ec417f0db6e53b0dc1e7d0c1"
+    },
+    "clap": {
+      "filename": "iris_clap.vrma",
+      "sha256": "f340b6806c73419b81bd81d9a2447fda0550ba507de9ce0a70f71629d3a33a42"
+    },
+    "heart": {
+      "filename": "iris_heart.vrma",
+      "sha256": "4949b75bd393c4d3b75013b14cfca1a47a3c17d7533f541fb914072cdefd2f28"
+    },
+    "apologize": {
+      "filename": "iris_apologize.vrma",
+      "sha256": "ccfb966ca577edf6aebdd20765952492370f23c17739cbe592c3d208000288bf"
+    },
+    "shrug": {
+      "filename": "iris_shrug.vrma",
+      "sha256": "15a2c766a79f07fb6cb960f01a3a341c44f9509f9feae59837e85aa8ec36833c"
+    },
+    "idea": {
+      "filename": "iris_idea.vrma",
+      "sha256": "c2b2dcae59a5e41faa5683454fb281750d0d6981166d4293176803f57ced1ac0"
+    },
+    "annoyed": {
+      "filename": "iris_annoyed.vrma",
+      "sha256": "54398e4064a946bb21fed768d37ed95a720381935693032caecf8ae9d08a8f53"
+    },
+    "dance": {
+      "filename": "iris_dance.vrma",
+      "sha256": "e79ee1993764be070969dbb05300d31c18974cdb89d2b3b937ef556cf1047a96"
+    },
+    "dance_3": {
+      "filename": "iris_dance_3.vrma",
+      "sha256": "07dc67f59e70fd45670290578b2fc20ac5c74929da9a5807dc4ff0a752c678f5"
+    },
+    "dance_sexy": {
+      "filename": "iris_dance_sexy.vrma",
+      "sha256": "cd7e0b494363963d75ac7d9563fb5ace2d7800829244b177c1efa0a8d52c842b"
+    },
+    "wave_cute": {
+      "filename": "iris_wave_cute.vrma",
+      "sha256": "c84164402ea64ddc2577faae208c3ccb855743af80157bd6a4041a3d6a90bbb1"
+    },
+    "wave_flirty": {
+      "filename": "iris_wave_flirty.vrma",
+      "sha256": "43facacb3ea645967f748d2a5fe1fc2af0c8d94b98eb6843cb7734ecb3e19977"
+    },
+    "wave_flirty_2": {
+      "filename": "iris_wave_flirty_2.vrma",
+      "sha256": "4620fd4307e709f4911162b8029b0e1d36f83ad133eec85f5be5bcaacaacd4ed"
+    },
+    "idle_yawn": {
+      "filename": "iris_idle_yawn.vrma",
+      "sha256": "99ed5e364fbe1f92d70e7c7f3c76532611566dbbc0f2ff654ee05d15647d33f6"
+    },
+    "hair_touch": {
+      "filename": "iris_hair_touch.vrma",
+      "sha256": "202e360cd8eba73c06c8d325d099c65fc24fdbd97221077de0bf02d0bc5dc522"
+    },
+    "idle_waiting": {
+      "filename": "iris_idle_waiting.vrma",
+      "sha256": "aa143008c22337e5c223647c06c8bec19988be3651889bec51443f427216f6ab"
+    },
+    "walk_2": {
+      "filename": "iris_walk_2.vrma",
+      "sha256": "60ad42a93d8aa145fbe6af29379d115087896c8dfd08f1cc08edbbbae1741e64"
+    },
+    "desk_edge_idle": {
+      "filename": "iris_desk_edge_idle.vrma",
+      "sha256": "90edd5f745ba7b85d09b5c1dfe4987096f08e2047a7e491e9d75a332f24725e8"
+    },
+    "bed_prone_idle": {
+      "filename": "iris_bed_prone_idle.vrma",
+      "sha256": "b6647952a7d4f9081cd5cfadeca9302345f366499587e5205e3685b0350cbb9c"
+    },
+    "bed_roll_prone": {
+      "filename": "iris_bed_roll_prone.vrma",
+      "sha256": "3a37d2a29df95246c80ffba43034b8b752afc3f0bfc93f9dbc0c08110c45eedc"
+    },
+    "bed_roll_supine": {
+      "filename": "iris_bed_roll_supine.vrma",
+      "sha256": "4d973d6dad31db20c7b750305ae7acaf99d84ad40fee9cbc075b2dc713eadd32"
     }
   },
   "avatar": {

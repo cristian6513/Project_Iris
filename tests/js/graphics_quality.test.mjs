@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { graphicsQuality, graphicsPolicy, GraphicsQuality, avatarTextureLimit } from '../../face/js/graphics_quality.js';
+import { readFileSync } from 'node:fs';
+import { graphicsQuality, graphicsPolicy, GraphicsQuality, avatarTextureLimit, pmxPhysicsRate, PMX_PHYSICS_HZ } from '../../face/js/graphics_quality.js';
 
 function harness() {
     const targets = [0, 1].map(() => ({ samples: 2, stencilBuffer: true, disposals: 0, dispose() { this.disposals++; } }));
@@ -60,4 +61,46 @@ test('only saving limits avatar textures, and unknown qualities fall back to bal
     assert.equal(avatarTextureLimit('balanced'),0);
     assert.equal(avatarTextureLimit('high'),0);
     for(const bad of ['ultra',null,'__proto__',undefined])assert.equal(avatarTextureLimit(bad),0);
+});
+
+// Heavy PMX cloth at 32.5 steps a second stretched 3-4 times more and tore into triangles
+// (Feixue's front panel, Lily's fringe, 2026-11-10): 65 always, half only for heavy models in saving.
+test('PMX physics runs at 65 steps a second; only saving halves it, and only for heavy models', () => {
+    assert.equal(PMX_PHYSICS_HZ, 65);
+    for (const quality of ['balanced', 'high', 'ultra', undefined]) assert.equal(pmxPhysicsRate(quality, { heavy: true }), 65);
+    assert.equal(pmxPhysicsRate('saving', { heavy: true }), 32.5);
+    assert.equal(pmxPhysicsRate('saving', { heavy: false }), 65);
+    assert.equal(pmxPhysicsRate('saving', null), 65);
+});
+
+test('the avatar physics follows the quality when it changes and when an avatar loads', () => {
+    const h = harness();
+    const rates = [];
+    let physics = { heavy: true, setRate(hz) { rates.push(hz); } };
+    h.control.getAvatarPhysics = () => physics;
+    h.control.setQuality('saving');
+    h.control.setQuality('high');
+    assert.deepEqual(rates, [32.5, 65]);
+    physics = null;                                   // a VRM: nothing to set
+    h.control.setQuality('saving');
+    physics = { heavy: true, setRate(hz) { rates.push(hz); } };
+    h.control.applyAvatarPhysics();                   // a heavy PMX loaded while saving
+    assert.deepEqual(rates, [32.5, 65, 32.5]);
+});
+
+test('Face and Companion hand the quality their PMX physics, which passes the rate to its worker live', () => {
+    const read = (path) => readFileSync(new URL(path, import.meta.url), 'utf8');
+    for (const path of ['../../face/js/app.js', '../../face/companion/companion.js']) {
+        const source = read(path);
+        assert.match(source, /getAvatarPhysics: \(\) => this\.avatarManager\?\.avatar\?\.vrm\?\.pmxPhysics/, path);
+        assert.match(source, /graphicsQuality\??\.applyAvatarPhysics\(\)/, path);
+    }
+    const app = read('../../face/js/app.js');
+    assert.equal(app.match(/this\._furnishAvatar\(\);\n\s*this\.graphicsQuality\.applyAvatarPhysics\(\);/g)?.length, 2, 'first load and every swap');
+    const physics = read('../../face/js/pmx_physics.js');
+    assert.match(physics, /const heavy = bodies\.length > 300 \|\| constraints\.length > 500;/);
+    assert.match(physics, /let hz = 65;/);
+    assert.match(physics, /setRate\(next\) \{/);
+    assert.match(physics, /kind: 'step', transforms, delta: steps \* step, step,/);
+    assert.match(read('../../face/js/pmx_physics_worker.js'), /if \(data\.step > 0\) physics\.unitStep = data\.step;/);
 });

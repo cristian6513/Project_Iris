@@ -3,6 +3,8 @@ import asyncio
 import io
 import json
 import os
+import struct
+import zipfile
 from types import SimpleNamespace
 from unittest.mock import AsyncMock
 
@@ -10,9 +12,9 @@ import pytest
 from fastapi import UploadFile
 from starlette.requests import Request
 
-from core.config import IRISConfig
-from core import websocket_server as ws
 from core import identity_api
+from core import websocket_server as ws
+from core.config import IRISConfig
 
 
 def vrm_bytes():
@@ -52,6 +54,30 @@ def test_rejected_upload_does_not_announce_a_change(configured):
         asyncio.run(ws.upload_os_avatar(UploadFile(filename='broken.vrm', file=io.BytesIO(b'broken'))))
     client.send_text.assert_not_awaited()
     assert IRISConfig.load().avatar_vrm_path == '', 'IRIS stays'
+
+
+def test_pmx_upload_keeps_the_original_archive_and_rejects_unsafe_replacements(configured):
+    home, client = configured
+    header = b"PMX " + struct.pack("<fB", 2.0, 8) + bytes((1, 0, 4, 4, 4, 4, 4, 4))
+    archive = io.BytesIO()
+    with zipfile.ZipFile(archive, 'w') as package:
+        package.writestr('model/avatar.pmx', header)
+    original = archive.getvalue()
+    upload = UploadFile(filename='model.zip', file=io.BytesIO(original))
+    response = asyncio.run(ws.upload_os_avatar(upload))
+    assert json.loads(response.body)['avatar_url'] == '/avatars/os-model.zip'
+    assert (home / 'avatars' / 'os-model.zip').read_bytes() == original
+    client.send_text.assert_awaited_once()
+
+    client.send_text.reset_mock()
+    with zipfile.ZipFile(archive, 'a') as package:
+        package.writestr('../outside.png', b'texture')
+    archive.seek(0)
+    with pytest.raises(ws.HTTPException, match='ruta inválida'):
+        asyncio.run(ws.upload_os_avatar(UploadFile(filename='model.zip', file=archive)))
+    assert (home / 'avatars' / 'os-model.zip').read_bytes() == original
+    assert IRISConfig.load().avatar_vrm_path == str(home / 'avatars' / 'os-model.zip')
+    client.send_text.assert_not_awaited()
 
 
 def test_same_name_replacement_and_external_current_route_change_revision(configured):

@@ -249,7 +249,12 @@ def test_factory_assets_preserve_states_face_profiles_and_local_originals():
     manifest = json.loads(assets["manifest.json"])
     contract = load_contract()
     verify_assets(assets, contract)
-    assert len(manifest["clips"]) == 59
+    # 59 until 2026-11-09, when 33 gestures, variants, a walk and a seat from Tripo motions were added;
+    # 92 until 2026-11-10 (face down on the bed: its loop and the two rolls).
+    assert len(manifest["clips"]) == 95
+    assert manifest["variants"] == original["variants"]
+    assert manifest["variant_weights"] == original["variant_weights"]
+    assert all(clip in manifest["clips"] for clips in manifest["variants"].values() for clip in clips)
     # Every packaged clip keeps its face; a clip left out takes its profile with it.
     assert manifest["facial_profiles"] == {
         name: profile for name, profile in original["facial_profiles"].items() if name in manifest["clips"]
@@ -259,7 +264,7 @@ def test_factory_assets_preserve_states_face_profiles_and_local_originals():
     assert manifest["menu_poses"] == original["menu_poses"]
     assert not {"sit", "walk_in_place", "pc_sit_down_v2", "pc_seated_idle_v2"} & manifest["clips"].keys()
     room_clips = set(manifest["clips"]) - set(original["_source_mapping"])
-    assert len(room_clips) == 41
+    assert len(room_clips) == 43  # 41 before the two rolls onto her front and back
     assert room_clips <= set(manifest["runtime_only"])
     assert (source / "manifest.json").read_bytes() == before
     contexts = json.loads(assets["contexts.json"])["contexts"]["desktop_companion"]

@@ -219,6 +219,7 @@
 .iris-dialog-field small { color: rgba(222, 237, 246, 0.6); font-size: 12px; }
 
 .iris-dialog-field input,
+.iris-dialog-field select,
 .iris-dialog-field textarea {
     width: 100%;
     box-sizing: border-box;
@@ -232,7 +233,10 @@
     resize: vertical;
 }
 
+.iris-dialog-field select { min-width: 0; color-scheme: dark; }
+
 .iris-dialog-field input:focus,
+.iris-dialog-field select:focus,
 .iris-dialog-field textarea:focus {
     outline: none;
     border-color: color-mix(in srgb, var(--dlg-a) 70%, transparent);

@@ -74,6 +74,18 @@ test('after longer she goes somewhere, and after much longer she lies down until
     assert.equal(calls.at(-1), 'lie_bed:routine', 'she stays');
 });
 
+test('resting, she sometimes lies on her front, and on her back when the front cannot play', () => {
+    const front = fixture({ random: () => 0.1 });
+    front.routines.quietSince = -900;
+    front.at(0);
+    assert.equal(front.calls.at(-1), 'lie_bed_prone:routine');
+    assert.equal(front.routines.step.kind, 'rest');
+    const back = fixture({ random: () => 0.1, can: (order) => order !== 'lie_bed_prone' });
+    back.routines.quietSince = -900;
+    back.at(0);
+    assert.equal(back.calls.at(-1), 'lie_bed:routine');
+});
+
 test('the routines themselves do not count as quiet ending: near leads to visits, and those to rest', () => {
     const { calls, routines, at } = fixture({ random: () => 0.9 });
     const kinds = [];

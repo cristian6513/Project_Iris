@@ -15,7 +15,7 @@ test('Companion packages only the approved factory assets and playable context f
     const original = await readFile(join(source, 'manifest.json'));
     const assets = await prepareAnimationAssets(source);
     const manifest = JSON.parse(assets.get('manifest.json'));
-    assert.equal(Object.keys(manifest.clips).length, 59);
+    assert.equal(Object.keys(manifest.clips).length, 95); // 59 until the Tripo gestures of 2026-11-09, 92 until face down on the bed
     assert.deepEqual([...assets.keys()].sort(), [
         ...Object.values(factoryContract.clips).map((item) => item.filename),
         'manifest.json', 'contexts.json', 'emotions.json', 'README.md',

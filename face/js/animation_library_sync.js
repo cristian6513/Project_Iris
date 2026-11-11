@@ -11,6 +11,16 @@ export function validateAnimationSnapshot(snapshot) {
         const value = snapshot.manifest[key];
         if (value != null && (typeof value !== 'object' || Array.isArray(value))) throw Error('Metadatos de animación inválidos.');
     }
+    const variants = snapshot.manifest.variants;
+    if (variants != null && (typeof variants !== 'object' || Array.isArray(variants)
+        || Object.values(variants).some(list => !Array.isArray(list) || list.some(item => typeof item !== 'string')))) {
+        throw Error('Metadatos de animación inválidos.');
+    }
+    const weights = snapshot.manifest.variant_weights;
+    if (weights != null && (typeof weights !== 'object' || Array.isArray(weights)
+        || Object.values(weights).some(weight => typeof weight !== 'number' || !(weight > 0) || !Number.isFinite(weight)))) {
+        throw Error('Metadatos de animación inválidos.');
+    }
     if (Object.values(snapshot.manifest.pose_map || {}).some(value => typeof value !== 'string')
         || Object.values(snapshot.manifest.activity_clips || {}).some(value => !value || typeof value.clip !== 'string')) throw Error('Metadatos de animación inválidos.');
     for (const [name, resource] of Object.entries(snapshot.resources)) {

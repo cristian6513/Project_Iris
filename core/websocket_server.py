@@ -74,6 +74,7 @@ from core.companion_lifecycle import (
 )
 from core.asset_uploads import (
     AVATAR_MAX_BYTES,
+    PMX_ARCHIVE_MAX_BYTES,
     AssetUploadError,
     atomic_avatar_write,
     read_bounded,
@@ -1428,6 +1429,18 @@ async def _handle_hermes_command(
     })
 
 
+async def _running_turn_superseded(agent: Any) -> bool:
+    """Whether the turn in progress goes to a provider or model no longer chosen."""
+    check = getattr(getattr(agent, "bridge", None), "running_turn_superseded", None)
+    if check is None:
+        return False
+    try:
+        return bool(await check())
+    except Exception as exc:
+        logger.debug("Could not compare the running turn's provider: %s", exc)
+        return False
+
+
 async def _handle_user_text(
     websocket: WebSocket | None,
     text: str,
@@ -1461,6 +1474,13 @@ async def _handle_user_text(
                 camera_question=camera_question, turn_epoch=epoch,
             )
             return
+        running_turn = getattr(agent, "_current_turn_task", None)
+        if running_turn is not None and conversation_lock.locked() and await _running_turn_superseded(agent):
+            # The turn in progress went to a provider or model the person has since left
+            # (Configuración, the model selector). Hermes and Core queue this message
+            # behind it, maybe for minutes (QA22): stop it like «Detener» so this one goes
+            # to the new provider at once.
+            await agent.interrupt(reason="provider_changed", expected_turn=running_turn)
         async with conversation_lock:
             await _handle_user_text_unlocked(
                 websocket, text, images=images,
@@ -3699,7 +3719,7 @@ def _theme_image_format(content: bytes) -> tuple[str, str] | None:
 
 @asset_upload_route(app, "/api/avatar/upload")
 async def upload_os_avatar(file: UploadFile = File(...)) -> JSONResponse:
-    """Persist a VRM selected from IRIS OS and make it the active avatar."""
+    """Persist an avatar selected from IRIS OS and make it the active avatar."""
     import re
 
     try:
@@ -3707,13 +3727,14 @@ async def upload_os_avatar(file: UploadFile = File(...)) -> JSONResponse:
     except AssetUploadError as exc:
         raise HTTPException(exc.status_code, str(exc)) from exc
     suffix = Path(filename).suffix.casefold()
-    if suffix not in {".vrm", ".glb"}:
+    if suffix not in {".vrm", ".glb", ".zip"}:
         raise HTTPException(
             status_code=400,
-            detail="IRIS OS solo guarda archivos .vrm o .glb que declaren metadatos VRM",
+            detail="Elige un avatar VRM o un ZIP con un modelo PMX y sus texturas.",
         )
     try:
-        content = await asyncio.to_thread(read_bounded, file.file, _OS_AVATAR_MAX_BYTES)
+        limit = PMX_ARCHIVE_MAX_BYTES if suffix == ".zip" else _OS_AVATAR_MAX_BYTES
+        content = await asyncio.to_thread(read_bounded, file.file, limit)
         await asyncio.to_thread(validate_asset, content, suffix[1:], avatar=True)
     except AssetUploadError as exc:
         raise HTTPException(exc.status_code, str(exc)) from exc

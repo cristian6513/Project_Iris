@@ -25,8 +25,10 @@ import { VRMAnimationPlayer } from './vrm_animation_loader.js?v=10';
 //   • 'custom' → always shown; defined purely in our code, no rig assumption
 //
 // `label` is the Spanish UI label for the pose menu button.
-// Room units per second the walk clip covers at speed 1: 0.75 m/s on the default avatar.
-const WALK_CLIP_SPEED = 1.0945;
+// Room units per second each walk clip covers at speed 1 on the default avatar: `walk` 0.75 m/s,
+// `walk_2` (Tripo's catwalk, rebuilt as a room cycle) 0.58 m/s.
+const WALK_CLIP_SPEEDS = Object.freeze({ walk: 1.0945, walk_2: 0.847 });
+const WALK_CLIP_SPEED = WALK_CLIP_SPEEDS.walk;
 
 // Seats with clips of their own: `trigger` sits her into the loop, `standUp` plays her out.
 // `drape` is how far the skirt rests over her thighs: while held, and at [second, weight]
@@ -50,6 +52,12 @@ const SEATED_HEAD_GESTURES = Object.freeze({
 });
 const STANDING_DRAPE = Object.freeze({ held: 0, sit: [[0, 0]], stand: [[0, 0]] });
 const USE_TABLET = Object.freeze({ id: 'tablet', take: 1.37, open: [[0, 0]], close: [[0, 0]], release: 1.17 });
+const BED_LYING_DRAPE = Object.freeze({
+    held: 0,
+    sit: [[0.7, 0], [1.6, 1], [3.0, 1], [4.2, 0]],
+    stand: [[0.7, 0], [1.7, 1], [2.8, 1], [3.5, 0]],
+});
+const BED_LYING_LIES = Object.freeze({ held: 1, sit: [[2.6, 0], [4.6, 1]], stand: [[0.4, 1], [2.0, 0]] });
 
 const SEATS = Object.freeze({
     sofa_seated: Object.freeze({
@@ -154,7 +162,7 @@ const SEATS = Object.freeze({
         stand: 'bed_stand_up',
         reads: 'bed_reading',
         joins: Object.freeze({
-            bed_lying: Object.freeze({ clip: 'bed_sit_up', at: 0, drape: [[0.7, 0], [1.7, 1]] }),
+            bed_lying: Object.freeze({ clip: 'bed_sit_up', at: 0, drape: [[0.7, 0], [1.7, 1]], lies: [[0.4, 1], [2.0, 0]] }),
             bed_reading: Object.freeze({ clip: 'bed_read_close', at: 0, drape: [[0, 1]] }),
             bed_tablet: Object.freeze({ clip: 'bed_tablet_close', at: 0, drape: [[0, 1]] }),
         }),
@@ -163,12 +171,36 @@ const SEATS = Object.freeze({
     bed_lying: Object.freeze({
         sit: 'bed_lie_down',
         stand: 'bed_get_up',
-        joins: Object.freeze({ bed_seated: Object.freeze({ clip: 'bed_lie_down', at: 2.3 }) }),
-        drape: Object.freeze({
-            held: 0,
-            sit: [[0.7, 0], [1.6, 1], [3.0, 1], [4.2, 0]],
-            stand: [[0.7, 0], [1.7, 1], [2.8, 1], [3.5, 0]],
+        joins: Object.freeze({
+            bed_seated: Object.freeze({ clip: 'bed_lie_down', at: 2.3 }),
+            bed_prone: Object.freeze({ clip: 'bed_roll_supine', at: 0, drape: [[0, 0]], lies: [[0, 1]] }),
         }),
+        drape: BED_LYING_DRAPE,
+        // How far her back rests on the bed, as her hips tip back from upright to flat
+        // (LyingHips in lying_hips.js). Same shape as `drape`. `rests`: on what, once held.
+        lies: BED_LYING_LIES,
+        rests: 'back',
+    }),
+    // Face down, her feet swinging (Tripo's two takes in one loop). She lies down on her back
+    // first and rolls over (`then`), and rolls back before she gets up (`closes`).
+    bed_prone: Object.freeze({
+        sit: 'bed_lie_down',
+        then: 'bed_roll_prone',
+        closes: 'bed_roll_supine',
+        stand: 'bed_get_up',
+        base: 'bed_lying',
+        joins: Object.freeze({ bed_lying: Object.freeze({ clip: 'bed_roll_prone', at: 0, drape: [[0, 0]], lies: [[0, 1]] }) }),
+        drape: BED_LYING_DRAPE,
+        lies: BED_LYING_LIES,
+        rests: 'front',
+    }),
+    // On the edge of the desk, swinging her legs (Tripo's take). No clip takes her up there:
+    // she comes and goes in a line of light (`teleport`, scene_actions.js). Her feet hang, so
+    // her hips keep IRIS' height on the desk whatever the avatar (`lies`).
+    desk_edge: Object.freeze({
+        teleport: true,
+        drape: Object.freeze({ held: 1, sit: [[0, 1]], stand: [[0, 1]] }),
+        lies: Object.freeze({ held: 1, sit: [[0, 1]], stand: [[0, 1]] }),
     }),
 });
 
@@ -202,6 +234,26 @@ const IDLE_POSES = [
     { name: 'attention', tier: 'risky', weight: 0, duration: 3000, continuous: false, label: 'Llamar la atención' },
     { name: 'point', tier: 'risky', weight: 0, duration: 3000, continuous: false, label: 'Señalar' },
     { name: 'stretch', tier: 'risky', weight: 1, duration: 3000, continuous: false, label: 'Estirarse' },
+    // Added in November 2026 from Tripo motions. Several gestures above also play variants
+    // (manifest `variants`); weight is only for the rest clips she picks on her own.
+    { name: 'idle_yawn', tier: 'risky', weight: 2, duration: 3000, continuous: false, label: 'Bostezar' },
+    { name: 'hair_touch', tier: 'risky', weight: 3, duration: 3000, continuous: false, label: 'Arreglarse el pelo' },
+    { name: 'idle_waiting', tier: 'risky', weight: 1, duration: 3000, continuous: false, label: 'Esperar' },
+    { name: 'sad', tier: 'risky', weight: 0, duration: 3000, continuous: false, label: 'Triste' },
+    { name: 'laugh', tier: 'risky', weight: 0, duration: 3000, continuous: false, label: 'Reír' },
+    { name: 'shy', tier: 'risky', weight: 0, duration: 3000, continuous: false, label: 'Tímida' },
+    { name: 'scared', tier: 'risky', weight: 0, duration: 3000, continuous: false, label: 'Asustada' },
+    { name: 'clap', tier: 'risky', weight: 0, duration: 3000, continuous: false, label: 'Aplaudir' },
+    { name: 'heart', tier: 'risky', weight: 0, duration: 3000, continuous: false, label: 'Corazón' },
+    { name: 'apologize', tier: 'risky', weight: 0, duration: 3000, continuous: false, label: 'Disculparse' },
+    { name: 'shrug', tier: 'risky', weight: 0, duration: 3000, continuous: false, label: 'No sé' },
+    { name: 'idea', tier: 'risky', weight: 0, duration: 3000, continuous: false, label: '¡Ya sé!' },
+    { name: 'annoyed', tier: 'risky', weight: 0, duration: 3000, continuous: false, label: 'No me molestes' },
+    { name: 'wave_cute', tier: 'risky', weight: 0, duration: 3000, continuous: false, label: 'Saludo adorable' },
+    { name: 'wave_flirty', tier: 'risky', weight: 0, duration: 3000, continuous: false, label: 'Saludo coqueto' },
+    { name: 'dance', tier: 'risky', weight: 0, duration: 3000, continuous: false, label: 'Bailar' },
+    { name: 'dance_sexy', tier: 'risky', weight: 0, duration: 3000, continuous: false, label: 'Baile sexy' },
+    { name: 'jump', tier: 'risky', weight: 0, duration: 3000, continuous: false, label: 'Salto de alegría' },
     // Continuous background animations (not selectable)
     { name: 'breathe',       tier: 'safe',  weight: 0,  duration: 0,    continuous: true,  label: null },
     { name: 'blink',         tier: 'safe',  weight: 0,  duration: 0,    continuous: true,  label: null },
@@ -225,7 +277,8 @@ const IDLE_POSES = [
     { name: 'pc_seated_idle_v2', tier: 'safe', weight: 0, duration: 86400000, continuous: false, label: null },
     { name: 'sofa_seated',   tier: 'custom', weight: 0, duration: Infinity, continuous: false, label: null },
     { name: 'bed_lying',     tier: 'custom', weight: 0, duration: Infinity, continuous: false, label: null },
-    { name: 'bed_seated',    tier: 'custom', weight: 0, duration: Infinity, continuous: false, label: null },
+    { name: 'bed_prone',     tier: 'custom', weight: 0, duration: Infinity, continuous: false, label: null },
+    { name: 'bed_seated',   tier: 'custom', weight: 0, duration: Infinity, continuous: false, label: null },
     { name: 'book_reading',  tier: 'custom', weight: 0, duration: Infinity, continuous: false, label: null },
     { name: 'sofa_reading',  tier: 'custom', weight: 0, duration: Infinity, continuous: false, label: null },
     { name: 'bed_reading',   tier: 'custom', weight: 0, duration: Infinity, continuous: false, label: null },
@@ -236,13 +289,12 @@ const IDLE_POSES = [
     { name: 'stand_reading', tier: 'custom', weight: 0, duration: Infinity, continuous: false, label: null },
     { name: 'stand_tablet',  tier: 'custom', weight: 0, duration: Infinity, continuous: false, label: null },
     { name: 'window_looking', tier: 'custom', weight: 0, duration: Infinity, continuous: false, label: null },
+    { name: 'desk_edge',     tier: 'custom', weight: 0, duration: Infinity, continuous: false, label: null },
     { name: 'thinking_pose', tier: 'risky', weight: 6,  duration: 3200, continuous: false, label: 'Pensar' },
-    { name: 'hair_touch',    tier: 'risky', weight: 4,  duration: 2600, continuous: false, label: 'Tocar pelo' },
     { name: 'stretch_arms',  tier: 'risky', weight: 3,  duration: 2800, continuous: false, label: 'Estirar' },
     { name: 'wave_hand',     tier: 'risky', weight: 3,  duration: 2200, continuous: false, label: 'Saludar' },
     { name: 'sit_chair',     tier: 'risky', weight: 2,  duration: 6000, continuous: false, label: 'Sentarse' },
     { name: 'lie_bed',       tier: 'risky', weight: 1,  duration: 8000, continuous: false, label: 'Acostarse' },
-    { name: 'dance',         tier: 'risky', weight: 0,  duration: 4000, continuous: false, label: '💃 Bailar' },
 
     // ── Wonderful VRMA Set (4 idol-style 3-second poses) ───────────
     // Each gets its own selector button; they also feed the idle pool.
@@ -606,9 +658,35 @@ export class IdleSystem {
         return this._startActivityClip(next);
     }
 
+    /**
+     * The clip a gesture plays this time: one of its `variants` in the manifest, drawn by
+     * `variant_weights` (1 when absent). The one it played last weighs a quarter, so a gesture
+     * seldom repeats yet its first choice stays first; `repeat` keeps its full weight.
+     * A gesture without loaded variants plays its own clip.
+     */
+    _variantFor(name, { repeat = false } = {}) {
+        const options = (this._vrmaManifest?.variants?.[name] || [])
+            .filter(clip => typeof clip === 'string' && this._vrmaPlayer?.hasAnimation(clip));
+        if (!options.length) return name;
+        const last = this._lastVariants?.get(name);
+        const weights = this._vrmaManifest?.variant_weights || {};
+        const weightOf = clip => {
+            const weight = Number(weights[clip]);
+            const base = Number.isFinite(weight) && weight > 0 ? weight : 1;
+            return clip === last && !repeat && options.length > 1 ? base / 4 : base;
+        };
+        let draw = Math.random() * options.reduce((sum, clip) => sum + weightOf(clip), 0);
+        const clip = options.find(option => (draw -= weightOf(option)) < 0) ?? options.at(-1);
+        (this._lastVariants ??= new Map()).set(name, clip);
+        return clip;
+    }
+
     _startActivityClip(state) {
         const config = this._vrmaManifest?.activity_clips?.[state];
         if (!config || !this._vrmaPlayer?.hasAnimation(config.clip)) return false;
+        // Each response speaks with one of the variants, kept for the whole response. The
+        // favourite may speak response after response.
+        const clip = this._variantFor(config.clip, { repeat: true });
         this._detachVrmaFinishedHandler();
         this.currentPose = null;
         this._manualPoseActive = false;
@@ -616,11 +694,11 @@ export class IdleSystem {
         this._boneReturning = false;
         this._vrmaPoseManagedByMixer = null;
         this._animationTransitionRemaining = 0;
-        if (!this._vrmaPlayer.play(config.clip, { loop: config.loop === true, fadeIn: 0.3 })) {
+        if (!this._vrmaPlayer.play(clip, { loop: config.loop === true, fadeIn: 0.3 })) {
             return false;
         }
-        this._activityClip = config.clip;
-        this._vrmaExternalClip = config.clip;
+        this._activityClip = clip;
+        this._vrmaExternalClip = clip;
         this._vrmaActive = true;
         this._setAnimationBlinkSuppressed(true);
         // Non-looping listening actions clamp on their final sample. There is
@@ -786,6 +864,7 @@ export class IdleSystem {
         then = null,
     } = {}) {
         if (!this._vrmaPlayer) return false;
+        clip = this._variantFor(clip);
         this._detachVrmaFinishedHandler();
         // Cancel any stale procedural return before the mixer takes ownership.
         // Otherwise `_lerpBonesToRest()` keeps pulling against the new clip.
@@ -951,23 +1030,36 @@ export class IdleSystem {
     }
 
     isWalking() {
-        return this._walking === true && this._vrmaPlayer?.currentName === 'walk';
+        return this._walking === true && this._vrmaPlayer?.currentName === (this._walkClip || 'walk');
+    }
+
+    /**
+     * Pick the clip and relative pace together so the room can keep them on the route.
+     */
+    chooseWalk() {
+        const player = this._vrmaPlayer;
+        // The plain walk most trips (variant_weights), not turn and turn about.
+        const clip = player?.hasAnimation?.('walk') ? this._variantFor('walk', { repeat: true }) : 'walk';
+        const pace = (WALK_CLIP_SPEEDS[clip] ?? WALK_CLIP_SPEED) / WALK_CLIP_SPEED;
+        return { clip, pace };
     }
 
     /**
      * Start or stop the walk clip. `speed` is in room units per second, so a foot on the
      * ground stands still in the room. False without the clip: the caller walks her.
      */
-    setWalking(walking, speed = 0) {
+    setWalking(walking, speed = 0, plannedClip = 'walk') {
         const player = this._vrmaPlayer;
         if (!player?.hasAnimation?.('walk')) return false;
         if (walking) {
-            if (player.currentName !== 'walk' && !this._startLoopingClip('walk', { fadeIn: 0.22, fadeOut: 0.2 })) return false;
+            const clip = player.hasAnimation(plannedClip) ? plannedClip : 'walk';
+            if (player.currentName !== clip && !this._startLoopingClip(clip, { fadeIn: 0.22, fadeOut: 0.2 })) return false;
+            this._walkClip = clip;
             this._walking = true;
-            player.current.setEffectiveTimeScale(THREE.MathUtils.clamp(speed / WALK_CLIP_SPEED, 0.35, 1.5));
+            player.current.setEffectiveTimeScale(THREE.MathUtils.clamp(speed / (WALK_CLIP_SPEEDS[clip] ?? WALK_CLIP_SPEED), 0.35, 1.5));
         } else if (this._walking) {
             this._walking = false;
-            if (player.currentName === 'walk') this._returnToIdleClipAfterGesture(0.25);
+            if (player.currentName === this._walkClip) this._returnToIdleClipAfterGesture(0.25);
         }
         return true;
     }
@@ -996,6 +1088,11 @@ export class IdleSystem {
         if (!closing && !seats.some(seat => seat.stand === name)) return false;
         const rise = closing ? player.clips.get(closing.stand)?.duration ?? 0 : 0;
         return player.current.getClip().duration - player.current.time + rise > seconds;
+    }
+
+    /** Is she in a seat she can only leave in a line of light? */
+    leavesByLight() {
+        return Boolean(SEATS[this.currentPose]?.teleport);
     }
 
     /** Is she held in this seat? Without a name: in any seat. */
@@ -1075,7 +1172,8 @@ export class IdleSystem {
      */
     standUp() {
         const seat = SEATS[this.currentPose];
-        if (!seat) return false;
+        // A seat reached in a line of light has no clip to get up: the room takes her away.
+        if (!seat || seat.teleport) return false;
         this.currentPose = null;
         this._manualPoseActive = false;
         this.poseTimer = 0;
@@ -1288,6 +1386,15 @@ export class IdleSystem {
         this._pendingVrmaFinish = null;
         finish?.();
         this.avatar?.avatar?.setSeatDrape?.(this._seatDrapeWeight());
+        // Eased, so a lie-down cut short does not drop her hips in one frame.
+        this._lying = THREE.MathUtils.damp(this._lying ?? 0, this._lyingWeight(), 8, delta);
+        // Held lying on her back or front with her hips in IRIS' place: read where her body
+        // rests, once per avatar and way of lying (LyingHips fits her body to IRIS' from then on).
+        const rests = SEATS[this.currentPose]?.rests;
+        if (rests && this._lying > 0.98 && this._vrmaPlayer?.currentName === this._vrmaClipFor(this.currentPose)) {
+            this.avatar?.avatar?.measureLyingHips?.(rests);
+        }
+        this.avatar?.avatar?.setLyingHips?.(this._lying < 1e-3 ? 0 : this._lying, delta);
         this.avatar?.avatar?.setHandReach?.(this._handReachWeight());
 
         // Smooth return runs even while paused (so interrupting lie_bed still
@@ -1425,8 +1532,8 @@ export class IdleSystem {
         const player = this._vrmaPlayer;
         const time = player?.current?.time ?? 0;
         for (const seat of Object.values(SEATS)) {
-            if (player?.currentName === seat.sit) return curveAt(seat.drape.sit, time);
-            if (player?.currentName === seat.stand) return curveAt(seat.drape.stand, time);
+            if (seat.sit && player?.currentName === seat.sit) return curveAt(seat.drape.sit, time);
+            if (seat.stand && player?.currentName === seat.stand) return curveAt(seat.drape.stand, time);
             for (const join of Object.values(seat.joins || {})) {
                 if (join.drape && player?.currentName === join.clip) return curveAt(join.drape, time);
             }
@@ -1434,14 +1541,29 @@ export class IdleSystem {
         return SEATS[this.currentPose]?.drape.held ?? 0;
     }
 
+    /** 0 upright, 1 with her back on the bed. */
+    _lyingWeight() {
+        const player = this._vrmaPlayer;
+        const name = player?.currentName, time = player?.current?.time ?? 0;
+        for (const seat of Object.values(SEATS)) {
+            if (seat.lies && seat.sit && name === seat.sit) return curveAt(seat.lies.sit, time);
+            if (seat.lies && seat.stand && name === seat.stand) return curveAt(seat.lies.stand, time);
+            for (const join of Object.values(seat.joins || {})) {
+                if (join.lies && name === join.clip) return curveAt(join.lies, time);
+            }
+        }
+        return SEATS[this.currentPose]?.lies?.held ?? 0;
+    }
+
     _randomInterval() {
         // Energy modulates gesture cadence:
         //   energy = 0.0  →  slow ≈ 8-22 s   (calm, daydreamy)
         //   energy = 0.5  →  base ≈ 4-14 s   (default — old behavior)
         //   energy = 1.0  →  brisk ≈ 2-7 s   (alert, expressive)
+        // With six rest clips she fidgeted at the old 4-14 s: 8-20 s at the default energy.
         const energy = this.params?.energy ?? 0.5;
-        const baseMin = 4 + (1 - energy) * 8;     // 4 → 12
-        const span    = 6 + (1 - energy) * 14;    // 6 → 20
+        const baseMin = 6 + (1 - energy) * 4;     // 6 → 10
+        const span    = 8 + (1 - energy) * 8;     // 8 → 16
         return baseMin + Math.random() * span;
     }
 
@@ -1471,7 +1593,7 @@ export class IdleSystem {
 
         const biased = eligible.map(p => ({
             pose: p,
-            weight: p.weight * this._moodBiasFor(p.name, mood),
+            weight: p.weight * this._moodBiasFor(p.name, mood) * this._restBiasFor(p.name, mood),
         }));
         const totalWeight = biased.reduce((s, b) => s + b.weight, 0);
         if (totalWeight <= 0) return eligible[0];   // mood collapsed all weights — fallback
@@ -1496,6 +1618,26 @@ export class IdleSystem {
      *   • Neutral poses (head_tilt/look_around/micro_head/subtle_nod)
      *     — flat 1.0 at all moods (always available).
      */
+    /**
+     * The rest clips answer the moment: she yawns at night and after a long quiet, taps her
+     * foot when her question goes unanswered or the quiet drags on, and touches her hair when
+     * she is happy. `restContext()` (set by the room) gives `quiet` seconds without a person,
+     * `asked` seconds since a question of hers still unanswered (or null) and the local `hour`.
+     */
+    _restBiasFor(name, mood) {
+        const { quiet = 0, asked = null, hour = new Date().getHours() } = this.restContext?.() ?? {};
+        if (name === 'idle_yawn') {
+            const night = hour >= 23 || hour < 6;
+            return (night ? 3 : 1) * (quiet >= 300 ? 2 : quiet < 60 ? 0.5 : 1);
+        }
+        if (name === 'idle_waiting') {
+            if (asked !== null && asked >= 15) return 6;
+            return quiet >= 120 ? 2 : quiet < 30 ? 0.3 : 1;
+        }
+        if (name === 'hair_touch') return mood > 0.3 ? 2 : 1;
+        return 1;
+    }
+
     _moodBiasFor(name, mood) {
         const upbeat = new Set([
             'pose_smile', 'pose_love', 'pose_noble', 'pose_weave',

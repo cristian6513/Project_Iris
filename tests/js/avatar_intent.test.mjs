@@ -77,6 +77,32 @@ test('a refused "Volver a IRIS" changes nothing on stage', async () => {
     assert.deepEqual(scene, []);
 });
 
+test('an upload transport error explains how to retry and preserves the current avatar', async () => {
+    const scene = [];
+    const actions = createAvatarActions({
+        fetchImpl: async () => { throw new TypeError('Failed to fetch'); },
+        dispatch: (detail) => scene.push(detail),
+        FormDataImpl: FakeForm,
+    });
+    await assert.rejects(actions.upload({ name: 'avatar.vrm' }), /No pude conectar con IRIS.*vuelve a intentarlo/);
+    assert.deepEqual(scene, []);
+});
+
+test('the current upload reports validation errors and an older upload yields silently', async () => {
+    const fetch = controlledFetch();
+    const scene = [];
+    const actions = createAvatarActions({
+        fetchImpl: fetch.fetchImpl, dispatch: (detail) => scene.push(detail), FormDataImpl: FakeForm,
+    });
+    const first = actions.upload({ name: 'viejo.vrm' });
+    const second = actions.upload({ name: 'nuevo.vrm' });
+    fetch.calls[0].resolve(reply({ detail: 'Modelo anterior inválido.' }, false));
+    fetch.calls[1].resolve(reply({ detail: 'El VRM no incluye huesos humanoides.' }, false));
+    assert.deepEqual(await first, { url: '', superseded: true });
+    await assert.rejects(second, /no incluye huesos humanoides/);
+    assert.deepEqual(scene, []);
+});
+
 test('the gate counts every action and Quick Configuration uses it', () => {
     const gate = createIntentGate();
     const first = gate.begin();

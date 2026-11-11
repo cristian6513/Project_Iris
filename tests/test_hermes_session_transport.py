@@ -97,6 +97,12 @@ class FakeHermes:
         return httpx.Response(404, json={"error": {"message": "no route"}})
 
 
+@pytest.fixture(autouse=True)
+def _prepared_api_tools(monkeypatch):
+    # Transport tests do not configure the real machine; policy has its own suite.
+    monkeypatch.setattr(bridge_module, "keep_unusable_tools_off", lambda profile=None: True)
+
+
 def make_bridge(tmp_path, hermes: FakeHermes, *, default=("fake-a", "alpha-1"), session_runtime=True, local=True):
     bridge = HermesBridge(IRISConfig())
     # Locality is checked once and cached; tests state it (see the R6 tests for the check).

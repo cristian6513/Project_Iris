@@ -3,20 +3,20 @@
   "component": "main",
   "source_base_commit": "49951db0042405b7a60a0c4dd3d7896bdd920784",
   "source_has_uncommitted_changes": true,
-  "source_tree_sha256": "37f2cbf55a7588626d90cbae106c7ba83592038d2333b48f1a2d9542feb7ac41",
-  "content_tree_sha256": "fb38e73c8dd150cde0e5403bb2bdfc1d13ace4933488c09d0b45a44ade1370c3",
-  "payload_files": 1382,
-  "documentation_references_adapted": 130,
+  "source_tree_sha256": "aba0477462a584a6edaede0678aa13ca4e650db9743f57dc008646beb25cd236",
+  "content_tree_sha256": "5e42cc2170147cffa29c1da44a04933d71ef514464bc88049e00c7467f33f51a",
+  "payload_files": 1443,
+  "documentation_references_adapted": 146,
   "exact_source_commit": false,
   "installer_acceptance": false,
   "qa_artifacts": {
-    "candidate": "QA22",
-    "version": "0.9.2",
-    "build_id": "ddd205bd",
-    "build_tree_sha256": "46a4a95fe23a32fc5284264d8ca43c51aa3463e6173bc55ae7298636ec12a33a",
-    "staging_sha256": "ddd205bd6721030fee31c1dc817e8c32d0e690ca2c7920226cfa1b5606b783dc",
-    "installer_sha256": "640536c91301621b7d3aa393087173d7d97ba1d4021ac167f3ca321db45c5ac8",
-    "package_sha256": "574562ae499304890295b689b351443d8781004cb4cee02b410411fe7854bf24"
+    "candidate": "QA23",
+    "version": "0.9.3",
+    "build_id": "734ff308",
+    "build_tree_sha256": "46d1343af908a3c4f8ea5ee1f98feaeb9c01406e5c832ac6320a168d028b27b6",
+    "staging_sha256": "734ff3088819760daf37da8a7b4336fda0cd8f6d3ad949d76067680e2e5ea2b0",
+    "installer_sha256": "671cbbbfb10fb2375a413fdca98ffe5db5c48d21b57ca303db18834e67ba5481",
+    "package_sha256": "55793d308dd023bd95694612dbb5211f1c835e238b61cfaff5c9ee42f6e8d84d"
   },
   "public_adaptations": {
     "build_version_files": [
@@ -24,19 +24,10 @@
       "desktop/src-tauri/tauri.conf.json",
       "scripts/runtime_sources.json"
     ],
-    "privacy_files": [
-      ".gitignore",
-      ".dockerignore",
-      "pagina-iris/.gitignore",
-      "pagina-iris/site.config.json",
-      "pagina-iris/deploy/README.md",
-      "pagina-iris/scripts/deploy.mjs",
-      "tools/repositories/exports.json",
-      "tests/test_hermes_response_envelope.py"
-    ],
     "documentation": [
+      "Public Markdown links",
       "README.md",
-      "Public Markdown links"
+      "docs/estado-actual.md"
     ]
   }
 }

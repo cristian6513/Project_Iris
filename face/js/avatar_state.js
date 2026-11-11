@@ -6,6 +6,10 @@ export const IRIS_AVATAR_FILE = 'iris.vrm';
 export const IRIS_AVATAR_REVISION = '12';
 export const IRIS_AVATAR_URL = `/face/animations/${IRIS_AVATAR_FILE}?v=${IRIS_AVATAR_REVISION}`;
 
+export function isPmxArchive(resource) {
+    return typeof resource === 'string' && /\.zip$/i.test(resource.split(/[?#]/, 1)[0]);
+}
+
 /** The VRM to show: the person's own when they chose one, else IRIS'. */
 export function avatarUrl(config = {}, irisUrl = IRIS_AVATAR_URL, override = '') {
     return String(override || config.avatar_vrm_path || '').trim() || irisUrl;

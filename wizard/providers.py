@@ -280,7 +280,7 @@ PROVIDERS: list[dict[str, Any]] = [
     {
         "id": "xiaomi", "name": "Xiaomi MiMo", "icon": "📱",
         "category": "cloud", "auth": "api",
-        "url": "https://api.mimo.xiaomi.com/",
+        "url": "https://mimo.mi.com/docs/en-US/quick-start/faq/api-integration",
         "hint": "MiMo-V2.5 (pro/omni/flash)",
         "hermes_id": "xiaomi", "env_key": "XIAOMI_API_KEY",
         "models": [
@@ -290,7 +290,7 @@ PROVIDERS: list[dict[str, Any]] = [
     {
         "id": "tencent-tokenhub", "name": "Tencent TokenHub", "icon": "🐧",
         "category": "cloud", "auth": "api",
-        "url": "https://tokenhub.tencentmaas.com/",
+        "url": "https://cloud.tencent.com/document/product/1823/130078",
         "hint": "Tencent TokenHub (Hy3 Preview)",
         "hermes_id": "tencent-tokenhub", "env_key": "TOKENHUB_API_KEY",
         "models": [
@@ -464,7 +464,7 @@ PROVIDERS: list[dict[str, Any]] = [
     {
         "id": "opencode-zen", "name": "OpenCode Zen", "icon": "🧘",
         "category": "aggregator", "auth": "api",
-        "url": "https://opencode.zen/",
+        "url": "https://opencode.ai/docs/zen/",
         "hint": "35+ modelos curados, pay-as-you-go",
         "hermes_id": "opencode-zen", "env_key": "OPENCODE_ZEN_API_KEY",
         "models": [
@@ -474,7 +474,7 @@ PROVIDERS: list[dict[str, Any]] = [
     {
         "id": "opencode-go", "name": "OpenCode Go", "icon": "🧘",
         "category": "aggregator", "auth": "api",
-        "url": "https://opencode.go/",
+        "url": "https://opencode.ai/docs/go/",
         "hint": "Modelos open, $10/mes",
         "hermes_id": "opencode-go", "env_key": "OPENCODE_GO_API_KEY",
         "models": [

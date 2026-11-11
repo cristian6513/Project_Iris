@@ -110,7 +110,7 @@ def test_runtime_inventory_has_no_build_script_filesystem_dependency(monkeypatch
 
     monkeypatch.setattr(Path, "read_bytes", deny_build_script)
     inventory = migration._factory_contract()
-    assert len(inventory) == 59
+    assert len(inventory) == 95  # 59 until the Tripo gestures of 2026-11-09, 92 until face down on the bed
     inventory["wave"]["filename"] = "changed.vrma"
     assert migration._factory_contract()["wave"]["filename"] == "iris_wave.vrma"
 

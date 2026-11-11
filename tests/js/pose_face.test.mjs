@@ -12,8 +12,8 @@ function fixture() {
     const advance = (seconds = 2) => { for (let i = 0; i < seconds * 60; i++) step(); };
     return { avatar, values, face, step, advance };
 }
-test('all 59 poses allow gaze and natural blinking without changing source clips', () => {
-    assert.equal(Object.keys(profiles).length, 59);
+test('all 95 poses allow gaze and natural blinking without changing source clips', () => {
+    assert.equal(Object.keys(profiles).length, 95);
     for (const [name, profile] of Object.entries(profiles)) {
         const held = name === 'desk_type_idle' ? 'screen' : /(read|tablet)_idle$/.test(name) ? 'down' : 'natural';
         assert.equal(profile.eyes.gaze, held, name);

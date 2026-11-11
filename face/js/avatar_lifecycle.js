@@ -90,8 +90,11 @@ export class AvatarSwapCoordinator {
 
     begin() {
         const generation = ++this.generation;
+        this.selectionAbort?.abort();
+        this.selectionAbort = new AbortController();
         this.pending = true;
         return Object.assign(() => !this.disposed && generation === this.generation, {
+            signal: this.selectionAbort.signal,
             finish: () => { if (generation === this.generation) this.pending = false; },
         });
     }
@@ -123,6 +126,7 @@ export class AvatarSwapCoordinator {
 
     dispose() {
         this.disposed = true;
+        this.selectionAbort?.abort();
         this.pending = false;
         this.generation++;
     }

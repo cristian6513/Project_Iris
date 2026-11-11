@@ -7,7 +7,7 @@ import subprocess
 
 import pytest
 
-from scripts.export_repositories import ExportError, Plan, apply_plan, changes_for, make_plan, scan_secrets, sha, target_path
+from scripts.export_repositories import ExportError, Plan, apply_plan, changes_for, make_plan, rewrite_markdown, scan_secrets, sha, target_path
 
 
 def simple_plan(payload):
@@ -73,6 +73,17 @@ def test_secret_reports_do_not_disclose_the_value_and_exceptions_bind_the_whole_
     assert scan_secrets('core/config.py', line, exception) == []
     assert scan_secrets('core/config.py', line + b' # changed', exception)
     assert scan_secrets('core/other.py', line, exception)
+
+
+def test_export_adapts_multiline_links_outside_fenced_code():
+    kept = b'[Guia que sigue\n disponible](guides/start.md)'
+    fenced = b'\x60\x60\x60md\n[Ejemplo que conserva\n su ruta](audits/private.md)\n\x60\x60\x60'
+    external = b'[Guia\n externa](https://example.org/docs)'
+    internal = b'[Informe que ocupa\n dos lineas](audits/private.md)'
+    document = b'\n\n'.join([kept, fenced, external, internal]) + b'\n'
+    public, count = rewrite_markdown(document, 'docs/current.md', {'docs/guides/start.md'}, component='main')
+    assert count == 1
+    assert public == b'\n\n'.join([kept, fenced, external, b'Informe que ocupa dos lineas (informe interno no distribuido)']) + b'\n'
 
 
 def test_selection_excludes_unignored_qa_and_preserves_pinned_notice_bytes(tmp_path):

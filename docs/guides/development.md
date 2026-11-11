@@ -5,7 +5,7 @@
 Esta guía cubre el entorno reproducible, las pruebas y la higiene mínima antes
 de publicar IRIS OS.
 
-Revisión: 2026-10-16. Antes de elegir una entrega, lee el
+Revisión: 2026-11-06. Antes de elegir una entrega, lee el
 [estado actual](../estado-actual.md) y el plan coordinador. Los comandos de build
 o publicación son procedimientos, no tareas ejecutadas por leer esta guía.
 
@@ -94,6 +94,15 @@ npm --prefix companion ci
 npm --prefix companion run build
 cargo test --manifest-path companion/src-tauri/Cargo.toml
 ```
+
+### Referencia de candidato
+
+QA22 (informe interno no distribuido) se comprobó con su
+exportación y las pruebas de distribución incluidas, sin excluirlas por un
+inventario atrasado. Una modificación posterior de `help.html` también exige
+regenerar la exportación y comprobar el contrato para esa fuente nueva. No
+sustituyas el paquete ni las evidencias del candidato ya congelado. La cadena
+de QA22 no acredita todavía la ejecución completa de `COMPILAR.cmd`.
 
 ### Integración continua
 

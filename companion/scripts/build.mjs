@@ -1,6 +1,7 @@
 import { copyAnimationAssets } from './animation_assets.mjs';
 import { prepareVisionAssets } from '../../scripts/vision_assets.mjs';
 import { BASIS_FILES, prepareBasisTranscoder } from '../../scripts/basis_assets.mjs';
+import { prepareAmmoAssets } from '../../scripts/ammo_assets.mjs';
 import { createHash } from 'node:crypto';
 import { copyFile, mkdir, readFile, readdir } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
@@ -69,5 +70,6 @@ await mkdir(PROP_TARGET, { recursive: true });
 for (const model of PROP_MODELS) await copyFile(join(PROP_SOURCE, model), join(PROP_TARGET, model));
 await copyLocalVisionRuntime();
 await prepareBasisTranscoder({ projectRoot: PROJECT_ROOT, target: BASIS_TARGET });
+await prepareAmmoAssets({ projectRoot: PROJECT_ROOT, target: resolve(COMPANION_ROOT, 'dist', 'face', 'vendor', 'ammo') });
 await assertOfflineBundle();
 console.log('IRIS native bundle prepared: offline vision/runtime + license-safe animations.');

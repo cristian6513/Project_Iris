@@ -595,9 +595,14 @@ def test_copilot_acp_is_not_mistaken_for_a_local_http_server() -> None:
     assert asyncio.run(_local_provider_preflight("copilot-acp", "gpt-4o")) is None
 
 
-def test_copilot_acp_reports_missing_external_cli() -> None:
+def test_copilot_acp_reports_missing_external_cli(tmp_path, monkeypatch) -> None:
+    # On Windows the check walks PATH itself (shutil.which would accept a .cmd
+    # shim CreateProcess cannot start), and VS Code puts a copilot.exe on PATH:
+    # an empty PATH makes the CLI missing on every machine.
+    monkeypatch.setenv("PATH", str(tmp_path))
     with (
-        patch("wizard.hermes_config.read_hermes_dotenv", return_value={}),
+        patch("wizard.hermes_config.read_hermes_dotenv_if_present", return_value={}),
+        patch("wizard.hermes_config.shutil.which", return_value=None),
         patch("wizard.app.shutil.which", return_value=None),
     ):
         error = asyncio.run(_external_provider_preflight("copilot-acp"))

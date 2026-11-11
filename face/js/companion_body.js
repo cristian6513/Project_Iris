@@ -18,9 +18,11 @@ export const STAND_INS = Object.freeze({
     read_bed: 'stand_reading',
     tablet_bed: 'stand_tablet',
     sit_desk: 'stretch',
+    sit_desk_edge: 'stretch',
     use_pc: 'stand_tablet',
     look_window: 'idle_lazy',
     lie_bed: 'idle_lazy',
+    lie_bed_prone: 'idle_lazy',
 });
 const PLAIN = 'idle_lazy';
 const OBJECT_FOR = Object.freeze({ stand_reading: 'conjured', stand_tablet: 'tablet' });

@@ -11,9 +11,13 @@ El panel de Face tiene dos pestañas:
 
 Cada pestaña tiene sus contadores y recuerda su selección mientras el panel está abierto. Los estados se actualizan cada 12 segundos mientras la aplicación está visible, o al pulsar **Actualizar**. Al seleccionar una tarea se muestra su resultado. Este cambio no reproduce automáticamente los resultados por voz ni añade respuestas al chat.
 
+La pestaña **Desde el chat** consulta el registro de delegación interna de
+Hermes, incluido su historial. Es distinta de las tareas de Iris con indicador
+y Bandeja descritas a continuación.
+
 ## Tareas en segundo plano desde la conversación
 
-En fuente posterior a QA16, Iris puede dejar un encargo largo trabajando y seguir
+En QA22, Iris puede dejar un encargo largo trabajando y seguir
 conversando contigo. Por ejemplo: «Busca las noticias más importantes de hoy». Iris
 responde «Voy a revisarlas; puedes seguir hablando conmigo». Puedes preguntarle
 la hora mientras tanto, y al terminar te presenta el resultado con su voz.
@@ -62,6 +66,25 @@ la hora mientras tanto, y al terminar te presenta el resultado con su voz.
   automatizaciones y los dispositivos de la red no pueden iniciarlas.
 
 Informe: tareas en segundo plano (informe interno no distribuido).
+
+## Corrección posterior a QA22
+
+El chat de Iris con un Hermes local propio utiliza su sistema de tareas; no
+ofrece la herramienta interna delegate_task, cuyos resultados no despiertan
+un turno de Iris en el servidor API. También retira execute_code de ese chat,
+donde Hermes no puede ejecutarla. Recomendaciones y opiniones se responden
+directamente cuando no necesitan investigación.
+
+La comprobación se hace por el perfil de destino y usa la resolución de
+herramientas de Hermes, incluyendo listas all/* y combinaciones de categorías.
+Telegram y otras plataformas conservan su selección. Si cambia config.yaml,
+el entorno o la política administrada, se vuelve a verificar; con archivos
+sin cambios se reutiliza la comprobación. Si falla, Iris informa del problema
+sin enviar un turno con herramientas que no pudo verificar.
+
+Esta corrección está en la fuente y no modifica QA22 ya entregado. La prueba
+con un proveedor real corresponde al próximo instalador. Véase el
+informe del arreglo (informe interno no distribuido).
 
 ## Almacenamiento y compatibilidad
 

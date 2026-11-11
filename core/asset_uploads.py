@@ -17,10 +17,13 @@ import re
 import stat
 import struct
 import tempfile
+import zipfile
+import zlib
 from pathlib import Path
 from typing import BinaryIO
 
 AVATAR_MAX_BYTES = 100 * 1024 * 1024
+PMX_ARCHIVE_MAX_BYTES = 64 * 1024 * 1024
 ANIMATION_MAX_BYTES = 64 * 1024 * 1024
 JSON_MAX_BYTES = 16 * 1024 * 1024
 MAX_VALUES = 500_000
@@ -529,10 +532,68 @@ def _validate_bvh(content: bytes) -> None:
     _require(rows == frames, "El número de filas BVH no coincide con los fotogramas.")
 
 
+def _validate_pmx_archive(content: bytes) -> None:
+    """Check the uploaded ZIP without extracting or rewriting it."""
+    if len(content) > PMX_ARCHIVE_MAX_BYTES:
+        raise AssetUploadError("El ZIP MMD supera el límite de 64 MiB.", 413)
+    model = None
+    names: set[str] = set()
+    expanded = 0
+    try:
+        with zipfile.ZipFile(io.BytesIO(content)) as archive:
+            entries = archive.infolist()
+            _require(len(entries) <= 256, "El ZIP MMD tiene demasiados archivos.")
+            for entry in entries:
+                name = entry.orig_filename.replace("\\", "/").rstrip("/")
+                parts = name.split("/")
+                _require(
+                    all(part not in {"", ".", ".."} for part in parts)
+                    and not any(ord(char) < 32 or char == ":" for char in name),
+                    "El ZIP MMD contiene una ruta inválida.",
+                )
+                _require(name.lower() not in names, "El ZIP MMD contiene rutas duplicadas.")
+                names.add(name.lower())
+                _require(
+                    not stat.S_ISLNK(entry.external_attr >> 16), "El ZIP MMD contiene un enlace."
+                )
+                _require(
+                    not entry.flag_bits & 1
+                    and entry.compress_type in {zipfile.ZIP_STORED, zipfile.ZIP_DEFLATED},
+                    "El ZIP MMD está cifrado o usa una compresión no admitida.",
+                )
+                if entry.is_dir():
+                    continue
+                expanded += entry.file_size
+                if expanded > MAX_DECODED_BYTES or entry.file_size > 32 * 1024 * 1024:
+                    raise AssetUploadError(
+                        "El contenido del ZIP MMD supera el límite permitido.", 413
+                    )
+                if Path(name).suffix.lower() == ".pmx":
+                    _require(model is None, "El ZIP debe contener un solo modelo PMX.")
+                    model = entry
+            _require(model is not None, "El ZIP debe contener un modelo PMX con sus texturas.")
+            with archive.open(model) as source:
+                header = source.read(17)
+                _require(
+                    len(header) == 17 and header[:4] == b"PMX ",
+                    "El archivo PMX del ZIP no es válido.",
+                )
+                _require(
+                    header[4:9] in (struct.pack("<fB", 2.0, 8), struct.pack("<fB", 2.1, 8)),
+                    "El ZIP contiene una versión de PMX no admitida.",
+                )
+            _require(archive.testzip() is None, "El ZIP MMD contiene un archivo dañado.")
+    except (zipfile.BadZipFile, NotImplementedError, RuntimeError, OSError, zlib.error) as exc:
+        raise AssetUploadError("No se pudo leer el ZIP MMD.") from exc
+
+
 def validate_asset(content: bytes, extension: str, *, avatar=False) -> dict | None:
     """Validate within explicit budgets, returning original glTF metadata."""
     try:
         _require(bool(content))
+        if avatar and extension == "zip":
+            _validate_pmx_archive(content)
+            return None
         if extension in {"vrm", "vrma", "glb", "gltf"}:
             return _validate_gltf(content, extension, avatar)
         if not avatar and extension == "bvh":

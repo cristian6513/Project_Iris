@@ -1,5 +1,5 @@
 /**
- * IRIS Avatar — always a VRM: the person's own model, or IRIS' when there is none
+ * IRIS Avatar — a VRM or an MMD humanoid with a shared animation interface
  * (face/animations/iris.vrm). Full .vrm loading with @pixiv/three-vrm, 52 ARKit
  * blendshapes. The geometric and particle avatars were removed (2026-10-28).
  */
@@ -9,6 +9,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { disposeAvatarTree, retainAvatarResources } from './avatar_lifecycle.js?v=4';
 import { limitTextures } from './texture_limit.js?v=2';
 import { SeatDrape } from './seat_drape.js';
+import { LyingHips } from './lying_hips.js?v=4';
 import { ArmReach } from './arm_reach.js';
 import { useKTX2 } from './ktx2_support.js?v=2';
 import { autoRegisterSpringBones } from './auto_springbones.js';
@@ -16,6 +17,7 @@ import { AvatarBreeze } from './avatar_breeze.js?v=4';
 import { IKSolver } from './ik.js';
 import { PoseFace, NaturalBlink, VRM_EMOTION_PRESETS } from './pose_face.js';
 import { VRMAnimationPlayer } from './vrm_animation_loader.js?v=10';
+import { isPmxArchive } from './avatar_state.js?v=5';
 
 
 // ════════════════════════════════════════════════════════════
@@ -30,11 +32,12 @@ export class AvatarManager {
      * @param {{textureLimit?: () => number}} options - longest texture side for each model
      *   it loads (render quality «Ahorro»); 0 keeps the textures as they come
      */
-    constructor(scene, url, irisUrl = url, { textureLimit = () => 0 } = {}) {
+    constructor(scene, url, irisUrl = url, { textureLimit = () => 0, pmxBlob = false } = {}) {
         this.scene = scene;
         this.vrmUrl = url;
         this.irisUrl = irisUrl;
         this.textureLimit = textureLimit;
+        this.pmxBlob = pmxBlob;
         /** @type {VRMAvatar|null} */
         this.avatar = null;
         this._generation = 0;
@@ -51,7 +54,7 @@ export class AvatarManager {
         const candidate = new VRMAvatar(staging);
         try {
             if (!url) throw new Error('Missing VRM URL.');
-            await candidate.init(url);
+            await candidate.init(url, { pmx: isPmxArchive(url) || (this.pmxBlob && url.startsWith('blob:')) });
             if (!candidate.vrm) throw new Error('Invalid VRM avatar.');
             // Before WebGL sees them, so the full-size images never reach the GPU.
             await limitTextures(candidate.group, this.textureLimit());
@@ -222,7 +225,7 @@ export class VRMAvatar {
         }
     }
 
-    async init(url) {
+    async init(url, { pmx = false } = {}) {
         // Dynamic import — only loaded if VRM mode is selected
         const vrmModule = await import('@pixiv/three-vrm');
         const { VRMLoaderPlugin, VRMUtils } = vrmModule;
@@ -343,22 +346,21 @@ export class VRMAvatar {
                 }
             };
 
-            // Attempt GLTF/VRM first
-            gltfLoader.load(
-                url,
-                async (gltf) => {
+            const onModel = async (gltf) => {
                     try {
                         this.group.add(gltf.scene); // Own resources even if preparation fails.
                         const vrm = gltf.userData.vrm;
                         if (vrm) {
                             // three-vrm v3 deprecated removeUnnecessaryJoints;
                             // combineSkeletons is its supported performance path.
-                            if (typeof VRMUtils.combineSkeletons === 'function') {
-                                VRMUtils.combineSkeletons(gltf.scene);
-                            } else {
-                                VRMUtils.removeUnnecessaryJoints?.(gltf.scene);
+                            if (!pmx) {
+                                if (typeof VRMUtils.combineSkeletons === 'function') {
+                                    VRMUtils.combineSkeletons(gltf.scene);
+                                } else {
+                                    VRMUtils.removeUnnecessaryJoints?.(gltf.scene);
+                                }
+                                VRMUtils.removeUnnecessaryVertices(gltf.scene);
                             }
-                            VRMUtils.removeUnnecessaryVertices(gltf.scene);
                             // A skinned mesh's bounds are measured once, in the first pose. Seated,
                             // her eyes are 0.75 away from theirs and a close camera culled them.
                             vrm.scene.traverse((obj) => { if (obj.isMesh) obj.frustumCulled = false; });
@@ -384,15 +386,17 @@ export class VRMAvatar {
                             const hasSprings = !!vrm.springBoneManager;
                             const exprs = this._listExpressions().join(', ') || 'none';
                             console.log(`✅ VRM loaded — spring bones: ${hasSprings}, expressions: ${exprs}`);
-                            if (!hasSprings) console.warn('⚠️  No spring bone manager found — physics inactive');
+                            if (!pmx && !hasSprings) console.warn('⚠️  No spring bone manager found — physics inactive');
 
                             // Runtime auto-registration of cloth springbones for
                             // models that have skirt/hair/ribbon bones but did
                             // not declare them in the VRMC_springBone extension.
                             // No-op on models without cloth bones at all.
-                            await autoRegisterSpringBones(vrm).catch(e =>
-                                console.warn('[auto-springbones] failed:', e)
-                            );
+                            if (!pmx) {
+                                await autoRegisterSpringBones(vrm).catch(e =>
+                                    console.warn('[auto-springbones] failed:', e)
+                                );
+                            }
                             this.breeze.attach(vrm);
 
                             // ── DIAGNOSTIC DUMP: all bones + springbone joints ──
@@ -472,21 +476,19 @@ export class VRMAvatar {
                     } catch (error) {
                         reject(error);
                     }
-                },
-                undefined,
-                (err) => {
-                    // No OBJ/FBX fallback: the app only accepts .vrm/.glb now.
-                    // Loading a non-GLTF file here is a configuration error —
-                    // surface it clearly so the user knows to re-upload a VRM.
-                    console.error(
-                        '❌ Avatar load failed. Only .vrm and .glb files are supported. ' +
-                        'Re-export your model as VRM (VRoid Studio / VRM Add-on for Blender) ' +
-                        'and re-upload via the wizard.',
-                        err,
-                    );
-                    reject(err);
-                }
-            );
+            };
+            if (pmx) {
+                const load = async () => {
+                    const response = await fetch(url, { cache: 'no-store' });
+                    if (!response.ok) throw new Error('No se pudo leer el ZIP MMD guardado.');
+                    const { loadPmxAvatar } = await import('./pmx_avatar.js');
+                    const vrm = await loadPmxAvatar(new Uint8Array(await response.arrayBuffer()), { simulate: true });
+                    await onModel({ scene: vrm.scene, userData: { vrm }, animations: [] });
+                };
+                load().catch(reject);
+            } else {
+                gltfLoader.load(url, onModel, undefined, reject);
+            }
         });
     }
 
@@ -571,6 +573,7 @@ export class VRMAvatar {
         clearTimeout(this._blinkTimeout);
         this._blinkTimeout = null;
         this._headAnim = null;
+        this.vrm?.disposePhysics?.();
         this.breeze?.detach();
         this.cancelIK();
         this._ikSolver = null;
@@ -696,20 +699,21 @@ export class VRMAvatar {
         this._currentEmotionName = name || 'neutral';
     }
 
-    /** How far her skirt rests over her thighs: 0 standing, 1 seated. */
-    /** How much the hands follow IRIS' this frame: 0 while no clip touches anything. */
     /** Her hair and clothes start again from where she is now, after a jump. */
     settleSprings() {
         this.group?.updateMatrixWorld(true);
         this.vrm?.springBoneManager?.reset?.();
+        this.vrm?.resetPhysics?.();
     }
 
+    /** How much the hands follow IRIS' this frame: 0 while no clip touches anything. */
     setHandReach(weight) {
         if (!this.vrm) return;
         if (this._armReach?.vrm !== this.vrm) this._armReach = new ArmReach(this.vrm, this.group);
         this._armReach.weight = weight;
     }
 
+    /** How far her skirt rests over her thighs: 0 standing, 1 seated. */
     setSeatDrape(weight) {
         if (!this.vrm) return;
         if (this._seatDrape?.vrm !== this.vrm) {
@@ -717,6 +721,20 @@ export class VRMAvatar {
             this._seatDrape.vrm = this.vrm;
         }
         this._seatDrape.set(weight);
+    }
+
+    /** How far her back rests on the bed: her hips then take IRIS' place, whatever her size. */
+    setLyingHips(weight, delta) {
+        if (!this.vrm) return;
+        if (this._lyingHips?.vrm !== this.vrm) this._lyingHips = new LyingHips(this.vrm);
+        this._lyingHips.set(weight, delta);
+    }
+
+    /** Held lying on her back or front: once, read where her body rests (LyingHips). */
+    measureLyingHips(kind) {
+        if (!this.vrm) return null;
+        if (this._lyingHips?.vrm !== this.vrm) this._lyingHips = new LyingHips(this.vrm);
+        return this._lyingHips.measure(kind);
     }
 
     setMouthOpen(v) {
@@ -783,12 +801,16 @@ export class VRMAvatar {
 
     /** Transfer the final normalized pose before simulating hair/clothing. */
     finalizeFrame(delta) {
-        // A gesture on top of a clip goes after the clip has written this frame's pose.
-        if (this._headAnim?.over) this._applyHeadAnim();
-        this._armReach?.apply();
-        this._poseFace?.apply(this, delta);
-        this.breeze?.apply(delta);
-        this.vrm?.update(delta);
+        try {
+            // A gesture on top of a clip goes after the clip has written this frame's pose.
+            if (this._headAnim?.over) this._applyHeadAnim();
+            this._armReach?.apply();
+            this._poseFace?.apply(this, delta);
+            this.breeze?.apply(delta);
+            this.vrm?.update(delta);
+        } finally {
+            this._lyingHips?.restoreLegs();
+        }
     }
 
     // ── IK Public API ──

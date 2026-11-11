@@ -29,7 +29,7 @@ SECRET_RULES = {
     'oauth_client_secret': re.compile(r'\bGOCSPX-[A-Za-z0-9_-]{20,}\b'),
     'private_key': re.compile(r'-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----'),
 }
-LINK = re.compile(r'(?<!!)\[([^\]\n]+)\]\((<[^>\n]+>|[^)\n]+)\)')
+LINK = re.compile(r'(?<!!)\[([^\]\r\n]+(?:\r?\n[ \t]*[^\]\r\n \t][^\]\r\n]*)*)\]\((<[^>\n]+>|[^)\n]+)\)')
 
 
 class ExportError(ValueError):
@@ -95,33 +95,41 @@ def rewrite_markdown(data: bytes, source_name: str, included: set[str], *, compo
     changed = 0
     fenced = False
     output = []
-    for line in data.decode('utf-8').splitlines(keepends=True):
-        if line.lstrip().startswith(('```', '~~~')):
-            fenced = not fenced
-        if fenced:
-            output.append(line)
-            continue
-        def replace(match):
-            nonlocal changed
-            label, target = match.groups()
-            target = target[1:-1] if target.startswith('<') else target
-            if not target or target.startswith('#') or re.match(r'^[a-z][a-z0-9+.-]*://', target, re.I):
-                return match.group()
-            path = target.partition('#')[0]
-            decoded = unquote(path)
-            if re.match(r'^[a-zA-Z]:', decoded) or decoded.startswith('/'):
-                changed += 1
-                return f'{label} (referencia local no distribuida)'
-            resolved = posixpath.normpath(posixpath.join(posixpath.dirname(source_name), decoded))
-            if resolved in included or any(name.startswith(resolved.rstrip('/') + '/') for name in included):
-                return match.group()
+    def replace(match):
+        nonlocal changed
+        label, target = match.groups()
+        label = re.sub(r'\r?\n[ \t]*', ' ', label)
+        target = target[1:-1] if target.startswith('<') else target
+        if not target or target.startswith('#') or re.match(r'^[a-z][a-z0-9+.-]*://', target, re.I):
+            return match.group()
+        path = target.partition('#')[0]
+        decoded = unquote(path)
+        if re.match(r'^[a-zA-Z]:', decoded) or decoded.startswith('/'):
             changed += 1
-            if resolved.startswith(('artifacts/', 'docs/audits/')) or resolved.startswith('../'):
-                return f'{label} (informe interno no distribuido)'
-            if component != 'main':
-                return f'{label} (repositorio principal: `{resolved}`)'
-            return f'{label} (referencia no distribuida: `{resolved}`)'
-        output.append(LINK.sub(replace, line))
+            return f'{label} (referencia local no distribuida)'
+        resolved = posixpath.normpath(posixpath.join(posixpath.dirname(source_name), decoded))
+        if resolved in included or any(name.startswith(resolved.rstrip('/') + '/') for name in included):
+            return match.group()
+        changed += 1
+        if resolved.startswith(('artifacts/', 'docs/audits/')) or resolved.startswith('../'):
+            return f'{label} (informe interno no distribuido)'
+        if component != 'main':
+            return f'{label} (repositorio principal: `{resolved}`)'
+        return f'{label} (referencia no distribuida: `{resolved}`)'
+
+    prose = []
+    for line in data.decode('utf-8').splitlines(keepends=True):
+        fence = line.lstrip().startswith(('```', '~~~'))
+        if fence or not line.strip():
+            output.append(LINK.sub(replace, ''.join(prose)))
+            prose.clear()
+        if fence:
+            fenced = not fenced
+        if fence or fenced or not line.strip():
+            output.append(line)
+        else:
+            prose.append(line)
+    output.append(LINK.sub(replace, ''.join(prose)))
     return ''.join(output).encode('utf-8'), changed
 
 
