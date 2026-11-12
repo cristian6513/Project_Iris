@@ -327,7 +327,7 @@ def collect_web(output_root: Path, site_packages: str, prefix: str,
                 files.append(stored[digest])
         records.append({"component": component, "package": item["package"], "version": item["version"],
                         "license": item["license"], "files": files,
-                        "source": f"https://www.npmjs.com/package/{item['package']}/v/{item['version']}"})
+                        "source": item.get("source") or f"https://www.npmjs.com/package/{item['package']}/v/{item['version']}"})
     return records, writer.files
 
 

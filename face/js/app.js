@@ -24,7 +24,7 @@ import { guardBloom } from './bloom_guard.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-import { AvatarManager } from './avatar.js?v=23';
+import { AvatarManager } from './avatar.js?v=30';
 import { avatarUrl, IRIS_AVATAR_URL } from './avatar_state.js?v=4';
 import { ParticleSystem } from './particles.js?v=2';
 import { WebSocketManager } from './websocket.js?v=3';
@@ -35,14 +35,15 @@ import { LipSyncEngine } from './lipsync.js?v=3';
 // ── New modules ──
 import { RoomEnvironment } from './room.js?v=108';
 import { bindRoomAtmosphereControls } from './room_atmosphere_controls.js?v=2';
-import { ConversationCamera, ROOM_DETAIL_PRESETS, frameRoomPreset } from './room_framing.js?v=6';
+import { ConversationCamera, ROOM_DETAIL_PRESETS, frameRoomPreset } from './room_framing.js?v=7';
 import { RoomAvatarZoom } from './room_avatar_zoom.js?v=1';
-import { RoomLife, RoomRoutines } from './room_routines.js?v=5';
-import { SceneActionManager } from './scene_actions.js?v=58';
-import { getRoomAction } from './room_actions.js?v=27';
+import { RoomLife, RoomRoutines } from './room_routines.js?v=7';
+import { PMX_FURNITURE_BOXES, addFurnitureColliders } from './furniture_colliders.js?v=2';
+import { SceneActionManager } from './scene_actions.js?v=64';
+import { getRoomAction } from './room_actions.js?v=30';
 import { FloatingBook, ThinkingCloud, DataStream, MemorySymbol } from './contextual_fx.js?v=2';
-import { IdleSystem } from './idle_system.js?v=54';
-import { SidePanel } from './panel.js?v=57';
+import { IdleSystem } from './idle_system.js?v=64';
+import { SidePanel } from './panel.js?v=64';
 import { RoomSurfaceVisibility } from './room_surface_visibility.js?v=1';
 import { normalizeRoomText, ROOM_STATUS_LABELS } from './room_labels.js?v=1';
 import { AmbientAudio } from './ambient_audio.js?v=2';
@@ -59,13 +60,13 @@ import { askIrisSender } from './app_ask_iris.js?v=3';
 import { EmotionClassifier } from './emotion_classifier.js';
 import { SpeechAnimator } from './speech_animator.js?v=5';
 import { MicroLife } from './micro_life.js?v=10';
-import { HermesActivityCanvas, refreshAppCatalog } from './hermes_activity.js?v=144';
+import { HermesActivityCanvas, refreshAppCatalog } from './hermes_activity.js?v=146';
 import { loadInstalledApps } from './os_app_sources.js?v=4';
 import { openChatSurface } from './open_chat_surface.js?v=1';
 import { SnapshotPrompt, SnapshotRequests } from './vision_snapshot.js?v=4';
 import { ScreenSnapshotRequests } from './screen_snapshot.js?v=2';
 import { FrameLimiter } from './frame_limiter.js?v=2';
-import { GraphicsQuality, avatarTextureLimit } from './graphics_quality.js?v=2';
+import { GraphicsQuality, avatarTextureLimit } from './graphics_quality.js?v=3';
 import { prepareNotificationChatDraft } from './notification_chat_draft.js?v=1';
 import { AnimationDirector } from './animation_director.js?v=6';
 import { TtsAudioPlayer } from './tts_audio_player.js?v=4';
@@ -298,6 +299,7 @@ class IrisApp {
         this.graphicsQuality = new GraphicsQuality({
             getRenderer: () => this.renderer, getComposer: () => this.composer,
             getBloom: () => this._bloomPass, getRoom: () => this.room, updateStyle: true,
+            getAvatarPhysics: () => this.avatarManager?.avatar?.vrm?.pmxPhysics,
         });
         this.speechPresentation = new SpeechPresentation({
             getIdle: () => this.idle,
@@ -316,6 +318,26 @@ class IrisApp {
     // ────────────────────────────────────────────────────────
     //  Boot sequence
     // ────────────────────────────────────────────────────────
+
+    /**
+     * Her hair and clothes rest on the room's furniture instead of falling through it: a VRM's
+     * spring bones take the boxes as colliders, a PMX's MMD physics as static bodies.
+     */
+    /** Her head in the world, for the avatar zoom to close in on (room_framing.js); null at 1x. */
+    _cameraFocus() {
+        if (!((this.camera?.zoom || 1) > 1)) return null;
+        const head = this.avatarManager?.avatar?.vrm?.humanoid?.getRawBoneNode?.('head');
+        if (!head) return null;
+        this._focusPoint ??= new THREE.Vector3();
+        return head.getWorldPosition(this._focusPoint).toArray();
+    }
+
+    _furnishAvatar() {
+        if (!this.room) return;
+        const vrm = this.avatarManager?.avatar?.vrm;
+        addFurnitureColliders(vrm);
+        vrm?.pmxPhysics?.setFurniture?.(PMX_FURNITURE_BOXES);
+    }
 
     applyAvatarStageLift() {
         const group = this.avatarManager?.avatar?.group;
@@ -369,14 +391,18 @@ class IrisApp {
             this._avatarNotice = 'No pude cargar el avatar. Iris sigue funcionando sin él.';
         }
         this.applyAvatarStageLift();
+        this._furnishAvatar();
+        this.graphicsQuality.applyAvatarPhysics();
         this._avatarSwap = new AvatarSwapCoordinator({
             create: url => new AvatarManager(new THREE.Scene(), url, IRIS_AVATAR_URL, { textureLimit }),
             commit: candidate => {
                 const previous = commitAvatarReplacement(this, candidate, {
-                    createIdle: manager => new IdleSystem(manager),
+                    createIdle: manager => this._withRestContext(new IdleSystem(manager)),
                     createSpeech: manager => new SpeechAnimator(manager),
                 });
                 this.speechPresentation.syncAvatar();
+                this._furnishAvatar();
+                this.graphicsQuality.applyAvatarPhysics();
                 this.sceneActions?.prepareTeleport(this.renderer, this.camera);
                 this.config.avatar_vrm_path = candidate.vrmUrl === IRIS_AVATAR_URL ? '' : candidate.vrmUrl;
                 void (this.animationLibrary?.refresh() || this.idle.reloadManifest()).catch(error =>
@@ -409,11 +435,15 @@ class IrisApp {
             memorySymbol: new MemorySymbol(this.scene),
         };
 
+        const reducedMotion = () => document.documentElement.dataset.irisReducedMotion === 'true'
+            || Boolean(window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches);
+
         // 7. Scene Action Manager
         if (this.room) {
             this.sceneActions = new SceneActionManager(
                 this.scene, this.avatarManager, this.room, this.effects,
                 {
+                    reducedMotion,
                     onEmotion: (emotion) => this._setEmotion(emotion),
                     onCameraPreset: (preset) => {
                         if (this.inspectorMode) this.transitionToInspectPreset(preset);
@@ -425,7 +455,7 @@ class IrisApp {
         }
 
         // 8. Idle System
-        this.idle = new IdleSystem(this.avatarManager);
+        this.idle = this._withRestContext(new IdleSystem(this.avatarManager));
         this.animationLibrary = new AnimationLibrarySync({ getIdle: () => this.idle, onError: message => this.subtitles?.show(message, 5000) });
         this.animationLibrary.start();
         this.sceneActions?.setIdleSystem?.(this.idle);
@@ -434,8 +464,7 @@ class IrisApp {
                 scenes: this.sceneActions,
                 context: () => ({
                     life: this.roomLife.value,
-                    reducedMotion: document.documentElement.dataset.irisReducedMotion === 'true'
-                        || Boolean(window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches),
+                    reducedMotion: reducedMotion(),
                     visible: document.visibilityState === 'visible'
                         && !document.body.classList.contains('IRIS-workbench-focus'),
                     exploring: this.inspectorMode,
@@ -1501,7 +1530,7 @@ class IrisApp {
         // VRM anyway. If the user needs to import an FBX rig they go
         // through the wizard's avatar step which has the proper
         // rig-model flow.
-        const SUPPORTED = new Set(['vrm', 'glb', 'gltf']);
+        const SUPPORTED = new Set(['vrm', 'glb', 'gltf', 'zip']);
         // Image drag-drop belongs to the chat composer. The page-level
         // handler remains reserved for avatar files (.vrm/.glb/.gltf).
         const IMAGE_EXTS = new Set(['jpg', 'jpeg', 'png', 'webp', 'gif']);
@@ -1545,7 +1574,7 @@ class IrisApp {
 
             if (!SUPPORTED.has(ext)) {
                 this.subtitles?.show(
-                    `Formato .${ext} no soportado. Usa .vrm (recomendado) o .glb/.gltf con skeleton VRM.`,
+                    `Formato .${ext} no soportado. Usa un VRM o un ZIP con modelos PMX y sus texturas.`,
                     5000,
                 );
                 return;
@@ -1566,10 +1595,23 @@ class IrisApp {
             const isCurrent = this._avatarSwap.begin();
             let url = '';
             let persisted = false;
-            if (ext === 'vrm' || ext === 'glb') {
+            let modelLabel = file.name;
+            if (ext === 'vrm' || ext === 'glb' || ext === 'zip') {
                 try {
+                    let upload = file;
+                    if (ext === 'zip') {
+                        const { preparePmxUpload } = await import('./pmx_avatar.js');
+                        const prepared = await preparePmxUpload(file, isCurrent.signal);
+                        if (!isCurrent()) return;
+                        if (!prepared) {
+                            isCurrent.finish?.();
+                            this.subtitles?.show('Importación cancelada.', 2500);
+                            return;
+                        }
+                        ({ file: upload, label: modelLabel } = prepared);
+                    }
                     const form = new FormData();
-                    form.append('file', file, file.name);
+                    form.append('file', upload, upload.name);
                     const response = await fetch('/api/avatar/upload', {
                         method: 'POST',
                         body: form,
@@ -1603,24 +1645,23 @@ class IrisApp {
             } catch (err) {
                 console.error('VRM load failed:', err);
                 this.subtitles?.show(
-                    `"${file.name}" no tiene skeleton VRM valido. ` +
-                    `Exporta el archivo desde VRoid Studio o con el VRM Add-on de Blender.`,
+                    err?.message || `No se pudo cargar el avatar ${file.name}.`,
                     6000,
                 );
                 this.panel?.addMessage(
                     'system',
-                    `${file.name} no es un VRM humanoide. Prueba con un archivo .vrm de VRoid Hub.`,
+                    `No se pudo cargar ${file.name}.`,
                 );
                 return;
             }
 
             this.subtitles?.show(
-                persisted ? `Avatar guardado: ${file.name}` : `Avatar listo para esta sesión: ${file.name}`,
+                persisted ? `Avatar guardado: ${modelLabel}` : `Avatar listo para esta sesión: ${file.name}`,
                 3500,
             );
             this.panel?.addMessage(
                 'system',
-                persisted ? `Avatar guardado: ${file.name}` : `Avatar temporal: ${file.name}`,
+                persisted ? `Avatar guardado: ${modelLabel}` : `Avatar temporal: ${file.name}`,
             );
         });
     }
@@ -1630,7 +1671,7 @@ class IrisApp {
     }
 
     _handleIdentityChange(e) {
-        const { name, vrmUrl: newVrmUrl, isCurrent: reserved } = e.detail;
+        const { name, vrmUrl: newVrmUrl, isCurrent: reserved, reload } = e.detail;
         if (name && this.subtitles) this.subtitles.show(`Hola, soy ${name}`, 2500);
         // A selection reserved before its requests (Quick Configuration) keeps
         // that place: a later drop or apply already won, and a late answer must
@@ -1641,7 +1682,7 @@ class IrisApp {
         const yieldsPending = reservation ? false : this._avatarSwap?.pending;
         // `vrmUrl` names the model to show; an empty one is IRIS'.
         const resource = typeof newVrmUrl === 'string' ? avatarUrl({}, IRIS_AVATAR_URL, newVrmUrl) : '';
-        if (resource && (resource !== this.avatarManager?.vrmUrl || yieldsPending)) {
+        if (resource && (resource !== this.avatarManager?.vrmUrl || yieldsPending || reload)) {
             const options = reservation ? { isCurrent: reservation } : {};
             return this._replaceAvatar(resource, options).catch(error => {
                 console.warn('Avatar swap failed:', error);
@@ -2054,6 +2095,8 @@ class IrisApp {
 
             case 'speech_start':
                 this.roomRoutines?.responseStarted();
+                // A reply that ends asking something: she waits for the answer (rest clips).
+                this._askedAt = /[?¿]\s*["'»”]?\s*$/.test(String(payload.text || '').trim()) ? performance.now() / 1000 : null;
                 window.dispatchEvent(new CustomEvent('IRIS:speech-start', { detail: payload }));
                 this.activityCanvas?.handleSpeechStart(payload);
                 this.subtitles.show(payload.text);
@@ -2083,6 +2126,7 @@ class IrisApp {
                 break;
 
             case 'turn_started':
+                this._askedAt = null;
                 this.roomRoutines?.turnStarted(payload.turn);
                 break;
 
@@ -2269,6 +2313,20 @@ class IrisApp {
         return this.animationDirector?.play(name);
     }
 
+    /** What the rest clips read: seconds of quiet, how long a question of hers waits, the hour. */
+    _withRestContext(idle) {
+        idle.restContext = () => {
+            const now = performance.now() / 1000;
+            const routines = this.roomRoutines;
+            return {
+                quiet: routines ? now - routines.quietSince : 0,
+                asked: this._askedAt != null ? now - this._askedAt : null,
+                hour: new Date().getHours(),
+            };
+        };
+        return idle;
+    }
+
     /** Match the avatar's facial expression to a VRMA clip so the
      *  body gesture and face mood read as one beat. The VRMA file
      *  itself only drives skeleton, not facial blendshapes. */
@@ -2362,7 +2420,7 @@ class IrisApp {
             if (!transitioning) this.orbitControls.update();
         } else {
             // Normal: subtle automatic drift, or the view of the spot she goes to.
-            this.conversationCamera?.update(dt, t, this.sceneActions?.framedSpot?.()?.view);
+            this.conversationCamera?.update(dt, t, this.sceneActions?.framedSpot?.()?.view, this._cameraFocus());
         }
 
         // Local emotion classification feeds context without copying the face.

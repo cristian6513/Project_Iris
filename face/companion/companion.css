@@ -299,7 +299,7 @@ body[data-controls="hidden"] .avatar-stage {
 .avatar-shell {
     position: absolute;
     inset: 0;
-    transform-origin: 50% 84%;
+    transform-origin: 50% 94%;
     transform: scale(var(--companion-avatar-scale, 1));
 }
 

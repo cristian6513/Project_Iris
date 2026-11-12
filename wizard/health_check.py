@@ -163,7 +163,7 @@ async def check_cli_in_path() -> dict[str, Any]:
         label,
         ok=False,
         detail="El motor incluido no está disponible." if runtime.packaged else "No se encontró el comando `hermes` en PATH.",
-        hint="Repara la instalación de Iris." if runtime.packaged else "Instálalo con: irm https://install.hermes-agent.nousresearch.com | iex",
+        hint="Repara la instalación de Iris." if runtime.packaged else "Instálalo con: irm https://hermes-agent.nousresearch.com/install.ps1 | iex",
         elapsed_ms=elapsed,
     )
 

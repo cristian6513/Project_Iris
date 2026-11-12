@@ -72,7 +72,12 @@ function buildDialog(kind, options, id) {
                 ${fields.length ? `<form class="iris-dialog-form" novalidate>${fields.map((field, index) => `
                     <label class="iris-dialog-field">
                         <span>${escapeHtml(field.label || field.name)}</span>
-                        ${field.multiline
+                        ${field.choices
+                            ? `<select name="${escapeHtml(field.name)}"${field.required ? ' required' : ''}>
+                                <option value="">${escapeHtml(field.placeholder || 'Selecciona una opción')}</option>
+                                ${field.choices.map(choice => `<option value="${escapeHtml(choice.value)}">${escapeHtml(choice.label)}</option>`).join('')}
+                            </select>`
+                            : field.multiline
                             ? `<textarea name="${escapeHtml(field.name)}" rows="${Number(field.rows) || 4}" placeholder="${escapeHtml(field.placeholder || '')}"${field.required ? ' required' : ''}>${escapeHtml(field.value || '')}</textarea>`
                             : `<input name="${escapeHtml(field.name)}" type="text" value="${escapeHtml(field.value || '')}" placeholder="${escapeHtml(field.placeholder || '')}" autocomplete="off"${field.required ? ' required' : ''}>`}
                         ${field.hint ? `<small>${escapeHtml(field.hint)}</small>` : ''}
@@ -152,7 +157,7 @@ function show(kind, options) {
                 event.preventDefault();
                 event.stopPropagation();
                 cancel();
-            } else if (event.key === 'Enter' && event.target?.tagName !== 'TEXTAREA'
+            } else if (event.key === 'Enter' && !['TEXTAREA', 'SELECT'].includes(event.target?.tagName)
                        && !event.target?.closest?.('[data-dialog="cancel"], [data-dialog="details"], [data-dialog="choice"]')) {
                 event.preventDefault();
                 confirm();
@@ -193,7 +198,7 @@ function show(kind, options) {
         void backdrop.offsetWidth;  // start the fade from the closed state, even without animation frames
         backdrop.classList.add('open');
         const start = kind === 'form'
-            ? form.querySelector('input, textarea')
+            ? form.querySelector('input, textarea, select')
             : backdrop.querySelector(options.tone === 'danger' ? '[data-dialog="cancel"]:not(.iris-dialog-close)' : kind === 'choice' ? '[data-dialog="choice"]' : '[data-dialog="confirm"]');
         (start || dialog.querySelector('[data-dialog="confirm"]'))?.focus();
     });
@@ -243,9 +248,10 @@ export function irisAlert(options = {}) {
     return show('alert', options);
 }
 
-/** Ask for a few text fields; resolves {name: value} or null when cancelled. */
+/** Ask for a few fields; resolves {name: value} or null when cancelled. */
 export function irisForm(options = {}) {
     if (!hasDom()) {
+        if (options.fields?.some(field => field.choices)) return Promise.resolve(null);
         const answer = {};
         for (const field of options.fields || []) {
             const value = globalThis.window?.prompt?.(field.label || field.name, field.value || '');

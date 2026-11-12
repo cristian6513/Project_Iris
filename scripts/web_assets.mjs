@@ -59,6 +59,7 @@ const FONT_WEIGHTS = [
 const PINNED_WEB_NOTICES = [
     ['qrcode-generator', '1.4.4', 'qrcode-generator-MIT.txt', '3a850fa5f08101db6f40676c2786e10bd2cd5fff7b12ffdf1e0c434d4e49d90c'],
     ['fflate', '0.8.2', 'fflate-MIT.txt', '370679c457d36555127bbcefe8f57361f7852f04df0f2329a065f566f26f0d76'],
+    ['mmd-parser', '1.0.4', 'mmd-parser-MIT.txt', '23c9323625b14f3064c0ceca73d75e6e84c98151dcab2f1eccb54254f5a310c2'],
 ];
 
 export function sha256(bytes) {

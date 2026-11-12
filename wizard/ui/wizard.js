@@ -5309,25 +5309,44 @@ async function uploadModel(file) {
 // rewrites manifest.json — the running IRIS frontend picks it up next
 // revision revalidation while visible (including a separate Wizard process).
 
-/** Friendly label per slot — keeps the grid readable. */
+/** Friendly label per slot, the same names as the room's Poses menu. */
 const _ANIM_SLOT_LABELS = {
-    idle:         'Idle (principal)',
-    idle_casual:  'Idle casual',
-    idle_smile:   'Idle · sonrisa',
-    idle_love:    'Idle · cariño',
-    idle_noble:   'Idle · noble',
-    idle_weave:   'Idle · vínculo',
-    wave:         'Saludo',
+    idle:         'Reposo base',
+    idle_casual:  'Reposo',
+    idle_lazy:    'Descansar',
+    idle_waiting: 'Esperar',
+    idle_yawn:    'Bostezar',
+    stretch:      'Estirarse',
+    hair_touch:   'Arreglarse el pelo',
+    listen:       'Escuchar',
     think:        'Pensar',
+    talk:         'Conversar',
     nod:          'Asentir',
     shake:        'Negar',
-    look_around:  'Mirar alrededor',
-    stretch:      'Estirarse',
-    hair_touch:   'Tocarse el pelo',
+    confirm:      'Confirmar',
+    confused:     'No entendí',
+    point:        'Señalar',
+    attention:    'Llamar la atención',
+    laugh:        'Reír',
+    sad:          'Triste',
+    angry:        'Enojo',
+    surprised:    'Sorpresa',
+    scared:       'Asustada',
     shy:          'Tímida',
-    sit:          'Sentarse',
-    lie:          'Recostarse',
+    annoyed:      'No me molestes',
+    celebrate:    'Celebrar',
+    heart:        'Corazón',
+    clap:         'Aplaudir',
+    apologize:    'Disculparse',
+    shrug:        'No sé',
+    idea:         '¡Ya sé!',
+    jump:         'Salto de alegría',
+    wave:         'Saludar',
+    wave_big:     'Saludo amplio',
+    wave_cute:    'Saludo adorable',
+    wave_flirty:  'Saludo coqueto',
     dance:        'Bailar',
+    dance_sexy:   'Baile sexy',
 };
 
 async function refreshAnimationSlots() {
@@ -5353,7 +5372,13 @@ async function refreshAnimationSlots() {
         return;
     }
 
+    let group = '';
     root.innerHTML = slots.map(s => {
+        // A heading over each group (Reposo, Conversación…), across the whole grid.
+        const heading = s.group && s.group !== group
+            ? `<h4 class="anim-slot-group" style="grid-column:1 / -1; margin:10px 0 0; font-size:0.95em;">${escapeHtml(s.group)}</h4>`
+            : '';
+        group = s.group || group;
         const label = _ANIM_SLOT_LABELS[s.slot] || s.slot;
         const badgeClass = s.present ? 'anim-slot-badge present' : 'anim-slot-badge';
         const badgeText = s.present ? (s.format || 'ok') : 'vacío';
@@ -5361,7 +5386,7 @@ async function refreshAnimationSlots() {
             ? `<div class="anim-slot-file" title="${escapeHtml(s.filename)}">${escapeHtml(s.filename)}</div>`
             : '<div class="anim-slot-file">— sin archivo —</div>';
         const slotClass = s.present ? 'anim-slot has-file' : 'anim-slot';
-        return `
+        return `${heading}
             <div class="${slotClass}" data-slot="${s.slot}">
                 <div class="anim-slot-head">
                     <span class="anim-slot-name">${escapeHtml(label)}</span>

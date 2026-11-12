@@ -10,6 +10,7 @@ import {
 } from './web_assets.mjs';
 import { prepareVisionAssets } from './vision_assets.mjs';
 import { BASIS_LICENSE, prepareBasisTranscoder } from './basis_assets.mjs';
+import { AMMO_LICENSE, prepareAmmoAssets } from './ammo_assets.mjs';
 
 const PROJECT_ROOT = resolve(fileURLToPath(new URL('..', import.meta.url)));
 
@@ -77,6 +78,7 @@ export async function buildWeb({ projectRoot = PROJECT_ROOT, output, contract, v
     await copyAnimationAssets(join(root, 'face/animations'), join(target, 'face/animations'));
     await prepareVisionAssets({ projectRoot: root, target: join(target, 'face/vendor/mediapipe') });
     await prepareBasisTranscoder({ projectRoot: root, target: join(target, 'face/vendor/basis') });
+    await prepareAmmoAssets({ projectRoot: root, target: join(target, 'face/vendor/ammo') });
     const files = await inventoryWebFiles(target);
     await assertLocalBootstrap(target, files);
     const manifest = {
@@ -85,7 +87,7 @@ export async function buildWeb({ projectRoot = PROJECT_ROOT, output, contract, v
         licenses: [...resources.licenses, { package: '@mediapipe/tasks-vision',
             version: WEB_VERSIONS['@mediapipe/tasks-vision'], license: 'Apache-2.0',
             files: ['face/vendor/mediapipe/MediaPipe-Apache-2.0.txt'] },
-        { ...BASIS_LICENSE, files: ['face/vendor/basis/BasisUniversal-Apache-2.0.txt'] }],
+        { ...BASIS_LICENSE, files: ['face/vendor/basis/BasisUniversal-Apache-2.0.txt'] }, AMMO_LICENSE],
         files,
     };
     const bytes = JSON.stringify(manifest, null, 2) + '\n';

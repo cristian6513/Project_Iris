@@ -1,7 +1,7 @@
-import { GRAPHICS_QUALITIES } from './graphics_quality.js?v=2';
+import { GRAPHICS_QUALITIES } from './graphics_quality.js?v=3';
 
 const QUALITY_HELP = {
-    saving: 'Reduce la resolución 3D y los efectos de brillo para gastar menos. El texto y los controles conservan su nitidez. Las texturas del avatar se limitan a 1024 px la próxima vez que se carga.',
+    saving: 'Reduce la resolución 3D y los efectos de brillo para gastar menos. El texto y los controles conservan su nitidez. Las texturas del avatar se limitan a 1024 px la próxima vez que se carga. En los avatares MMD muy pesados, el pelo y la ropa se calculan a la mitad de velocidad y pueden verse menos precisos.',
     balanced: 'Equilibrio entre detalle y consumo. Recomendado para empezar.',
     high: 'Más nitidez en pantallas de alta densidad y bordes más suaves. Puede aumentar el uso de GPU.',
 };

@@ -7,8 +7,8 @@ reemplaza la interfaz completa y no es necesario para utilizar Hermes.
 
 ## Estado actual
 
-Revisión documental: 2026-10-28. La fuente y el manifiesto de release declaran
-**Companion 0.1.4**, incluido en el candidato QA18. La QA nativa del candidato
+Revisión documental: 2026-11-06. La fuente y el manifiesto de release declaran
+**Companion 0.1.8**, incluido en el candidato QA22. La QA nativa del candidato
 sigue pendiente. Debe distinguirse del ejecutable realmente instalado y de
 la versión de Iris: consulta [Estado actual](../estado-actual.md).
 
@@ -87,9 +87,8 @@ la habitación completa.
 
 ## Activación
 
-El Companion se abre y administra desde Iris OS. El ajuste del 28 de octubre
-evita que instalarlo o repararlo desde Iris cree accesos directos propios en
-Windows; entrará en el próximo instalador de Iris. Si una instalación anterior
+El Companion se abre y administra desde Iris OS. Desde QA18, instalarlo o repararlo desde Iris no crea accesos directos propios
+en Windows; QA22 conserva ese comportamiento. Si una instalación anterior
 ya dejó un icono del Companion en el escritorio, puedes eliminar ese acceso:
 no desinstala el componente ni afecta al acceso principal de Iris OS.
 
@@ -122,6 +121,32 @@ requerida por NSIS, incluida una ruta de perfil con espacios. Abrir la ventana y
 activar el autoarranque continúan bloqueados hasta que el diagnóstico muestre
 `APP READY`. La causa y la corrección están registradas en
 [BUG-029 del documento maestro](../iris_os_master.md#bug-029-el-instalador-del-desktop-companion-termina-pero-iris-no-reconoce-el-ejecutable).
+
+## Vida propia en Companion
+
+En el panel **IRIS en ventana** de Iris OS elige **Vida propia → Apagada,
+Tranquila o Activa**. La preferencia es propia del Companion, se guarda por
+perfil y su valor inicial es Tranquila. No es el mismo almacenamiento local de
+la habitación. El modo silencioso suspende sus rutinas; también se respeta
+movimiento reducido y la visibilidad.
+
+| Intención de la habitación | Alternativa de pie |
+| --- | --- |
+| Leer en el centro, sofá o cama | Leer con el libro |
+| Tablet o trabajar en el PC | Usar la tablet |
+| Sentarse en sofá, cama o silla | Estirarse |
+| Acostarse | Reposo de pereza |
+| Mirar por la ventana | Reposo |
+
+Al hablarle guarda el objeto para responder. Si falta el clip o modelo de un
+objeto, usa el reposo disponible. Estas rutinas no mueven la ventana por Windows;
+la locomoción del apartado siguiente es una opción distinta. No hay
+teletransporte de sala en Companion.
+
+La preferencia también se lee al arrancar sin Core; un valor no válido vuelve
+a Tranquila. La comprobación nativa completa y con voz real sigue en la guía de
+QA22 (informe interno no distribuido). La secuencia con los clips
+empaquetados se comprobó en navegador; no acredita todos los VRM.
 
 ## Movimiento por el escritorio
 

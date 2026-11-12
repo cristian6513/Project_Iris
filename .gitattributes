@@ -35,6 +35,10 @@ Cargo.lock text eol=lf
 /scripts/desktop_notices/** -text
 /scripts/audio_build_sources.json -text
 /scripts/runtime_sources.json -text
+/companion/release-manifest.json -text
+/companion/vendor/basis/basis_transcoder.js -text
+/scripts/shell_runtime_sources.json -text
+/wizard/ui/index.html -text
 # Face sources pinned by scripts/release_web_assets.json with mixed line endings.
 /face/js/ambient_audio.js -text
 /face/js/auto_springbones.js -text

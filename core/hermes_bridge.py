@@ -56,6 +56,7 @@ import httpx
 
 from core.animations import format_animation_catalog_for_prompt
 from core.config import IRISConfig
+from core.hermes_runtime import keep_unusable_tools_off
 from core.model_selection import ModelSelectionService, normalize_inventory, parse_runtime
 from core.request_security import is_loopback_url, is_safe_service_url
 from core.response_text import iris_response_envelope
@@ -601,6 +602,9 @@ class HermesBridge:
         # (``(checked_at, is_local)``), and the default each remote route reported.
         self._gateway_local: tuple[float, bool] | None = None
         self._route_defaults: dict[str, tuple[float, dict[str, str]]] = {}
+        # The session turn Hermes is running: (conversation token, provider, model).
+        # Turns go one at a time, so one slot (see ``running_turn_superseded``).
+        self._running_plan: tuple[str, str, str] | None = None
         self._base_session_id = _stable_session_id(config)
         self._session_id = self._base_session_id
         self._session_key = _stable_session_key(config)
@@ -672,6 +676,8 @@ class HermesBridge:
         )
 
         await self._check_availability()
+        if self._is_available and not await self._prepare_turn_tools(self.route_context()):
+            logger.warning("La política de herramientas del chat de Iris no pudo prepararse.")
 
     @property
     def session_id(self) -> str:
@@ -1061,6 +1067,9 @@ class HermesBridge:
             )
 
         try:
+            turn = self.route_context()
+            if not await self._prepare_turn_tools(turn):
+                return self._tools_unavailable_response()
             # `model` = literal "hermes-agent" — Hermes resolves the
             # backend provider/model from its own config.yaml. No
             # side-channel header needed.
@@ -1079,9 +1088,9 @@ class HermesBridge:
             if model_options:
                 body["model_options"] = model_options
             response = await self._client.post(
-                self._api_path("/v1/chat/completions"),
+                self._turn_path(turn, "/v1/chat/completions"),
                 json=body,
-                headers=self._request_headers(),
+                headers=self._turn_headers(turn),
             )
 
             if response.status_code == 200:
@@ -1155,7 +1164,10 @@ class HermesBridge:
         chunks: list[str] = []
         # The conversation this turn belongs to (see ``_capture_session_header``).
         sent_id, generation = self._session_id, self._conversation_generation
+        turn = self.route_context()
         try:
+            if not await self._prepare_turn_tools(turn):
+                return self._tools_unavailable_response()
             stream_body: dict[str, Any] = {
                 "model":       self.model,
                 "messages":    messages,
@@ -1167,9 +1179,9 @@ class HermesBridge:
                 stream_body["model_options"] = model_options
             async with self._client.stream(
                 "POST",
-                self._api_path("/v1/chat/completions"),
+                self._turn_path(turn, "/v1/chat/completions"),
                 json=stream_body,
-                headers=self._request_headers(),
+                headers=self._turn_headers(turn),
             ) as response:
                 if response.status_code != 200:
                     body = (await response.aread()).decode(errors="replace")[:200]
@@ -1599,7 +1611,66 @@ class HermesBridge:
         self._gateway_local = (time.monotonic(), local)
         return local
 
-    async def _send_session_turn(
+    async def _prepare_turn_tools(self, turn: dict[str, Any]) -> bool:
+        """Never edit a foreign Gateway; prepare the captured local profile."""
+        if not await self.gateway_is_local():
+            return True
+        try:
+            return await asyncio.to_thread(keep_unusable_tools_off, turn["profile"])
+        except Exception:
+            logger.warning("No se pudieron verificar las herramientas del chat de Iris.")
+            return False
+
+    @staticmethod
+    def _tools_unavailable_response() -> dict[str, Any]:
+        return {
+            "texto_hablado": (
+                "No pude preparar las herramientas de este chat. "
+                "Vuelve a intentarlo; si continúa, revisa el diagnóstico de Iris."
+            ),
+            "emocion": "pensativa",
+            "animacion_virtual": "pensar",
+            "_provider_error": {"kind": "tool_policy", "raw": "No se pudo verificar la política del chat."},
+        }
+
+    async def _send_session_turn(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
+        """A session turn, remembered as running until it ends however it ends."""
+        try:
+            return await self._session_turn(*args, **kwargs)
+        finally:
+            self._running_plan = None
+
+    async def next_turn_plan(self) -> tuple[str, str, str]:
+        """(conversation token, provider, model) the next turn would be sent with."""
+        turn = self.route_context()
+        default = await self.default_model(turn)
+        plan = await asyncio.to_thread(
+            self.model_selection.turn_plan, turn["profile"], turn["session_id"], default=default,
+        )
+        return turn["token"], plan.get("provider") or "", plan.get("model") or ""
+
+    async def running_turn_superseded(self) -> bool:
+        """True when the turn Hermes is running goes to a provider or model the
+        conversation has since left (Configuración, the model selector).
+
+        Hermes runs one turn per session and queues the next behind it, and Core
+        does the same: a slow or failing provider then held every new message,
+        even after the person changed provider, until Iris was killed (QA22,
+        2026-11-10). Unknown answers count as not superseded.
+        """
+        running = self._running_plan
+        if running is None:
+            return False
+        try:
+            upcoming = await self.next_turn_plan()
+        except Exception as exc:
+            logger.debug("Could not plan the next turn: %s", exc)
+            return False
+        if self._running_plan is not running or upcoming[0] != running[0] or self.route_context()["token"] != running[0]:
+            return False
+        return any(old and new and old != new for old, new in zip(running[1:], upcoming[1:]))
+
+    async def _session_turn(
         self,
         system_content: str,
         user_content: Any,
@@ -1637,6 +1708,11 @@ class HermesBridge:
         except Exception as exc:
             logger.warning("Model selection unavailable, using Hermes' own default: %s", exc)
             plan = {"mode": "default", "provider": "", "model": "", "fields": {}}
+        # Unknown (Hermes' own default) is never compared: nothing to supersede.
+        self._running_plan = (
+            (turn["token"], plan.get("provider") or "", plan.get("model") or "")
+            if plan.get("provider") or plan.get("model") else None
+        )
 
         runtime: dict[str, Any] | None = None
         status = ""
@@ -1645,6 +1721,11 @@ class HermesBridge:
         final_content: str | None = None
         effective_id = ""
         try:
+            if not await self._prepare_turn_tools(turn):
+                return await self._finish_session_turn(
+                    plan, turn, None, "failed", "No se pudo verificar la política del chat.",
+                    self._tools_unavailable_response(),
+                )
             problem = await self._ensure_session(turn)
             if problem:
                 return await self._finish_session_turn(

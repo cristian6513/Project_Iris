@@ -12,7 +12,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="css/styles.css?v=84">
+    <link rel="stylesheet" href="css/styles.css?v=86">
     <link rel="stylesheet" href="css/notifications.css?v=3">
     <link rel="stylesheet" href="css/automations.css?v=6">
     <link rel="stylesheet" href="css/inbox.css?v=3">
@@ -20,7 +20,7 @@
     <link rel="stylesheet" href="css/os_desktop_home.css?v=8">
     <link rel="stylesheet" href="css/os_theme_preview.css?v=1">
     <link rel="stylesheet" href="css/os_transitions.css?v=2">
-    <link rel="stylesheet" href="css/iris_dialog.css?v=6">
+    <link rel="stylesheet" href="css/iris_dialog.css?v=7">
     <link rel="stylesheet" href="css/iris_os_responsive.css?v=6">
     <link rel="stylesheet" href="css/command_palette.css?v=2">
     <link rel="stylesheet" href="css/iris_player.css?v=3">
@@ -307,7 +307,7 @@
                 <button class="room-hotspot-btn" data-room-action="tablet_center" data-zone="platform">Tablet de pie</button>
                 <button class="room-hotspot-btn" data-room-action="sit_desk" data-zone="pc">Sentarse en la silla</button>
                 <button class="room-hotspot-btn" data-room-action="use_pc" data-zone="pc">Usar PC</button>
-                <button class="room-hotspot-btn" data-room-action="use_pc_2" data-zone="pc">Usar PC 2</button>
+                <button class="room-hotspot-btn" data-room-action="sit_desk_edge" data-zone="pc">Borde del escritorio</button>
                 <button class="room-hotspot-btn" data-room-action="sit_sofa" data-zone="sofa">Sentarse en el sofá</button>
                 <button class="room-hotspot-btn" data-room-action="read_sofa" data-zone="sofa">Leer en el sofá</button>
                 <button class="room-hotspot-btn" data-room-action="tablet_sofa" data-zone="sofa">Tablet en el sofá</button>
@@ -315,9 +315,10 @@
                 <button class="room-hotspot-btn" data-room-action="read_bed" data-zone="bed">Leer en la cama</button>
                 <button class="room-hotspot-btn" data-room-action="tablet_bed" data-zone="bed">Tablet en la cama</button>
                 <button class="room-hotspot-btn" data-room-action="lie_bed" data-zone="bed">Acostarse</button>
+                <button class="room-hotspot-btn" data-room-action="lie_bed_prone" data-zone="bed">Boca abajo</button>
                 <button class="room-hotspot-btn" data-room-action="look_window" data-zone="window">Ventana</button>
                 <button class="room-hotspot-btn" data-room-action="go_bookshelf" data-zone="bookshelf">Librero</button>
-                <button class="room-hotspot-btn" data-room-action="read_book" data-zone="bookshelf">Leer</button>
+                <button class="room-hotspot-btn" data-room-action="read_book" data-zone="bookshelf">Leer en el librero</button>
             </div>
             </div>
         </div>
@@ -361,16 +362,15 @@
                 <details style="margin-top:8px; font-size:0.78em; opacity:0.82;">
                     <summary style="cursor:pointer;">Donde conseguir archivos .vrma?</summary>
                     <ul style="padding-left:18px; margin:6px 0;">
-                        <li><a href="https://vroid.pixiv.help/hc/en-us/articles/9524681282201" target="_blank" rel="noopener">VRoid Hub - Motion library</a></li>
-                        <li><a href="https://booth.pm/en/search/vrma" target="_blank" rel="noopener">Booth.pm - VRMA gratis y pago</a></li>
-                        <li><a href="https://booth.pm/ja/items/5512385" target="_blank" rel="noopener">VRMA_MotionPack (pixiv, 7 poses)</a></li>
-                        <li><a href="https://booth.pm/ja/items/5801234" target="_blank" rel="noopener">Wonderful VRMA Set</a></li>
-                        <li><a href="https://vrm-c.github.io/vrm-animation/" target="_blank" rel="noopener">vrm-c - Spec + demos</a></li>
+                        <li><a href="https://booth.pm/en/search/VRMA" target="_blank" rel="noopener">Booth.pm - VRMA gratis y pago</a></li>
+                        <li><a href="https://booth.pm/en/items/5512385" target="_blank" rel="noopener">VRMA_MotionPack (pixiv, 7 poses)</a></li>
+                        <li><a href="https://vrm.dev/en/vrma/" target="_blank" rel="noopener">Guía de VRM Animation</a></li>
                         <li><a href="https://github.com/vrm-c/vrm-specification/tree/master/specification/VRMC_vrm_animation-1.0" target="_blank" rel="noopener">VRMC_vrm_animation 1.0 spec</a></li>
                     </ul>
                     <p style="margin:4px 0 0;">
-                        Si tienes FBX o BVH, convertilos con
-                        <a href="https://vrm-c.github.io/vrm-animation/converter/" target="_blank" rel="noopener">VRM Animation Converter</a>.
+                        Para FBX, adapta el movimiento a un rig VRM 1.0 y
+                        <a href="https://vrm-addon-for-blender.info/en-us/ui/export_scene.vrma/" target="_blank" rel="noopener">expórtalo como VRMA en Blender</a>.
+                        Para BVH, usa <a href="https://github.com/vrm-c/bvh2vrma" target="_blank" rel="noopener">bvh2vrma</a>.
                     </p>
                 </details>
             </div>
@@ -681,7 +681,7 @@
          absolute ones where they are, so here they stay last in the installed build too. -->
     <link rel="stylesheet" href="/face/css/os_shell.css?v=3">
     <link rel="stylesheet" href="/face/css/os_fonts.css?v=2">
-    <script type="module" src="js/app.js?v=394"></script>
+    <script type="module" src="js/app.js?v=417"></script>
     <script type="module" src="js/memory_panel.js?v=4"></script>
     <script type="module" src="js/skills_panel.js?v=5"></script>
 </body>

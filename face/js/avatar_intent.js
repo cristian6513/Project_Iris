@@ -45,6 +45,7 @@ export function createAvatarActions({ fetchImpl, dispatch, reserve = () => null,
         return {
             isCurrent: () => gate.isCurrent(token) && (!shared || shared()),
             detail: shared ? { isCurrent: shared } : {},
+            signal: shared?.signal,
             // An action that dispatches nothing ends its reservation.
             release: () => shared?.finish?.(),
         };
@@ -75,23 +76,44 @@ export function createAvatarActions({ fetchImpl, dispatch, reserve = () => null,
 
         async upload(file) {
             const intent = begin();
-            let data;
+            const pmx = /\.zip$/i.test(file.name);
+            let data, modelLabel;
             try {
+                if (pmx) {
+                    const { preparePmxUpload } = await import('./pmx_avatar.js');
+                    const prepared = await preparePmxUpload(file, intent.signal);
+                    if (!intent.isCurrent()) {
+                        intent.release();
+                        return { url: '', superseded: true };
+                    }
+                    if (!prepared) {
+                        intent.release();
+                        return { url: '', superseded: false, cancelled: true };
+                    }
+                    ({ file, label: modelLabel } = prepared);
+                }
                 const form = new FormDataImpl();
                 form.append('file', file, file.name);
-                const response = await fetchImpl('/api/avatar/upload', { method: 'POST', body: form });
+                let response;
+                try {
+                    response = await fetchImpl('/api/avatar/upload', { method: 'POST', body: form });
+                } catch (error) {
+                    throw new Error('No pude conectar con IRIS para guardar el avatar. Comprueba la conexión y vuelve a intentarlo.', { cause: error });
+                }
                 data = await response.json().catch(() => ({}));
                 if (!response.ok || data.status !== 'saved' || !data.avatar_url) {
                     throw new Error(data.detail || 'IRIS no pudo guardar el avatar.');
                 }
             } catch (error) {
+                const superseded = !intent.isCurrent();
                 intent.release();
+                if (superseded) return { url: '', superseded: true };
                 throw error;
             }
             const superseded = !intent.isCurrent();
-            if (!superseded) dispatch({ vrmUrl: data.avatar_url, ...intent.detail });
+            if (!superseded) dispatch({ vrmUrl: data.avatar_url, ...intent.detail, ...(pmx ? { reload: true } : {}) });
             else intent.release();
-            return { url: data.avatar_url, superseded };
+            return { url: data.avatar_url, superseded, ...(modelLabel ? { modelLabel } : {}) };
         },
     };
 }

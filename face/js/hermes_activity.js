@@ -28,7 +28,7 @@ import { IrisPlayerApp } from './iris_player.js?v=7';
 import { ContinuityCenterApp } from './continuity_center.js?v=9';
 import { ModelCatalogApp } from './model_catalog.js?v=2';
 import { VisionModelApp } from './vision_model_settings.js?v=1';
-import { RenderSettings } from './render_settings.js?v=4';
+import { RenderSettings } from './render_settings.js?v=5';
 import { CapabilityCenterApp } from './capability_center.js?v=7';
 import { NotificationCenterApp } from './notification_center.js?v=7';
 import { InboxApp } from './inbox_app.js?v=6';
@@ -3893,8 +3893,18 @@ ${this._moduleViewsHtml()}
         const view = this.panel?.querySelector(`[data-app-view="${id}"]`);
         if (!view || this._appHost.state(id) !== 'ready') return null;
         view.querySelector(':scope > .os-app-status')?.remove();
+        let root = view;
+        if (INSTALLED.has(id)) {
+            // The shell moves and hides the view. Installed apps may style
+            // their root without changing how the shell displays that view.
+            root = view.firstElementChild;
+            if (!root) {
+                root = el('div', 'os-app-root');
+                view.append(root);
+            }
+        }
         try {
-            this._appHost.mount(id, view);
+            this._appHost.mount(id, root);
         } catch (error) {
             // The host retired the instance; whatever it drew is cleared and the error shown.
             console.warn(`[IRIS OS] La app ${id} no pudo mostrarse:`, error);

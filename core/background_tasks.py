@@ -228,7 +228,8 @@ def launch_context(offer: LaunchOffer, script: str, previous: dict[str, Any] | N
         "(browser_*), la búsqueda web, o de leer varias páginas, correos o documentos, detente: no lo "
         "hagas en este turno. Delega el encargo y responde enseguida, para que el usuario pueda seguir "
         "hablando contigo mientras se hace. Esto incluye buscar noticias, investigar y comparar opciones "
-        f"o precios. Tienes el código de tarea «{offer.token}», válido una sola vez:\n"
+        "o precios. Hazlo solo con estos pasos: delegate_task no sirve aquí, porque su resultado no le "
+        f"llega a IRIS OS. Tienes el código de tarea «{offer.token}», válido una sola vez:\n"
         '1. Con write_file, escribe un archivo JSON con "title" (pocas palabras; el usuario las verá) y '
         '"task" (todo lo que necesita un agente que no conoce esta conversación: qué buscar, con qué '
         "detalle y en qué idioma).\n"
@@ -238,8 +239,9 @@ def launch_context(offer: LaunchOffer, script: str, previous: dict[str, Any] | N
         'contigo y que le avisarás al terminar. Si imprime "unconfirmed", dile que no se pudo confirmar '
         "si empezó y que IRIS OS lo sigue comprobando. Con otro status no empezó: hazlo tú o explica que "
         "ahora no se puede.\n"
-        "Responde tú directamente solo lo que no necesita esas herramientas: un dato que ya sabes, la "
-        "hora, una cuenta o lo que ya está en la conversación. Más detalle en references/background.md "
+        "Responde tú directamente lo que no necesita esas herramientas: un dato que ya sabes, la hora, "
+        "una cuenta, una recomendación, una opinión o lo que ya está en la conversación. Más detalle en "
+        "references/background.md "
         "de la skill iris-os. No repitas el código al usuario."
         + (f"\n{previous_context(previous)}" if previous else "")
     )

@@ -35,3 +35,20 @@ for (const [object, id, camera] of CASES) {
         assert.ok(Math.sign(action.facingYawOffset) === Math.sign(wrap(toCamera - toObject)));
     });
 }
+
+test('«Usar PC 2», an old draft at another chair spot, is gone; «Usar PC» stays (QA23)', async () => {
+    const { getRoomAction, getRoomActionCommand } = await import('../../face/js/room_actions.js');
+    const { getHotspotForAction } = await import('../../face/js/room_hotspots.js');
+    const { readFileSync } = await import('node:fs');
+    const ids = Object.values(ROOM_OBJECT_ACTIONS).flatMap((object) => object.actions.map((action) => action.id));
+    assert.ok(!ids.includes('usePC_blenderDraft'));
+    for (const name of ['use_pc_2', 'use_pc_blender', 'usePC_blenderDraft']) {
+        assert.equal(getRoomAction(name), null, name);
+        assert.equal(getRoomActionCommand(name), null, name);
+        assert.equal(getHotspotForAction(name), null, name);
+    }
+    assert.equal(getRoomAction('use_pc')?.id, 'usePC_idle');
+    const html = readFileSync(new URL('../../face/index.html', import.meta.url), 'utf8');
+    assert.ok(!html.includes('data-room-action="use_pc_2"') && !html.includes('Usar PC 2'));
+    assert.ok(html.includes('data-room-action="use_pc"'));
+});

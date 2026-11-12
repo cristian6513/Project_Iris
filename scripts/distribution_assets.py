@@ -121,6 +121,18 @@ def release_manifest(source: dict, contract: dict) -> dict:
         for name, value in manifest.get("activity_clips", {}).items()
         if value.get("clip") in expected
     }
+    # A gesture plays one of its variants at random: only distributed clips, and only for a
+    # gesture that ships too.
+    if "variants" in manifest:
+        manifest["variants"] = {
+            name: kept
+            for name, clips in manifest["variants"].items()
+            if name in expected and (kept := [clip for clip in clips if clip in expected])
+        }
+    if "variant_weights" in manifest:
+        manifest["variant_weights"] = {
+            clip: weight for clip, weight in manifest["variant_weights"].items() if clip in expected
+        }
     rest = contract["rest_pose"]
     if rest not in manifest["idle_pool"] or rest not in manifest["return_idle_pool"]:
         raise DistributionError("El manifest debe conservar la pose de reposo en ambos pools")

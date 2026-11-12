@@ -24,7 +24,16 @@ from core.animation_store import (
 )
 from core.asset_uploads import AssetUploadError, read_bounded, validate_asset
 
-_MAP_FIELDS = frozenset({"pose_map", "activity_clips", "facial_profiles", "_source_mapping"})
+_MAP_FIELDS = frozenset(
+    {
+        "pose_map",
+        "activity_clips",
+        "facial_profiles",
+        "_source_mapping",
+        "variants",
+        "variant_weights",
+    }
+)
 
 
 def validate_library_roots(factory: Path, user: Path) -> None:
@@ -133,9 +142,31 @@ class AnimationLibrary:
             else:
                 merged[key] = _copy_metadata(value)
         merged["clips"] = {**factory["clips"], **user["clips"]}
+        AnimationLibrary._replaced_clips_play_alone(merged, factory, user)
         merged["schema_version"] = 1
         merged["revision"] = user.get("revision", 0)
         return merged
+
+    @staticmethod
+    def _replaced_clips_play_alone(merged: dict, factory: dict, user: dict) -> None:
+        """A factory gesture the person replaced plays their clip, and only theirs.
+
+        Otherwise the factory's other variants kept playing it just now and then, and the
+        factory clip's timed facial ``moments`` fired out of step with the new clip (QA23).
+        Variants or a facial profile the person set for that name themselves still win.
+        """
+        own_variants = user.get("variants") if isinstance(user.get("variants"), dict) else {}
+        own_faces = user.get("facial_profiles") if isinstance(user.get("facial_profiles"), dict) else {}
+        variants = merged.get("variants") if isinstance(merged.get("variants"), dict) else {}
+        faces = merged.get("facial_profiles") if isinstance(merged.get("facial_profiles"), dict) else {}
+        for name in user["clips"]:
+            if name not in factory["clips"]:
+                continue
+            if name in variants and name not in own_variants:
+                del variants[name]
+            profile = faces.get(name)
+            if isinstance(profile, dict) and "moments" in profile and name not in own_faces:
+                faces[name] = {key: value for key, value in profile.items() if key != "moments"}
 
     def merged_manifest(self, *, timeout=None) -> dict:
         return self._merge(*self._documents(timeout=timeout))

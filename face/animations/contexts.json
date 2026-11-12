@@ -43,6 +43,10 @@
                 "animation": "idle_casual",
                 "reason": "no-bed"
             },
+            "lie_bed_prone": {
+                "animation": "idle_casual",
+                "reason": "no-bed"
+            },
             "touch_books": {
                 "animation": "look_around",
                 "reason": "no-bookshelf"

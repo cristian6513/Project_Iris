@@ -83,7 +83,7 @@ fi
 if [[ "$ENGINE" == "hermes" ]]; then
     if ! command -v hermes &> /dev/null; then
         echo -e "\n${BLUE}Installing Hermes Agent...${NC}"
-        curl -fsSL https://install.hermes-agent.nousresearch.com | bash
+        curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash
     else
         echo -e "${GREEN}Hermes already installed.${NC}"
     fi

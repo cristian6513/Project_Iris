@@ -6,6 +6,7 @@ import { readFile, stat } from 'node:fs/promises';
 import { ROOM_OBJECT_ACTIONS, getRoomActionCommand } from '../../face/js/room_actions.js';
 import { ROOM_HOTSPOTS } from '../../face/js/room_hotspots.js';
 import { ConversationCamera } from '../../face/js/room_framing.js';
+import { RoomRoutines } from '../../face/js/room_routines.js';
 
 const threeUrl = new URL('../../companion/node_modules/three/build/three.module.js', import.meta.url).href;
 const gltfUrl = new URL('../../companion/node_modules/three/examples/jsm/loaders/GLTFLoader.js', import.meta.url).href;
@@ -45,7 +46,7 @@ const LEG_HALF_WIDTH = 0.1;
 const seat = ROOM_HOTSPOTS.sofaSeatSpot;
 const sitAction = ROOM_OBJECT_ACTIONS.sofa.actions.find(a => a.id === 'sitOnSofa_idle');
 
-function seatFixture() {
+function seatFixture(sceneOptions = {}) {
     const scene = new THREE.Group();
     const head = new THREE.Bone(); head.name = 'Normalized_Head'; scene.add(head);
     const raw = Object.fromEntries(Object.entries({ head: 1.6, hips: 0.9, leftFoot: 0, rightFoot: 0 }).map(([name, y]) => {
@@ -59,25 +60,27 @@ function seatFixture() {
     const avatarManager = { avatar: { vrm, group, restYaw: 0 } };
     const idle = new IdleSystem(avatarManager);
     idle._vrmaPlayer = player;
-    idle._vrmaManifest = { clips: {}, pose_map: { sofa_seated: 'sofa_seated_idle', bed_lying: 'bed_lying_idle', bed_seated: 'bed_seated_idle', book_reading: 'book_read_idle', sofa_reading: 'sofa_read_idle', bed_reading: 'bed_read_idle', sofa_tablet: 'sofa_tablet_idle', bed_tablet: 'bed_tablet_idle', desk_seated: 'desk_seated_idle', desk_typing: 'desk_type_idle', stand_reading: 'stand_read_idle', stand_tablet: 'stand_tablet_idle', window_looking: 'window_look_idle' }, return_idle_pool: ['idle'],
+    idle._vrmaManifest = { clips: {}, pose_map: { sofa_seated: 'sofa_seated_idle', bed_lying: 'bed_lying_idle', bed_prone: 'bed_prone_idle', bed_seated: 'bed_seated_idle', book_reading: 'book_read_idle', sofa_reading: 'sofa_read_idle', bed_reading: 'bed_read_idle', sofa_tablet: 'sofa_tablet_idle', bed_tablet: 'bed_tablet_idle', desk_seated: 'desk_seated_idle', desk_typing: 'desk_type_idle', stand_reading: 'stand_read_idle', stand_tablet: 'stand_tablet_idle', window_looking: 'window_look_idle' }, return_idle_pool: ['idle'],
         activity_clips: { listening: { clip: 'listen', loop: false }, speaking: { clip: 'talk', loop: true } } };
+    idle._vrmaManifest.pose_map.desk_edge = 'desk_edge_idle';
     idle._vrmaInitAttempted = true;
     idle._ensureBoneRefs();
     idle.nextAction = 100;
-    for (const name of ['idle', 'wave', 'listen', 'talk', 'walk', 'sofa_sit_down', 'sofa_seated_idle', 'sofa_stand_up',
+    for (const name of ['idle', 'wave', 'listen', 'talk', 'walk', 'walk_2', 'sofa_sit_down', 'sofa_seated_idle', 'sofa_stand_up',
         'bed_lie_down', 'bed_lying_idle', 'bed_get_up', 'bed_sit_down', 'bed_seated_idle', 'bed_stand_up', 'bed_sit_up',
+        'bed_roll_prone', 'bed_prone_idle', 'bed_roll_supine',
         'book_take', 'book_read_idle', 'book_return', 'sofa_read_open', 'sofa_read_idle', 'sofa_read_close',
         'bed_read_open', 'bed_read_idle', 'bed_read_close', 'sofa_tablet_open', 'sofa_tablet_idle', 'sofa_tablet_close',
         'bed_tablet_open', 'bed_tablet_idle', 'bed_tablet_close', 'desk_sit_down', 'desk_seated_idle', 'desk_stand_up',
         'desk_type_open', 'desk_type_idle', 'desk_type_close', 'stand_read_open', 'stand_read_idle', 'stand_read_close', 'stand_tablet_open', 'stand_tablet_idle', 'stand_tablet_close',
-        'window_lean_in', 'window_look_idle', 'window_lean_out']) {
+        'window_lean_in', 'window_look_idle', 'window_lean_out', 'desk_edge_idle']) {
         const q = new THREE.Quaternion().toArray();
         const track = new THREE.QuaternionKeyframeTrack(`${head.name}.quaternion`, [0, 1], [...q, ...q]);
         const clip = new THREE.AnimationClip(name, 1, [track]);
         player.clips.set(name, clip);
         player.actions.set(name, player.mixer.clipAction(clip));
     }
-    const scenes = new SceneActionManager(new THREE.Group(), avatarManager, null, {}, { idleSystem: idle });
+    const scenes = new SceneActionManager(new THREE.Group(), avatarManager, null, {}, { idleSystem: idle, ...sceneOptions });
     const advance = (seconds, step = 1 / 30) => {
         for (let t = 0; t < seconds - 1e-9; t += step) {
             idle.update(step, t);
@@ -174,6 +177,26 @@ test('she walks with the clip at the speed she moves, and speech waits for her t
     assert.equal(scenes.hotspotTransition, null);
     assert.equal(idle.isWalking(), false);
     assert.equal(player.currentName, 'talk', 'arriving hands over to the speech clip');
+});
+
+test('redirecting a walk uses the gait and pace of the new route', () => {
+    const { idle, player, scenes, advance } = seatFixture();
+    let picked = 'walk';
+    idle._variantFor = name => name === 'walk' ? picked : name;
+    assert.equal(scenes.execute('sit_sofa'), true);
+    advance(2);
+    assert.equal(player.currentName, 'walk');
+
+    picked = 'walk_2';
+    assert.equal(scenes.execute('return_center'), true);
+    const { turnIn, walk, turnOut } = scenes.hotspotTransition.route;
+    advance((turnIn * 0.6 + 700) / 1000);
+    assert.equal(player.currentName, 'walk_2');
+    assert.ok(Math.abs(player.current.getEffectiveTimeScale() - scenes.hotspotTransition.speed / 0.847) < 1e-6);
+
+    advance((walk + turnOut) / 1000);
+    assert.equal(scenes.hotspotTransition, null);
+    assert.equal(idle.isWalking(), false);
 });
 
 test('without the walk clip she falls back to the procedural gait', () => {
@@ -374,6 +397,43 @@ test('the camera eases to a spot, frames her there, and eases home the same way'
     assert.deepEqual(camera.position.toArray(), [0.34, 1.38, 4.95]);
 });
 
+// IRIS on the desk edge, measured in the room: the top of her head and both boots.
+const DESK_EDGE_HEAD = [1.74, 0.78, -2.44];
+const DESK_EDGE_POINTS = [[1.74, 0.96, -2.44], [2.05, -0.75, -1.45], [1.56, -0.75, -1.8]];
+
+test('on the desk edge the view keeps her head and boots in frame, wide or narrow (QA23)', () => {
+    const spot = ROOM_HOTSPOTS.deskEdgeSpot;
+    for (const aspect of [16 / 9, 5 / 4]) {
+        const { camera, view } = cameraFixture(aspect);
+        for (let t = 0; t < 3.2; t += 1 / 30) view.update(1 / 30, 0, spot.view);
+        camera.updateMatrixWorld(true);
+        for (const point of DESK_EDGE_POINTS) {
+            const ndc = new THREE.Vector3(...point).project(camera);
+            assert.ok(Math.abs(ndc.x) < 0.95 && Math.abs(ndc.y) < 0.95,
+                `${aspect.toFixed(2)}: ${point} at ${ndc.x.toFixed(2)}, ${ndc.y.toFixed(2)}`);
+        }
+    }
+});
+
+test('the avatar zoom closes in on her head, not on the middle of the view', () => {
+    const spot = ROOM_HOTSPOTS.deskEdgeSpot;
+    const headAt = (zoom, focus) => {
+        const { camera, view } = cameraFixture();
+        camera.zoom = zoom;
+        camera.updateProjectionMatrix();
+        for (let t = 0; t < 3.2; t += 1 / 30) view.update(1 / 30, 0, spot.view, focus);
+        camera.updateMatrixWorld(true);
+        return new THREE.Vector3(...DESK_EDGE_HEAD).project(camera);
+    };
+    const plain = headAt(1, DESK_EDGE_HEAD), unfocused = headAt(1, null);
+    assert.ok(Math.abs(plain.x - unfocused.x) < 1e-9 && Math.abs(plain.y - unfocused.y) < 1e-9, 'at 1x nothing changes');
+    const most = headAt(2.5, DESK_EDGE_HEAD);
+    assert.ok(Math.hypot(most.x, most.y) < 1e-6, 'at the most, her head is the centre');
+    const half = headAt(1.75, DESK_EDGE_HEAD), pushed = headAt(1.75, null);
+    assert.ok(Math.abs(half.y) < 0.9, 'halfway, her head stays in frame');
+    assert.ok(pushed.y > half.y, 'without the pull the zoom pushed her head up and out');
+});
+
 test('a narrow window backs the seat view off, and leaving Explorar resets it at once', () => {
     const { camera, view } = cameraFixture(0.9);
     for (let t = 0; t < 3.1; t += 1 / 30) view.update(1 / 30, 0, seat.view);
@@ -454,6 +514,194 @@ test('the skirt rests on her thighs only while they are raised', () => {
     clip('bed_lying_idle', 1);
     assert.equal(idle._seatDrapeWeight(), 0, 'held lying down');
     advance(0);
+});
+
+test('lie_bed_prone lies down at the bedside, rolls onto her front, and rolls back before she gets up', () => {
+    const action = getRoomActionCommand('lie_bed_prone').action;
+    assert.equal(action.id, 'lieOnBedProne');
+    assert.equal(action.targetHotspot, 'bedProneSpot');
+    assert.equal(action.animationName, 'bed_prone');
+    assert.equal(action.endMode, 'stay');
+    assert.deepEqual(ROOM_HOTSPOTS.bedProneSpot.position, bed.position, 'the same spot as lying on her back');
+    assert.equal(getRoomActionCommand('lie_face_down').action.id, 'lieOnBedProne');
+
+    const { idle, player, scenes, group, advance } = seatFixture();
+    idle.update(1 / 30, 0);
+    scenes.execute('lie_bed_prone');
+    const { turnIn, walk, turnOut } = scenes.hotspotTransition.route;
+    advance((turnIn * 0.6 + walk + turnOut) / 1000 + 0.2);
+    assert.equal(scenes.hotspotTransition, null);
+    assert.equal(idle.isSeated('bed_prone'), true);
+    assert.equal(player.currentName, 'bed_lie_down', 'on her back first');
+    advance(1.2);
+    assert.equal(player.currentName, 'bed_roll_prone');
+    advance(1.0);
+    assert.equal(player.currentName, 'bed_prone_idle');
+    assert.equal(idle._lyingWeight(), 1);
+
+    scenes.execute('return_center');
+    assert.equal(player.currentName, 'bed_roll_supine', 'onto her back again');
+    assert.equal(idle.isGettingUp(), true);
+    advance(1.2);
+    assert.equal(player.currentName, 'bed_get_up');
+    assert.ok(Math.abs(group.position.x - bed.position[0]) < 1e-6, 'she does not slide while rolling or getting up');
+    advance(6);
+    assert.equal(player.currentName, 'idle');
+    assert.ok(Math.hypot(group.position.x, group.position.z) < 1e-6);
+});
+
+test('lying on the bed she rolls over and back where she is, and from the edge she lies down to roll over', () => {
+    const { idle, player, scenes, advance } = seatFixture();
+    idle.update(1 / 30, 0);
+    scenes.execute('lie_bed');
+    const { turnIn, walk, turnOut } = scenes.hotspotTransition.route;
+    advance((turnIn * 0.6 + walk + turnOut) / 1000 + 1.4);
+    assert.equal(player.currentName, 'bed_lying_idle');
+    scenes.execute('lie_bed_prone');
+    assert.equal(scenes.hotspotTransition, null, 'no walk');
+    assert.equal(player.currentName, 'bed_roll_prone');
+    advance(1.2);
+    assert.equal(player.currentName, 'bed_prone_idle');
+    assert.equal(idle.isSeated('bed_prone'), true);
+    scenes.execute('lie_bed');
+    assert.equal(scenes.hotspotTransition, null, 'no walk');
+    assert.equal(player.currentName, 'bed_roll_supine');
+    advance(1.2);
+    assert.equal(player.currentName, 'bed_lying_idle');
+    assert.equal(idle.isSeated('bed_lying'), true);
+
+    scenes.execute('sit_bed');
+    advance(1.2);
+    assert.equal(player.currentName, 'bed_seated_idle');
+    player.clips.get('bed_lie_down').duration = 5.1;
+    scenes.execute('lie_bed_prone');
+    assert.equal(scenes.hotspotTransition, null, 'no walk');
+    assert.equal(player.currentName, 'bed_lie_down', 'down from the edge');
+    assert.ok(Math.abs(player.current.time - 2.3) < 0.05, 'from where she already is');
+    advance(3.0);
+    assert.equal(player.currentName, 'bed_roll_prone');
+    advance(1.0);
+    assert.equal(player.currentName, 'bed_prone_idle');
+});
+
+test('rolling back from face down, her feet come down over 0.6 s from wherever they are in the loop', () => {
+    for (const leave of ['return_center', 'speech', 'sit_bed']) {
+        const { idle, player, scenes, advance } = seatFixture();
+        idle.update(1 / 30, 0);
+        scenes.execute('lie_bed_prone');
+        const { turnIn, walk, turnOut } = scenes.hotspotTransition.route;
+        advance((turnIn * 0.6 + walk + turnOut) / 1000 + 2.4);
+        assert.equal(player.currentName, 'bed_prone_idle');
+        if (leave === 'speech') scenes.freeHands();
+        else scenes.execute(leave);
+        assert.equal(player.currentName, 'bed_roll_supine', leave);
+        advance(0.3);
+        const early = player.current.getEffectiveWeight();
+        assert.ok(early > 0.2 && early < 0.8, `${leave}: still easing in at 0.3 s (${early.toFixed(2)})`);
+        advance(0.5);
+        assert.equal(player.currentName, 'bed_roll_supine');
+        assert.ok(player.current.getEffectiveWeight() > 0.98, `${leave}: in by 0.8 s`);
+    }
+});
+
+test('spoken to face down, she rolls onto her back and sits up on the edge', () => {
+    const { idle, player, scenes, advance } = seatFixture();
+    idle.update(1 / 30, 0);
+    scenes.execute('lie_bed_prone');
+    const { turnIn, walk, turnOut } = scenes.hotspotTransition.route;
+    advance((turnIn * 0.6 + walk + turnOut) / 1000 + 2.4);
+    assert.equal(player.currentName, 'bed_prone_idle');
+    assert.equal(scenes.freeHands(), true);
+    assert.equal(player.currentName, 'bed_roll_supine');
+    assert.equal(scenes.freeHands(), false, 'on her way: asked again later');
+    advance(1.2);
+    assert.equal(player.currentName, 'bed_lying_idle');
+    assert.equal(scenes.freeHands(), true);
+    assert.equal(player.currentName, 'bed_sit_up');
+    advance(1.2);
+    assert.equal(idle.isSeated('bed_seated'), true);
+
+    // Sent to sit while face down: she rolls back first, then sits up.
+    scenes.execute('lie_bed_prone');
+    advance(2.4);
+    assert.equal(player.currentName, 'bed_prone_idle');
+    scenes.execute('sit_bed');
+    assert.equal(player.currentName, 'bed_roll_supine');
+    advance(1.2);
+    assert.equal(player.currentName, 'bed_sit_up');
+    advance(1.2);
+    assert.equal(player.currentName, 'bed_seated_idle');
+});
+
+test('her hips take IRIS\' place only while her back rests on the bed', () => {
+    const { idle, player } = seatFixture();
+    idle.update(1 / 30, 0);
+    assert.equal(idle._lyingWeight(), 0);
+    const clip = (name, time) => { player.play(name, { loop: false, fadeIn: 0 }); player.current.time = time; };
+    clip('bed_lie_down', 2.2);
+    assert.equal(idle._lyingWeight(), 0, 'sitting on the edge, her feet on the floor');
+    clip('bed_lie_down', 4.8);
+    assert.equal(idle._lyingWeight(), 1, 'flat on the bed');
+    idle.currentPose = 'bed_lying';
+    clip('bed_lying_idle', 1);
+    assert.equal(idle._lyingWeight(), 1, 'held lying down');
+    clip('bed_get_up', 0.2);
+    assert.equal(idle._lyingWeight(), 1);
+    clip('bed_get_up', 2.1);
+    assert.equal(idle._lyingWeight(), 0, 'sitting up again');
+    clip('bed_sit_up', 2.1);
+    assert.equal(idle._lyingWeight(), 0);
+    // Rolling over and back, and face down: still lying.
+    for (const name of ['bed_roll_prone', 'bed_prone_idle', 'bed_roll_supine']) {
+        idle.currentPose = name === 'bed_prone_idle' ? 'bed_prone' : null;
+        clip(name, 0.5);
+        assert.equal(idle._lyingWeight(), 1, name);
+        assert.equal(idle._seatDrapeWeight(), 0, `${name}: legs straight on the bed`);
+    }
+    idle.currentPose = 'sofa_seated';
+    clip('sofa_seated_idle', 1);
+    assert.equal(idle._lyingWeight(), 0, 'seated on the sofa');
+});
+
+test('a PMX avatar\'s hair is held to her head while she lies on her back, not face down or on the desk edge', () => {
+    const { idle, player } = seatFixture();
+    const held = [];
+    idle.avatar.avatar.holdHair = on => held.push(on);
+    idle.update(1 / 30, 0);
+    assert.equal(held.at(-1), false, 'standing: asked every frame');
+    const clip = (name, time) => { player.play(name, { loop: false, fadeIn: 0 }); player.current.time = time; };
+    clip('bed_lie_down', 2.2);
+    assert.equal(idle._holdsHair(), false, 'sitting on the edge');
+    clip('bed_lie_down', 3.0);
+    assert.equal(idle._holdsHair(), true, 'lying back');
+    idle.currentPose = 'bed_lying';
+    clip('bed_lying_idle', 1);
+    assert.equal(idle._holdsHair(), true, 'on her back');
+    clip('bed_roll_supine', 0.3);
+    assert.equal(idle._holdsHair(), true, 'rolled back onto her back');
+    // Face down her hair rests on her back: free, from the roll onto her front until she rolls back.
+    idle.currentPose = 'bed_prone';
+    clip('bed_lie_down', 4.8);
+    assert.equal(idle._holdsHair(), true, 'on her back first');
+    for (const name of ['bed_roll_prone', 'bed_prone_idle']) {
+        clip(name, 0.5);
+        assert.equal(idle._holdsHair(), false, name);
+    }
+    clip('bed_roll_supine', 0.3);
+    assert.equal(idle._holdsHair(), true, 'rolling back before she gets up');
+    clip('bed_get_up', 0.2);
+    assert.equal(idle._holdsHair(), true, 'getting up');
+    idle.currentPose = null;
+    clip('bed_get_up', 2.1);
+    assert.equal(idle._holdsHair(), false, 'sitting up: physics lets go once the hair is clear of the bed');
+    idle.currentPose = 'desk_edge';
+    clip('desk_edge_idle', 1);
+    assert.equal(idle._lyingWeight(), 1, 'her hips at IRIS\' height');
+    assert.equal(idle._holdsHair(), false, 'but seated upright');
+    idle.currentPose = 'bed_lying';
+    clip('bed_lying_idle', 1);
+    idle.update(1 / 30, 1);
+    assert.equal(held.at(-1), true);
 });
 
 test('the camera waits for her to be nearly up before it leaves', () => {
@@ -1298,4 +1546,70 @@ test('on a VRM 0 hand a grip goes half a turn round, because its bones look the 
     assert.ok(object.position.distanceTo(new THREE.Vector3(-0.1, 0.2, -0.3)) < 1e-6);
     const half = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI);
     assert.ok(Math.abs(Math.abs(object.quaternion.dot(half)) - 1) < 1e-6);
+});
+
+test('the desk edge: a line of light takes her up seated, and takes her down before the next walk', () => {
+    const { idle, player, scenes, group, advance } = seatFixture();
+    idle.update(1 / 30, 0);
+    const spot = ROOM_HOTSPOTS.deskEdgeSpot;
+
+    scenes.execute('sit_desk_edge');
+    assert.equal(scenes.hotspotTransition, null, 'no walk: she cannot walk onto the desk');
+    advance(2);
+    assert.equal(idle.currentPose, 'desk_edge');
+    assert.equal(player.currentName, 'desk_edge_idle');
+    assert.ok(Math.abs(group.position.x - spot.position[0]) < 1e-6 && Math.abs(group.position.z - spot.position[2]) < 1e-6);
+    assert.equal(idle.leavesByLight(), true);
+    assert.equal(idle.standUp(), false, 'no clip gets her down');
+    scenes.execute('sit_desk_edge');
+    assert.equal(idle.currentPose, 'desk_edge', 'sent where she is, she stays');
+
+    scenes.execute('sit_sofa');
+    assert.equal(scenes.hotspotTransition, null, 'no walk from the desk top');
+    advance(1.6);
+    assert.equal(idle.leavesByLight(), false, 'the light took her down first');
+    assert.ok(scenes.hotspotTransition, 'and the walk starts from the middle of the room');
+    advance(12);
+    assert.equal(idle.currentPose, 'sofa_seated');
+});
+
+test('a reply does not cancel an explicit order to sit on the desk edge', () => {
+    const { idle, scenes, advance } = seatFixture();
+    const routines = new RoomRoutines({ scenes, context: () => ({ life: 'calm' }) });
+    assert.equal(scenes.execute('sit_desk_edge'), true);
+    assert.equal(scenes.teleportEffect.active, true);
+    routines.responseStarted();
+    advance(1.5);
+    assert.equal(idle.currentPose, 'desk_edge');
+});
+
+test('turning off room life cancels a desk visit before she lands', () => {
+    const { idle, scenes, advance } = seatFixture();
+    const context = { life: 'calm' };
+    const routines = new RoomRoutines({ scenes, context: () => context });
+    assert.equal(routines._begin('sit_desk_edge', 'visit', 60), true);
+    assert.equal(scenes.teleportEffect.active, true);
+    context.life = 'off';
+    routines.update();
+    advance(2);
+    assert.equal(scenes.teleportEffect.active, false);
+    assert.equal(idle.currentPose, null);
+    assert.equal(scenes._atSpot?.id, 'platformSpot');
+});
+
+test('a manual desk-edge move remains available without the light in reduced motion and economy', () => {
+    for (const { reducedMotion, quality } of [
+        { reducedMotion: true, quality: 'high' },
+        { reducedMotion: false, quality: 'low' },
+    ]) {
+        const { idle, scenes } = seatFixture({ reducedMotion: () => reducedMotion });
+        scenes.room = { quality, getObject: () => null };
+        assert.equal(scenes.canRun('sit_desk_edge'), false, 'routines can pick another place');
+        assert.equal(scenes.execute('sit_desk_edge'), true);
+        assert.equal(scenes.teleportEffect.active, false);
+        assert.equal(idle.currentPose, 'desk_edge');
+        assert.equal(scenes.execute('return_center'), true);
+        assert.equal(scenes.teleportEffect.active, false);
+        assert.equal(idle.currentPose, null);
+    }
 });

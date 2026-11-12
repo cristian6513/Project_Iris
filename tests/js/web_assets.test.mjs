@@ -226,7 +226,7 @@ test('checkout attributes preserve hashed notices and binary Vision bytes', asyn
     assert.match(attributes, /\/scripts\/third-party\/\*\.txt text eol=lf/);
     assert.match(attributes, /^\*\.task binary$/m);
     assert.match(attributes, /^\*\.wasm binary$/m);
-    for (const name of ['qrcode-generator-MIT.txt', 'fflate-MIT.txt']) {
+    for (const name of ['qrcode-generator-MIT.txt', 'fflate-MIT.txt', 'mmd-parser-MIT.txt']) {
         assert.ok(!(await readFile(join(root, 'scripts/third-party', name), 'utf8')).includes('\r'));
     }
 });

@@ -5,9 +5,9 @@
 IRIS OS no reemplaza a Hermes Agent. Organiza sus capacidades dentro de una
 experiencia visual con identidad, voz, memoria y varias superficies.
 
-Revisión documental: 2026-10-26. Esta guía describe la **fuente actual**, no una
+Revisión documental: 2026-11-06. Esta guía describe la **fuente actual**, no una
 release pública aprobada. Consulta [Estado actual](../estado-actual.md) para
-distinguir QA16, los cambios posteriores de fuente y las comprobaciones pendientes.
+distinguir QA22, la fuente posterior y las comprobaciones pendientes.
 
 ## Wizard y Hermes Doctor
 
@@ -45,7 +45,7 @@ La interfaz principal incluye:
 El registro F09 agrupa las apps propias y sus ciclos de carga/visibilidad;
 `apps/` contiene los manifiestos y las plantillas. La [Iris Store](iris-store.md)
 instala apps de interfaz y widgets. El [SDK 2](community-apps-python.md), incluido
-en QA15 y QA16, añade Python en proceso propio, acciones y una skill opcional
+en QA22, añade Python en proceso propio, acciones y una skill opcional
 para Hermes. La QA instalada se registra para cada candidato. No hay catálogo remoto ni sandbox
 de Windows para ese código. Los modales integrados y las apps
 siguen el tema; el Command Center conserva su presentación sencilla por decisión
@@ -148,14 +148,22 @@ plantillas permiten combinar rasgos y sirven como ejemplos editables. El
 objetivo es una identidad coherente en IRIS OS, Hermes CLI y otros canales
 conectados al mismo workspace.
 
+La [voz guardada](configuration.md#guardar-y-cambiar-la-voz) se aplica a la
+siguiente respuesta sin reiniciar Core; no activa el micrófono.
+
 ## Avatar y escena
 
-- siempre un VRM: IRIS viene incluida, y cada persona puede usar su propio modelo
-  `.vrm` (asistente, **Configuración rápida → Usar mi propio VRM** o arrastrándolo
-  a la ventana) y volver a IRIS cuando quiera;
-- persistencia local administrada al cambiar un VRM/GLB compatible desde IRIS OS;
+- IRIS viene incluida. Puedes elegir tu propio VRM desde el asistente o desde
+  **Configuración rápida → Usar mi propio avatar** y volver a IRIS cuando quieras.
+  Puedes elegir un ZIP de hasta 128 MiB con modelos PMX y sus texturas o
+  arrastrarlo a la ventana principal. Si el ZIP trae varios modelos, elige
+  una variante. Iris guarda solo la elegida con sus texturas, hasta 64 MiB.
+- Los avatares compatibles se guardan localmente y se sincronizan con Companion.
 - emociones y visemas;
-- animaciones procedurales y VRMA opcionales;
+- animaciones procedurales y [59 clips de fábrica](iris-animations.md);
+- lectura/tablet con objetos, visitas a muebles y ventana;
+- [Vida propia y teletransporte](room.md#vida-propia), con prioridades de conversación y movimiento reducido;
+- FPS y calidad gráfica configurables en Ajustes → Rendimiento;
 - acciones de escena;
 - cámara y percepción local opcionales;
 - adaptación de animaciones al escritorio o al Companion.
@@ -164,6 +172,16 @@ En Face, **Visual y Audio → Brisa (cabello y ropa)** añade movimiento suave a
 las físicas del VRM. Su resultado depende de las cadenas físicas del modelo;
 no añade simulación a prendas sin físicas. Recuerda la preferencia y respeta
 movimiento reducido. No mueve la cara ni requiere cámara.
+
+Los modelos PMX con huesos humanoides compatibles pueden usar las animaciones
+de IRIS y las expresiones que incluya el modelo. Si el PMX trae físicas MMD
+compatibles, Iris simula el cabello y la ropa en segundo plano. Mientras está
+acostada boca arriba en la cama, el cabello del PMX sigue a la cabeza con la
+forma del modelo, sin física: así no se arquea sobre el colchón ni se enreda
+debajo de ella, aunque la parte larga queda oculta en el colchón. La ropa
+conserva su física. Boca abajo, el cabello vuelve a caer libre sobre la espalda.
+Al levantarse se suelta cuando ya no toca ningún mueble. Al cargar un VRM, usa
+las físicas de ese formato.
 
 Desde el 28 de octubre de 2026 ya no existen el avatar geométrico ni el de
 partículas. El VRM de IRIS (`face/animations/iris.vrm`) es un recurso de fábrica,
@@ -183,6 +201,25 @@ del Player local y su pista actual, sin iniciar un segundo reproductor.
 Los ambientes manuales Original, Trabajo, Descanso y Noche ajustan las luces
 existentes, conservan el tema y recuerdan la elección por navegador. No activan
 audio, sensores ni cambios por horario.
+
+### Dónde descargar avatares
+
+- [Aplaybox](https://www.aplaybox.com/) reúne modelos para MMD. El sitio está en
+  chino (el navegador puede traducirlo) y a veces tarda en cargar. Busca un
+  `.pmx` humanoide con sus texturas. Si viene en un RAR, extráelo y crea un ZIP
+  conservando la estructura de carpetas. Carga el ZIP desde **Configuración
+  rápida → Usar mi propio avatar**.
+  - El ZIP puede pesar hasta 128 MiB.
+  - Iris guarda solo el modelo elegido y las texturas que usa, y eso puede pesar
+    hasta 64 MiB.
+- [VRoid Hub](https://hub.vroid.com/en/models?is_downloadable=1&is_other_users_available=1)
+  muestra avatares con descarga habilitada. Inicia sesión y revisa las
+  condiciones de uso del modelo antes de descargarlo.
+- [BOOTH](https://booth.pm/en/browse/3D%20Models?q=VRM) tiene modelos gratuitos y
+  de pago. Comprueba en la ficha que la descarga incluya un archivo `.vrm`.
+
+Puedes cargar un `.vrm` desde el asistente inicial o desde Configuración rápida.
+Revisa las condiciones del autor antes de usar un avatar en vídeos o compartirlo.
 
 ## Voz y activación
 
@@ -261,7 +298,7 @@ biométrica ni médica. El diagnóstico reciente tiene filtros, exportación man
 y borrado; no transmite medios ni crea herramientas de Hermes. Más detalles y
 limitaciones en [los contratos del paso 6](../vision_v2_contracts.md#paso-6--ajustes-locales-calibración-y-diagnóstico).
 El registro de actualización 0.1.1 → 0.1.2 del 2026-09-06 es histórico. La
-fuente/manifiesto actual del Companion declara 0.1.3; la versión que realmente
+fuente/manifiesto actual del Companion declara 0.1.8; la versión que realmente
 usas depende de su EXE. La calibración física prolongada sigue siendo una
 verificación aparte; instalarlo no la certifica.
 

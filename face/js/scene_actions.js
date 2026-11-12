@@ -6,8 +6,8 @@
  */
 
 import * as THREE from 'three';
-import { ROOM_HOTSPOTS, getHotspotForAction } from './room_hotspots.js?v=27';
-import { getRoomActionCommand } from './room_actions.js?v=27';
+import { ROOM_HOTSPOTS, getHotspotForAction } from './room_hotspots.js?v=30';
+import { getRoomActionCommand } from './room_actions.js?v=30';
 import { BOOK, CONJURED_BOOK, CONJURED_TABLET, ConjuredProp, HandProp, HeldProps } from './hand_prop.js';
 import { TeleportEffect } from './teleport_effect.js?v=2';
 
@@ -69,6 +69,7 @@ export class SceneActionManager {
         this.onEmotion = options.onEmotion || null;
         this.onCameraPreset = options.onCameraPreset || null;
         this.onLanded = options.onLanded || null;
+        this.reducedMotion = options.reducedMotion ?? (() => false);
 
         this.currentAction = null;
         this.currentRoomAction = null;
@@ -107,10 +108,8 @@ export class SceneActionManager {
     execute(actionName, { origin = 'order' } = {}) {
         // A routine never outranks an order: see the priorities in room_routines.js.
         this.commandOrigin = origin;
-        if (origin !== 'routine') {
-            this.orders += 1;
-            this.teleportEffect.cancel();
-        }
+        if (origin !== 'routine') this.orders += 1;
+        this.teleportEffect.cancel();
         const command = getRoomActionCommand(actionName);
         const action = command?.action;
         const hotspot = action?.targetHotspot
@@ -202,7 +201,8 @@ export class SceneActionManager {
     /** Can this order be played out? A package without the room clips must not walk her around. */
     canRun(actionName) {
         const action = getRoomActionCommand(actionName)?.action;
-        return Boolean(action?.enabled && this.idleSystem?.canHold?.(action.animationName));
+        return Boolean(action?.enabled && this.idleSystem?.canHold?.(action.animationName)
+            && (!ROOM_HOTSPOTS[action.targetHotspot]?.teleport || this._canUseLight()));
     }
 
     /** Something in hand, or lying down: back to where she can talk. */
@@ -215,15 +215,19 @@ export class SceneActionManager {
         return Boolean(this._atSpot?.backToRoom);
     }
 
-    /** A jump needs a place a routine took her to, and Ahorro does without the effect. */
-    canTeleport() {
-        return Boolean(this.avatar?.avatar?.vrm && this.commandOrigin === 'routine'
-            && this.idleSystem?.isSeated?.() && !this.isBusy() && this.room?.quality !== 'low');
+    _canUseLight() {
+        return Boolean(this.avatar?.avatar?.vrm && this.room?.quality !== 'low' && !this.reducedMotion());
     }
 
-    /** Speech cannot wait for the effect: reveal her at the place she has reached. */
+    /** A conversation jump needs a place a routine took her to. */
+    canTeleport() {
+        return Boolean(this._canUseLight() && this.commandOrigin === 'routine'
+            && this.idleSystem?.isSeated?.() && !this.isBusy());
+    }
+
+    /** Speech can interrupt a routine's effect. An explicit room order keeps priority. */
     cancelTeleport() {
-        return this.teleportEffect.cancel();
+        if (this.commandOrigin === 'routine') return this.teleportEffect.cancel();
     }
 
     /** To the middle of the room, in a line of light, with whatever she holds. */
@@ -241,6 +245,46 @@ export class SceneActionManager {
                 this.onLanded?.();
             },
             settle: () => avatar.settleSprings?.(),
+        });
+    }
+
+    /**
+     * Use the line of light when allowed, otherwise apply the placement immediately.
+     */
+    _inLight(land) {
+        const avatar = this.avatar?.avatar;
+        const settle = () => avatar?.settleSprings?.();
+        if (this._canUseLight() && this.teleportEffect.start({
+            vrm: avatar.vrm, root: avatar.group, color: this.room?.accent?.(), land, settle,
+        })) return true;
+        land();
+        settle();
+        return true;
+    }
+
+    /** Onto a spot she can't walk onto (`teleport`): she lands there already in its pose. */
+    _lightIn(hotspot, roomAction, position, yaw) {
+        return this._inLight(() => {
+            const group = this.avatar.avatar.group;
+            this._props?.drop();
+            this.idleSystem?.resetRoomPlacement?.({ fade: LANDING_FADE });
+            group.position.set(position.x, group.position.y, position.z);
+            group.rotation.y = yaw;
+            this._heldYaw = roomAction?.endMode === 'stay' ? yaw : null;
+            this._atSpot = hotspot;
+            this.idleSystem?.resume?.();
+            this._startActionTimer?.(roomAction);
+            this._playHotspotPose(roomAction || hotspot);
+        });
+    }
+
+    /** Down from such a spot: the light takes her to the middle of the room, then `then`. */
+    _lightOut(then) {
+        return this._inLight(() => {
+            this._props?.drop();
+            this.reset({ clearLocomotion: true });
+            this.idleSystem?.resetRoomPlacement?.({ fade: LANDING_FADE });
+            then();
         });
     }
 
@@ -276,6 +320,13 @@ export class SceneActionManager {
         const group = avatar?.group;
         if (!group) return false;
 
+        // A seat she reached in a line of light (the desk edge) has no way down: the light takes
+        // her to the middle of the room, and the trip starts from there.
+        if (this.idleSystem?.leavesByLight?.() && !opts.fromLight) {
+            if (this._atSpot === hotspot) return true; // already there
+            return this._lightOut(() => this.goToHotspot(hotspotId, { ...opts, fromLight: true }));
+        }
+
         if (!opts.skipClear) {
             this._clearAllEffects();
             this._deactivateAll();
@@ -289,7 +340,8 @@ export class SceneActionManager {
         if (roomAction) this._setActionLookAt(roomAction);
         this.isMoving = false;
         if (this.hotspotTransition?.elapsed > 0) this._atSpot = null; // she had already left it
-        this.idleSystem?.standUp?.();
+        // Into a spot she can't walk onto she leaves as she is, seated or not: no getting up.
+        if (!hotspot.teleport) this.idleSystem?.standUp?.();
         this.idleSystem?.pause?.();
 
         const targetPos = new THREE.Vector3(...hotspot.position);
@@ -306,17 +358,22 @@ export class SceneActionManager {
         if (typeof roomAction?.facingYawOffset === 'number') {
             targetYaw += roomAction.facingYawOffset;
         }
-        this.hotspotTransition = {
-            hotspot,
-            elapsed: 0,
-            duration: opts.duration ?? 900,
-            fromPosition: group.position.clone(),
-            toPosition: targetPos,
-            fromYaw: group.rotation.y,
-            toYaw: targetYaw,
-            roomAction,
-            route: this._planRoute(hotspot, group.position, targetPos, group.rotation.y, targetYaw, restYaw),
-        };
+        if (hotspot.teleport) {
+            this.hotspotTransition = null;
+            this._lightIn(hotspot, roomAction, targetPos, targetYaw);
+        } else {
+            this.hotspotTransition = {
+                hotspot,
+                elapsed: 0,
+                duration: opts.duration ?? 900,
+                fromPosition: group.position.clone(),
+                toPosition: targetPos,
+                fromYaw: group.rotation.y,
+                toYaw: targetYaw,
+                roomAction,
+                route: this._planRoute(hotspot, group.position, targetPos, group.rotation.y, targetYaw, restYaw),
+            };
+        }
 
         const expression = roomAction?.expression ?? hotspot.defaultExpression;
         if (expression) {
@@ -344,6 +401,8 @@ export class SceneActionManager {
         const ways = [...out, ...into].filter(way => way.distanceTo(from) > 0.1 && way.distanceTo(to) > 0.1);
         const curve = new THREE.CatmullRomCurve3([from.clone(), ...ways, to.clone()], false, 'centripetal');
         const length = curve.getLength();
+        // The walk of this trip (a variant may be slower) sets its pace: feet stay on the floor.
+        const { clip: walkClip = 'walk', pace = 1 } = this.idleSystem?.chooseWalk?.() ?? {};
         const heading = (u) => {
             curve.getTangentAt(u, ROUTE_TANGENT);
             return restYaw + Math.atan2(ROUTE_TANGENT.x, ROUTE_TANGENT.z);
@@ -352,8 +411,9 @@ export class SceneActionManager {
             curve,
             heading,
             length,
+            walkClip,
             turnIn: turnTime(fromYaw, heading(0)),
-            walk: 1000 * length / this.moveSpeed + WALK_RAMP,
+            walk: 1000 * length / (this.moveSpeed * pace) + WALK_RAMP,
             turnOut: turnTime(heading(1), toYaw),
         };
     }
@@ -570,7 +630,8 @@ export class SceneActionManager {
         const transitionWalk = this.hotspotTransition?.walkProgress ?? 0;
         const walkingNow = this.isMoving || (transitionWalk > 0.02 && transitionWalk < 0.995);
         const speed = this.isMoving ? this.moveSpeed : (this.hotspotTransition?.speed ?? 0);
-        if (this.idleSystem?.setWalking?.(walkingNow, speed)) return;
+        const walkClip = this.hotspotTransition?.route?.walkClip;
+        if (this.idleSystem?.setWalking?.(walkingNow, speed, walkClip)) return;
         const targetBlend = walkingNow ? 1 : 0;
         this._walkBlend += (targetBlend - this._walkBlend) * Math.min(delta * 5, 1);
 

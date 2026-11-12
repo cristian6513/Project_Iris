@@ -1,7 +1,8 @@
 {
     "_comment": "Biblioteca de gestos de Iris. Pose base y estados de voz compartidos por Face y Companion.",
     "_credits": [
-        "Animaciones originales creadas por Cristian Betancourt para Iris."
+        "Animaciones de Iris creadas por Cristian Betancourt.",
+        "Los gestos añadidos en noviembre de 2026 parten de movimientos generados con Tripo AI por Cristian Betancourt y ajustados para Iris."
     ],
     "_source_mapping": {
         "idle": "pose_predeterminada",
@@ -12,8 +13,8 @@
         "nod": "asentir",
         "shake": "negando",
         "think": "pensando_o_pensativa",
-        "listen": "escuchando",
-        "talk": "hablando_conversando1",
+        "listen": "tripo:escuchar",
+        "talk": "tripo:hablar_2",
         "confirm": "listo(o confirmado)",
         "confused": "no entendi",
         "celebrate": "celebracion",
@@ -21,7 +22,41 @@
         "surprised": "sorpresa",
         "attention": "llamar_la_atencion",
         "point": "señalar",
-        "stretch": "estiramientos"
+        "stretch": "estiramientos",
+        "talk_2": "tripo:hablar_3",
+        "talk_3": "tripo:hablar_1",
+        "wave_2": "tripo:saludo_normal",
+        "wave_big_2": "tripo:saludo_dos_manos",
+        "angry_2": "tripo:enojada",
+        "angry_3": "tripo:enojo_tuyo",
+        "celebrate_2": "tripo:victoria",
+        "jump": "tripo:salto",
+        "attention_2": "tripo:llamar_atencion",
+        "attention_3": "tripo:oye",
+        "think_2": "tripo:pensativa_tuya",
+        "idle_lazy_2": "tripo:pereza_tuya",
+        "sad": "tripo:triste",
+        "laugh": "tripo:reir",
+        "shy": "tripo:timida",
+        "scared": "tripo:asustada",
+        "clap": "tripo:aplaudir",
+        "heart": "tripo:corazon (manos en C de frente, Claude 2026-11-09)",
+        "apologize": "tripo:disculpa_2",
+        "shrug": "tripo:no_se",
+        "idea": "tripo:ya_se",
+        "annoyed": "tripo:no_molestes",
+        "dance": "tripo:baile_adorable",
+        "dance_3": "tripo:baile_idol",
+        "dance_sexy": "tripo:baile_sexy_es",
+        "wave_cute": "tripo:saludo_adorable_es",
+        "wave_flirty": "tripo:saludo_coqueto",
+        "wave_flirty_2": "tripo:saludo_sexy_es (brazo izquierdo abierto 18° en la cadera)",
+        "idle_yawn": "tripo:bostezo",
+        "hair_touch": "tripo:reposo_pelo_2",
+        "idle_waiting": "tripo:esperando",
+        "walk_2": "tripo:caminado (ciclo de sala, Claude 2026-11-09)",
+        "desk_edge_idle": "tripo:sentada_borde_2",
+        "bed_prone_idle": "tripo:boca_abajo_2 + tripo:boca_abajo (un bucle en la cama, Claude 2026-11-10)"
     },
     "clips": {
         "idle": "iris_idle.vrma",
@@ -42,10 +77,6 @@
         "attention": "iris_attention.vrma",
         "point": "iris_point.vrma",
         "stretch": "iris_stretch.vrma",
-        "sit": "sit.vrma",
-        "walk_in_place": "walk_in_place.glb",
-        "pc_sit_down_v2": "_draft_pc_sit_down_v2.glb",
-        "pc_seated_idle_v2": "_draft_pc_seated_idle_v2.glb",
         "sofa_sit_down": "iris_sofa_sit_down.vrma",
         "sofa_seated_idle": "iris_sofa_seated_idle.vrma",
         "sofa_stand_up": "iris_sofa_stand_up.vrma",
@@ -86,7 +117,43 @@
         "stand_tablet_close": "iris_stand_tablet_close.vrma",
         "window_lean_in": "iris_window_lean_in.vrma",
         "window_look_idle": "iris_window_look_idle.vrma",
-        "window_lean_out": "iris_window_lean_out.vrma"
+        "window_lean_out": "iris_window_lean_out.vrma",
+        "talk_2": "iris_talk_2.vrma",
+        "talk_3": "iris_talk_3.vrma",
+        "wave_2": "iris_wave_2.vrma",
+        "wave_big_2": "iris_wave_big_2.vrma",
+        "angry_2": "iris_angry_2.vrma",
+        "angry_3": "iris_angry_3.vrma",
+        "celebrate_2": "iris_celebrate_2.vrma",
+        "jump": "iris_jump.vrma",
+        "attention_2": "iris_attention_2.vrma",
+        "attention_3": "iris_attention_3.vrma",
+        "think_2": "iris_think_2.vrma",
+        "idle_lazy_2": "iris_idle_lazy_2.vrma",
+        "sad": "iris_sad.vrma",
+        "laugh": "iris_laugh.vrma",
+        "shy": "iris_shy.vrma",
+        "scared": "iris_scared.vrma",
+        "clap": "iris_clap.vrma",
+        "heart": "iris_heart.vrma",
+        "apologize": "iris_apologize.vrma",
+        "shrug": "iris_shrug.vrma",
+        "idea": "iris_idea.vrma",
+        "annoyed": "iris_annoyed.vrma",
+        "dance": "iris_dance.vrma",
+        "dance_3": "iris_dance_3.vrma",
+        "dance_sexy": "iris_dance_sexy.vrma",
+        "wave_cute": "iris_wave_cute.vrma",
+        "wave_flirty": "iris_wave_flirty.vrma",
+        "wave_flirty_2": "iris_wave_flirty_2.vrma",
+        "idle_yawn": "iris_idle_yawn.vrma",
+        "hair_touch": "iris_hair_touch.vrma",
+        "idle_waiting": "iris_idle_waiting.vrma",
+        "walk_2": "iris_walk_2.vrma",
+        "desk_edge_idle": "iris_desk_edge_idle.vrma",
+        "bed_prone_idle": "iris_bed_prone_idle.vrma",
+        "bed_roll_prone": "iris_bed_roll_prone.vrma",
+        "bed_roll_supine": "iris_bed_roll_supine.vrma"
     },
     "idle_pool": [
         "idle"
@@ -97,7 +164,10 @@
     "ambient_poses": [
         "idle_casual",
         "idle_lazy",
-        "stretch"
+        "stretch",
+        "idle_yawn",
+        "hair_touch",
+        "idle_waiting"
     ],
     "menu_poses": [
         "idle",
@@ -118,19 +188,28 @@
         "attention",
         "point",
         "stretch",
-        "walk_tour",
-        "sit_chair",
-        "go_computer",
-        "go_bed",
-        "touch_books"
+        "idle_yawn",
+        "hair_touch",
+        "idle_waiting",
+        "sad",
+        "laugh",
+        "shy",
+        "scared",
+        "clap",
+        "heart",
+        "apologize",
+        "shrug",
+        "idea",
+        "annoyed",
+        "wave_cute",
+        "wave_flirty",
+        "dance",
+        "dance_sexy",
+        "jump"
     ],
     "runtime_only": [
         "listen",
         "talk",
-        "sit",
-        "walk_in_place",
-        "pc_sit_down_v2",
-        "pc_seated_idle_v2",
         "sofa_sit_down",
         "sofa_seated_idle",
         "sofa_stand_up",
@@ -171,7 +250,26 @@
         "stand_tablet_close",
         "window_lean_in",
         "window_look_idle",
-        "window_lean_out"
+        "window_lean_out",
+        "talk_2",
+        "talk_3",
+        "wave_2",
+        "wave_big_2",
+        "angry_2",
+        "angry_3",
+        "celebrate_2",
+        "jump",
+        "attention_2",
+        "attention_3",
+        "think_2",
+        "idle_lazy_2",
+        "dance_3",
+        "wave_flirty_2",
+        "walk_2",
+        "desk_edge_idle",
+        "bed_prone_idle",
+        "bed_roll_prone",
+        "bed_roll_supine"
     ],
     "activity_clips": {
         "listening": {
@@ -187,6 +285,62 @@
             "loop": true
         }
     },
+    "variants": {
+        "talk": [
+            "talk",
+            "talk_2",
+            "talk_3"
+        ],
+        "wave": [
+            "wave",
+            "wave_2"
+        ],
+        "wave_big": [
+            "wave_big",
+            "wave_big_2"
+        ],
+        "angry": [
+            "angry",
+            "angry_2",
+            "angry_3"
+        ],
+        "celebrate": [
+            "celebrate",
+            "celebrate_2"
+        ],
+        "attention": [
+            "attention",
+            "attention_2",
+            "attention_3"
+        ],
+        "think": [
+            "think",
+            "think_2"
+        ],
+        "idle_lazy": [
+            "idle_lazy",
+            "idle_lazy_2"
+        ],
+        "dance": [
+            "dance",
+            "dance_3"
+        ],
+        "wave_flirty": [
+            "wave_flirty",
+            "wave_flirty_2"
+        ],
+        "walk": [
+            "walk",
+            "walk_2"
+        ]
+    },
+    "variant_weights": {
+        "talk": 2,
+        "talk_2": 3,
+        "talk_3": 1,
+        "wave": 2,
+        "walk": 3
+    },
     "pose_map": {
         "micro_head": "idle",
         "weight_shift": "idle",
@@ -197,10 +351,6 @@
         "stretch_arms": "stretch",
         "wave_hand": "wave",
         "greet": "wave",
-        "sit_chair": "sit",
-        "lie_bed": "lie",
-        "walk_in_place": "walk_in_place",
-        "pc_seated_idle_v2": "pc_seated_idle_v2",
         "sofa_seated": "sofa_seated_idle",
         "bed_lying": "bed_lying_idle",
         "bed_seated": "bed_seated_idle",
@@ -213,7 +363,9 @@
         "desk_typing": "desk_type_idle",
         "stand_reading": "stand_read_idle",
         "stand_tablet": "stand_tablet_idle",
-        "window_looking": "window_look_idle"
+        "window_looking": "window_look_idle",
+        "desk_edge": "desk_edge_idle",
+        "bed_prone": "bed_prone_idle"
     },
     "body_only_clips": [
         "idle",
@@ -274,7 +426,43 @@
         "stand_tablet_close",
         "window_lean_in",
         "window_look_idle",
-        "window_lean_out"
+        "window_lean_out",
+        "talk_2",
+        "talk_3",
+        "wave_2",
+        "wave_big_2",
+        "angry_2",
+        "angry_3",
+        "celebrate_2",
+        "jump",
+        "attention_2",
+        "attention_3",
+        "think_2",
+        "idle_lazy_2",
+        "sad",
+        "laugh",
+        "shy",
+        "scared",
+        "clap",
+        "heart",
+        "apologize",
+        "shrug",
+        "idea",
+        "annoyed",
+        "dance",
+        "dance_3",
+        "dance_sexy",
+        "wave_cute",
+        "wave_flirty",
+        "wave_flirty_2",
+        "idle_yawn",
+        "hair_touch",
+        "idle_waiting",
+        "walk_2",
+        "desk_edge_idle",
+        "bed_prone_idle",
+        "bed_roll_prone",
+        "bed_roll_supine"
     ],
     "_facial_profiles_note": "Acentos temporales sobre la emoción de la respuesta. eyes controla la mirada, el ritmo de parpadeo y el reposo de los párpados. mouth.open solo actúa en silencio. No modifica huesos corporales ni archivos VRMA. moments da a un clip de reposo su propia emoción, que cambia durante el clip y cede ante la del agente.",
     "facial_profiles": {
@@ -932,6 +1120,421 @@
             "mouth": null
         },
         "window_lean_out": {
+            "emotion": null,
+            "strength": 0,
+            "eyes": {
+                "gaze": "natural",
+                "blinkInterval": 4.5,
+                "blinkDuration": 0.26,
+                "lidClosure": 0
+            },
+            "mouth": null
+        },
+        "talk_2": {
+            "emotion": null,
+            "strength": 0,
+            "eyes": {
+                "gaze": "natural",
+                "blinkInterval": 5,
+                "blinkDuration": 0.25,
+                "lidClosure": 0
+            },
+            "mouth": null
+        },
+        "talk_3": {
+            "emotion": null,
+            "strength": 0,
+            "eyes": {
+                "gaze": "natural",
+                "blinkInterval": 5,
+                "blinkDuration": 0.25,
+                "lidClosure": 0
+            },
+            "mouth": null
+        },
+        "wave_2": {
+            "emotion": "feliz",
+            "strength": 0.48,
+            "eyes": {
+                "gaze": "natural",
+                "blinkInterval": 4,
+                "blinkDuration": 0.25,
+                "lidClosure": 0
+            },
+            "mouth": null
+        },
+        "wave_big_2": {
+            "emotion": "feliz",
+            "strength": 0.6,
+            "eyes": {
+                "gaze": "natural",
+                "blinkInterval": 4,
+                "blinkDuration": 0.25,
+                "lidClosure": 0
+            },
+            "mouth": null
+        },
+        "angry_2": {
+            "emotion": "enojada",
+            "strength": 0.55,
+            "eyes": {
+                "gaze": "natural",
+                "blinkInterval": 4.5,
+                "blinkDuration": 0.25,
+                "lidClosure": 0.06
+            },
+            "mouth": null
+        },
+        "angry_3": {
+            "emotion": "enojada",
+            "strength": 0.55,
+            "eyes": {
+                "gaze": "natural",
+                "blinkInterval": 4.5,
+                "blinkDuration": 0.25,
+                "lidClosure": 0.06
+            },
+            "mouth": null
+        },
+        "celebrate_2": {
+            "emotion": "feliz",
+            "strength": 0.65,
+            "eyes": {
+                "gaze": "natural",
+                "blinkInterval": 3.5,
+                "blinkDuration": 0.25,
+                "lidClosure": 0
+            },
+            "mouth": null
+        },
+        "jump": {
+            "emotion": "feliz",
+            "strength": 0.65,
+            "eyes": {
+                "gaze": "natural",
+                "blinkInterval": 3.5,
+                "blinkDuration": 0.25,
+                "lidClosure": 0
+            },
+            "mouth": null
+        },
+        "attention_2": {
+            "emotion": "feliz",
+            "strength": 0.3,
+            "eyes": {
+                "gaze": "natural",
+                "blinkInterval": 4,
+                "blinkDuration": 0.25,
+                "lidClosure": 0
+            },
+            "mouth": null
+        },
+        "attention_3": {
+            "emotion": "feliz",
+            "strength": 0.3,
+            "eyes": {
+                "gaze": "natural",
+                "blinkInterval": 4,
+                "blinkDuration": 0.25,
+                "lidClosure": 0
+            },
+            "mouth": null
+        },
+        "think_2": {
+            "emotion": "pensativa",
+            "strength": 0.45,
+            "eyes": {
+                "gaze": "natural",
+                "blinkInterval": 5.5,
+                "blinkDuration": 0.36,
+                "lidClosure": 0.08
+            },
+            "mouth": null
+        },
+        "idle_lazy_2": {
+            "emotion": "pensativa",
+            "strength": 0.3,
+            "moments": [
+                { "from": 1.2, "to": 4.8, "emotion": "pensativa", "strength": 0.5, "lidClosure": 0.26 }
+            ],
+            "eyes": {
+                "gaze": "natural",
+                "blinkInterval": 5,
+                "blinkDuration": 0.38,
+                "lidClosure": 0.1
+            },
+            "mouth": null
+        },
+        "sad": {
+            "emotion": "triste",
+            "strength": 0.6,
+            "eyes": {
+                "gaze": "natural",
+                "blinkInterval": 5,
+                "blinkDuration": 0.32,
+                "lidClosure": 0.14
+            },
+            "mouth": null
+        },
+        "laugh": {
+            "emotion": "feliz",
+            "strength": 0.7,
+            "eyes": {
+                "gaze": "natural",
+                "blinkInterval": 3.5,
+                "blinkDuration": 0.25,
+                "lidClosure": 0.22
+            },
+            "mouth": {
+                "open": 0.18
+            }
+        },
+        "shy": {
+            "emotion": "feliz",
+            "strength": 0.35,
+            "eyes": {
+                "gaze": "natural",
+                "blinkInterval": 3.5,
+                "blinkDuration": 0.3,
+                "lidClosure": 0.16
+            },
+            "mouth": null
+        },
+        "scared": {
+            "emotion": "sorprendida",
+            "strength": 0.7,
+            "eyes": {
+                "gaze": "natural",
+                "blinkInterval": 6,
+                "blinkDuration": 0.2,
+                "lidClosure": 0
+            },
+            "mouth": {
+                "open": 0.12
+            }
+        },
+        "clap": {
+            "emotion": "feliz",
+            "strength": 0.65,
+            "eyes": {
+                "gaze": "natural",
+                "blinkInterval": 3.5,
+                "blinkDuration": 0.25,
+                "lidClosure": 0
+            },
+            "mouth": null
+        },
+        "heart": {
+            "emotion": "feliz",
+            "strength": 0.7,
+            "eyes": {
+                "gaze": "natural",
+                "blinkInterval": 4,
+                "blinkDuration": 0.25,
+                "lidClosure": 0.06
+            },
+            "mouth": null
+        },
+        "apologize": {
+            "emotion": "triste",
+            "strength": 0.4,
+            "eyes": {
+                "gaze": "natural",
+                "blinkInterval": 5,
+                "blinkDuration": 0.32,
+                "lidClosure": 0.16
+            },
+            "mouth": null
+        },
+        "shrug": {
+            "emotion": "pensativa",
+            "strength": 0.4,
+            "eyes": {
+                "gaze": "natural",
+                "blinkInterval": 4,
+                "blinkDuration": 0.28,
+                "lidClosure": 0.04
+            },
+            "mouth": null
+        },
+        "idea": {
+            "emotion": "feliz",
+            "strength": 0.45,
+            "eyes": {
+                "gaze": "natural",
+                "blinkInterval": 4.5,
+                "blinkDuration": 0.25,
+                "lidClosure": 0
+            },
+            "mouth": null
+        },
+        "annoyed": {
+            "emotion": "enojada",
+            "strength": 0.4,
+            "eyes": {
+                "gaze": "natural",
+                "blinkInterval": 4.5,
+                "blinkDuration": 0.25,
+                "lidClosure": 0.1
+            },
+            "mouth": null
+        },
+        "dance": {
+            "emotion": "feliz",
+            "strength": 0.6,
+            "eyes": {
+                "gaze": "natural",
+                "blinkInterval": 3.5,
+                "blinkDuration": 0.25,
+                "lidClosure": 0
+            },
+            "mouth": null
+        },
+        "dance_sexy": {
+            "emotion": "feliz",
+            "strength": 0.45,
+            "eyes": {
+                "gaze": "natural",
+                "blinkInterval": 4,
+                "blinkDuration": 0.3,
+                "lidClosure": 0.16
+            },
+            "mouth": null
+        },
+        "wave_cute": {
+            "emotion": "feliz",
+            "strength": 0.6,
+            "eyes": {
+                "gaze": "natural",
+                "blinkInterval": 3.5,
+                "blinkDuration": 0.25,
+                "lidClosure": 0
+            },
+            "mouth": null
+        },
+        "wave_flirty": {
+            "emotion": "feliz",
+            "strength": 0.5,
+            "eyes": {
+                "gaze": "natural",
+                "blinkInterval": 4,
+                "blinkDuration": 0.3,
+                "lidClosure": 0.14
+            },
+            "mouth": null
+        },
+        "idle_yawn": {
+            "emotion": "neutral",
+            "strength": 0.3,
+            "moments": [
+                { "from": 0.7, "to": 3.1, "emotion": "pensativa", "strength": 0.45, "lidClosure": 0.45 }
+            ],
+            "eyes": {
+                "gaze": "natural",
+                "blinkInterval": 5,
+                "blinkDuration": 0.36,
+                "lidClosure": 0.1
+            },
+            "mouth": null
+        },
+        "hair_touch": {
+            "emotion": "neutral",
+            "strength": 0.3,
+            "moments": [
+                { "from": 1.2, "to": 4.2, "emotion": "feliz", "strength": 0.26 }
+            ],
+            "eyes": {
+                "gaze": "natural",
+                "blinkInterval": 4.5,
+                "blinkDuration": 0.28,
+                "lidClosure": 0
+            },
+            "mouth": null
+        },
+        "idle_waiting": {
+            "emotion": "neutral",
+            "strength": 0.3,
+            "moments": [
+                { "from": 1, "to": 5.2, "emotion": "pensativa", "strength": 0.35 }
+            ],
+            "eyes": {
+                "gaze": "natural",
+                "blinkInterval": 4,
+                "blinkDuration": 0.26,
+                "lidClosure": 0.04
+            },
+            "mouth": null
+        },
+        "dance_3": {
+            "emotion": "feliz",
+            "strength": 0.6,
+            "eyes": {
+                "gaze": "natural",
+                "blinkInterval": 3.5,
+                "blinkDuration": 0.25,
+                "lidClosure": 0
+            },
+            "mouth": null
+        },
+        "wave_flirty_2": {
+            "emotion": "feliz",
+            "strength": 0.5,
+            "eyes": {
+                "gaze": "natural",
+                "blinkInterval": 4,
+                "blinkDuration": 0.3,
+                "lidClosure": 0.14
+            },
+            "mouth": null
+        },
+        "walk_2": {
+            "emotion": null,
+            "strength": 0,
+            "eyes": {
+                "gaze": "natural",
+                "blinkInterval": 4.5,
+                "blinkDuration": 0.26,
+                "lidClosure": 0
+            },
+            "mouth": null
+        },
+        "desk_edge_idle": {
+            "emotion": "neutral",
+            "strength": 0.3,
+            "moments": [
+                { "from": 0.8, "to": 4.6, "emotion": "feliz", "strength": 0.3 }
+            ],
+            "eyes": {
+                "gaze": "natural",
+                "blinkInterval": 4.5,
+                "blinkDuration": 0.26,
+                "lidClosure": 0
+            },
+            "mouth": null
+        },
+        "bed_prone_idle": {
+            "emotion": "feliz",
+            "strength": 0.2,
+            "eyes": {
+                "gaze": "natural",
+                "blinkInterval": 4.5,
+                "blinkDuration": 0.26,
+                "lidClosure": 0
+            },
+            "mouth": null
+        },
+        "bed_roll_prone": {
+            "emotion": null,
+            "strength": 0,
+            "eyes": {
+                "gaze": "natural",
+                "blinkInterval": 4.5,
+                "blinkDuration": 0.26,
+                "lidClosure": 0
+            },
+            "mouth": null
+        },
+        "bed_roll_supine": {
             "emotion": null,
             "strength": 0,
             "eyes": {

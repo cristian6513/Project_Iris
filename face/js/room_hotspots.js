@@ -70,6 +70,24 @@ export const ROOM_HOTSPOTS = Object.freeze({
         description: 'Seated at the desk, on the chair.',
         enabled: true,
     },
+    deskEdgeSpot: {
+        id: 'deskEdgeSpot',
+        label: 'Sit on the desk',
+        // On the free left end of the desk top (y -0.16, 0.71 m), facing the room, her legs
+        // hanging in front of it; the chair stays clear to her left. She can't walk up onto it:
+        // a line of light takes her there and back (`teleport`).
+        position: [1.75, 0, -2.25],
+        rotation: [0, 0, 0],
+        teleport: true,
+        // Head (y 0.78) to boots on the floor (-1.2) in 16:9; the old view (target -0.35) cut
+        // her head off, and the avatar zoom closed in on her legs (QA23).
+        view: { position: [0.25, 0.45, 0.75], target: [1.75, -0.05, -2.25], minimumAspect: 1.5 },
+        cameraPreset: 'deskView',
+        defaultExpression: 'feliz',
+        defaultPoseOrAnimation: 'desk_edge',
+        description: 'Sitting on the edge of the desk, swinging her legs.',
+        enabled: true,
+    },
     sofaSpot: {
         id: 'sofaSpot',
         label: 'Go to sofa',
@@ -121,6 +139,16 @@ export const ROOM_HOTSPOTS = Object.freeze({
         defaultExpression: 'neutral',
         defaultPoseOrAnimation: 'bed_lying',
         description: 'Beside the bed, where the lie-down clip starts.',
+        enabled: true,
+    },
+    bedProneSpot: {
+        id: 'bedProneSpot',
+        label: 'Lie face down on bed',
+        ...BED_SIDE,
+        cameraPreset: 'bedView',
+        defaultExpression: 'neutral',
+        defaultPoseOrAnimation: 'bed_prone',
+        description: 'Beside the bed: she lies down there and rolls onto her front.',
         enabled: true,
     },
     bedSeatSpot: {
@@ -202,8 +230,6 @@ export const ROOM_HOTSPOT_ACTIONS = Object.freeze({
     pc: 'pcSpot',
     use_pc: 'deskSeatSpot',
     sit_desk: 'deskSeatSpot',
-    use_pc_2: 'pcSeatSpot',
-    use_pc_blender: 'pcSeatSpot',
     buscar_internet: 'pcSeatSpot',
     watch_screen: 'pcSpot',
 

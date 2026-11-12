@@ -16,11 +16,11 @@ import { IrisCommandPalette } from './command_palette.js?v=8';
 import { commandCenterSummary, gatewayViewFromProbe } from './command_center_state.js?v=3';
 import { bindRoomAtmosphereControls } from './room_atmosphere_controls.js?v=2';
 import { bindAvatarZoomControls } from './room_avatar_zoom.js?v=1';
-import { bindRoomLifeControls } from './room_routines.js?v=5';
+import { bindRoomLifeControls } from './room_routines.js?v=7';
 import { breezeEnabled, onReducedMotionChange, prefersReducedMotion, setBreezeEnabled } from './avatar_breeze.js?v=4';
 import { loadQRCode } from './local_qr.js';
 import { ModelSelector } from './model_selector.js?v=5';
-import { createAvatarActions } from './avatar_intent.js?v=3';
+import { createAvatarActions } from './avatar_intent.js?v=6';
 import { irisConfirm } from './iris_dialog.js?v=9';
 import { BackgroundTaskBar } from './background_task_bar.js?v=3';
 
@@ -1556,18 +1556,28 @@ export class SidePanel {
                     <strong id="quick-avatar-model" style="font-weight:600; color:rgba(255,255,255,0.86); text-align:right; overflow-wrap:anywhere; margin-left:12px;">IRIS (incluida)</strong>
                 </div>
                 <div class="setting-row" style="gap:8px; padding-top:2px;">
-                    <button id="btn-upload-vrm" class="setting-btn" style="flex:1; min-height:30px; border-color:#D4A017; color:#D4A017; background:rgba(212,160,23,0.08);"
-                            title="Copia tu modelo .vrm a IRIS y lo conserva al recargar">
-                        Usar mi propio VRM
+                    <button type="button" id="btn-upload-vrm" class="setting-btn" style="flex:1; min-height:30px; border-color:#D4A017; color:#D4A017; background:rgba(212,160,23,0.08);"
+                            aria-describedby="quick-avatar-help">
+                        Usar mi propio avatar
                     </button>
                     <button id="btn-avatar-iris" class="setting-btn" style="flex:1; min-height:30px;" hidden>
                         Volver a IRIS
                     </button>
-                    <input type="file" id="vrm-file-input" accept=".vrm,.glb,model/gltf-binary" style="display:none;">
+                    <input type="file" id="vrm-file-input" accept=".vrm,.glb,.zip,model/gltf-binary,application/zip" style="display:none;">
                 </div>
-                <small id="quick-vrm-status" role="status" style="display:block; margin:2px 0 6px; font-size:10px; line-height:1.45; opacity:0.7;">
-                    IRIS viene incluida. Dale tu estilo con tu propio modelo .vrm (VRoid Studio, VRoid Hub, Booth) o arrástralo a la ventana.
+                <small id="quick-avatar-help" class="room-atmosphere-note" style="margin:2px 0 6px;">
+                    Elige un VRM, un GLB con un avatar VRM o un ZIP de MMD (hasta 128 MiB) con modelos PMX y sus texturas. Si hay varias variantes, puedes elegir una.
                 </small>
+                <small id="quick-vrm-status" class="room-atmosphere-note" role="status" style="margin:0; opacity:.95;"></small>
+                <nav class="avatar-model-sources" aria-labelledby="quick-avatar-sources-title">
+                    <span id="quick-avatar-sources-title" class="room-atmosphere-note">Descargar avatares</span>
+                    <div class="avatar-model-links">
+                        <a href="https://www.aplaybox.com/" target="_blank" rel="noopener noreferrer">Aplaybox (PMX)</a>
+                        <a href="https://hub.vroid.com/en/models?is_downloadable=1&amp;is_other_users_available=1" target="_blank" rel="noopener noreferrer">VRoid Hub (VRM)</a>
+                        <a href="https://booth.pm/en/browse/3D%20Models?q=VRM" target="_blank" rel="noopener noreferrer">BOOTH (VRM)</a>
+                    </div>
+                    <small class="room-atmosphere-note" style="margin-top:2px;">Aplaybox está en chino y puede tardar en cargar. Tu navegador puede traducirlo.</small>
+                </nav>
 
                 <div class="avatar-zoom-controls" id="quick-avatar-zoom-controls">
                     <div class="setting-row"><label for="quick-avatar-zoom">Acercar el avatar</label></div>
@@ -1579,14 +1589,14 @@ export class SidePanel {
 
                 <div class="setting-row">
                     <label for="quick-room-life">Vida propia</label>
-                    <select id="quick-room-life" class="setting-select">
+                    <select id="quick-room-life" class="setting-select" aria-describedby="quick-room-life-help">
                         <option value="off">Apagada</option>
                         <option value="calm">Tranquila</option>
                         <option value="active">Activa</option>
                     </select>
                 </div>
-                <small style="display:block; margin:2px 0 6px; font-size:10px; line-height:1.45; opacity:.7;">
-                    Cuando no hablan, IRIS lee, usa la tablet o va al sofá, la cama o la PC. Si la mandas a un sitio, se queda ahí.
+                <small id="quick-room-life-help" class="room-atmosphere-note" style="margin:2px 0 6px;">
+                    A solas, IRIS lee, usa la tablet o recorre la habitación. Puede mirar por la ventana, sentarse en el borde del escritorio y descansar boca abajo. Si la mandas a un sitio, se queda ahí.
                 </small>
 
                 <!-- divider -->
@@ -1651,6 +1661,8 @@ export class SidePanel {
                 return request.isCurrent || null;
             },
         });
+        const avatarStatus = section.querySelector('#quick-vrm-status');
+        const showAvatarStatus = message => { avatarStatus.textContent = message; };
 
         // ── Back to IRIS' own model ──
         section.querySelector('#btn-avatar-iris')?.addEventListener('click', async () => {
@@ -1661,14 +1673,12 @@ export class SidePanel {
             const { ok, superseded } = await avatarActions.useIris();
             btn.disabled = false;
             btn.textContent = og;
-            if (ok && !superseded) this._showAvatarModel(section, '');
-            else if (!ok) {
-                const status = section.querySelector('#quick-vrm-status');
-                if (status) status.textContent = 'No pude volver a IRIS. Inténtalo de nuevo.';
-            }
+            if (superseded) return;
+            if (ok) this._showAvatarModel(section, '');
+            showAvatarStatus(ok ? '' : 'No pude volver a IRIS. Inténtalo de nuevo.');
         });
 
-        // VRM direct upload
+        // Avatar file selection
         section.querySelector('#btn-upload-vrm')?.addEventListener('click', () => {
             section.querySelector('#vrm-file-input').click();
         });
@@ -1677,38 +1687,27 @@ export class SidePanel {
             const file = input.files?.[0];
             if (!file) return;
             const button = section.querySelector('#btn-upload-vrm');
-            const original = button?.textContent || 'Usar mi propio VRM';
-            if (button) {
-                button.disabled = true;
-                button.textContent = 'Guardando modelo...';
-            }
+            const original = button.textContent;
+            button.disabled = true;
+            button.textContent = 'Revisando avatar…';
+            showAvatarStatus('');
             try {
-                const { url, superseded } = await avatarActions.upload(file);
-                if (!superseded) this._showAvatarModel(section, decodeURIComponent(url));
-                if (button) {
-                    button.textContent = 'Modelo guardado';
-                    button.style.borderColor = '#4CAF50';
-                    button.style.color = '#4CAF50';
+                const { url, superseded, cancelled, modelLabel } = await avatarActions.upload(file);
+                if (superseded) return;
+                if (cancelled) {
+                    showAvatarStatus('Importación cancelada.');
+                    return;
                 }
+                this._showAvatarModel(section, decodeURIComponent(url));
                 // Stays visible: the user knows the upload finished (qa7, qa9).
-                const status = section.querySelector('#quick-vrm-status');
-                if (status) status.textContent = `Modelo guardado: ${file.name}`;
+                showAvatarStatus(`Modelo guardado: ${modelLabel || file.name}`);
             } catch (error) {
                 console.warn('[panel] persistent VRM upload failed:', error);
-                if (button) {
-                    button.textContent = error?.message || 'No se pudo guardar';
-                    button.style.borderColor = '#ff6f91';
-                    button.style.color = '#ff6f91';
-                }
+                showAvatarStatus(error?.message || 'No se pudo guardar el avatar.');
             } finally {
                 input.value = '';
-                setTimeout(() => {
-                    if (!button) return;
-                    button.disabled = false;
-                    button.textContent = original;
-                    button.style.borderColor = '';
-                    button.style.color = '';
-                }, 2400);
+                button.disabled = false;
+                button.textContent = original;
             }
         });
 

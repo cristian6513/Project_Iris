@@ -2,7 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { companionAvatarSelection, CompanionAvatarSync } from '../../face/js/companion_avatar_sync.js';
+import { isPmxArchive } from '../../face/js/avatar_state.js';
 import { SpeechPresentation } from '../../face/js/speech_presentation.js';
+import { GraphicsQuality, graphicsQuality } from '../../face/js/graphics_quality.js';
 
 function deferred() {
     let resolve, reject;
@@ -76,8 +78,8 @@ function appHarness({ gate, broken = false, visible = true } = {}) {
     const disposed = [], loaded = [], released = [], errors = [];
     class Scene { add(group) { this.last = group; } }
     class AvatarManager {
-        constructor(scene, url, irisUrl) {
-            Object.assign(this, { scene, url, irisUrl, vrmUrl: url }); this.avatar = { group: {}, vrm: {} }; loaded.push(this);
+        constructor(scene, url, irisUrl, options) {
+            Object.assign(this, { scene, url, irisUrl, options, vrmUrl: url }); this.avatar = { group: {}, vrm: {} }; loaded.push(this);
         }
         async init({ fallback }) {
             if (gate) await gate.promise;
@@ -100,11 +102,36 @@ function appHarness({ gate, broken = false, visible = true } = {}) {
     });
     app.speechPresentation.start({ emotion: 'feliz' });
     app.apply = method('_applyAvatarConfig', { THREE: { Scene }, AvatarManager, IdleSystem, SpeechAnimator, AnimationLibrarySync: class { start() {} async refresh() {} }, LipSyncEngine: class {},
-        companionAvatarSelection, localAnimationBase: () => '/animations', IRIS_AVATAR_FILE: 'iris.vrm', IRIS_AVATAR_REVISION: '12',
+        companionAvatarSelection, isPmxArchive, graphicsQuality, localAnimationBase: () => '/animations', IRIS_AVATAR_FILE: 'iris.vrm', IRIS_AVATAR_REVISION: '12',
         disposeCompanionAvatar: manager => { if (manager) disposed.push(manager); } });
     return { app, old, disposed, loaded, released, errors };
 }
 const vrm = { avatar_vrm_path: '/avatars/new.vrm', avatar_revision: '2' };
+
+test('Companion keeps the PMX format when Core serves the archive as a blob', async () => {
+    const h = appHarness();
+    await h.app.apply({ ...vrm, avatar_vrm_path: '/avatars/new.ZIP' }, () => true);
+    assert.equal(h.loaded[0].url, 'blob:new');
+    assert.equal(h.loaded[0].options.pmxBlob, true);
+    assert.deepEqual(h.released, ['blob:new']);
+});
+
+test('Companion applies a recovered quality preference to the PMX that is already visible', async () => {
+    const h = appHarness();
+    const rates = [];
+    const physics = { heavy: true, setRate: hz => rates.push(hz) };
+    h.app.config = { avatar_vrm_path: '/avatars/heavy.zip', render_quality: 'balanced' };
+    h.app._appliedAvatarKey = companionAvatarSelection(h.app.config).key;
+    h.app.graphicsQuality = new GraphicsQuality({
+        getRenderer: () => null, getComposer: () => null, getAvatarPhysics: () => physics,
+    });
+    await h.app.apply({ render_quality: 'saving' }, () => true);
+    await h.app.apply({ render_quality: 'saving' }, () => true);
+    assert.equal(h.app.graphicsQuality.quality, 'saving');
+    assert.deepEqual(rates, [32.5]);
+    assert.equal(h.app.avatarManager, h.old);
+    assert.equal(h.loaded.length, 0);
+});
 
 test('Companion swaps only after loading and rewires animation while keeping live lip sync', async () => {
     const gate = deferred(), h = appHarness({ gate });

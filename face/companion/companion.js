@@ -4,8 +4,8 @@ import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 
-import { AvatarManager } from '../js/avatar.js?v=23';
-import { IRIS_AVATAR_FILE, IRIS_AVATAR_REVISION } from '../js/avatar_state.js?v=4';
+import { AvatarManager } from '../js/avatar.js?v=30';
+import { IRIS_AVATAR_FILE, IRIS_AVATAR_REVISION, isPmxArchive } from '../js/avatar_state.js?v=5';
 import { companionAvatarSelection, CompanionAvatarSync, disposeCompanionAvatar } from '../js/companion_avatar_sync.js?v=2';
 import {
     createCompanionBridge,
@@ -27,8 +27,8 @@ import {
 } from '../js/companion_policy.js?v=2';
 import { companionLocomotionDecision } from '../js/companion_locomotion_policy.js?v=2';
 import { CompanionBody, CompanionProps } from '../js/companion_body.js';
-import { RoomRoutines } from '../js/room_routines.js?v=5';
-import { IdleSystem } from '../js/idle_system.js?v=54';
+import { RoomRoutines } from '../js/room_routines.js?v=7';
+import { IdleSystem } from '../js/idle_system.js?v=64';
 import { LipSyncEngine } from '../js/lipsync.js?v=3';
 import { SpeechAnimator } from '../js/speech_animator.js?v=5';
 import {
@@ -43,7 +43,7 @@ import { InboxVoicePlayer } from '../js/inbox_voice.js?v=1';
 import { WebSocketManager } from '../js/websocket.js?v=3';
 import { ManualVoiceController } from '../js/manual_voice.js?v=3';
 import { FrameLimiter } from '../js/frame_limiter.js?v=2';
-import { GraphicsQuality, avatarTextureLimit } from '../js/graphics_quality.js?v=2';
+import { GraphicsQuality, avatarTextureLimit, graphicsQuality } from '../js/graphics_quality.js?v=3';
 import { ScreenSnapshotRequests } from '../js/screen_snapshot.js?v=2';
 import { BackgroundTaskBar } from '../js/background_task_bar.js?v=3';
 
@@ -208,6 +208,8 @@ class IrisCompanionApp {
         this._frameLimiter = new FrameLimiter();
         this.graphicsQuality = new GraphicsQuality({
             getRenderer: () => this.renderer, getComposer: () => this.composer,
+            getSize: () => [this.stage.clientWidth, this.stage.clientHeight],
+            getAvatarPhysics: () => this.avatarManager?.avatar?.vrm?.pmxPhysics,
         });
         this._screenSnapshots = new ScreenSnapshotRequests({
             send: result => this.ws?.send('screen_snapshot_result', result),
@@ -319,6 +321,7 @@ class IrisCompanionApp {
     _applyIdentityAndTheme() {
         this.assistantName = cleanAssistantName(this.config.assistant_name);
         this.theme = readTheme(this.config);
+        this.avatarRimLight?.color.set(this.theme.accent2);
         const root = document.documentElement;
         root.style.setProperty('--companion-accent', this.theme.accent);
         root.style.setProperty('--companion-accent-2', this.theme.accent2);
@@ -409,14 +412,9 @@ class IrisCompanionApp {
 
     _setupThree() {
         this.scene = new THREE.Scene();
-        this.camera = new THREE.PerspectiveCamera(
-            42,
-            Math.max(1, window.innerWidth) / Math.max(1, window.innerHeight),
-            0.1,
-            100,
-        );
-        this.camera.position.set(0.25, 1.3, 4.75);
-        this.camera.lookAt(0.03, 0.58, 0);
+        this.camera = new THREE.PerspectiveCamera(44, 1, 0.1, 100);
+        this.camera.position.set(0.34, 1.38, 4.8);
+        this.camera.lookAt(0.08, 0.68, 0);
 
         this.renderer = new THREE.WebGLRenderer({
             canvas: this.canvas,
@@ -439,17 +437,18 @@ class IrisCompanionApp {
         this.composer.addPass(output);
         this.graphicsQuality.setQuality(this.config.render_quality);
 
-        this.scene.add(new THREE.AmbientLight(0xcfe6ff, 0.34));
-        this.scene.add(new THREE.HemisphereLight(0xcfefff, 0x24142f, 0.36));
-        const key = new THREE.DirectionalLight(0xf2f8ff, 0.48);
-        key.position.set(2.2, 3.3, 5.2);
+        // Neutral fill keeps the VRM colours legible. The theme tints the rim.
+        this.scene.add(new THREE.AmbientLight(0xe8edff, 0.34));
+        this.scene.add(new THREE.HemisphereLight(0xe9f3ff, 0x342331, 0.43));
+        const key = new THREE.DirectionalLight(0xfff4f4, 0.56);
+        key.position.set(1.8, 2.4, 5);
         this.scene.add(key);
-        const fill = new THREE.DirectionalLight(new THREE.Color(this.theme.accent), 0.24);
-        fill.position.set(-3, 1.2, 2.4);
+        const fill = new THREE.DirectionalLight(0xe1efff, 0.24);
+        fill.position.set(-3.2, 1.15, 2.2);
         this.scene.add(fill);
-        const rim = new THREE.PointLight(new THREE.Color(this.theme.accent2), 0.58, 12);
-        rim.position.set(-0.7, 1.9, -3.2);
-        this.scene.add(rim);
+        this.avatarRimLight = new THREE.PointLight(this.theme.accent2, 0.95, 6.3);
+        this.avatarRimLight.position.set(-0.28, 1.55, -2.35);
+        this.scene.add(this.avatarRimLight);
     }
 
     _setupControls() {
@@ -587,6 +586,10 @@ class IrisCompanionApp {
 
     async _applyAvatarConfig(config, isCurrent) {
         this.config = { ...this.config, ...config };
+        const quality = graphicsQuality(this.config.render_quality);
+        if (this.graphicsQuality && this.graphicsQuality.quality !== quality) {
+            this.graphicsQuality.setQuality(quality);
+        }
         this._applyIdentityAndTheme();
         const irisUrl = `${localAnimationBase()}/${IRIS_AVATAR_FILE}?v=${IRIS_AVATAR_REVISION}`;
         const selection = companionAvatarSelection(this.config, irisUrl);
@@ -600,7 +603,7 @@ class IrisCompanionApp {
             if (this.bridge.native && selection.own && url.startsWith('/')) url = await this.bridge.coreAssetUrl(url);
             if (!isCurrent()) return;
             candidate = new AvatarManager(staging, url, irisUrl,
-                { textureLimit: () => avatarTextureLimit(this.config.render_quality) });
+                { textureLimit: () => avatarTextureLimit(this.config.render_quality), pmxBlob: isPmxArchive(selection.resource) });
             await candidate.init({ fallback: !this.avatarManager });
             if (!isCurrent()) return;
             // The person's model could not be loaded and IRIS shows instead.
@@ -617,6 +620,7 @@ class IrisCompanionApp {
             candidate.avatar.scene = this.scene;
             this.scene.add(candidate.avatar.group);
             this.avatarManager = candidate;
+            this.graphicsQuality?.applyAvatarPhysics();
             this.props?.drop();   // on the old avatar's hand, about to go
             this.idle = new IdleSystem(candidate, { animationBaseUrl: localAnimationBase() });
             if (!this.animationLibrary) {
@@ -682,11 +686,15 @@ class IrisCompanionApp {
         }, 15000);
         window.addEventListener('blur', () => sendState(false));
         window.addEventListener('resize', () => this._onResize());
+        // The controls also resize the stage without changing the window.
+        const stageResize = new ResizeObserver(() => this._onResize());
+        stageResize.observe(this.stage);
         window.addEventListener('pointerdown', () => this._markInteraction(), {
             capture: true,
             passive: true,
         });
         window.addEventListener('beforeunload', () => {
+            stageResize.disconnect();
             if (this.cameraStream || this.cameraLeasePending) {
                 this.ws?.send('camera_lease_release', {});
                 this._stopLocalPerception();
@@ -1456,11 +1464,9 @@ class IrisCompanionApp {
     }
 
     _onResize() {
-        if (!this.renderer || !this.camera) return;
-        const width = Math.max(1, window.innerWidth);
-        const height = Math.max(1, window.innerHeight);
-        this.graphicsQuality.resize();
-        this.camera.aspect = width / height;
+        const layout = this.graphicsQuality.resize();
+        if (!layout) return;
+        this.camera.aspect = layout.width / layout.height;
         this.camera.updateProjectionMatrix();
     }
 

@@ -33,7 +33,7 @@ function idleFixture({ missing = [] } = {}) {
 }
 
 test('every room order has a stand-in, and none of them walks', () => {
-    for (const order of ['read_center', 'tablet_center', 'sit_sofa', 'read_sofa', 'tablet_sofa', 'sit_bed', 'read_bed', 'tablet_bed', 'sit_desk', 'use_pc', 'look_window', 'lie_bed']) {
+    for (const order of ['read_center', 'tablet_center', 'sit_sofa', 'read_sofa', 'tablet_sofa', 'sit_bed', 'read_bed', 'tablet_bed', 'sit_desk', 'use_pc', 'look_window', 'lie_bed', 'lie_bed_prone', 'sit_desk_edge']) {
         assert.ok(STAND_INS[order], order);
     }
     assert.ok(Object.values(STAND_INS).every((pose) => pose.startsWith('stand_') || ['stretch', 'idle_lazy'].includes(pose)));

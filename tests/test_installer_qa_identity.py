@@ -52,7 +52,10 @@ open(ready, "w").close()
 server.serve_forever()
 """
 
-pytestmark = pytest.mark.skipif(os.name != "nt" or not POWERSHELL, reason="needs Windows PowerShell")
+pytestmark = [
+    pytest.mark.skipif(os.name != "nt" or not POWERSHELL, reason="needs Windows PowerShell"),
+    pytest.mark.skipif(not SCRIPT.is_file(), reason="needs the internal installer QA script"),
+]
 
 
 def _junction(link: Path, target: Path) -> None:

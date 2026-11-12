@@ -18,6 +18,7 @@ from urllib.parse import urlsplit
 
 from core import runtime_descriptor as runtime_policy
 from core.request_security import is_loopback_url
+from core.service_start_lock import recorded_process_gone
 
 RECEIPT_NAME = "iris-hermes-runtime.json"
 MAX_RECEIPT_BYTES = 16 * 1024
@@ -102,19 +103,6 @@ def _fingerprint(pid: int, profile: Path, *, port: int | None = None, process=No
     return created
 
 
-def _recorded_process_gone(pid: int, created: float) -> bool:
-    """True only when the recorded process provably no longer runs."""
-    import psutil
-
-    try:
-        live_created = float(psutil.Process(pid).create_time())
-    except psutil.NoSuchProcess:
-        return True
-    except (psutil.Error, OSError, ValueError):
-        return False  # Uninspectable: keep failing closed.
-    return math.isfinite(live_created) and abs(live_created - created) > 0.001
-
-
 def record_spawned_gateway(profile: Path, pid: int) -> None:
     """Called only with the PID returned by our successful Popen."""
     created = _fingerprint(pid, profile)
@@ -182,7 +170,7 @@ def gateway_registry_state(profile: Path, base_url: str | None = None) -> dict[s
             # with its Core, a restart or an update left such receipts, and the
             # new version refused to start Hermes and rolled back (qa9). A live
             # recorded process that is not ours still fails closed below.
-            if recorded is not None and _recorded_process_gone(*recorded):
+            if recorded is not None and recorded_process_gone(*recorded):
                 return {"verified": False, "state": "stale", "pid": None}
         except ImportError:
             pass

@@ -159,7 +159,8 @@ def test_avatar_changes_from_iris_os_use_persistent_managed_storage() -> None:
     assert "companionAvatarSelection" in companion_js
     assert "this._avatarSync" in companion_js
     assert "coreAssetUrl" in companion_js
-    assert "Usar mi propio VRM" in panel_js and "Volver a IRIS" in panel_js
+    # «avatar», not «VRM», since PMX ZIPs load from the same button (2026-11-09).
+    assert "Usar mi propio avatar" in panel_js and "Volver a IRIS" in panel_js
 
 
 def test_marketplace_is_a_separate_iris_os_application() -> None:

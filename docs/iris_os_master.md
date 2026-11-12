@@ -9,25 +9,29 @@
 > distinguen código, candidato y aceptación. Las comparaciones y pruebas fechadas
 > de este documento conservan su revisión original; no son una certificación de hoy.
 
-## Corte documental vigente — 2026-10-26
+## Corte documental vigente — 2026-11-08
 
-La referencia de distribución es QA16 (informe interno no distribuido):
-un único candidato Windows x64 `0.9.2`, ID `ec7291bd`, con comprobaciones automáticas
-documentadas y QA manual instalada pendiente según su informe. No hay una nueva
-`0.9.3` ni se deduce una publicación de esta actualización documental.
+QA22 (informe interno no distribuido) es la referencia Windows
+x64 de la [beta pública 0.9.2 de GitHub](https://github.com/cristian6513/Project_Iris/releases/tag/v0.9.2-beta), con ID ddd205bd y
+Companion 0.1.8. El [estado actual](estado-actual.md) distingue la beta publicada,
+la fuente posterior y la QA manual. Microsoft Store se prepara por separado
+con un envío en borrador y un [prototipo MSIX local](../desktop/msix/README.md).
 
-QA16 contiene F08–F16, el escritorio personalizable y la Store ampliada con
-[SDK 2](guides/community-apps-python.md): Python en worker propio, acciones y
-skill opcional. Los servicios integrados revisados de F09 conservan su contrato
-distinto. Los límites de cada función y la aceptación se consultan en
-[Estado actual](estado-actual.md), sin trasladar resultados de un candidato a otro.
+Incluye SDK 2 y Store, peticiones visuales y tareas en segundo plano, avatar
+IRIS MToon V12, 59 clips de fábrica revisados, muebles optimizados,
+[calidad gráfica](guides/configuration.md), [Vida propia en la sala](guides/room.md)
+y sus [reemplazos del Companion](guides/desktop-companion.md).
+El cambio de voz en vivo (informe interno no distribuido)
+usa la selección guardada desde la siguiente respuesta y libera el motor anterior
+antes de cargar otro local. Cerrar la ventana no equivale a detener Core.
 
-La fuente incluye trabajo posterior: web, [repositorios limpios](guides/publication-repositories.md),
-[entrada de compilación personal](guides/build-from-source.md) y actualización del
-manual. La ejecución completa de la entrada nueva de compilación aún está pendiente.
-Se registran aparte las mediciones del avatar (informe interno no distribuido)
-y las [ideas futuras diferidas](iris_future_services_notes_2026-10-26.md).
-No se cambió el avatar distribuido ni se implementaron cuentas o suscripciones Iris.
+Los benchmarks históricos conservan su avatar, equipo y revisión: no prueban
+el rendimiento de todos los VRM ni del instalador actual. KTX2 del avatar sigue
+siendo una prueba separada; no se sustituyó la V12 distribuida por esa copia.
+Faltan voz real, WebView2/Companion instalados y tiempos normales de las rutinas.
+La entrada pública COMPILAR.cmd tampoco tiene aún su ejecución completa;
+QA22 usa la cadena de candidatos revisada. Cuentas, créditos y Android siguen
+[diferidos](iris_future_services_notes_2026-10-26.md).
 
 ### Corte anterior — 2026-10-17 (histórico)
 

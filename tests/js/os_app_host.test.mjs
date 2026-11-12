@@ -181,12 +181,13 @@ test('mount happens once per root; visibility reaches a mounted app once per cha
 });
 
 /** The shell's real methods over a minimal panel, a real host and the registry. */
-function shellHarness({ modules }) {
+function shellHarness({ modules, installed = [] }) {
     const views = {};
     const viewFor = (id) => (views[id] ||= {
-        id: `view-${id}`, status: null,
+        id: `view-${id}`, status: null, firstElementChild: null,
         querySelector(selector) { return selector === ':scope > .os-app-status' ? this.status : null; },
         prepend(node) { this.status = node; node.remove = () => { this.status = null; }; },
+        append(node) { this.firstElementChild = node; },
     });
     const document = { createElement: () => ({ dataset: {}, setAttribute(k, v) { this[k] = v; }, innerHTML: '' }) };
     const visible = new Set();
@@ -196,13 +197,42 @@ function shellHarness({ modules }) {
         _hasVisibleAppSurface: (id) => visible.has(id),
         _appAdapters: {},
     };
-    const deps = { OS_APPS, document, console: { warn() {} } };
+    const deps = {
+        OS_APPS, document, console: { warn() {} },
+        INSTALLED: new Set(installed),
+        el: (tag, className) => ({ id: className, tag, className, style: {} }),
+    };
     for (const name of ['_loadApp', '_showModuleApp', '_mountModuleApp', '_renderAppStatus', '_retryApp', '_navigateApp', '_syncModuleVisibility', '_appContext']) {
         state[name] = method(name, deps);
     }
     state._appHost = createAppHost({ modules, makeContext: (id) => state._appContext(id) });
     return { state, views, visible, viewFor };
 }
+
+test('an installed app can style its root while the shell keeps ownership of the view', async () => {
+    const mounts = [];
+    const controller = {
+        mount(root) {
+            root.className = 'game';
+            root.style.display = 'flex';
+            mounts.push(root);
+        },
+        dispose() {},
+    };
+    const id = 'runner';
+    const { state, viewFor } = shellHarness({
+        installed: [id],
+        modules: { [id]: async () => ({ createApp: () => controller }) },
+    });
+    assert.equal(await state._showModuleApp(id), controller);
+    const view = viewFor(id);
+    const root = view.firstElementChild;
+    assert.notEqual(root, view);
+    assert.equal(root.style.display, 'flex');
+    assert.equal(view.style, undefined);
+    assert.equal(await state._showModuleApp(id), controller);
+    assert.deepEqual(mounts, [root], 'reopening keeps the same root and app state');
+});
 
 test('opening Automatizaciones: loading, one mount, refresh, then visible; reopening reuses it', async () => {
     const fake = fakeModule();

@@ -158,6 +158,36 @@ Sin una API key puedes recorrer los campos, pero no consultar el catálogo,
 clonar ni generar una muestra. La integración se comprueba con respuestas
 simuladas; eso no verifica calidad, demora ni permisos efectivos de una cuenta.
 
+### Guardar y cambiar la voz
+
+En Voz, **Guardar voz · nombre del motor** guarda el proveedor seleccionado, su voz y sus opciones. No guarda los cambios pendientes de IA, identidad o avatar, ni genera audio. Una clave vacía conserva la guardada. En QA22, el mensaje confirma que **Iris la usará en su próxima respuesta**, sin cerrar la ventana ni detener Core. El resumen final también sigue guardando la configuración completa.
+
+La acción principal queda en una barra visible al pie del paso de voz al desplazarte. Elegir una voz del catálogo Fish también marca los
+cambios pendientes. Explorar o escuchar muestras no guarda automáticamente una
+elección; el botón permite confirmar cuándo quieres conservarla.
+
+La muestra gratuita de Fish y **Escuchar voz seleccionada** comparten controles de reproducir, pausar y posición con los colores de Iris, accesibles con teclado. La prueba de una frase propia sigue siendo una síntesis con el proveedor y puede consumir cuota.
+
+Core puede seguir funcionando aunque cierres la ventana: por eso cerrar y abrir
+Iris no era suficiente para aplicar una voz en candidatos anteriores. QA22
+comprueba la selección guardada antes de cada frase y solo reconstruye el motor
+cuando cambió la configuración de voz.
+
+El formulario no devuelve tu clave guardada. Ver el campo vacío no indica que se
+haya borrado; déjalo vacío para conservarla. Si Fish rechaza una clave nueva al
+guardar la tarjeta, Iris muestra el motivo y no sustituye la configuración anterior.
+
+La primera respuesta con una voz local nueva puede tardar mientras carga el
+modelo. Se libera el anterior antes de cargar el siguiente. Si pulsas Detener
+durante esa carga, la próxima respuesta puede intentar la voz guardada. Si la
+voz nueva no arranca o no produce audio, aparece un aviso; no vuelve a la voz
+anterior en silencio. Una configuración de voz ilegible o inválida conserva la
+voz que estaba funcionando.
+
+Alcance de la validación de QA22 (informe interno no distribuido):
+los controles de carga/cancelación fueron sintéticos; falta la prueba instalada
+con voz y proveedor reales.
+
 ## Tema y superficies
 
 El tema elegido en el wizard se comparte con IRIS OS. El Desktop Companion
@@ -185,6 +215,12 @@ vistas abiertas y los conserva por perfil, sin recargar Iris ni su avatar. La
 etiqueta de la tarjeta muestra los valores confirmados por Core; editar los
 selectores o fallar al guardar no cambia esa etiqueta. El ajuste también se
 conserva al reiniciar. Consulta las mediciones y límites (informe interno no distribuido).
+
+Además, **Ahorro** limita las texturas compatibles del avatar a un máximo de 1024 px por lado
+**al cargar el modelo**, manteniendo su proporción y sin modificar el VRM
+original. Cambiar la calidad no recarga automáticamente el avatar que ya está
+en pantalla: vuelve a cargarlo para aplicar ese límite. El renderizado y los
+FPS sí cambian al guardar, sin esa recarga.
 
 30 FPS puede reducir la carga de CPU/GPU; sin límite permite que Iris renderice
 al ritmo que admita la pantalla. Son máximos, no una garantía de rendimiento:
@@ -214,22 +250,12 @@ capturas, logs o archivos de prueba.
 3. Modifica sus opciones y continúa al resumen para guardarlas.
 4. Si se trata de un problema del motor, usa **Diagnóstico y reparación**;
    abrirlo solo consulta estado. Aplicar una activación/reinicio requiere su botón.
-5. Reinicia IRIS si el ajuste afecta procesos de voz, Gateway o Companion.
+5. Los cambios de voz TTS guardados se aplican a la siguiente respuesta en QA22.
+   Reinicia un servicio solo cuando el ajuste o el diagnóstico lo indique, por
+   ejemplo al actualizar su código o cambiar una opción de arranque.
 
 ## Siguientes lecturas
 
 - [Instalación y primeros pasos](getting-started.md)
 - [Privacidad y seguridad](privacy-security.md)
 - [Historia e inspiración](project-history.md)
-
-
-### Guardar solo la voz
-
-En Voz, **Guardar voz · nombre del motor** guarda el proveedor seleccionado, su voz y sus opciones. No guarda los cambios pendientes de IA, identidad o avatar, ni genera audio. Una clave vacía conserva la guardada. El mensaje confirma el guardado o explica qué falta; la voz se usa al iniciar o reiniciar Iris. El resumen final también sigue guardando la configuración completa.
-
-En fuente posterior a QA16, esta acción es principal y queda en una barra visible
-al desplazarte por el paso. Elegir una voz del catálogo Fish también marca los
-cambios pendientes. Explorar o escuchar muestras no guarda automáticamente una
-elección; el botón permite confirmar cuándo quieres conservarla.
-
-La muestra gratuita de Fish y **Escuchar voz seleccionada** comparten controles de reproducir, pausar y posición con los colores de Iris, accesibles con teclado. La prueba de una frase propia sigue siendo una síntesis con el proveedor y puede consumir cuota.

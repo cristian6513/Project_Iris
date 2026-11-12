@@ -46,12 +46,14 @@ _cache_token: bytes | None = None
 _cache_clips: list[dict[str, str]] = []
 _cache_source: tuple[str, ...] | None = None
 
-# Locomotion clips need room positioning. Old user manifests may override
-# runtime_only, so keep this boundary independent of overlay metadata.
-_ROOM_ONLY_ANIMATIONS = frozenset({
+# Room sequences and poses reserved for the local menu stay out of the agent
+# catalog even when an old profile replaces runtime_only.
+_LOCAL_ONLY_ANIMATIONS = frozenset({
+    "jump",
     "sit", "walk_in_place", "pc_sit_down_v2", "pc_seated_idle_v2",
-    "sofa_sit_down", "sofa_seated_idle", "sofa_stand_up", "walk",
+    "sofa_sit_down", "sofa_seated_idle", "sofa_stand_up", "walk", "walk_2",
     "bed_lie_down", "bed_lying_idle", "bed_get_up",
+    "bed_roll_prone", "bed_prone_idle", "bed_roll_supine",
     "bed_sit_down", "bed_seated_idle", "bed_stand_up", "bed_sit_up",
     "book_take", "book_read_idle", "book_return",
     "sofa_read_open", "sofa_read_idle", "sofa_read_close",
@@ -63,6 +65,7 @@ _ROOM_ONLY_ANIMATIONS = frozenset({
     "stand_read_open", "stand_read_idle", "stand_read_close",
     "stand_tablet_open", "stand_tablet_idle", "stand_tablet_close",
     "window_lean_in", "window_look_idle", "window_lean_out",
+    "desk_edge_idle",
 })
 
 
@@ -73,9 +76,9 @@ _BUILTIN_DESCRIPTIONS: dict[str, str] = {
     "think": "pensativa, mano en el mentón",
     "nod": "asentir",
     "shake": "negar",
-    "dance": "bailar",
-    "hair_touch": "tocarse el pelo",
-    "shy": "tímida",
+    "dance": "bailar (adorable o tipo idol)",
+    "hair_touch": "arreglarse el pelo",
+    "shy": "timidez o vergüenza, por ejemplo ante un halago",
     "sit": "sentarse",
     "lie": "tumbarse",
     "stretch": "estirarse",
@@ -95,6 +98,21 @@ _BUILTIN_DESCRIPTIONS: dict[str, str] = {
     "surprised": "mostrar sorpresa",
     "attention": "llamar la atención",
     "point": "señalar",
+    # Added in November 2026. Several gestures play one of their variants at random.
+    "sad": "tristeza o pena; lamentar algo o acompañar una mala noticia",
+    "laugh": "reírse de algo gracioso",
+    "scared": "susto o miedo",
+    "clap": "aplaudir, felicitar",
+    "heart": "corazón con las manos: cariño o agradecimiento",
+    "apologize": "pedir disculpas con una pequeña reverencia",
+    "shrug": "encogerse de hombros: no lo sé",
+    "idea": "¡ya sé!, se le ocurre una idea",
+    "annoyed": "fastidio: no me molestes, apartar algo con la mano",
+    "wave_cute": "saludo adorable",
+    "wave_flirty": "saludo coqueto, para una charla juguetona o si te lo piden",
+    "dance_sexy": "baile sensual, para una charla juguetona o si te lo piden",
+    "idle_yawn": "bostezar, tener sueño",
+    "idle_waiting": "esperar con impaciencia, golpeando el pie",
 }
 
 
@@ -146,7 +164,7 @@ def _list_vrma_fallback() -> list[dict[str, str]]:
         return [
             {"name": p.stem, "description": _humanise(p.stem)}
             for p in sorted(_ANIM_DIR.glob("*.vrma"))
-            if not MANAGED_FILENAME.fullmatch(p.name) and p.stem not in _ROOM_ONLY_ANIMATIONS
+            if not MANAGED_FILENAME.fullmatch(p.name) and p.stem not in _LOCAL_ONLY_ANIMATIONS
         ]
     except OSError:
         return []
@@ -180,8 +198,24 @@ def _reload_from_manifest(
     runtime_only = data.get("runtime_only", [])
     if not isinstance(runtime_only, list):
         runtime_only = []
+    # A gesture's variants play when the gesture is named; the agent sees the gesture only.
+    # This does not rely on runtime_only, which an old user manifest may replace.
+    variants = data.get("variants")
+    variant_only = {
+        clip
+        for gesture, members in (variants.items() if isinstance(variants, dict) else ())
+        if isinstance(members, list)
+        for clip in members
+        if isinstance(clip, str) and clip != gesture and clip not in variants
+    }
     for name, filename in clips.items():
-        if not isinstance(name, str) or not name or name in runtime_only or name in _ROOM_ONLY_ANIMATIONS:
+        if (
+            not isinstance(name, str)
+            or not name
+            or name in runtime_only
+            or name in variant_only
+            or name in _LOCAL_ONLY_ANIMATIONS
+        ):
             continue
         present = (
             name in confirmed_names
@@ -315,7 +349,7 @@ def normalize_agent_animation(value: object) -> str:
     if not requested:
         return "idle"
     canonical = _LEGACY_ANIMATION_ALIASES.get(requested, requested)
-    if canonical in _ROOM_ONLY_ANIMATIONS:
+    if canonical in _LOCAL_ONLY_ANIMATIONS:
         return "idle"
     if canonical in _SAFE_PROCEDURAL_ANIMATIONS:
         return canonical

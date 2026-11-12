@@ -30,11 +30,22 @@ NO_WINDOW = 0x08000000 if os.name == "nt" else 0
 # A cold start of the included engine imports hundreds of modules; on a slow PC
 # the first command can need far more than the few seconds a warm one takes.
 PACKAGED_MIN_TIMEOUT = 60
+# What the API server Iris talks to cannot use. A model's delegate_task always
+# runs detached there and nothing wakes Iris when it ends; execute_code is
+# refused on unattended platforms. Offered, each only costs the turn seconds.
+API_SERVER_TOOLS_OFF = ("delegation", "code_execution")
 
 
 def get_hermes_config_path() -> Path:
     """Return Hermes' canonical config.yaml path."""
     return get_hermes_home() / "config.yaml"
+
+
+def keep_unusable_tools_off(profile: str | None = None) -> bool:
+    """Verify the effective API tools in the profile this turn will use."""
+    from core.hermes_api_tools import ensure_api_tools
+
+    return ensure_api_tools(profile)
 
 
 def get_hermes_env_path() -> Path:
@@ -480,6 +491,7 @@ __all__ = [
     "hermes_timeout",
     "resolve_hermes_cli",
     "resolve_hermes_python",
+    "keep_unusable_tools_off",
     "run_hermes_cli",
 ]
 

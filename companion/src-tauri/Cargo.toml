@@ -1,6 +1,6 @@
 [package]
 name = "iris-desktop-companion"
-version = "0.1.8"
+version = "0.1.9"
 description = "Optional floating desktop presence for IRIS OS"
 authors = ["Project IRIS Contributors"]
 edition = "2021"
