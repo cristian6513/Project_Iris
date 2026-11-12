@@ -14,9 +14,10 @@ conservaron en el historial y en las copias de entrega de animación.
 
 El catálogo de fuente está en face/animations/manifest.json. El empaquetado usa
 los inventarios explícitos scripts/release_assets.json y
-core/factory_animation_inventory.py, con hashes. Los cuatro recursos antiguos
-sit, walk_in_place, pc_sit_down_v2 y pc_seated_idle_v2 pueden seguir en la fuente
-para pruebas/compatibilidad, pero **no forman parte de los 59 distribuidos** ni
+core/factory_animation_inventory.py, con hashes. Los dos recursos antiguos
+sit y walk_in_place pueden seguir en la fuente
+para pruebas/compatibilidad (los borradores pc_sit_down_v2 y pc_seated_idle_v2 se
+retiraron el 2026-11-11), pero **no forman parte de los 59 distribuidos** ni
 se ofrecen al agente como gestos.
 
 Los gestos del menú **Poses** se filtran por los recursos disponibles. Las

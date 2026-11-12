@@ -436,7 +436,19 @@ def _launch_iris_unlocked(
         if running_iris_pid(pending.pid):
             return pending
         if runtime.packaged and _pid_alive(pending.pid):
-            raise RuntimePolicyError("El proceso guardado no pertenece a este runtime; no se inició otra copia.")
+            from core.service_start_lock import recorded_process_gone
+
+            data = _read_packaged_pid_data()
+            # A reboot can leave a receipt whose PID now belongs to another
+            # application. Keep the receipt until a successful spawn replaces it.
+            if (data is None or data["pid"] != pending.pid or data["port"] != pending.port
+                    or data["started_at"] != pending.started_at
+                    or data["runtime"] != runtime_service_identity(get_iris_home())
+                    or not recorded_process_gone(pending.pid, data["process_created_at"])
+                    or _port_open(pending.port) or (port != pending.port and _port_open(port))):
+                raise RuntimePolicyError(
+                    "El proceso guardado no pertenece a este runtime; no se inició otra copia."
+                )
 
     root = runtime.iris_root if runtime.packaged else (project_root or runtime.iris_root)
     python = runtime.iris_python if runtime.descriptor_path else Path(sys.executable)

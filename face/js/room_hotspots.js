@@ -79,7 +79,9 @@ export const ROOM_HOTSPOTS = Object.freeze({
         position: [1.75, 0, -2.25],
         rotation: [0, 0, 0],
         teleport: true,
-        view: { position: [0.45, 0.25, 0.35], target: [1.75, -0.35, -2.2], minimumAspect: 1.5 },
+        // Head (y 0.78) to boots on the floor (-1.2) in 16:9; the old view (target -0.35) cut
+        // her head off, and the avatar zoom closed in on her legs (QA23).
+        view: { position: [0.25, 0.45, 0.75], target: [1.75, -0.05, -2.25], minimumAspect: 1.5 },
         cameraPreset: 'deskView',
         defaultExpression: 'feliz',
         defaultPoseOrAnimation: 'desk_edge',
@@ -228,8 +230,6 @@ export const ROOM_HOTSPOT_ACTIONS = Object.freeze({
     pc: 'pcSpot',
     use_pc: 'deskSeatSpot',
     sit_desk: 'deskSeatSpot',
-    use_pc_2: 'pcSeatSpot',
-    use_pc_blender: 'pcSeatSpot',
     buscar_internet: 'pcSeatSpot',
     watch_screen: 'pcSpot',
 

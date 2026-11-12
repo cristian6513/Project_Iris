@@ -1,9 +1,22 @@
 # Estado actual de IRIS OS
 
-Revisión documental: **2026-11-11**. Esta matriz distingue fuente, candidato de
+Revisión documental: **2026-11-12**. Esta matriz distingue fuente, candidato de
 QA y publicación. No sustituye los criterios del
 plan A08/F01–F16 (informe interno no distribuido) ni da por
 aprobada una instalación manual por haber pasado pruebas automáticas.
+
+## Iris OS 0.9.3 beta · QA24
+
+Fuente del candidato **02168be7** para Windows x64, con **Companion 0.1.9** y
+**Hermes 0.21.6**. Ajusta el encuadre de Iris en el borde del escritorio,
+corrige el giro del pie al descansar boca abajo y el pelo PMX al acostarse boca
+arriba. También corrige el cierre de ventanas de apps y la identificación de
+procesos guardados que ya pertenecen a otro programa.
+
+Se verificaron el paquete y la descarga desde 0.9.2 en un canal firmado local.
+La prueba del instalador reconoció QA23 como origen de la actualización.
+La activación y la revisión visual en WebView2 instalado siguen en QA.
+[SOURCE.json](../SOURCE.json) registra la procedencia y las huellas de QA24.
 
 ## Iris OS 0.9.3 beta · QA23
 

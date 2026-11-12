@@ -185,6 +185,145 @@ test('the worker uses split impulse on room resets and restores the Ammo default
     }
 });
 
+test('lying on the bed the worker holds her hair to her head as modelled, and lets it go still once clear of the furniture', async () => {
+    const source = workerSource.replace(/^import .+;\r?\n/gm, '')
+        .replace('import(/* @vite-ignore */ moduleUrl)', 'loadAmmo(moduleUrl)');
+    const runWorker = new Function('Bone', 'Object3D', 'MMDPhysics', 'self', 'globalThis', 'loadAmmo', 'fetch', source);
+    const { Ammo, world } = standInAmmo();
+    world.getSolverInfo = () => ({ get_m_splitImpulse: () => false, set_m_splitImpulse() {} });
+    // A body as Bullet keeps it: what the worker sets, and where it is (on its bone while it follows it).
+    class HeldBody {
+        constructor(mass) { this.mass = mass; this.flags = 0; this.speed = 'moving'; this.at = new THREE.Vector3(); }
+        getCollisionFlags() { return this.flags; }
+        setCollisionFlags(flags) { this.flags = flags; }
+        setMassProps(mass) { this.mass = mass; }
+        updateInertiaTensor() {}
+        getCollisionShape() { return { calculateLocalInertia() {} }; }
+        setActivationState(state) { this.activation = state; }
+        forceActivationState(state) { this.activation = state; }
+        clearForces() {}
+        setLinearVelocity() { this.speed = 'still'; }
+        setAngularVelocity() {}
+        getCenterOfMassTransform() {
+            const at = this.at;
+            return { getOrigin: () => ({ x: () => at.x, y: () => at.y, z: () => at.z }) };
+        }
+    }
+    class MMDPhysics {
+        constructor(mesh, bodies) {
+            this.world = world;
+            this.bodies = bodies.map(params => ({
+                params, bone: mesh.skeleton.bones[params.boneIndex], body: new HeldBody(params.type ? params.weight : 0),
+                updateFromBone() { if (this.params.type === 0) this.bone.getWorldPosition(this.body.at); },
+            }));
+        }
+        reset() {}
+        // Physics swings whatever it moves.
+        update() { for (const { params, bone } of this.bodies) if (params.type !== 0) bone.position.set(9, 9, 9); }
+    }
+    const replies = [];
+    const scope = { postMessage: reply => replies.push(reply) };
+    runWorker(THREE.Bone, THREE.Object3D, MMDPhysics, scope, scope,
+        async () => ({ default: async () => Ammo }),
+        async () => ({ ok: true, arrayBuffer: async () => new ArrayBuffer(0) }));
+    // Root, head (1.5 up), a lock of hair under the head (modelled 0.5 under it) and the skirt.
+    const parents = [-1, 0, 1, 0];
+    const pose = (hair) => Float32Array.from([0, 0, 0, 0, 0, 0, 1, 0, 1.5, 0, 0, 0, 0, 1, ...hair, 0, 0, 0, 1, 0, 0.8, 0, 0, 0, 0, 1]);
+    const body = (boneIndex, type) => ({ boneIndex, type, weight: 1, width: 0.1, height: 0, depth: 0, shapeType: 0 });
+    const bodies = [body(1, 0), body(2, 1), body(3, 1)];
+    const step = 1 / 65;
+    await scope.onmessage({ data: { kind: 'init', assets: 'https://iris.invalid/ammo/', parents, bodies, constraints: [],
+        transforms: pose([0, -0.5, 0]), step, head: 1 } });
+    const hairLock = bodies[1], skirt = bodies[2];
+    const send = async (hold, furniture = null) => {
+        await scope.onmessage({ data: { kind: 'step', transforms: pose([5, 5, 5]), furniture, hold, step, delta: step } });
+        return Array.from(replies.at(-1).transforms.slice(14, 17));
+    };
+    // A box around her head and the lock (as the mattress is while she lies), and one far away.
+    const box = (x, y, z, turn = [0, 0, 0, 1], half = [0.5, 0.5, 0.5]) => Float32Array.from([x, y, z, ...turn, ...half]);
+    const around = box(0, 1, 0);
+
+    assert.deepEqual(await send(false), [9, 9, 9], 'free: physics moves it');
+    assert.deepEqual(await send(true, around), [0, -0.5, 0], 'held: modelled under her head, whatever it was');
+    assert.equal(hairLock.type, 0, 'it follows its bone');
+    assert.equal(skirt.type, 1, 'her skirt keeps its physics');
+    assert.deepEqual(await send(false, around), [0, -0.5, 0], 'let go inside the mattress, it would be thrown out of it');
+    // Turned a quarter about the up axis, a long thin box reaches it along z (as a narrow one would not).
+    const quarter = [0, Math.SQRT1_2, 0, Math.SQRT1_2];
+    assert.deepEqual(await send(false, box(0, 1, 1.5, quarter, [2, 0.1, 0.1])), [0, -0.5, 0], 'turned furniture still holds it');
+    assert.deepEqual(await send(false, box(0, 1, 1.5, [0, 0, 0, 1], [2, 0.1, 0.1])), [9, 9, 9], 'clear of it: free');
+    assert.equal(hairLock.type, 1);
+    assert.deepEqual(await send(true), [0, -0.5, 0], 'held again');
+    assert.deepEqual(await send(false, box(5, 0, 0)), [9, 9, 9], 'nothing around it: free at once');
+});
+
+test('the held bodies follow their bones like type 0 ones, touch nothing, and come back still with their mass', async () => {
+    const source = workerSource.replace(/^import .+;\r?\n/gm, '')
+        .replace('import(/* @vite-ignore */ moduleUrl)', 'loadAmmo(moduleUrl)');
+    const runWorker = new Function('Bone', 'Object3D', 'MMDPhysics', 'self', 'globalThis', 'loadAmmo', 'fetch', source);
+    const { Ammo, world } = standInAmmo();
+    world.getSolverInfo = () => ({ get_m_splitImpulse: () => false, set_m_splitImpulse() {} });
+    const rigid = [];
+    class Body {
+        constructor(mass) { this.mass = mass; this.flags = 0; this.activation = 1; this.speed = 'moving'; }
+        getCollisionFlags() { return this.flags; }
+        setCollisionFlags(flags) { this.flags = flags; }
+        setMassProps(mass) { this.mass = mass; }
+        updateInertiaTensor() {}
+        getCollisionShape() { return { calculateLocalInertia() {} }; }
+        setActivationState(state) { this.activation = state; }
+        forceActivationState(state) { this.activation = state; }
+        clearForces() {}
+        setLinearVelocity() { this.speed = 'still'; }
+        setAngularVelocity() {}
+        getCenterOfMassTransform() { return { getOrigin: () => ({ x: () => 0, y: () => 0, z: () => 0 }) }; }
+    }
+    class MMDPhysics {
+        constructor(mesh, bodies) {
+            this.world = world;
+            this.bodies = bodies.map(params => {
+                const rb = { params, body: new Body(params.type ? params.weight : 0), updateFromBone() {} };
+                rigid.push(rb);
+                return rb;
+            });
+        }
+        reset() {}
+        update() {}
+    }
+    const scope = { postMessage() {} };
+    runWorker(THREE.Bone, THREE.Object3D, MMDPhysics, scope, scope,
+        async () => ({ default: async () => Ammo }),
+        async () => ({ ok: true, arrayBuffer: async () => new ArrayBuffer(0) }));
+    const transforms = new Float32Array(3 * 7);
+    for (let i = 0; i < 3; i++) transforms[i * 7 + 6] = 1;
+    await scope.onmessage({ data: { kind: 'init', assets: 'https://iris.invalid/ammo/', parents: [-1, 0, 1], transforms,
+        bodies: [{ boneIndex: 1, type: 0, weight: 1 }, { boneIndex: 2, type: 2, weight: 0.3, width: 0.1, shapeType: 0 }],
+        constraints: [], step: 1 / 65, head: 1 } });
+    const send = hold => scope.onmessage({ data: { kind: 'step', transforms, hold, step: 1 / 65, delta: 1 / 65 } });
+    const lock = rigid[1];
+    await send(true);
+    assert.equal(lock.params.type, 0);
+    assert.equal(lock.body.mass, 0);
+    assert.equal(lock.body.flags & 6, 6, 'kinematic, with no contact response');
+    assert.equal(lock.body.activation, 4);
+    await send(false);
+    assert.equal(lock.params.type, 2, 'back to its own type');
+    assert.equal(lock.body.mass, 0.3);
+    assert.equal(lock.body.flags, 0);
+    assert.equal(lock.body.activation, 1);
+    assert.equal(lock.body.speed, 'still');
+    assert.equal(rigid[0].body.flags, 0, 'the head is not touched');
+});
+
+test('the driver sends the head and whether to hold, and eases the hair into its held shape', () => {
+    const driver = readFileSync(new URL('../../face/js/pmx_physics.js', import.meta.url), 'utf8');
+    assert.match(driver, /transforms, bodies, constraints, step, head,/);
+    assert.match(driver, /furniture: placed, hold,/);
+    assert.match(driver, /holdHair\(on\) \{/);
+    const avatar = readFileSync(new URL('../../face/js/pmx_avatar.js', import.meta.url), 'utf8');
+    assert.match(avatar, /holdHair\(on\) \{ physics\?\.holdHair\(on\); \}/);
+});
+
 test('the worker keeps the furniture as kinematic boxes with no speed: when she turns or jumps they never throw her clothes', () => {
     const { Ammo, world } = standInAmmo();
     globalThis.Ammo = Ammo;

@@ -730,6 +730,11 @@ export class VRMAvatar {
         this._lyingHips.set(weight, delta);
     }
 
+    /** Lying on the bed: a PMX avatar's hair keeps its modelled shape (pmx_physics.js). */
+    holdHair(on) {
+        this.vrm?.holdHair?.(on);
+    }
+
     /** Held lying on her back or front: once, read where her body rests (LyingHips). */
     measureLyingHips(kind) {
         if (!this.vrm) return null;

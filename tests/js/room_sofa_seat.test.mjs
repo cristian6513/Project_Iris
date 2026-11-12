@@ -397,6 +397,43 @@ test('the camera eases to a spot, frames her there, and eases home the same way'
     assert.deepEqual(camera.position.toArray(), [0.34, 1.38, 4.95]);
 });
 
+// IRIS on the desk edge, measured in the room: the top of her head and both boots.
+const DESK_EDGE_HEAD = [1.74, 0.78, -2.44];
+const DESK_EDGE_POINTS = [[1.74, 0.96, -2.44], [2.05, -0.75, -1.45], [1.56, -0.75, -1.8]];
+
+test('on the desk edge the view keeps her head and boots in frame, wide or narrow (QA23)', () => {
+    const spot = ROOM_HOTSPOTS.deskEdgeSpot;
+    for (const aspect of [16 / 9, 5 / 4]) {
+        const { camera, view } = cameraFixture(aspect);
+        for (let t = 0; t < 3.2; t += 1 / 30) view.update(1 / 30, 0, spot.view);
+        camera.updateMatrixWorld(true);
+        for (const point of DESK_EDGE_POINTS) {
+            const ndc = new THREE.Vector3(...point).project(camera);
+            assert.ok(Math.abs(ndc.x) < 0.95 && Math.abs(ndc.y) < 0.95,
+                `${aspect.toFixed(2)}: ${point} at ${ndc.x.toFixed(2)}, ${ndc.y.toFixed(2)}`);
+        }
+    }
+});
+
+test('the avatar zoom closes in on her head, not on the middle of the view', () => {
+    const spot = ROOM_HOTSPOTS.deskEdgeSpot;
+    const headAt = (zoom, focus) => {
+        const { camera, view } = cameraFixture();
+        camera.zoom = zoom;
+        camera.updateProjectionMatrix();
+        for (let t = 0; t < 3.2; t += 1 / 30) view.update(1 / 30, 0, spot.view, focus);
+        camera.updateMatrixWorld(true);
+        return new THREE.Vector3(...DESK_EDGE_HEAD).project(camera);
+    };
+    const plain = headAt(1, DESK_EDGE_HEAD), unfocused = headAt(1, null);
+    assert.ok(Math.abs(plain.x - unfocused.x) < 1e-9 && Math.abs(plain.y - unfocused.y) < 1e-9, 'at 1x nothing changes');
+    const most = headAt(2.5, DESK_EDGE_HEAD);
+    assert.ok(Math.hypot(most.x, most.y) < 1e-6, 'at the most, her head is the centre');
+    const half = headAt(1.75, DESK_EDGE_HEAD), pushed = headAt(1.75, null);
+    assert.ok(Math.abs(half.y) < 0.9, 'halfway, her head stays in frame');
+    assert.ok(pushed.y > half.y, 'without the pull the zoom pushed her head up and out');
+});
+
 test('a narrow window backs the seat view off, and leaving Explorar resets it at once', () => {
     const { camera, view } = cameraFixture(0.9);
     for (let t = 0; t < 3.1; t += 1 / 30) view.update(1 / 30, 0, seat.view);
@@ -547,6 +584,26 @@ test('lying on the bed she rolls over and back where she is, and from the edge s
     assert.equal(player.currentName, 'bed_prone_idle');
 });
 
+test('rolling back from face down, her feet come down over 0.6 s from wherever they are in the loop', () => {
+    for (const leave of ['return_center', 'speech', 'sit_bed']) {
+        const { idle, player, scenes, advance } = seatFixture();
+        idle.update(1 / 30, 0);
+        scenes.execute('lie_bed_prone');
+        const { turnIn, walk, turnOut } = scenes.hotspotTransition.route;
+        advance((turnIn * 0.6 + walk + turnOut) / 1000 + 2.4);
+        assert.equal(player.currentName, 'bed_prone_idle');
+        if (leave === 'speech') scenes.freeHands();
+        else scenes.execute(leave);
+        assert.equal(player.currentName, 'bed_roll_supine', leave);
+        advance(0.3);
+        const early = player.current.getEffectiveWeight();
+        assert.ok(early > 0.2 && early < 0.8, `${leave}: still easing in at 0.3 s (${early.toFixed(2)})`);
+        advance(0.5);
+        assert.equal(player.currentName, 'bed_roll_supine');
+        assert.ok(player.current.getEffectiveWeight() > 0.98, `${leave}: in by 0.8 s`);
+    }
+});
+
 test('spoken to face down, she rolls onto her back and sits up on the edge', () => {
     const { idle, player, scenes, advance } = seatFixture();
     idle.update(1 / 30, 0);
@@ -604,6 +661,47 @@ test('her hips take IRIS\' place only while her back rests on the bed', () => {
     idle.currentPose = 'sofa_seated';
     clip('sofa_seated_idle', 1);
     assert.equal(idle._lyingWeight(), 0, 'seated on the sofa');
+});
+
+test('a PMX avatar\'s hair is held to her head while she lies on her back, not face down or on the desk edge', () => {
+    const { idle, player } = seatFixture();
+    const held = [];
+    idle.avatar.avatar.holdHair = on => held.push(on);
+    idle.update(1 / 30, 0);
+    assert.equal(held.at(-1), false, 'standing: asked every frame');
+    const clip = (name, time) => { player.play(name, { loop: false, fadeIn: 0 }); player.current.time = time; };
+    clip('bed_lie_down', 2.2);
+    assert.equal(idle._holdsHair(), false, 'sitting on the edge');
+    clip('bed_lie_down', 3.0);
+    assert.equal(idle._holdsHair(), true, 'lying back');
+    idle.currentPose = 'bed_lying';
+    clip('bed_lying_idle', 1);
+    assert.equal(idle._holdsHair(), true, 'on her back');
+    clip('bed_roll_supine', 0.3);
+    assert.equal(idle._holdsHair(), true, 'rolled back onto her back');
+    // Face down her hair rests on her back: free, from the roll onto her front until she rolls back.
+    idle.currentPose = 'bed_prone';
+    clip('bed_lie_down', 4.8);
+    assert.equal(idle._holdsHair(), true, 'on her back first');
+    for (const name of ['bed_roll_prone', 'bed_prone_idle']) {
+        clip(name, 0.5);
+        assert.equal(idle._holdsHair(), false, name);
+    }
+    clip('bed_roll_supine', 0.3);
+    assert.equal(idle._holdsHair(), true, 'rolling back before she gets up');
+    clip('bed_get_up', 0.2);
+    assert.equal(idle._holdsHair(), true, 'getting up');
+    idle.currentPose = null;
+    clip('bed_get_up', 2.1);
+    assert.equal(idle._holdsHair(), false, 'sitting up: physics lets go once the hair is clear of the bed');
+    idle.currentPose = 'desk_edge';
+    clip('desk_edge_idle', 1);
+    assert.equal(idle._lyingWeight(), 1, 'her hips at IRIS\' height');
+    assert.equal(idle._holdsHair(), false, 'but seated upright');
+    idle.currentPose = 'bed_lying';
+    clip('bed_lying_idle', 1);
+    idle.update(1 / 30, 1);
+    assert.equal(held.at(-1), true);
 });
 
 test('the camera waits for her to be nearly up before it leaves', () => {

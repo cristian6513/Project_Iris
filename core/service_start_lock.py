@@ -3,11 +3,25 @@
 from __future__ import annotations
 
 import asyncio
+import math
 import os
 import time
 from contextlib import asynccontextmanager, contextmanager
 
 from core.config import get_iris_home
+
+
+def recorded_process_gone(pid: int, created: float) -> bool:
+    """True only when the recorded process provably no longer runs."""
+    import psutil
+
+    try:
+        live_created = float(psutil.Process(pid).create_time())
+    except psutil.NoSuchProcess:
+        return True
+    except (psutil.Error, OSError, ValueError):
+        return False  # Uninspectable: preserve the existing launch guard.
+    return math.isfinite(live_created) and abs(live_created - created) > 0.001
 
 
 def _open_lock(service: str):

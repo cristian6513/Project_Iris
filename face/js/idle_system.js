@@ -58,6 +58,12 @@ const BED_LYING_DRAPE = Object.freeze({
     stand: [[0.7, 0], [1.7, 1], [2.8, 1], [3.5, 0]],
 });
 const BED_LYING_LIES = Object.freeze({ held: 1, sit: [[2.6, 0], [4.6, 1]], stand: [[0.4, 1], [2.0, 0]] });
+// From how far she lies back a PMX avatar's hair is held to her head (pmx_physics.js holdHair).
+const HAIR_HOLD_FROM = 0.02;
+// Rolling back from face down, wherever her feet are in the loop: they come down to where the roll
+// starts over this long (s), the stretch where her hips have not begun to turn. 0.2 s flicked
+// her shins through some 85 degrees.
+const PRONE_EXIT_FADE = 0.6;
 
 const SEATS = Object.freeze({
     sofa_seated: Object.freeze({
@@ -173,7 +179,7 @@ const SEATS = Object.freeze({
         stand: 'bed_get_up',
         joins: Object.freeze({
             bed_seated: Object.freeze({ clip: 'bed_lie_down', at: 2.3 }),
-            bed_prone: Object.freeze({ clip: 'bed_roll_supine', at: 0, drape: [[0, 0]], lies: [[0, 1]] }),
+            bed_prone: Object.freeze({ clip: 'bed_roll_supine', at: 0, drape: [[0, 0]], lies: [[0, 1]], fade: PRONE_EXIT_FADE }),
         }),
         drape: BED_LYING_DRAPE,
         // How far her back rests on the bed, as her hips tip back from upright to flat
@@ -187,6 +193,7 @@ const SEATS = Object.freeze({
         sit: 'bed_lie_down',
         then: 'bed_roll_prone',
         closes: 'bed_roll_supine',
+        closesFade: PRONE_EXIT_FADE,
         stand: 'bed_get_up',
         base: 'bed_lying',
         joins: Object.freeze({ bed_lying: Object.freeze({ clip: 'bed_roll_prone', at: 0, drape: [[0, 0]], lies: [[0, 1]] }) }),
@@ -274,7 +281,6 @@ const IDLE_POSES = [
     // ── Risky: move arms or legs, need VRMA (or proper cloth rig) ────
     { name: 'pc_focus_idle', tier: 'safe',  weight: 0,  duration: 18000, continuous: false, label: null },
     { name: 'pc_seated_idle', tier: 'safe',  weight: 0, duration: 86400000, continuous: false, label: null },
-    { name: 'pc_seated_idle_v2', tier: 'safe', weight: 0, duration: 86400000, continuous: false, label: null },
     { name: 'sofa_seated',   tier: 'custom', weight: 0, duration: Infinity, continuous: false, label: null },
     { name: 'bed_lying',     tier: 'custom', weight: 0, duration: Infinity, continuous: false, label: null },
     { name: 'bed_prone',     tier: 'custom', weight: 0, duration: Infinity, continuous: false, label: null },
@@ -971,7 +977,7 @@ export class IdleSystem {
         return true;
     }
 
-    _startSeatedSequence(seatedClip, { sitClip = 'pc_sit_down', clipKey = 'pc_seated_idle', thenClip = null } = {}) {
+    _startSeatedSequence(seatedClip, { sitClip = 'pc_sit_down', clipKey = 'pc_seated_idle', thenClip = null, sitFade = 0.28 } = {}) {
         if (!this._vrmaPlayer) return false;
         if (!this._vrmaPlayer.hasAnimation?.(sitClip)) {
             return this._startLoopingInteractionClip(seatedClip, clipKey, {
@@ -983,7 +989,7 @@ export class IdleSystem {
         this._detachVrmaFinishedHandler();
         const ok = this._vrmaPlayer.play(sitClip, {
             loop: false,
-            fadeIn: 0.28,
+            fadeIn: sitFade ?? 0.28,
             fadeOut: 0.18,
         });
         if (!ok) {
@@ -1146,7 +1152,7 @@ export class IdleSystem {
             this.currentPose = null;
             this._shiftAfterClosing = name;
             return this._startOneShotClip(here.closes, here.closes, {
-                fadeIn: 0.2,
+                fadeIn: here.closesFade ?? 0.2,
                 then: () => {
                     this.currentPose = here.base;
                     if (this._shiftAfterClosing === name) this.shiftSeat(name);
@@ -1161,7 +1167,9 @@ export class IdleSystem {
         const step = seat.joins?.[this.currentPose] ?? through;
         if (!step || !this._vrmaPlayer.hasAnimation(step.clip)) return false;
         this.currentPose = name;
-        this._startSeatedSequence(seated, { sitClip: step.clip, clipKey: name, thenClip: through && step === through ? seat.then : null });
+        this._startSeatedSequence(seated, {
+            sitClip: step.clip, clipKey: name, thenClip: through && step === through ? seat.then : null, sitFade: step.fade,
+        });
         this._vrmaPlayer.current.time = step.at;
         return true;
     }
@@ -1178,7 +1186,7 @@ export class IdleSystem {
         this._manualPoseActive = false;
         this.poseTimer = 0;
         const rise = () => this._startOneShotClip(seat.stand, seat.stand, { fadeIn: 0.2, fadeOut: 0.25 });
-        return seat.closes ? this._startOneShotClip(seat.closes, seat.closes, { fadeIn: 0.2, then: rise }) : rise();
+        return seat.closes ? this._startOneShotClip(seat.closes, seat.closes, { fadeIn: seat.closesFade ?? 0.2, then: rise }) : rise();
     }
 
     resume() {
@@ -1232,7 +1240,7 @@ export class IdleSystem {
         const group = this.avatar?.avatar?.group;
         if (!group) return false;
         const clip = this._vrmaClipFor(pose.name);
-        const playableClip = pose.name === 'pc_seated_idle_v2' ? null : clip;
+        const playableClip = clip;
 
         // Block body-movement poses (arms/legs/walking) unless a VRMA clip
         // is available. The procedural fallbacks look broken on most rigs
@@ -1270,22 +1278,6 @@ export class IdleSystem {
         this.poseDuration = pose.duration;
         this._captureReturnBaseline(group);
         this._setAnimationBlinkSuppressed(true);
-
-        // The draft Blender/GLB PC clip is useful as reference, but its
-        // retarget axes are not stable across our VRM0 avatars yet. Drive
-        // Use PC 2 procedurally through normalized bones so the pose stays
-        // seated, feet-flat, and screen-facing instead of drifting into a
-        // T-pose/head-up posture.
-        if (pose.name === 'pc_seated_idle_v2') {
-            this._detachVrmaFinishedHandler();
-            this._vrmaActive = false;
-            this._vrmaExternalClip = null;
-            this._vrmaPoseManagedByMixer = null;
-            this._resetBoneTargetsToRest();
-            this.timer = 0;
-            this.nextAction = this._randomInterval();
-            return true;
-        }
 
         // Prefer a VRMA clip if one is available for this pose.
         // Routing through `_startOneShotClip` guarantees the
@@ -1395,6 +1387,7 @@ export class IdleSystem {
             this.avatar?.avatar?.measureLyingHips?.(rests);
         }
         this.avatar?.avatar?.setLyingHips?.(this._lying < 1e-3 ? 0 : this._lying, delta);
+        this.avatar?.avatar?.holdHair?.(this._holdsHair());
         this.avatar?.avatar?.setHandReach?.(this._handReachWeight());
 
         // Smooth return runs even while paused (so interrupting lie_bed still
@@ -1483,7 +1476,7 @@ export class IdleSystem {
             ? Math.max(0, (this.poseDuration - this.poseTimer) / 800)
             : 1;
         const ease = (enter * enter * (3 - 2 * enter)) * exit;
-        const seatDrop = this.currentPose === 'pc_seated_idle_v2' ? 0.58 : 0.50;
+        const seatDrop = 0.50;
         group.position.y = this._savedPosition.y - seatDrop * ease;
     }
 
@@ -1539,6 +1532,19 @@ export class IdleSystem {
             }
         }
         return SEATS[this.currentPose]?.drape.held ?? 0;
+    }
+
+    /**
+     * Lying on her back, a PMX avatar's hair keeps its modelled shape (pmx_physics.js holdHair):
+     * its stiff joints arced it over the mattress or caught it under her. Face down it rests on
+     * her back and falls free; the desk edge's `lies` only lifts her hips.
+     */
+    _holdsHair() {
+        const seat = SEATS[this.currentPose];
+        if (seat?.teleport || !(this._lyingWeight() > HAIR_HOLD_FROM)) return false;
+        if (seat?.rests !== 'front') return true;
+        const name = this._vrmaPlayer?.currentName;
+        return name === seat.sit || name === seat.closes || name === seat.stand;
     }
 
     /** 0 upright, 1 with her back on the bed. */
@@ -2104,50 +2110,6 @@ export class IdleSystem {
                     this._setBone('rightHand',     -0.34 * ease - handPulse * 0.25, -0.02 * ease, 0);
                 } else {
                     group.rotation.x = this._savedRotation.x - 0.04 * ease;
-                }
-                break;
-            }
-
-            case 'pc_seated_idle_v2': {
-                // Stable Use PC 2 pose. This intentionally bypasses the draft
-                // GLB clip until we have a verified Blender export pipeline for
-                // VRM0 axes. The root drop seats IRIS; normalized bone offsets
-                // keep both hands forward over the keyboard without crossing.
-                const poseSeconds = this.poseTimer / 1000;
-                const enter = Math.min(poseSeconds / 0.65, 1);
-                const ease = enter * enter * (3 - 2 * enter);
-                const breath = Math.sin(elapsed * 1.15) * 0.006 * ease;
-                const typing = Math.sin(elapsed * 9.0) * 0.018 * ease;
-
-                group.position.y = this._savedPosition.y - 0.60 * ease;
-                this._resetBoneTargetsToRest();
-
-                if (boneMode) {
-                    // Lower body: seated, knees bent, feet left at rest so the
-                    // high-heel bones do not point backward or float.
-                    this._setBone('hips',          -0.10 * ease, 0, 0);
-                    this._setBone('leftUpperLeg',   1.42 * ease, 0,  0.018 * ease);
-                    this._setBone('rightUpperLeg',  1.42 * ease, 0, -0.018 * ease);
-                    this._setBone('leftLowerLeg',  -1.48 * ease, 0, 0);
-                    this._setBone('rightLowerLeg', -1.48 * ease, 0, 0);
-
-                    // Upright workstation focus: slight forward attention, no
-                    // yaw, so the head does not snap left/right or look upward.
-                    this._setBone('spine', -0.020 * ease + breath, 0, 0);
-                    this._setBone('chest', -0.014 * ease + breath, 0, 0);
-                    this._setBone('neck',  -0.018 * ease, 0, 0);
-                    this._setBone('head',  -0.030 * ease, 0, 0);
-
-                    // VRM normalized arm X is mirrored: left -X forward, right
-                    // +X forward. Keep Z close to rest to avoid open/T-pose arms.
-                    this._setBone('leftUpperArm',  -0.72 * ease, -0.015 * ease, 0);
-                    this._setBone('rightUpperArm',  0.72 * ease,  0.015 * ease, 0);
-                    this._setBone('leftLowerArm',  -0.86 * ease + typing, 0.018 * ease, 0);
-                    this._setBone('rightLowerArm',  0.86 * ease - typing, -0.018 * ease, 0);
-                    this._setBone('leftHand',       0.08 * ease + typing, 0, 0);
-                    this._setBone('rightHand',     -0.08 * ease - typing, 0, 0);
-                } else {
-                    group.rotation.x = this._savedRotation.x - 0.018 * ease;
                 }
                 break;
             }

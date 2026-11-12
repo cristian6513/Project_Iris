@@ -288,14 +288,14 @@
       "sha256": "7486e2d722789f8d9b31c5ebcad03bc2108ddcb31e81aeed64c217a58bf9e6bc"
     },
     {
-      "path": "face/assets/companion-BusmtC8L.js",
-      "size": 59157,
-      "sha256": "67128cbb23a5a18ce42614c77a1165dcd77e84e3218d721a5fb1a469367a553e"
-    },
-    {
       "path": "face/assets/companion-C-yUlb1H.css",
       "size": 37596,
       "sha256": "2c3cf5453bc3d645857bf7a2d6dca19682b022342fdeff3e924f4241303fc47e"
+    },
+    {
+      "path": "face/assets/companion-r3GG6SBh.js",
+      "size": 59157,
+      "sha256": "1f3fc1d6bed95394ad124d13ba81a68a64fd9fbbcbaada4dc23b6b093e7bf590"
     },
     {
       "path": "face/assets/core-CwxXejkd.js",
@@ -308,14 +308,14 @@
       "sha256": "cc4f57381cd37b91ed6a0ce56c3326578aaaf1d8da3be9b0e8a89245ae94417f"
     },
     {
-      "path": "face/assets/face-CF8qPy7s.css",
-      "size": 375466,
-      "sha256": "e4efce7226b7bfa43010c8cb6dd01c041640920e62fd28ed4e890176eea99725"
+      "path": "face/assets/face-tuXUZc4y.js",
+      "size": 1018077,
+      "sha256": "a52aad61af7204d5423eecc0e07c25ead373fadc4d66cee9374c354f0037d25c"
     },
     {
-      "path": "face/assets/face-pFka5UPJ.js",
-      "size": 1018070,
-      "sha256": "00967db06a9b65eb82181ee76378f9d4ea42f1c3a4bdeaf8363c2bc675719df7"
+      "path": "face/assets/face-u6Cd_-qY.css",
+      "size": 375516,
+      "sha256": "b46cd127f19398a06542eabae9c5e9076c4b1b993649731bf539e477ca91d908"
     },
     {
       "path": "face/assets/fbx_retargeter-BXNYJYoD.js",
@@ -353,14 +353,14 @@
       "sha256": "d8169ce2c30014fdf3617a16a782477599df072d2923e9973a551b6069b08d22"
     },
     {
-      "path": "face/assets/main-C9hJSSxq.js",
-      "size": 25174,
-      "sha256": "01a610189d5fd54e1600feac4dc14e10ac3e803c3e78ac7807842ac26ce3b97e"
-    },
-    {
       "path": "face/assets/main-CMY2r0sf.js",
       "size": 12873,
       "sha256": "fddbb4553fadf29deb7b41936c908a3b0b263d820f527f928c6bc7eb07aeee09"
+    },
+    {
+      "path": "face/assets/main-DXDANBn5.js",
+      "size": 25174,
+      "sha256": "dbc4643cdbc3f51de4d7737a8e1d760202464419c420218c2083f784c65f045c"
     },
     {
       "path": "face/assets/main-T9q3UK-P.js",
@@ -388,19 +388,19 @@
       "sha256": "5d5e3734089a74707292ce8a3e186def34cd63e33879f9ac3689a8d8da9d0706"
     },
     {
-      "path": "face/assets/pmx_avatar-BoL3glZK.js",
-      "size": 175515,
-      "sha256": "5e15c86314f6fcb628bbb0782a92fabce0e7b6860dd899671e20035ade9262ca"
+      "path": "face/assets/pmx_avatar-BOYCHx2t.js",
+      "size": 175551,
+      "sha256": "b1091d7bbd9d637119d57d1cb0ee0676f6e169f3db0fa614725265bfd85f9254"
     },
     {
-      "path": "face/assets/pmx_physics-CcfFk0df.js",
-      "size": 4089,
-      "sha256": "ba6e17d91883e14d0c8c28334588770d2cf329db2057a1a665ed8bf6fe7c0181"
+      "path": "face/assets/pmx_physics-DITlML6V.js",
+      "size": 4596,
+      "sha256": "3c5d6b460c290bff699601d18c94ba434c0f51463f5aa7ad436fa6e259157643"
     },
     {
-      "path": "face/assets/pmx_physics_worker-DJpzEDPo.js",
-      "size": 305960,
-      "sha256": "c078a85ae6f48794933ad450ad9821110c1682e1600acb71b6bc81ac19f1f697"
+      "path": "face/assets/pmx_physics_worker-C_ye2-x7.js",
+      "size": 307690,
+      "sha256": "7869be82e8da7392b4d85c2700f6a1a4b43349b929b8371bb22bdbe912751a45"
     },
     {
       "path": "face/assets/preload-helper-Z5bpiab9.js",
@@ -438,9 +438,9 @@
       "sha256": "9b9df88b2c443a96ab3bd6f5f8396424490ae77f486949ce3d45e048fc2adc99"
     },
     {
-      "path": "face/assets/surface_protocol-Ds913BrV.js",
-      "size": 234880,
-      "sha256": "7c71399b170fa0f84aef381b6460a5c226303557a76ba38215fff3c01baff367"
+      "path": "face/assets/surface_protocol-D7BNV2I4.js",
+      "size": 234148,
+      "sha256": "df0f63f94a449dd85ebc6ee9f6e83e8f89e450b9f797736e65495671e15c124c"
     },
     {
       "path": "face/assets/syne-latin-600-normal-BiwQbQXw.woff2",
@@ -520,7 +520,7 @@
     {
       "path": "face/companion/companion.js",
       "size": 66568,
-      "sha256": "9a53ed4f00b6c346576bd8e16ca86621ee42d88bb5ec701c9d6f47d3de246e84"
+      "sha256": "646b6d342419381344d1d2bd6be05e3c27fbaf48719fc9aeaacde3d7dd7c2787"
     },
     {
       "path": "face/companion/fonts/outfit-latin-400-normal.woff2",
@@ -555,7 +555,7 @@
     {
       "path": "face/companion/index.html",
       "size": 6635,
-      "sha256": "d3b73b47e0b5a082907839cb20e036eb0430fdfd0fbad5d617c7c05339e39f41"
+      "sha256": "2718bc4b350c9c4f581232105500810d10e61d2aa27c14742b7e3b90364de147"
     },
     {
       "path": "face/css/async_agents.css",
@@ -639,13 +639,13 @@
     },
     {
       "path": "face/css/styles.css",
-      "size": 384771,
-      "sha256": "7102e441b71bf2154ae241bb1f976018fc5e300570d0e066b2c2dbb2c8804fd6"
+      "size": 384844,
+      "sha256": "9f05d794c0ee53873f6cb4c325337e7ea7ddb7cb703d9f1924105badeff7eea9"
     },
     {
       "path": "face/index.html",
-      "size": 41215,
-      "sha256": "00482e3693c1bd0d1c9fcd05303a971be4cfac941452b2578070d5f2ac953d2b"
+      "size": 41118,
+      "sha256": "969dcb68269004e485d5ade7db98d9a981be2eb3410a80386acb49d6caef0f5d"
     },
     {
       "path": "face/js/ambient_audio.js",
@@ -669,8 +669,8 @@
     },
     {
       "path": "face/js/app.js",
-      "size": 118239,
-      "sha256": "6450a3c657b30bb96fb981525eea7e2a76098ca951f605f11f705b254ec2186b"
+      "size": 118684,
+      "sha256": "3fc1e633a836390f6b394a7976c1f7db1f37eee97ffd8a9435f5494744b05db9"
     },
     {
       "path": "face/js/app_ask_iris.js",
@@ -714,8 +714,8 @@
     },
     {
       "path": "face/js/avatar.js",
-      "size": 49590,
-      "sha256": "82078d40e278a86e05c229d20a4f5763714f268c0f74a6d1c6436fb7124bc75f"
+      "size": 49742,
+      "sha256": "519c05b7dd4c756683dc1f3b5a89361dd5a72a212a70193a9875d5b2f5adc9b3"
     },
     {
       "path": "face/js/avatar_activity.js",
@@ -884,13 +884,13 @@
     },
     {
       "path": "face/js/hermes_activity.js",
-      "size": 415838,
-      "sha256": "5a05afcae0ea07382a2611ab5cc2f4c3de7da5bf19d946e87db5094579bafdce"
+      "size": 416225,
+      "sha256": "6a5636fcec2b8389c065958b1069d7162bc805f07d2faeca02ccdf23958008c0"
     },
     {
       "path": "face/js/idle_system.js",
-      "size": 122585,
-      "sha256": "5fc4c91ef6496a22b24c16f2d5dba8dc54b3437210d832fe0cc2207dd8fa816e"
+      "size": 120248,
+      "sha256": "149cc76db9713bec52fd7979a57629046720b8441d2e59f6d90fd31b89e4c09e"
     },
     {
       "path": "face/js/ik.js",
@@ -1159,8 +1159,8 @@
     },
     {
       "path": "face/js/pmx_avatar.js",
-      "size": 17436,
-      "sha256": "be226a4398d8a0f24b3793628f7f290215c15b3041b4c00b0506b0d44e00b0db"
+      "size": 17489,
+      "sha256": "33f90e821fcfe0d5cacc16b1aae7eec1d75bf2b42e8ec898b813a89fc74d1afd"
     },
     {
       "path": "face/js/pmx_material.js",
@@ -1169,13 +1169,13 @@
     },
     {
       "path": "face/js/pmx_physics.js",
-      "size": 9615,
-      "sha256": "8fd39b00b967fa07525eb3f128f767ae6fddb7d8128af8b27165dca325b40fdb"
+      "size": 11262,
+      "sha256": "371c2ed945c6cea5ee670ab3fd83f41c50fc3d6c6aa2f372be21cfd7951be394"
     },
     {
       "path": "face/js/pmx_physics_worker.js",
-      "size": 6976,
-      "sha256": "9496d279bd62784401b931eaf88ff5a5c94a6464e9d7cb3365e1a6fb101a7fc2"
+      "size": 11432,
+      "sha256": "fd92c400e4f6b7e0fe1ac9a9bec07f3c1e2b75008b4d975166e62266305d3367"
     },
     {
       "path": "face/js/pose_face.js",
@@ -1194,8 +1194,8 @@
     },
     {
       "path": "face/js/room_actions.js",
-      "size": 17503,
-      "sha256": "496ab628ca7e7e3979734b8e6238333e0c3bea2d122f0d9b8e7076a43302b15c"
+      "size": 16913,
+      "sha256": "3fb0d91ef7925f1e399e1e2ac8750685d122e82ae7b094f800180d20f4642586"
     },
     {
       "path": "face/js/room_atmosphere.js",
@@ -1214,8 +1214,8 @@
     },
     {
       "path": "face/js/room_framing.js",
-      "size": 2777,
-      "sha256": "a3019ef1af60297d1f5578b54a1699ab118e4f3bfc5a72f3e26abd2d15ac342e"
+      "size": 3454,
+      "sha256": "5b2f8285216fc62aeb09b577ff5766ec18583628b5e6ee183d595a9466a27380"
     },
     {
       "path": "face/js/room_furniture_lighting.js",
@@ -1224,8 +1224,8 @@
     },
     {
       "path": "face/js/room_hotspots.js",
-      "size": 10367,
-      "sha256": "0436cee197f33f5f2e29392fa328f76f961262716fec610dbe8fffe3ddfa3b1e"
+      "size": 10476,
+      "sha256": "fbdd9df29776a278917945834cd26ed8426c3e691918da333b617b939b9a25fd"
     },
     {
       "path": "face/js/room_labels.js",
@@ -1265,7 +1265,7 @@
     {
       "path": "face/js/scene_actions.js",
       "size": 41552,
-      "sha256": "8c46bf93aa73a0998d705abc5e77c16c54229df9c7c6bac53696fbb4f220016c"
+      "sha256": "c280e86fa82185bc54b9b0f0aeafeb8a3cca3aa4e4efb348b1de652ecc6f0d87"
     },
     {
       "path": "face/js/screen_snapshot.js",
@@ -2109,8 +2109,8 @@
     },
     {
       "path": "wizard/ui/index.html",
-      "size": 110611,
-      "sha256": "45e6f31148740442cea765056e98b2d72e17dd9854717cc9459059b83c477770"
+      "size": 110905,
+      "sha256": "d34d12b8e750210d705ae103916de96ab12676390820cbabfab69a47606870d5"
     },
     {
       "path": "wizard/ui/llm_setup.js",
@@ -2429,8 +2429,8 @@
     },
     {
       "path": "wizard/ui/wizard.js",
-      "size": 363971,
-      "sha256": "00863c99803d4570d102b2caa3c9d01d22d002e786054b018ead422b47715722"
+      "size": 364915,
+      "sha256": "a0c5558410f10afbcbbf8ca56c711fec7120990713ee60458548ebd74818e6c6"
     },
     {
       "path": "wizard/ui/wizard_icon_tokens.js",

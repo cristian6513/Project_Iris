@@ -24,7 +24,7 @@ import { guardBloom } from './bloom_guard.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-import { AvatarManager } from './avatar.js?v=29';
+import { AvatarManager } from './avatar.js?v=30';
 import { avatarUrl, IRIS_AVATAR_URL } from './avatar_state.js?v=4';
 import { ParticleSystem } from './particles.js?v=2';
 import { WebSocketManager } from './websocket.js?v=3';
@@ -35,14 +35,14 @@ import { LipSyncEngine } from './lipsync.js?v=3';
 // ── New modules ──
 import { RoomEnvironment } from './room.js?v=108';
 import { bindRoomAtmosphereControls } from './room_atmosphere_controls.js?v=2';
-import { ConversationCamera, ROOM_DETAIL_PRESETS, frameRoomPreset } from './room_framing.js?v=6';
+import { ConversationCamera, ROOM_DETAIL_PRESETS, frameRoomPreset } from './room_framing.js?v=7';
 import { RoomAvatarZoom } from './room_avatar_zoom.js?v=1';
 import { RoomLife, RoomRoutines } from './room_routines.js?v=7';
 import { PMX_FURNITURE_BOXES, addFurnitureColliders } from './furniture_colliders.js?v=2';
-import { SceneActionManager } from './scene_actions.js?v=63';
-import { getRoomAction } from './room_actions.js?v=29';
+import { SceneActionManager } from './scene_actions.js?v=64';
+import { getRoomAction } from './room_actions.js?v=30';
 import { FloatingBook, ThinkingCloud, DataStream, MemorySymbol } from './contextual_fx.js?v=2';
-import { IdleSystem } from './idle_system.js?v=62';
+import { IdleSystem } from './idle_system.js?v=64';
 import { SidePanel } from './panel.js?v=64';
 import { RoomSurfaceVisibility } from './room_surface_visibility.js?v=1';
 import { normalizeRoomText, ROOM_STATUS_LABELS } from './room_labels.js?v=1';
@@ -60,7 +60,7 @@ import { askIrisSender } from './app_ask_iris.js?v=3';
 import { EmotionClassifier } from './emotion_classifier.js';
 import { SpeechAnimator } from './speech_animator.js?v=5';
 import { MicroLife } from './micro_life.js?v=10';
-import { HermesActivityCanvas, refreshAppCatalog } from './hermes_activity.js?v=145';
+import { HermesActivityCanvas, refreshAppCatalog } from './hermes_activity.js?v=146';
 import { loadInstalledApps } from './os_app_sources.js?v=4';
 import { openChatSurface } from './open_chat_surface.js?v=1';
 import { SnapshotPrompt, SnapshotRequests } from './vision_snapshot.js?v=4';
@@ -323,6 +323,15 @@ class IrisApp {
      * Her hair and clothes rest on the room's furniture instead of falling through it: a VRM's
      * spring bones take the boxes as colliders, a PMX's MMD physics as static bodies.
      */
+    /** Her head in the world, for the avatar zoom to close in on (room_framing.js); null at 1x. */
+    _cameraFocus() {
+        if (!((this.camera?.zoom || 1) > 1)) return null;
+        const head = this.avatarManager?.avatar?.vrm?.humanoid?.getRawBoneNode?.('head');
+        if (!head) return null;
+        this._focusPoint ??= new THREE.Vector3();
+        return head.getWorldPosition(this._focusPoint).toArray();
+    }
+
     _furnishAvatar() {
         if (!this.room) return;
         const vrm = this.avatarManager?.avatar?.vrm;
@@ -2411,7 +2420,7 @@ class IrisApp {
             if (!transitioning) this.orbitControls.update();
         } else {
             // Normal: subtle automatic drift, or the view of the spot she goes to.
-            this.conversationCamera?.update(dt, t, this.sceneActions?.framedSpot?.()?.view);
+            this.conversationCamera?.update(dt, t, this.sceneActions?.framedSpot?.()?.view, this._cameraFocus());
         }
 
         // Local emotion classification feeds context without copying the face.

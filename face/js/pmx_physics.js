@@ -7,6 +7,9 @@ const bodyNumbers = ['width', 'height', 'depth', 'weight', 'friction', 'restitut
 const jointVectors = ['position', 'rotation', 'translationLimitation1', 'translationLimitation2',
     'rotationLimitation1', 'rotationLimitation2', 'springPosition', 'springRotation'];
 const FURNITURE_SIZE = 10;     // centre xyz, turn xyzw, half extents xyz, in the mesh's own space
+// Held hair eases into its modelled shape over this many physics replies (about a third of a second).
+const HOLD_EASE = 0.2;
+const HOLD_EASE_STEPS = 20;
 const bounded = value => Number.isFinite(value) && Math.abs(value) <= 1e6;
 
 /**
@@ -91,6 +94,15 @@ export async function createPmxPhysics(mesh, humanoid, modelled = null) {
     const rest = dynamic.map(index => ({
         bone: bones[index], position: bones[index].position.clone(), rotation: bones[index].quaternion.clone(),
     }));
+    // Her hair: what physics moves under the head bone. Lying on the bed it is held to her head as
+    // modelled (holdHair, pmx_physics_worker.js), and eased into that shape here.
+    const headBone = humanoid.humanBones.head?.node ?? null;
+    const head = parents.get(headBone) ?? -1;
+    const underHead = bone => { for (let up = bone.parent; up; up = up.parent) if (up === headBone) return true; return false; };
+    const hair = new Set(headBone ? dynamic.filter(index => underHead(bones[index])) : []);
+    const eased = { position: bones[0].position.clone(), quaternion: bones[0].quaternion.clone() };
+    let hold = false;
+    let easing = 0;
     // Heavy models may run at half rate in «Ahorro» (graphics_quality.js, through setRate).
     const heavy = bodies.length > 300 || constraints.length > 500;
     let hz = 65;
@@ -150,8 +162,15 @@ export async function createPmxPhysics(mesh, humanoid, modelled = null) {
             } else {
                 transforms = data.transforms;
                 if (data.epoch !== epoch) return;
+                const ease = easing > 0 ? HOLD_EASE : 1;
+                if (easing > 0) easing--;
                 for (const index of dynamic) {
                     const offset = index * TRANSFORM_SIZE;
+                    if (ease < 1 && hair.has(index)) {
+                        bones[index].position.lerp(eased.position.fromArray(transforms, offset), ease);
+                        bones[index].quaternion.slerp(eased.quaternion.fromArray(transforms, offset + 3), ease);
+                        continue;
+                    }
                     bones[index].position.fromArray(transforms, offset);
                     bones[index].quaternion.fromArray(transforms, offset + 3);
                 }
@@ -164,7 +183,7 @@ export async function createPmxPhysics(mesh, humanoid, modelled = null) {
         worker.postMessage({
             kind: 'init', assets: new URL(ASSETS, document.baseURI).href,
             parents: bones.map(bone => parents.get(bone.parent) ?? -1),
-            transforms, bodies, constraints, step,
+            transforms, bodies, constraints, step, head,
         }, [transforms.buffer]);
         transforms = new Float32Array(bones.length * TRANSFORM_SIZE);
     });
@@ -194,10 +213,21 @@ export async function createPmxPhysics(mesh, humanoid, modelled = null) {
             readPose();
             mesh.updateWorldMatrix(true, false);
             const placed = furniture ? furnitureInMeshSpace(furniture, mesh.matrixWorld) : null;
-            worker.postMessage({ kind: 'step', transforms, delta: steps * step, step, reset: needsReset, epoch, furniture: placed },
-                [transforms.buffer]);
+            worker.postMessage({
+                kind: 'step', transforms, delta: steps * step, step, reset: needsReset, epoch, furniture: placed, hold,
+            }, [transforms.buffer]);
             transforms = null;
             needsReset = false;
+        },
+        /**
+         * Lying on the bed: her hair follows her head as modelled, eased into that shape. Let go,
+         * it falls free from there, once no part of it is in the furniture.
+         */
+        holdHair(on) {
+            on = Boolean(on) && hair.size > 0;
+            if (on === hold) return;
+            hold = on;
+            if (on) easing = HOLD_EASE_STEPS;
         },
         reset() { needsReset = true; pending = 0; epoch++; },
         dispose,

@@ -19,6 +19,8 @@ export function frameRoomPreset(preset, aspect) {
 }
 
 const CONVERSATION_HOME = Object.freeze({ position: [0.34, 1.38, 4.95], target: [0.08, 0.66, 0] });
+// room_avatar_zoom.js: 1 + 100 * 0.015 at the end of the slider.
+const MAX_AVATAR_ZOOM = 2.5;
 const SPOT_VIEW_SECONDS = 3;
 
 /** The camera outside Explorar: home with a slow drift, or the view of the spot she goes to. */
@@ -35,7 +37,13 @@ export class ConversationCamera {
         this.view = null;
     }
 
-    update(dt, t, spotView) {
+    /**
+     * `focus`: her head in the world, when known. The avatar zoom (camera.zoom, Configuración
+     * rápida) closes in on the point the camera looks at; that point moves towards her head as
+     * the zoom grows, all the way at the most (2.5x). A view framed on her whole body otherwise
+     * lost her head first, and the zoom never followed her when she walked.
+     */
+    update(dt, t, spotView, focus = null) {
         if (spotView) this.view = spotView;
         this.blend = Math.min(1, Math.max(0, this.blend + (spotView ? dt : -dt) / SPOT_VIEW_SECONDS));
         const ease = this.blend * this.blend * (3 - 2 * this.blend);
@@ -47,6 +55,8 @@ export class ConversationCamera {
         const home = [x + Math.sin(t * 0.06) * 0.08, y + Math.sin(t * 0.04) * 0.025, z];
         this.camera.position.set(...(via ? arc(home, framed.position) : mix(home, framed.position)));
         // On an arc she has to stay in frame: the camera turns to her ahead of arriving.
-        this.camera.lookAt(...mix(CONVERSATION_HOME.target, framed.target, via ? Math.min(1, ease * 1.8) : ease));
+        const target = mix(CONVERSATION_HOME.target, framed.target, via ? Math.min(1, ease * 1.8) : ease);
+        const pull = focus ? Math.min(1, Math.max(0, ((this.camera.zoom || 1) - 1) / (MAX_AVATAR_ZOOM - 1))) : 0;
+        this.camera.lookAt(...(pull > 0 ? mix(target, focus, pull) : target));
     }
 }

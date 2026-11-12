@@ -6,8 +6,8 @@
  */
 
 import * as THREE from 'three';
-import { ROOM_HOTSPOTS, getHotspotForAction } from './room_hotspots.js?v=29';
-import { getRoomActionCommand } from './room_actions.js?v=29';
+import { ROOM_HOTSPOTS, getHotspotForAction } from './room_hotspots.js?v=30';
+import { getRoomActionCommand } from './room_actions.js?v=30';
 import { BOOK, CONJURED_BOOK, CONJURED_TABLET, ConjuredProp, HandProp, HeldProps } from './hand_prop.js';
 import { TeleportEffect } from './teleport_effect.js?v=2';
 

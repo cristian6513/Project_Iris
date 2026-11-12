@@ -307,3 +307,34 @@ def test_overlapping_library_roots_never_create_locks(tmp_path, nested):
             io.BytesIO(animation("new")), "new.vrma", "wave"
         )
     assert not root.exists()
+
+
+def test_a_replaced_gesture_plays_only_the_persons_clip_without_the_factory_timing(tmp_path, monkeypatch):
+    """QA23: a factory gesture with variants or timed facial moments, replaced from the wizard."""
+    monkeypatch.setattr("core.profile_paths._legacy_profile_writers", lambda *args, **kw: None)
+    factory, user = tmp_path / "factory", tmp_path / "profile" / "animations"
+    clips = {name: register(factory, name, animation(name), managed=False)
+             for name in ("wave", "wave_2", "idle_yawn", "dance", "dance_3")}
+    manifest(
+        factory, clips,
+        variants={"wave": ["wave", "wave_2"], "dance": ["dance", "dance_3"]},
+        variant_weights={"wave_2": 0.5},
+        facial_profiles={
+            "idle_yawn": {"emotion": "neutral", "moments": [{"from": 0.4, "to": 1.6, "emotion": "sorpresa"}]},
+            "wave": {"emotion": "feliz"},
+        },
+    )
+    library = AnimationLibrary(factory, user)
+    own = {name: register(user, name, animation("mine-" + name)) for name in ("wave", "idle_yawn", "dance")}
+    manifest(user, own, revision=1, variants={"dance": ["dance", "dance_3"]})
+    merged = library.snapshot()["manifest"]
+    assert "wave" not in merged["variants"], "the factory's other wave no longer plays in its place"
+    assert merged["variants"]["dance"] == ["dance", "dance_3"], "variants the person set stay"
+    assert merged["facial_profiles"]["idle_yawn"] == {"emotion": "neutral"}, "no timed moments on another clip"
+    assert merged["facial_profiles"]["wave"] == {"emotion": "feliz"}, "the rest of the profile stays"
+    assert merged["clips"]["wave_2"] == clips["wave_2"]
+    # Nothing replaced: the factory metadata is untouched.
+    manifest(user, {}, revision=2)
+    untouched = library.snapshot()["manifest"]
+    assert untouched["variants"]["wave"] == ["wave", "wave_2"]
+    assert untouched["facial_profiles"]["idle_yawn"]["moments"]

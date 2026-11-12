@@ -234,6 +234,40 @@ def test_packaged_stop_does_not_signal_unowned_process(packaged, monkeypatch):
     assert process_launcher._pid_file().exists()
 
 
+@pytest.mark.parametrize("state", ["recycled", "same_creation", "access_denied", "port_busy"])
+def test_launch_recovers_only_provably_recycled_pid(packaged, monkeypatch, state):
+    original = core_process(packaged)
+    replacement = core_process(packaged, created=10.0 if state == "same_creation" else 20.0)
+    replacement.exe = lambda: __file__
+    new_core = core_process(packaged, pid=456, created=30.0)
+    monkeypatch.setattr("psutil.Process", lambda _: original)
+    record(original)
+    path = process_launcher._pid_file()
+    previous = path.read_bytes()
+    if state == "access_denied":
+        replacement.create_time = Mock(side_effect=psutil.AccessDenied(replacement.pid))
+    monkeypatch.setattr(
+        "psutil.Process", lambda pid: replacement if pid == original.pid else new_core,
+    )
+    monkeypatch.setattr(process_launcher, "_pid_alive", lambda _: True)
+    monkeypatch.setattr(process_launcher, "_port_open", lambda _: state == "port_busy")
+    monkeypatch.setattr(process_launcher.platform, "system", lambda: "Windows")
+    spawn = Mock(return_value=Mock(pid=new_core.pid))
+    monkeypatch.setattr(process_launcher.subprocess, "Popen", spawn)
+
+    if state == "recycled":
+        assert process_launcher.launch_iris(port=9876, wait_for_port_s=0).pid == new_core.pid
+        spawn.assert_called_once()
+        assert json.loads(path.read_text())["pid"] == new_core.pid
+    else:
+        with pytest.raises(RuntimePolicyError, match="El proceso guardado"):
+            process_launcher.launch_iris(port=9876, wait_for_port_s=0)
+        spawn.assert_not_called()
+        assert path.read_bytes() == previous
+    replacement.terminate.assert_not_called()
+    replacement.kill.assert_not_called()
+
+
 def test_recycled_pid_during_stop_never_receives_hard_kill(packaged, monkeypatch):
     original = core_process(packaged)
     replacement = core_process(packaged, created=20.0)

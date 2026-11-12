@@ -373,7 +373,7 @@
     },
     "bed_prone_idle": {
       "filename": "iris_bed_prone_idle.vrma",
-      "sha256": "b6647952a7d4f9081cd5cfadeca9302345f366499587e5205e3685b0350cbb9c"
+      "sha256": "b1cd8f7753a17a6f5e92f84de7f1c705fe22d3188ebbee30c4e798d1062ff960"
     },
     "bed_roll_prone": {
       "filename": "iris_bed_roll_prone.vrma",

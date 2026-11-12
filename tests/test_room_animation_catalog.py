@@ -9,7 +9,6 @@ from core.animation_library import AnimationLibrary
 
 ROOT = Path(__file__).resolve().parents[1]
 ROOM_CLIPS = (
-    "sit", "walk_in_place", "pc_sit_down_v2", "pc_seated_idle_v2",
     "sofa_sit_down", "sofa_seated_idle", "sofa_stand_up", "walk",
     "bed_lie_down", "bed_lying_idle", "bed_get_up",
     "bed_roll_prone", "bed_prone_idle", "bed_roll_supine",
@@ -27,7 +26,7 @@ ROOM_CLIPS = (
 )
 # Played through a sequence, never named by a pose.
 SEQUENCE_CLIPS = (
-    "pc_sit_down_v2", "sofa_sit_down", "sofa_stand_up", "walk",
+    "sofa_sit_down", "sofa_stand_up", "walk",
     "bed_lie_down", "bed_get_up", "bed_sit_down", "bed_stand_up", "bed_sit_up",
     "bed_roll_prone", "bed_roll_supine",
     "book_take", "book_return",

@@ -175,8 +175,13 @@ movimiento reducido. No mueve la cara ni requiere cámara.
 
 Los modelos PMX con huesos humanoides compatibles pueden usar las animaciones
 de IRIS y las expresiones que incluya el modelo. Si el PMX trae físicas MMD
-compatibles, Iris simula el cabello y la ropa en segundo plano. Al cargar un
-VRM, usa las físicas de ese formato.
+compatibles, Iris simula el cabello y la ropa en segundo plano. Mientras está
+acostada boca arriba en la cama, el cabello del PMX sigue a la cabeza con la
+forma del modelo, sin física: así no se arquea sobre el colchón ni se enreda
+debajo de ella, aunque la parte larga queda oculta en el colchón. La ropa
+conserva su física. Boca abajo, el cabello vuelve a caer libre sobre la espalda.
+Al levantarse se suelta cuando ya no toca ningún mueble. Al cargar un VRM, usa
+las físicas de ese formato.
 
 Desde el 28 de octubre de 2026 ya no existen el avatar geométrico ni el de
 partículas. El VRM de IRIS (`face/animations/iris.vrm`) es un recurso de fábrica,

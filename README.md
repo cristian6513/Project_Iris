@@ -19,7 +19,7 @@ IRIS OS es una experiencia de asistente de IA local primero, impulsada por
 instalación guiada, escritorio web, identidad, memoria, voz, avatar VRM y una
 presencia flotante opcional.
 
-**Fuente de Iris OS 0.9.3 beta (QA23).** Consulta el [estado actual](docs/estado-actual.md)
+**Fuente de Iris OS 0.9.3 beta (QA24).** Consulta el [estado actual](docs/estado-actual.md)
 antes de probar una función o preparar un candidato. Con proveedores remotos,
 el contenido autorizado sale del equipo; «local primero» no significa offline.
 

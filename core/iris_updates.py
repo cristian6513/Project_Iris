@@ -512,7 +512,7 @@ def update_snapshot(check_channel: bool = True) -> dict[str, Any]:
     except (UpdateError, InstallError) as exc:
         return {**base, "summary": "error", "items": [{**item, "detail": str(exc)}], "message": str(exc)}
     if release is None:
-        message = reason or f"Iris {__version__} es la versión más reciente del canal {channel.name}."
+        message = reason or f"El canal {channel.name} aún no ofrece una actualización para Iris {__version__}."
         return {**base, "summary": "current", "items": [{**item, "status": "current", "detail": message}],
                 "message": message}
     return {**base, "summary": "updates_available", "can_update": True, "available": release.public(),

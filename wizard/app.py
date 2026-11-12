@@ -3642,14 +3642,23 @@ async def upload_model(file: UploadFile = File(...)) -> JSONResponse:
 # (CMU, Mixamo exports, Truebones, MMD) without Blender round-trips.
 # ─────────────────────────────────────────────────────────────────────
 
-# Clip slots the avatar's idle_system/emote pipeline knows about.
-# Must stay in sync with face/animations/manifest.json → clips keys and
-# face/js/idle_system.js pose_map lookups.
-ANIMATION_SLOTS: tuple[str, ...] = (
-    "idle", "idle_casual", "idle_smile", "idle_love", "idle_noble", "idle_weave",
-    "wave", "think", "nod", "shake", "look_around",
-    "stretch", "hair_touch", "shy", "sit", "lie", "dance",
+# Gestures and rests the person may replace from the wizard, by group: each is one factory
+# clip (face/animations/manifest.json), and once replaced it plays alone, without the factory's
+# variants or timed facial moments (core.animation_library). Room sequences (sitting, reading,
+# the tablet, the bed, the desk, the window) are not offered: their clips are timed to the
+# furniture and the props. The old empty slots (idle_smile, idle_love, idle_noble, idle_weave,
+# look_around, sit, lie) went 2026-11-11 (QA23); clips already uploaded to them stay.
+ANIMATION_SLOT_GROUPS: tuple[tuple[str, tuple[str, ...]], ...] = (
+    ("Reposo", ("idle", "idle_casual", "idle_lazy", "idle_waiting", "idle_yawn", "stretch", "hair_touch")),
+    ("Conversación", ("listen", "think", "talk", "nod", "shake", "confirm", "confused", "point", "attention")),
+    ("Emociones", (
+        "laugh", "sad", "angry", "surprised", "scared", "shy", "annoyed",
+        "celebrate", "heart", "clap", "apologize", "shrug", "idea", "jump",
+    )),
+    ("Saludos y baile", ("wave", "wave_big", "wave_cute", "wave_flirty", "dance", "dance_sexy")),
 )
+ANIMATION_SLOTS: tuple[str, ...] = tuple(slot for _, slots in ANIMATION_SLOT_GROUPS for slot in slots)
+_ANIMATION_SLOT_GROUP = {slot: group for group, slots in ANIMATION_SLOT_GROUPS for slot in slots}
 # Extensions the per-slot uploader will accept. Must stay in sync with
 # ``face/js/vrm_animation_loader.js`` dispatch table (.vrma/.bvh/.fbx/
 # .glb/.gltf). Adding a new format here ONLY makes the wizard accept
@@ -3708,6 +3717,7 @@ def list_animation_slots() -> JSONResponse:
             file_path = None
         slots.append({
             "slot": slot,
+            "group": _ANIMATION_SLOT_GROUP[slot],
             "filename": filename,
             "present": bool(file_path and file_path.exists()),
             "format": filename.rsplit(".", 1)[-1].lower() if "." in filename else "",

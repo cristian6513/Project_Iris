@@ -123,22 +123,8 @@ export const ROOM_OBJECT_ACTIONS = Object.freeze({
                 fallbackAnimation: 'idle',
                 endMode: 'stay',
             }),
-            ACTION({
-                id: 'usePC_blenderDraft',
-                label: 'Use PC 2',
-                targetHotspot: 'pcSeatSpot',
-                cameraPreset: 'deskView',
-                expression: 'neutral',
-                animationName: 'pc_seated_idle_v2',
-                duration: null,
-                fallbackAnimation: 'pc_seated_idle',
-                activate: 'pc_workstation',
-                effect: null,
-                lookAtTarget: [2.75, 0.68, -3.12],
-                lookAtWeight: 0,
-                faceTarget: true,
-                endMode: 'stay',
-            }),
+            // «Usar PC 2» (usePC_blenderDraft, pcSeatSpot, the draft pc_seated_idle_v2) was removed
+            // 2026-11-11: «Usar PC» seats her at the desk with the chair and types (QA23).
         ]),
     }),
 
@@ -446,8 +432,6 @@ export const ROOM_ACTION_ALIASES = Object.freeze({
     sit_desk: 'sitAtDesk_idle',
     sit_desk_edge: 'sitOnDeskEdge',
     desk_edge: 'sitOnDeskEdge',
-    use_pc_2: 'usePC_blenderDraft',
-    use_pc_blender: 'usePC_blenderDraft',
     buscar_internet: 'usePC_idle',
     watch_screen: 'lookAtScreen',
 
@@ -485,7 +469,6 @@ export const ROOM_ACTION_ALIASES = Object.freeze({
 
 export const ROOM_ACTION_COMMANDS = Object.freeze({
     buscar_internet: Object.freeze({ actionId: 'usePC_idle', activate: 'pc_workstation', effect: null }),
-    use_pc_2: Object.freeze({ actionId: 'usePC_blenderDraft', activate: 'pc_workstation', effect: null }),
     buscar_archivos: Object.freeze({ actionId: 'standNearBookshelf', activate: 'bookshelf', effect: 'floatingBook' }),
     recordar_memoria: Object.freeze({ actionId: 'centerIdle', effect: 'floatingBook' }),
     pensar: Object.freeze({ actionId: 'listeningPose', effect: 'thinkingCloud' }),

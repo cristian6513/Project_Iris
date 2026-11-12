@@ -249,6 +249,7 @@ export async function loadPmxAvatar(bytes, { simulate = false } = {}) {
             scene, humanoid, expressionManager, meta: { metaVersion: '1' },
             get pmxPhysics() { return physics?.active ? physics : null; },
             resetPhysics() { physics?.reset(); },
+            holdHair(on) { physics?.holdHair(on); },
             disposePhysics() { physics?.dispose(); physics = null; },
             update(delta) {
                 humanoid.update();

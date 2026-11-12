@@ -6,11 +6,19 @@ const FURNITURE_SIZE = 10;
 // Ammo takes a body's group and mask as 16-bit shorts, all of them MMD's. The furniture is in every
 // group and meets every group: any body that collides with anything collides with it.
 const EVERY_GROUP = -1;
-let physics, mesh, zero, solver, defaultSplitImpulse;
+const KINEMATIC = 2;
+const NO_CONTACT_RESPONSE = 4;
+const ACTIVE = 1;
+const NEVER_SLEEPS = 4;
+let physics, mesh, zero, inertia, solver, defaultSplitImpulse;
 let dynamic = [];
 let furniture = [];
 let placed = null;
 let place = null;
+// Her hair (the physics bodies under her head) and, while she lies on the bed, held to it.
+let hair = [];
+let hairBones = [];
+let holding = false;
 
 function transformOf(Ammo, boxes, o) {
     place ??= { form: new Ammo.btTransform(), origin: new Ammo.btVector3(0, 0, 0), turn: new Ammo.btQuaternion(0, 0, 0, 1) };
@@ -78,6 +86,97 @@ function sameBoxes(boxes) {
     return placed?.length === boxes.length && placed.every((value, i) => Math.abs(value - boxes[i]) < 1e-5);
 }
 
+/** The physics bodies under the head bone, with the modelled pose of their bones (as at init). */
+function findHair(parents, head) {
+    if (!(head >= 0)) return;
+    const under = index => {
+        for (let parent = parents[index]; parent >= 0; parent = parents[parent]) if (parent === head) return true;
+        return false;
+    };
+    hair = physics.bodies.filter(({ params }) => params.type !== 0 && params.boneIndex >= 0 && under(params.boneIndex))
+        .map(rb => {
+            const { width, height, depth, shapeType } = rb.params;
+            // How far the body reaches from its centre: sphere, box or capsule.
+            const reach = shapeType === 0 ? width : shapeType === 1 ? Math.hypot(width, height, depth) : width + height / 2;
+            return { rb, reach, type: rb.params.type, flags: 0 };
+        });
+    hairBones = [...new Set(hair.map(({ rb }) => rb.params.boneIndex))].map(index => {
+        const bone = mesh.skeleton.bones[index];
+        return { bone, position: bone.position.clone(), quaternion: bone.quaternion.clone() };
+    });
+}
+
+/**
+ * Lying on the bed, her hair follows her head in its modelled shape. Its joints only bend a few
+ * degrees a link, so it can't lie flat: the mattress pushed it up into an arc over her, or it got
+ * caught under her and stayed tangled when she stood. Held, each body is like the ones that
+ * follow a bone (type 0), and touches nothing: what sinks into the mattress stays hidden there.
+ */
+function holdHair() {
+    for (const item of hair) {
+        const { body, params } = item.rb;
+        item.flags = body.getCollisionFlags();
+        params.type = 0;
+        body.setMassProps(0, zero);
+        body.setCollisionFlags(item.flags | KINEMATIC | NO_CONTACT_RESPONSE);
+        body.setActivationState(NEVER_SLEEPS);
+    }
+    holding = true;
+}
+
+function poseHair() {
+    for (const { bone, position, quaternion } of hairBones) {
+        bone.position.copy(position);
+        bone.quaternion.copy(quaternion);
+    }
+    mesh.updateMatrixWorld(true);
+    for (const { rb } of hair) rb.updateFromBone();
+}
+
+/** Free again from where it is held now, still. */
+function releaseHair() {
+    for (const item of hair) {
+        const { body, params } = item.rb;
+        params.type = item.type;
+        body.getCollisionShape().calculateLocalInertia(params.weight, inertia);
+        body.setMassProps(params.weight, inertia);
+        body.updateInertiaTensor();
+        body.setCollisionFlags(item.flags);
+        body.forceActivationState(ACTIVE);
+        body.clearForces();
+        body.setLinearVelocity(zero);
+        body.setAngularVelocity(zero);
+    }
+    holding = false;
+}
+
+/**
+ * No held body in the furniture: let go inside the mattress, the hair would be thrown out of it.
+ * While she sits up or stands by the bed it stays held, until it has room to fall.
+ */
+function hairClear() {
+    if (!placed) return true;
+    return hair.every(({ rb, reach }) => {
+        const origin = rb.body.getCenterOfMassTransform().getOrigin();
+        return !inFurniture(origin.x(), origin.y(), origin.z(), reach);
+    });
+}
+
+function inFurniture(x, y, z, reach) {
+    for (let o = 0; o < placed.length; o += FURNITURE_SIZE) {
+        // Into the box's own frame: turned back by its turn (the conjugate).
+        const dx = x - placed[o], dy = y - placed[o + 1], dz = z - placed[o + 2];
+        const qx = -placed[o + 3], qy = -placed[o + 4], qz = -placed[o + 5], qw = placed[o + 6];
+        const tx = 2 * (qy * dz - qz * dy), ty = 2 * (qz * dx - qx * dz), tz = 2 * (qx * dy - qy * dx);
+        const lx = dx + qw * tx + (qy * tz - qz * ty);
+        const ly = dy + qw * ty + (qz * tx - qx * tz);
+        const lz = dz + qw * tz + (qx * ty - qy * tx);
+        if (Math.abs(lx) < placed[o + 7] + reach && Math.abs(ly) < placed[o + 8] + reach
+            && Math.abs(lz) < placed[o + 9] + reach) return true;
+    }
+    return false;
+}
+
 function setPose(transforms) {
     mesh.skeleton.bones.forEach((bone, index) => {
         const offset = index * TRANSFORM_SIZE;
@@ -108,13 +207,20 @@ self.onmessage = async ({ data }) => {
             solver = physics.world.getSolverInfo();
             defaultSplitImpulse = solver.get_m_splitImpulse();
             zero = new globalThis.Ammo.btVector3(0, 0, 0);
+            inertia = new globalThis.Ammo.btVector3(0, 0, 0);
             dynamic = [...new Set(data.bodies.filter(body => body.type !== 0 && body.boneIndex >= 0).map(body => body.boneIndex))];
+            findHair(data.parents, data.head);
             self.postMessage({ ready: true });
             return;
         }
 
         setPose(transforms);
         placeFurniture(data.furniture ?? null);
+        if (hair.length) {
+            if (data.hold && !holding) holdHair();
+            if (holding) poseHair();
+            if (!data.hold && holding && hairClear()) releaseHair();
+        }
         if (data.reset) {
             physics.reset();
             for (const { body, params } of physics.bodies) {
