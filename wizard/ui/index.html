@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="wizard.css?v=54">
+    <link rel="stylesheet" href="wizard.css?v=55">
     <link rel="stylesheet" href="/ui/messaging.css?v=3">
     <link rel="stylesheet" href="/shared/iris_dialog.css?v=6">
 </head>
@@ -384,10 +384,13 @@
                     </div>
                     <div id="llm-configured-others" class="llm-configured-others" hidden></div>
                     <div class="llm-configured-actions">
+                        <button class="btn-secondary btn-sm" id="btn-test-provider-response" type="button" onclick="testProviderResponse()" aria-describedby="llm-response-help" hidden>Probar respuesta</button>
                         <button class="btn-primary btn-sm btn-outline" type="button" onclick="changeLlmProvider()">Cambiar proveedor</button>
                         <button class="btn-primary btn-sm btn-outline" type="button" onclick="addLlmProvider()">＋ Agregar otro proveedor</button>
                     </div>
                     <p id="llm-configured-status" class="llm-save-status" role="status"></p>
+                    <p id="llm-response-help" class="dim" hidden>Envía una frase de prueba al proveedor. Puede consumir parte de tu cuota.</p>
+                    <p id="llm-response-status" class="llm-save-status" role="status"></p>
                 </section>
 
                 <div id="llm-editor">
@@ -445,12 +448,15 @@
                     </div>
                 </div>
 
-                <!-- Search filter -->
-                <input type="text" id="provider-search" class="provider-search" placeholder="Buscar proveedor…" oninput="filterProviders()">
-
-                <!-- Dynamic provider list (rendered by JS) -->
-                <div class="radio-group provider-grid" id="provider-list">
-                    <!-- Populated dynamically by renderProviderList() -->
+                <div id="provider-list" role="group" aria-label="Proveedor de IA">
+                    <div class="radio-group provider-grid provider-recommended" id="provider-recommended"></div>
+                    <details class="setup-details" id="provider-more-options">
+                        <summary>Más proveedores</summary>
+                        <div class="setup-details-body">
+                            <input type="search" id="provider-search" class="provider-search" aria-label="Buscar otros proveedores" placeholder="Buscar proveedor…" oninput="filterProviders()">
+                            <div class="radio-group provider-grid" id="provider-more"></div>
+                        </div>
+                    </details>
                 </div>
 
                 <!-- Per-provider warning bubble. Filled by
@@ -462,7 +468,7 @@
 
                 <!-- Conditional: API Key input (shown for cloud providers) -->
                 <div id="llm-key-section" class="api-key-field" style="display:none; margin-top:12px">
-                    <label>
+                    <label for="llm-api-key">
                         <strong><wz-icon>🔑</wz-icon> API Key</strong>
                         <span class="dim" id="llm-key-hint">Pega tu API Key del proveedor seleccionado</span>
                     </label>
@@ -470,7 +476,7 @@
                         <input type="password" id="llm-api-key" placeholder="Pega tu API key aquí..." autocomplete="off" required oninput="invalidateProviderModels()" onblur="if(!this.value.trim()) this.classList.add('field-attention'); else this.classList.remove('field-attention');">
                         <button class="btn-eye" type="button" aria-label="Mostrar u ocultar la clave" title="Mostrar u ocultar la clave" onclick="toggleKeyVisibility('llm-api-key', this)"><wz-icon>👁</wz-icon></button>
                     </div>
-                    <a href="#" id="llm-key-link" target="_blank" class="key-link"><wz-icon>📎</wz-icon> Obtener API Key</a>
+                    <a id="llm-key-link" target="_blank" rel="noopener noreferrer" class="key-link" data-key-field="llm-api-key">Obtener clave</a>
                     <p class="dim key-privacy"><wz-icon>🔒</wz-icon> Al consultar modelos, la clave solo se envía al proveedor elegido. Se guarda en este equipo al pulsar «Guardar proveedor». IRIS no la sube a servidores propios.</p>
                 </div>
 
@@ -529,9 +535,13 @@
                     <p id="llm-model-access-status" class="dim" role="status" aria-live="polite"></p>
                     <button id="btn-load-provider-models" class="btn-secondary btn-sm" type="button" onclick="loadProviderModels()">Cargar modelos</button>
                 </div>
+                <div id="llm-recommended-model" class="setup-choice llm-recommended-model" hidden>
+                    <div><strong>Modelo recomendado</strong><span id="llm-recommended-model-name"></span></div>
+                    <button id="btn-change-llm-model" class="btn-secondary btn-sm" type="button" onclick="showProviderModelPicker()">Cambiar modelo</button>
+                </div>
                 <!-- Conditional: Model selector -->
                 <div id="llm-model-section" class="api-key-field" style="display:none; margin-top:12px">
-                    <label><strong><wz-icon>🧪</wz-icon> Modelo</strong> <span class="dim">Selecciona el modelo de IA</span></label>
+                    <label for="llm-model"><strong><wz-icon>🧪</wz-icon> Modelo</strong> <span class="dim">Selecciona el modelo de IA</span></label>
                     <input type="search" id="llm-model-filter" class="model-filter" hidden autocomplete="off" aria-label="Buscar modelo" oninput="filterModelOptions()">
                     <select id="llm-model" class="model-select">
                         <option value="__custom__">Otro modelo (escribir manualmente)</option>
@@ -743,7 +753,7 @@
         <div class="wizard-step" data-step="4">
             <div class="step-icon" aria-hidden="true"><wz-icon name="speaker">🔊</wz-icon></div>
             <h2>Voz de IRIS <span class="help-tip" onclick="this.classList.toggle('active')">?<div class="tip-content"><div class="tip-title">¿Qué es TTS?</div>Text-to-Speech convierte las respuestas de texto en audio hablado. Es lo que le da <strong>voz</strong> a tu asistente.<br><br>Cada motor tiene diferentes costos, calidad y privacidad. Selecciona uno y mira su detalle abajo.</div></span></h2>
-            <p>Edge-TTS es una opción sencilla en español y necesita internet. También puedes elegir un motor local u otro servicio.</p>
+            <p>Escucha la voz de Iris y continúa cuando quieras.</p>
             <div class="voice-engine-options" aria-label="Motor de voz"><div class="voice-engine-recommended"><label class="radio-card selected" data-value="edge-tts">
                     <input type="radio" name="tts" value="edge-tts" checked>
                     <div class="radio-content">
@@ -752,10 +762,12 @@
                             <span class="badge">Recomendado</span>
                             <span class="help-tip" onclick="event.stopPropagation();this.classList.toggle('active')">?<div class="tip-content"><div class="tip-title">Edge-TTS (Microsoft)</div>Usa el servicio de voz en línea de Microsoft Edge y su catálogo de voces.<br><br><wz-icon>✅</wz-icon> Calidad neural<br><wz-icon>✅</wz-icon> No solicita API key<br><wz-icon>⚠</wz-icon> Necesita internet y depende de un servicio externo<br><wz-icon>❌</wz-icon> No soporta voice cloning<br><span class="tip-cost free">Sin API key · disponibilidad sujeta al servicio</span></div></span>
                         </div>
-                        <span>Gratis · Español nativo · Alta calidad · Requiere internet</span>
+                        <span>Sin clave · Voz en español · Requiere internet</span>
                     </div>
                 </label></div>
-            <details class="setup-details" id="voice-local-engines"><summary>Voces locales · sin enviar texto a un servicio</summary><div class="setup-details-body"><div class="radio-group"><label class="radio-card" data-value="kokoro">
+            <div id="voice-quick-preview"></div>
+            <details class="setup-details" id="voice-more-engines"><summary>Ver más voces</summary><div class="setup-details-body">
+                <div class="radio-group"><label class="radio-card" data-value="kokoro">
                     <input type="radio" name="tts" value="kokoro">
                     <div class="radio-content">
                         <div class="radio-header">
@@ -775,7 +787,7 @@
                         </div>
                         <span>Qwen3-TTS · Voces predefinidas o clonación local · Modelo pesado</span>
                     </div>
-                </label></div></div></details><details class="setup-details" id="voice-more-engines"><summary>Más motores · servicios y servidores propios</summary><div class="setup-details-body"><div class="radio-group"><label class="radio-card" data-value="elevenlabs">
+                </label><label class="radio-card" data-value="elevenlabs">
                     <input type="radio" name="tts" value="elevenlabs">
                     <div class="radio-content">
                         <strong>ElevenLabs</strong>
@@ -981,7 +993,7 @@
                         <button class="btn-eye" type="button" aria-label="Mostrar u ocultar la clave" title="Mostrar u ocultar la clave" onclick="toggleKeyVisibility('key-elevenlabs', this)"><wz-icon>👁</wz-icon></button>
                     </div>
                     <input type="text" aria-label="Identificador de voz de ElevenLabs" id="key-elevenlabs-voice" placeholder="Voice ID (ej: 21m00Tcm4TlvDq8ikWAM)" class="key-sub-input">
-                    <a href="https://elevenlabs.io/" target="_blank" class="key-link"><wz-icon>📎</wz-icon> Obtener en elevenlabs.io</a>
+                    <a href="https://elevenlabs.io/app/api/api-keys" target="_blank" rel="noopener noreferrer" class="key-link" data-key-field="key-elevenlabs">Obtener clave de ElevenLabs</a>
                     <p class="dim key-privacy"><wz-icon>🔒</wz-icon> Tus claves se guardan en este equipo, en tu perfil de Iris. IRIS solo las envía al proveedor elegido cuando usas su servicio; no las sube a servidores propios.</p>
                 </div><div class="api-key-field" id="minimax-key-section" style="display:none">
                     <label for="key-minimax">
@@ -993,7 +1005,7 @@
                         <button class="btn-eye" type="button" aria-label="Mostrar u ocultar la clave" title="Mostrar u ocultar la clave" onclick="toggleKeyVisibility('key-minimax', this)"><wz-icon>👁</wz-icon></button>
                     </div>
                     <input type="text" aria-label="Identificador de voz de MiniMax" id="key-minimax-voice" placeholder="Voice ID (ej: Spanish_Wiselady)" class="key-sub-input">
-                    <a href="https://platform.minimax.io/" target="_blank" class="key-link"><wz-icon>📎</wz-icon> Obtener en platform.minimax.io</a>
+                    <a href="https://platform.minimax.io/console/keys" target="_blank" rel="noopener noreferrer" class="key-link" data-key-field="key-minimax">Obtener clave de MiniMax</a>
                     <p class="dim key-privacy"><wz-icon>🔒</wz-icon> Tus claves se guardan en este equipo, en tu perfil de Iris. IRIS solo las envía al proveedor elegido cuando usas su servicio; no las sube a servidores propios.</p>
                     <p class="dim" style="margin-top:4px"><wz-icon>💡</wz-icon> La autenticación OAuth de Hermes es independiente y no autoriza la API de voz.</p>
                 </div>
@@ -1005,7 +1017,7 @@
                         <input type="password" id="key-fish-audio" placeholder="Pega tu API key aquí" autocomplete="off" oninput="resetFishAudioAccount()">
                         <button class="btn-eye" type="button" aria-label="Mostrar u ocultar la clave" onclick="toggleKeyVisibility('key-fish-audio', this)"><wz-icon>👁</wz-icon></button>
                     </div>
-                    <a href="https://fish.audio/app/api-keys/" target="_blank" rel="noopener noreferrer" class="key-link">Obtener una clave en Fish Audio</a>
+                    <a href="https://fish.audio/app/api-keys/" target="_blank" rel="noopener noreferrer" class="key-link" data-key-field="key-fish-audio">Obtener clave de Fish Audio</a>
                     <label for="fish-audio-model">Modelo de voz</label>
                     <select id="fish-audio-model" class="key-sub-input" onchange="resetTTSPreview()">
                         <option value="s2.1-pro-free">S2.1 Pro Free · pruebas, sujeto a límites</option>
@@ -1049,7 +1061,9 @@
                     <p class="dim key-privacy"><wz-icon>🔒</wz-icon> La clave se guarda en tu perfil de Iris. Fish recibe el texto cuando usas su voz y la muestra cuando clonas. Las voces creadas aquí son privadas en tu cuenta de Fish.</p>
                 </div>
             <!-- Voice Selector (appears for Edge-TTS) -->
-            <div id="voice-selector-section" class="voice-browser">
+            <details id="voice-selector-section" class="setup-details voice-browser" ontoggle="if (this.open && !allVoices.length) loadVoices()">
+                <summary>Cambiar voz de Edge TTS</summary>
+                <div class="setup-details-body">
                 <div class="voice-browser-header">
                     <h3><wz-icon>🎤</wz-icon> Elige la voz <span class="help-tip" onclick="this.classList.toggle('active')">?<div class="tip-content"><div class="tip-title">Selector de voz</div>IRIS consulta el catálogo disponible de Edge-TTS. Filtra por idioma y género.<br><br>Haz click en ▶ para <strong>escuchar</strong> una voz antes de elegirla. La estrella <wz-icon>⭐</wz-icon> marca las voces recomendadas.<br><span class="tip-cost free">Sin API key · servicio externo</span></div></span></h3>
                     <div class="voice-filters">
@@ -1078,10 +1092,12 @@
                 <div id="voice-selected" class="voice-selected" style="display:none">
                     <wz-icon>✅</wz-icon> Voz seleccionada: <strong id="voice-selected-name"></strong>
                 </div>
-            </div>
+                </div>
+            </details>
 
             <!-- TTS preview row with editable phrase and result panel. -->
-            <p id="voice-current-choice" class="setup-choice" role="status"></p><div class="tts-test-row">
+            <div id="voice-advanced-preview"><div id="voice-test-controls">
+            <p id="voice-current-choice" class="setup-choice" role="status"></p><details class="setup-details"><summary>Editar frase de prueba</summary><div class="setup-details-body tts-test-row">
                 <label for="tts-test-text" class="tts-test-label">Frase de prueba:</label>
                 <input type="text"
                        id="tts-test-text"
@@ -1089,10 +1105,11 @@
                        maxlength="240"
                        value="Hola mundo, soy IRIS."
                        placeholder="Frase para probar la voz" />
-            </div>
-<button type="button" id="test-selected-voice" class="btn-secondary" onclick="testTTS(document.querySelector('input[name=tts]:checked')?.value, event)"><wz-icon name="speaker">🔊</wz-icon> Escuchar voz seleccionada</button>
-            <p class="dim setup-privacy">Solo se reproduce al pulsar. Los servicios en línea reciben la frase; un motor local puede descargar su modelo en la primera prueba.</p>
-            <div id="tts-test-result" class="info-panel" style="display:none"></div>
+            </div></details>
+            <button type="button" id="test-selected-voice" class="btn-secondary" onclick="testTTS(document.querySelector('input[name=tts]:checked')?.value, event)"><wz-icon name="speaker">🔊</wz-icon> Escuchar a Iris</button>
+            <p class="dim setup-privacy" id="voice-preview-privacy">Microsoft recibe la frase de prueba.</p>
+            <div id="tts-test-result" class="info-panel" aria-live="polite" style="display:none"></div>
+            </div></div>
 
             <!-- Voice cloning for providers with a real backend path -->
             <details id="voice-clone-section" class="voice-clone setup-details" style="display:none">
@@ -1181,7 +1198,7 @@
 
             <div class="step-buttons">
                 <button class="btn-back" onclick="prevStep()">← Atrás</button>
-                <button class="btn-primary" onclick="nextStep()">Siguiente →</button>
+                <button class="btn-primary" onclick="nextStep()">Continuar →</button>
             </div>
         </div>
 
@@ -1331,13 +1348,13 @@
     </dialog>
 
     <script src="/ui/provider_auth.js?v=1"></script>
-    <script src="/ui/provider_login_ui.js?v=6"></script>
+    <script src="/ui/provider_login_ui.js?v=7"></script>
     <script src="/ui/wizard_runtime.js?v=7"></script>
     <script src="/ui/llm_setup.js?v=2"></script>
-    <script src="/ui/provider_catalog_ui.js?v=2"></script>
+    <script src="/ui/provider_catalog_ui.js?v=3"></script>
     <script src="/ui/messaging.js?v=8"></script>
     <script type="module" src="/shared/iris_dialog.js?v=9"></script>
     <script type="module" src="/ui/wizard_icons.js?v=4"></script>
-    <script src="/ui/wizard.js?v=92"></script>
+    <script src="/ui/wizard.js?v=94"></script>
 </body>
 </html>

@@ -8,13 +8,13 @@ const flush = () => new Promise(resolve => setImmediate(resolve));
 function element() {
     const children = new Map();
     return { hidden: false, dataset: {}, listeners: {}, attributes: {}, textContent: '',
-        classList: { toggle() {} }, style: { setProperty() {} }, focus() {},
+        classList: { toggle() {} }, style: { setProperty() {} }, focus() {}, getClientRects() { return [1]; },
         addEventListener(key, fn) { this.listeners[key] = fn; },
         setAttribute(key, value) { this.attributes[key] = value; },
         querySelector(key) { if (!children.has(key)) children.set(key, element()); return children.get(key); },
     };
 }
-function harness() {
+function harness({ sendConversation = null, openPermissions = null, openVoiceSettings = null } = {}) {
     const document = { ...element(), hidden: false, body: { append() {} },
         createElement: element, querySelector: () => null, documentElement: element() };
     const window = element(), button = element(), calls = [], notices = [];
@@ -22,7 +22,7 @@ function harness() {
         source.replace('export class', 'class') + '\nreturn ManualVoiceController;')(document, window, { randomUUID });
     let revision = 0;
     const h = { document, window, button, calls, notices, replies: [], server: { state: 'off', busy: false, revision, settings: { streaming: false } } };
-    h.ui = new Class({ button, notice: text => notices.push(text), fetchImpl: async (url, options) => {
+    h.ui = new Class({ button, sendConversation, openPermissions, openVoiceSettings, notice: text => notices.push(text), fetchImpl: async (url, options) => {
         calls.push({ url, options });
         if (options.method === 'POST') {
             if (h.replies.length) return h.replies.shift()();
@@ -46,6 +46,79 @@ test('initial state and reconnection never start the microphone or Wake', async 
     h.ui.setConnected(true); await flush();
     assert.equal(h.posts().length, 0); assert.equal(h.button.disabled, false);
     assert.equal(h.ui.panel.hidden, true);
+});
+
+test('conversation starts by consent, survives multiple phases, and does not restart on reconnect', async () => {
+    const messages = [];
+    const h = harness({ sendConversation: payload => (messages.push(payload), true) });
+    h.ui.setConnected(true); await flush(); h.ui.toggle();
+    assert.equal(h.ui.converseButton.hidden, true);
+    h.ui.setConversationAvailable(true);
+    assert.equal(h.ui.converseButton.hidden, false);
+    assert.equal(messages.length, 0);
+    h.ui.converseButton.listeners.click();
+    const [{ id }] = messages;
+    assert.equal(messages[0].action, 'start');
+    assert.equal(messages[0].confirmed, true);
+    assert.equal(h.posts().length, 0);
+    h.ui.applyConversation({ id, phase: 'listening' });
+    assert.match(h.ui.conversationStatus.textContent, /Micrófono activo/);
+    const take = { mode: 'manual', client_id: h.ui.clientId, capture_id: 'first' };
+    h.ui.apply({ ...take, state: 'recording', busy: true, revision: 20 });
+    h.ui.showPartial({ ...take, sequence: 1, text: 'Hola, Iris' });
+    assert.equal(h.ui.conversationPreview.hidden, false);
+    assert.equal(h.ui.conversationPartial.textContent, 'Hola, Iris');
+    h.ui.showTranscript({ ...take, accepted: true, text: 'Hola, Iris' });
+    h.ui.applyConversation({ id, phase: 'replying' });
+    assert.match(h.ui.conversationStatus.textContent, /Preparando respuesta/);
+    assert.equal(h.ui.conversationPreview.hidden, true);
+    h.ui.applyConversation({ id, phase: 'speaking' });
+    assert.match(h.ui.conversationStatus.textContent, /Iris está hablando/);
+    const next = { ...take, capture_id: 'second' };
+    h.ui.apply({ ...next, state: 'recording', busy: true, revision: 21 });
+    h.ui.applyConversation({ id, phase: 'listening' });
+    h.ui.showPartial({ ...next, sequence: 1, text: 'Otra pregunta' });
+    assert.equal(h.ui.conversationPartial.textContent, 'Otra pregunta');
+    h.document.listeners.keydown({ key: 'Escape' });
+    assert.equal(messages.at(-1).action, 'end');
+    assert.equal(h.ui.conversationPreview.hidden, true);
+    h.ui.applyConversation({ id, phase: 'listening' });
+    assert.equal(h.ui.conversation.phase, 'ending');
+    h.ui.setConnected(false);
+    h.ui.setConnected(true); await flush();
+    assert.equal(h.ui.conversationBar.hidden, false);
+    assert.match(h.ui.voiceNoticeText.textContent, /Se perdió la conexión/);
+    h.document.listeners.keydown({ key: 'Escape' });
+    assert.equal(h.ui.conversationBar.hidden, true);
+    assert.equal(messages.length, 2);
+});
+
+test('permission and voice recovery stay available in the bar without starting a new capture', async () => {
+    const opened = [], messages = [];
+    const h = harness({ sendConversation: payload => (messages.push(payload), true),
+        openPermissions: () => opened.push('permissions'), openVoiceSettings: () => opened.push('voice') });
+    h.ui.setConnected(true); await flush(); h.ui.toggle();
+    h.ui.setConversationAvailable(true);
+    h.ui.startConversation();
+    h.ui.applyConversation({ id: messages[0].id, phase: 'off', code: 'microphone_blocked', reason: 'Micrófono bloqueado.' });
+    assert.equal(h.ui.conversationBar.hidden, false);
+    assert.equal(h.ui.endConversationButton.hidden, true);
+    assert.equal(h.ui.voiceNoticeAction.textContent, 'Abrir Permisos');
+    await h.ui.openNoticeSettings();
+    h.ui.showNotice('Iris no pudo hablar.', 'voice_unavailable');
+    assert.equal(h.ui.voiceNoticeAction.textContent, 'Abrir ajustes de voz');
+    await h.ui.openNoticeSettings();
+    assert.equal(h.ui.conversationBar.hidden, true);
+    assert.deepEqual(opened, ['permissions', 'voice']);
+    assert.equal(messages.length, 1);
+    h.ui.toggle();
+    h.ui.startConversation();
+    h.ui.showNotice('Iris no pudo hablar.', 'voice_unavailable');
+    await h.ui.openNoticeSettings();
+    assert.deepEqual(messages.map(message => message.action), ['start', 'start', 'end']);
+    assert.equal(h.ui.conversation.phase, 'ending');
+    assert.deepEqual(opened, ['permissions', 'voice', 'voice']);
+    assert.equal(h.posts().length, 0);
 });
 
 test('consent explains local/remote STT and can be dismissed without activation', async () => {

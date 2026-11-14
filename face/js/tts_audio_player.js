@@ -104,6 +104,7 @@ export class TtsAudioPlayer {
         // object URLs.
         this.stop();
         let reported = false;
+        let started = false;
         const finish = (status) => {
             if (reported) return;
             reported = true;
@@ -124,6 +125,10 @@ export class TtsAudioPlayer {
 
         audio.onplaying = () => {
             if (this.audio !== audio) return;
+            if (!started) {
+                started = true;
+                this._report(payload, 'playing');
+            }
             if (visemes.length > 0) lipSync?.processVisemes?.(visemes);
             else lipSync?.startAudioReactive?.(audio);
         };

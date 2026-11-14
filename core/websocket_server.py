@@ -29,7 +29,7 @@ from collections.abc import Callable
 from contextvars import ContextVar
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 from fastapi import (
     Body,
@@ -93,6 +93,7 @@ from core.document_attachments import (
     extract_pdf_text,
 )
 from core.hermes_wake import router as hermes_wake_router
+from core.voice_conversation import VoiceConversation
 from core.identity_api import router as identity_router
 from core.model_selection_api import model_selection_router
 from core.vision_model_api import vision_model_router
@@ -234,6 +235,9 @@ def _disconnect_surface(websocket: WebSocket) -> bool:
     released_camera = _surface_registry.camera_owner() is websocket
     _connected_clients.discard(websocket)
     _surface_registry.disconnect(websocket)
+    conversation = _voice_conversation()
+    if conversation and conversation.session and conversation.session.owner is websocket:
+        conversation.stop()
     if released_camera:
         app.state.user_emotion = None
         _vision_assistant.reset_observation()
@@ -571,6 +575,7 @@ async def websocket_endpoint(websocket: WebSocket) -> None:
                 "version": IRIS_VERSION,
                 "name": "IRIS",
                 "status": "ready",
+                "voice_conversation": True,
                 "hermes_wake_active": bool(
                     getattr(getattr(app.state, "hermes_wake", None), "listening", False)
                 ),
@@ -714,9 +719,22 @@ async def _handle_face_message(websocket: WebSocket, message: Any) -> None:
         return
 
     if msg_type == "ping":
+        conversation = _voice_conversation()
+        if conversation is not None:
+            conversation.keep_alive(websocket)
         await websocket.send_json({"type": "pong"})
     elif msg_type == "tts_playback_result":
-        _tts_playback.answer(websocket, payload)
+        if payload.get("status") == "playing":
+            conversation = _voice_conversation()
+            session = conversation.session if conversation else None
+            token = payload.get("playback_id")
+            if (session and isinstance(token, str) and token == session.playback_id
+                    and _tts_playback.awaiting(token, websocket)):
+                await conversation.playback_started(session)
+        else:
+            _tts_playback.answer(websocket, payload)
+    elif msg_type == "voice_conversation":
+        await _handle_voice_conversation(websocket, payload)
     elif msg_type == "surface_ready":
         # Music metadata and playback stay on the host. A LAN page may render
         # IRIS, chat or receive TTS, but cannot own the local player.
@@ -752,6 +770,9 @@ async def _handle_face_message(websocket: WebSocket, message: Any) -> None:
             websocket,
             _surface_payload_for_peer(payload, peer_host),
         )
+        conversation = _voice_conversation()
+        if conversation and conversation.session and conversation.session.owner is websocket and not record.visible:
+            conversation.stop()
         _app_notices_changed()  # a window that became visible may show a waiting notice
         await websocket.send_json({
             "type": "surface_state_ack",
@@ -926,9 +947,24 @@ async def _handle_face_message(websocket: WebSocket, message: Any) -> None:
         import sys
 
         # Lanza el wizard de forma desacoplada
-        subprocess.Popen([sys.executable, "-m", "wizard.app"], start_new_session=True)
-        # Informa al frontend para que abra pestaña si quiere, aunque wizard.app ya lo hace
-        await websocket.send_json({"type": "wizard_launched", "url": "http://127.0.0.1:8000/ui/"})
+        voice_settings = payload.get("section") == "voice"
+        args = [sys.executable, "-m", "wizard.app"]
+        options = {"start_new_session": True}
+        if voice_settings:
+            args.append("--voice")
+            if sys.platform == "win32":
+                options["creationflags"] = subprocess.CREATE_NO_WINDOW
+        try:
+            subprocess.Popen(args, **options)
+        except OSError:
+            logger.exception("Could not launch the setup wizard")
+            await websocket.send_json({"type": "wizard_launch_failed", "payload": {
+                "message": "No pude abrir Configuración. Ábrela desde IRIS OS.",
+                "section": "voice" if voice_settings else "",
+            }})
+            return
+        if not voice_settings:
+            await websocket.send_json({"type": "wizard_launched", "url": "http://127.0.0.1:8000/ui/"})
     elif msg_type == "user_text":
         # Typed message from the side-panel chat. Without this handler
         # every typed message used to fall through to the `else` branch
@@ -1449,12 +1485,19 @@ async def _handle_user_text(
     reasoning_effort: str | None = None,
     memory_text: str | None = None,
     camera_question: bool = False,
+    voice_guard: Callable[[], bool] | None = None,
+    voice_transcript: dict[str, Any] | None = None,
 ) -> None:
     # A new turn ends a photo an earlier turn is still waiting for, so that
     # turn answers at once and releases the conversation, and an earlier turn
     # that has not asked yet will not ask (R06).
     global _turn_epoch
+    conversation = _voice_conversation()
+    if voice_guard is None and conversation and conversation.session:
+        conversation.stop("La conversación por voz terminó al enviar otro mensaje.")
     await _stop_inbox_voice()
+    if voice_guard is not None and not voice_guard():
+        return
     _turn_epoch += 1
     epoch = _turn_epoch
     # Surfaces go by this number and not by the clock: the end of a stopped turn, its late tool
@@ -1467,12 +1510,19 @@ async def _handle_user_text(
         await _cancel_pending_snapshots("superseded")
         agent = getattr(app.state, "agent", None)
         conversation_lock = getattr(agent, "_conversation_lock", None)
-        if conversation_lock is None:
+        async def run() -> None:
+            if voice_guard is not None:
+                if not voice_guard():
+                    return
+                _note_iris_interaction(websocket)
+                await broadcast_to_face("voice_transcript", voice_transcript or {})
             await _handle_user_text_unlocked(
                 websocket, text, images=images,
                 reasoning_effort=reasoning_effort, memory_text=memory_text,
                 camera_question=camera_question, turn_epoch=epoch,
             )
+        if conversation_lock is None:
+            await run()
             return
         running_turn = getattr(agent, "_current_turn_task", None)
         if running_turn is not None and conversation_lock.locked() and await _running_turn_superseded(agent):
@@ -1482,11 +1532,7 @@ async def _handle_user_text(
             # to the new provider at once.
             await agent.interrupt(reason="provider_changed", expected_turn=running_turn)
         async with conversation_lock:
-            await _handle_user_text_unlocked(
-                websocket, text, images=images,
-                reasoning_effort=reasoning_effort, memory_text=memory_text,
-                camera_question=camera_question, turn_epoch=epoch,
-            )
+            await run()
     finally:
         current_turn.reset(turn)
         await asyncio.shield(broadcast_to_face("turn_ended", {"turn": epoch}))
@@ -1494,6 +1540,97 @@ async def _handle_user_text(
 
 def _is_local_client(client: Any) -> bool:
     return is_loopback_host(str(getattr(getattr(client, "client", None), "host", "")))
+
+
+class VoiceConversationCommand(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    action: Literal["start", "end"]
+    id: str = Field(pattern=r"^[a-f0-9-]{36}$")
+    client_id: str = Field(pattern=r"^[a-f0-9-]{36}$")
+    confirmed: StrictBool = False
+
+
+def _voice_conversation() -> VoiceConversation | None:
+    return getattr(getattr(app.state, "hermes_wake", None), "voice_conversation", None)
+
+
+def _voice_route() -> str:
+    bridge = getattr(getattr(app.state, "agent", None), "bridge", None)
+    return bridge.route_context()["token"] if getattr(bridge, "is_available", False) else ""
+
+
+def _visible_voice_owner(owner: Any) -> bool:
+    record = _surface_registry.get(owner)
+    return bool(record and record.role in {"face", "desktop_companion"} and record.visible
+                and record.supports("accepts_chat") and _is_local_client(owner))
+
+
+def _conversational_mic_allowed() -> bool:
+    return _capability_store.evaluate("microphone.capture", trigger="manual", confirmed=True)["verdict"] == "allow"
+
+
+async def _pause_conversational_mic(reason: str = "") -> None:
+    conversation = _voice_conversation()
+    if conversation and conversation.session:
+        cleanup = conversation.stop(reason)
+        if cleanup is not None:
+            await asyncio.shield(cleanup)
+        if conversation.session and conversation.session.mic_uncertain:
+            raise RuntimeError("No se pudo cerrar el micrófono de la conversación.")
+
+
+async def prepare_conversational_mic_for_speech() -> None:
+    conversation = _voice_conversation()
+    if conversation and conversation.session and conversation.session.turn is not asyncio.current_task():
+        await _pause_conversational_mic("La conversación por voz terminó para reproducir otro aviso de Iris.")
+
+
+def local_speech_started_callback() -> Callable[[], None] | None:
+    conversation = _voice_conversation()
+    session = conversation.session if conversation else None
+    turn = asyncio.current_task()
+    if session is None or session.turn is not turn:
+        return None
+    loop = asyncio.get_running_loop()
+
+    def publish_started() -> None:
+        if session.turn is turn:
+            asyncio.create_task(conversation.playback_started(session))
+
+    def started() -> None:
+        loop.call_soon_threadsafe(publish_started)
+
+    return started
+
+
+async def _handle_voice_conversation(websocket: WebSocket, payload: dict[str, Any]) -> None:
+    try:
+        command = VoiceConversationCommand.model_validate(payload)
+    except ValidationError:
+        return
+    runtime = getattr(app.state, "hermes_wake", None)
+    conversation = _voice_conversation()
+    if command.action == "end":
+        session = conversation.session if conversation else None
+        if session and session.owner is websocket and session.id == command.id:
+            conversation.stop()
+        return
+    try:
+        if runtime is None or not _visible_voice_owner(websocket) or not command.confirmed:
+            raise RuntimeError("Abre Iris en este equipo y confirma el uso del micrófono.")
+        if conversation is None:
+            conversation = runtime.voice_conversation = VoiceConversation(
+                runtime, visible=_visible_voice_owner, route=_voice_route,
+                allowed=_conversational_mic_allowed, busy=_vision_backend_busy,
+            )
+        conversation.start(websocket, command.id, command.client_id, before_listening=_stop_inbox_voice)
+        # Do not await native capture here. This socket must still read End,
+        # visibility updates, and the later TTS playback receipt.
+    except (RuntimeError, PermissionError) as exc:
+        await websocket.send_json({"type": "voice_conversation_state", "payload": {
+            "id": command.id, "phase": "off", "reason": str(exc),
+            "code": "microphone_blocked" if isinstance(exc, PermissionError) else "",
+        }})
 
 
 def _note_iris_interaction(websocket: Any, *, offer_notice: bool = False) -> None:
@@ -1540,11 +1677,13 @@ def _voice_eligible(websocket: Any) -> bool:
 
     runtime = _automation_runtime
     record = _surface_registry.get(websocket)
+    wake = getattr(app.state, "hermes_wake", None)
     if (runtime is None or record is None or not _is_local_client(websocket)
             or record.role not in {"face", "desktop_companion"} or not record.visible or not record.focused
             or not record.supports("speaks_inbox") or not record.supports("plays_tts")
             or _surface_registry.audio_owner() is not websocket or _vision_backend_busy()
-            or getattr(getattr(app.state, "hermes_wake", None), "listening", False)):
+            or getattr(wake, "listening", False)
+            or getattr(getattr(wake, "voice_conversation", None), "session", None) is not None):
         return False
     try:
         prefs = runtime.presence_preferences()
@@ -2662,14 +2801,30 @@ async def handle_hermes_wake_event(event_type: str, payload: dict[str, Any]) -> 
         return
     if event_type == "manual_voice.state":
         await broadcast_to_face("hermes_voice_state", payload)
+        conversation = _voice_conversation()
+        if conversation is not None:
+            await conversation.capture_state(payload)
         return
     if event_type == "manual_voice.transcript":
         text = str(payload.get("text") or "").strip()
         if text:
-            await broadcast_to_face("voice_transcript", {
+            transcript = {
                 "accepted": True, "text": text, "native_hermes": True, "mode": "manual",
                 "client_id": payload.get("client_id", ""), "capture_id": payload.get("capture_id", ""),
-            })
+            }
+            conversation = _voice_conversation()
+            session = conversation.session if conversation else None
+            if session and conversation.owns_capture(session, payload):
+                async def reply(session, text):
+                    await _handle_user_text(
+                        session.owner, text, voice_guard=lambda: conversation.valid(session),
+                        voice_transcript=transcript,
+                    )
+
+                # The native event queue remains independent of turn cancellation and duration.
+                await _spawn_turn(conversation.transcript(session, text, reply=reply))
+                return
+            await broadcast_to_face("voice_transcript", transcript)
             # Manual voice is input to the current conversation, not Wake's
             # profile/new-session routing or its last routing error.
             await _handle_user_text(None, text)
@@ -2807,6 +2962,10 @@ async def send_tts_audio(payload: dict[str, Any], *, wait_for_end: bool = False,
     attempted: set[WebSocket] = set()
     owner: WebSocket | None = None
     playback_id = ""
+    conversation = _voice_conversation() if wait_for_end else None
+    session = conversation.session if conversation else None
+    if session is not None and session.turn is not asyncio.current_task():
+        session = None
 
     while True:
         candidate = _surface_registry.audio_owner()
@@ -2817,6 +2976,8 @@ async def send_tts_audio(payload: dict[str, Any], *, wait_for_end: bool = False,
         attempted.add(candidate)
         record = _surface_registry.get(candidate)
         playback_id = _tts_playback.begin(candidate) if wait_for_end and record and record.supports("reports_tts_playback") else ""
+        if session is not None:
+            session.playback_id = playback_id
         outgoing = {**payload, "playback_id": playback_id} if playback_id else payload
         try:
             await candidate.send_text(json.dumps({"type": "tts_audio", "payload": outgoing}))
@@ -2852,11 +3013,26 @@ async def send_tts_audio(payload: dict[str, Any], *, wait_for_end: bool = False,
             outcome = await _tts_playback.wait(playback_id, duration_s)
             if outcome != "ended":
                 logger.warning("TTS surface playback finished: %s", outcome)
+                if outcome in {"timeout", "disconnected"}:
+                    if session and conversation.session is session:
+                        conversation.stop("No se pudo confirmar el fin del audio. La escucha terminó.",
+                                          restore_wake=False)
+                elif outcome == "failed":
+                    await broadcast_to_face("voice_unavailable", {
+                        "message": "Iris generó la voz, pero no se pudo reproducir. "
+                                   "Revisa la salida de audio.",
+                        "code": "audio_playback_failed",
+                    })
         elif wait_for_end:
             # Compatibility for cached clients that cannot acknowledge playback.
+            if session and conversation.session is session:
+                conversation.stop("La ventana de audio no confirma cuándo termina. Actualiza Iris.",
+                                  restore_wake=False)
             await asyncio.sleep(max(0.5, duration_s) + 2.0)
     finally:
         _tts_playback.discard(playback_id)
+        if session is not None:
+            session.playback_id = ""
 
     return True
 
@@ -5662,6 +5838,11 @@ async def _reconcile_runtime_capability_policy(
     """
     global _policy_revision
     _policy_revision += 1  # before any await: a capture still preparing sees it
+    if changed_capability in {None, "microphone.capture"} and not _conversational_mic_allowed():
+        conversation = _voice_conversation()
+        if conversation is not None:
+            conversation.stop("El micrófono se bloqueó en Permisos.",
+                              restore_wake=False, code="microphone_blocked")
     if changed_capability in {None, "vision.snapshot", "camera.capture", "screen.snapshot",
                               "vision.ai_request", "screen.ai_request"}:
         source = (None if changed_capability is None
@@ -6297,6 +6478,9 @@ async def _continuity_resume_existing_session(
                 status_code=409,
                 detail="IRIS está respondiendo. Espera a que termine antes de cambiar de sesión.",
             )
+        conversation = _voice_conversation()
+        if conversation is not None:
+            conversation.stop("Cambiaste de conversación.")
         previous_local_id = str(getattr(agent, "_session_id", "default") or "default")
         previous_continuity = bool(getattr(agent, "_continuity_active", False))
         try:

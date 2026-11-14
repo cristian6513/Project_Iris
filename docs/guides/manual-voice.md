@@ -27,9 +27,30 @@ El texto reconocido se envía a la **conversación actual** de IRIS. No crea la
 sesión nueva que puede crear Wake. Una vez enviada al agente, cancelar la
 grabación no deshace esa orden; el panel indica que ya fue enviada.
 
+## Conversación por voz
+
+Esta función está en la fuente posterior a QA24. En **Hablar → Iniciar conversación**, confirma la escucha para la ventana actual.
+Puedes hablar varios turnos sin tocar el botón ni repetir «Hey Iris». Hermes envía
+cada frase cuando detecta el silencio configurado (3 segundos por defecto).
+El micrófono queda en pausa durante la respuesta. Iris espera el fin de la
+reproducción y deja una pausa de 0,35 s antes de escuchar otra vez.
+La barra indica cuándo prepara la respuesta y cuándo empieza a hablar. Si la
+escucha termina con un aviso, se muestra ahí incluso en **Solo avatar**.
+**Abrir Permisos** abre el panel donde se controla el micrófono, y
+**Abrir ajustes de voz** lleva a la prueba de voz si falla el motor que la genera.
+
+**Terminar** o **Escape** cierran la escucha. El botón sigue visible en **Solo
+avatar** del Companion. La sesión termina si no detecta una intervención, al
+ocultar o cerrar la ventana, al perder conexión, al cambiar de conversación o al
+bloquear el micrófono en **Permisos**. La sesión empieza apagada en cada arranque.
+El proveedor de transcripción es el mismo que en **Hablar ahora**. Si admite
+transcripción en directo y la activaste, la barra muestra el texto provisional.
+Si Wake ya estaba activo, se suspende durante la conversación y puede volver al
+terminar.
+
 ## Cambiar la voz que responde
 
-En QA22, **Guardar voz** aplica la selección a la siguiente respuesta, sin
+Desde QA22, **Guardar voz** aplica la selección a la siguiente respuesta, sin
 cerrar la ventana ni detener Core. La primera frase con un modelo local puede
 tardar mientras lo carga. Esto no cambia STT ni abre el micrófono. Consulta
 [Guardar y cambiar la voz](configuration.md#guardar-y-cambiar-la-voz) para las

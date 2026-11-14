@@ -50,13 +50,14 @@ variables del sistema.
 ## Uso
 
 1. Reiniciar el wizard si estaba abierto antes de actualizar Iris y recargar la página.
-2. Elegir el proveedor. Para OAuth, pulsar **Conectar cuenta** y autorizar en la página del proveedor, con el código si aparece. Iris carga los modelos cuando termina la autorización.
-3. Para API key, pegar la clave y pulsar **Cargar modelos**. Si ya hay una clave guardada para ese proveedor, se puede consultar sin volver a escribirla.
-4. Elegir el modelo y pulsar **Guardar proveedor**. Consultar una lista no genera respuestas ni cambia el proveedor principal; la clave nueva solo se persiste al guardar.
+2. Elegir el proveedor. El asistente muestra primero **ChatGPT**, **Nous Portal** y **Grok** cuando admiten iniciar sesión. Autoriza en el navegador y completa el código si aparece. Iris carga los modelos al terminar.
+3. Para API key, abrir **Más proveedores** si hace falta. El enlace **Obtener clave** abre el sitio del proveedor. Pega la clave y pulsa **Cargar modelos**. Una clave guardada se puede usar sin volver a escribirla.
+4. Revisar el modelo sugerido por Hermes para esa cuenta o elegir otro. Pulsa **Guardar proveedor** para aplicar la selección. La consulta de modelos solo lee el catálogo.
+5. En los tres proveedores de inicio rápido, **Probar respuesta** envía una frase breve usando el modelo OAuth guardado. Si responde, Iris muestra **Lista para conversar**. La prueba puede consumir cuota.
 
 Este orden está en la fuente posterior a QA13; los instaladores QA13 existentes conservan el flujo anterior. Los proveedores locales y **Agregar otro proveedor** mantienen su flujo propio: una app local no necesita login, y el proveedor adicional no sustituye al principal.
 
-La lista pertenece al proveedor, al método de acceso, a la clave y al endpoint elegidos. Cambiar cualquiera invalida la consulta anterior. API y OAuth pueden ofrecer modelos distintos, por ejemplo OpenAI API y la suscripción de ChatGPT/Codex. No se elige automáticamente el primer modelo al cargar la lista.
+La lista pertenece al proveedor, al método de acceso, a la clave y al endpoint elegidos. Cambiar cualquiera invalida la consulta anterior. API y OAuth pueden ofrecer modelos distintos, por ejemplo OpenAI API y ChatGPT/Codex. Si el modelo sugerido queda fuera de la lista o el catálogo es solo de referencia, Iris deja la elección al usuario.
 
 - **Nous Portal:** consulta el plan y las recomendaciones actualizadas después de conectar. Muestra los modelos admitidos; no presupone una cantidad fija de gratuitos. Si no se puede comprobar el plan, pide reintentar. Lo vuelve a comprobar antes de guardar.
 - **OpenRouter:** consulta su lista para el usuario, respetando preferencias y restricciones de la cuenta. Incluye los modelos gratuitos que el servicio devuelve con salida de texto y soporte de herramientas.

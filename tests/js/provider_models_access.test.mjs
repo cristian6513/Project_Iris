@@ -59,6 +59,33 @@ test('explicit read lists every model including free, without picking the first 
     assert.deepEqual(p.reads.map(r => r.url), ['/api/provider-models']);
 });
 
+test('a recommended OAuth model is selected only from the returned list and can be changed', async () => {
+    const p = page();
+    p.selectProvider('openai');
+    p.nodes['use-oauth'].checked = true;
+    p.nodes['llm-recommended-model'] = {};
+    p.nodes['llm-recommended-model-name'] = {};
+    p.nodes['llm-model'].focus = () => {};
+    const load = p.ctx.loadProviderModels();
+    complete(p.reads[0], [{ value: 'from-account', label: 'Account model' }], {
+        source: 'hermes', recommended_model: 'from-account',
+    });
+    await load;
+    assert.equal(p.nodes['llm-model'].value, 'from-account');
+    assert.equal(p.nodes['llm-recommended-model'].hidden, false);
+    assert.equal(p.nodes['llm-model-section'].style.display, 'none');
+    p.ctx.showProviderModelPicker();
+    assert.equal(p.nodes['llm-model-section'].style.display, 'block');
+
+    const refreshed = p.ctx.loadProviderModels();
+    complete(p.reads[1], [{ value: 'different-model', label: 'Different model' }], {
+        source: 'hermes', recommended_model: 'not-in-the-list',
+    });
+    await refreshed;
+    assert.equal(p.nodes['llm-model'].value, '__custom__', 'the prior explicit route is kept for review');
+    assert.equal(p.nodes['llm-recommended-model'].hidden, true);
+});
+
 test('editing a key aborts its read and a late response cannot restore the list', async () => {
     const p = page(); p.nodes['llm-api-key'].value = 'old';
     const load = p.ctx.loadProviderModels();

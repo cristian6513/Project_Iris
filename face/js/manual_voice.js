@@ -1,10 +1,22 @@
-/** A manual utterance via Hermes; never a browser recorder or wake detector. */
+/** Local controls for Hermes microphone capture. */
 export class ManualVoiceController {
-    constructor({ button, fetchImpl = (...args) => fetch(...args), notice = () => {}, onState = () => {} }) {
+    constructor({ button, fetchImpl = (...args) => fetch(...args), notice = () => {}, onState = () => {},
+        sendConversation = null, openPermissions = null, openVoiceSettings = null,
+        focusFallback = () => {} } = {}) {
         this.button = button;
         this.fetch = fetchImpl;
         this.notice = notice;
         this.onState = onState;
+        this.focusFallback = focusFallback;
+        this.sendConversation = sendConversation;
+        this.conversationAvailable = false;
+        this.conversation = null;
+        this.voiceNotice = null;
+        this.voiceNoticeTimer = null;
+        this.noticeActions = {
+            microphone_blocked: { label: 'Abrir Permisos', open: openPermissions },
+            voice_unavailable: { label: 'Abrir ajustes de voz', open: openVoiceSettings },
+        };
         this.clientId = crypto.randomUUID(); // Per window, never shared via storage.
         this.state = { state: 'off', busy: false, revision: -1 };
         this.connected = false;
@@ -25,14 +37,15 @@ export class ManualVoiceController {
         this.panel.hidden = true;
         this.panel.setAttribute('aria-label', 'Hablar con IRIS');
         this.panel.innerHTML = `<strong>VOZ · HERMES</strong><p role="status" aria-live="polite"></p>
-            <small>Una intervención · Transcripción configurada (local o remota). Wake se gestiona en Configuración.</small>
+            <small>El audio usa la transcripción de Hermes, local o remota según tu configuración.</small>
             <label class="voice-streaming-option"><input type="checkbox" data-streaming> Transcribir mientras hablo</label>
             <small data-streaming-hint>Opción de este perfil, también para la activación por voz. Puede enviar audio al proveedor STT mientras hablas. Si no admite directo o falla, se intenta la transcripción final habitual.</small>
             <aside class="voice-partial" hidden><small>TRANSCRIPCIÓN PROVISIONAL · aún no enviada</small><p data-partial></p></aside>
-            <div><button type="button" data-confirm>Hablar ahora</button><button type="button" data-cancel>Cancelar</button></div>`;
+            <div><button type="button" data-confirm>Hablar ahora</button><button type="button" data-converse hidden>Iniciar conversación</button><button type="button" data-cancel>Cancelar</button></div>`;
         document.body.append(this.panel);
         this.message = this.panel.querySelector('p');
         this.confirmButton = this.panel.querySelector('[data-confirm]');
+        this.converseButton = this.panel.querySelector('[data-converse]');
         this.cancelButton = this.panel.querySelector('[data-cancel]');
         this.streamingInput = this.panel.querySelector('[data-streaming]');
         this.partialBox = this.panel.querySelector('.voice-partial');
@@ -45,8 +58,34 @@ export class ManualVoiceController {
             void this.start();
         });
         this.cancelButton.addEventListener('click', () => this.cancel());
+        this.converseButton?.addEventListener('click', () => this.startConversation());
+        if (sendConversation) {
+            this.conversationBar = document.createElement('section');
+            this.conversationBar.className = 'voice-conversation-bar';
+            this.conversationBar.hidden = true;
+            this.conversationBar.setAttribute('aria-label', 'Conversación por voz');
+            this.conversationBar.innerHTML = `<p role="status" aria-live="polite"></p><button type="button" data-end-conversation>Terminar</button>
+                <aside class="voice-conversation-partial" hidden><small>Transcripción provisional</small><p data-conversation-partial></p></aside>
+                <div class="voice-conversation-notice" hidden><p aria-live="polite" data-voice-notice></p>
+                    <div><button type="button" data-voice-action hidden></button><button type="button" data-close-notice>Cerrar aviso</button></div>
+                </div>`;
+            this.conversationStatus = this.conversationBar.querySelector('[role="status"]');
+            this.conversationPartial = this.conversationBar.querySelector('[data-conversation-partial]');
+            this.conversationPreview = this.conversationBar.querySelector('.voice-conversation-partial');
+            this.endConversationButton = this.conversationBar.querySelector('[data-end-conversation]');
+            this.voiceNoticeBox = this.conversationBar.querySelector('.voice-conversation-notice');
+            this.voiceNoticeText = this.conversationBar.querySelector('[data-voice-notice]');
+            this.voiceNoticeAction = this.conversationBar.querySelector('[data-voice-action]');
+            this.closeVoiceNotice = this.conversationBar.querySelector('[data-close-notice]');
+            this.endConversationButton.addEventListener('click', () => this.endConversation());
+            this.voiceNoticeAction.addEventListener('click', () => this.openNoticeSettings());
+            this.closeVoiceNotice.addEventListener('click', () => this.clearNotice(true));
+            document.body.append(this.conversationBar);
+        }
         document.addEventListener('keydown', (event) => {
-            if (event.key === 'Escape' && !this.panel.hidden) void this.cancel();
+            if (event.key !== 'Escape') return;
+            if (this.voiceNotice && !this.conversation) this.clearNotice(true);
+            else if (this.conversation || !this.panel.hidden) void this.cancel();
         });
         document.addEventListener('visibilitychange', () => {
             if (document.hidden) void this.cancel();
@@ -56,13 +95,18 @@ export class ManualVoiceController {
     }
 
     get ownsCapture() { return this.state.client_id === this.clientId; }
+    get closingConversation() { return this.conversation?.phase === 'ending'; }
 
     setConnected(connected) {
         this.connected = Boolean(connected);
-        if (!connected) { this.clearPartial(); this.wakeCapture = ''; }
+        if (!connected) { this.clearPartial(); this.wakeCapture = ''; this.conversationAvailable = false; }
         if (connected) {
             this.state.revision = -1;
             void this.refresh();
+        } else if (this.conversation) {
+            this.conversation = null; // Core also ends its socket-owned session.
+            this.transcript = '';
+            this.showNotice('Se perdió la conexión. La conversación por voz terminó.');
         } else if (this.ownsCapture && this.state.busy) {
             void this.cancel();
         }
@@ -80,7 +124,7 @@ export class ManualVoiceController {
         if (payload.mode !== 'manual') { this.clearPartial(); this.wakeCapture = ''; this.render(); return; }
         if (payload.mode !== 'manual' || !payload.accepted || !this.ownsCapture) return;
         if (payload.capture_id && payload.capture_id !== this.state.capture_id) return;
-        this.transcript = String(payload.text || '').trim();
+        if (!this.conversation) this.transcript = String(payload.text || '').trim();
         this.clearPartial();
         this.render();
     }
@@ -140,10 +184,12 @@ export class ManualVoiceController {
 
     toggle() {
         if (!this.connected || this.pending) return;
+        if (this.conversation) { this.endConversationButton?.focus(); return; }
         if (this.state.busy) {
             if (this.ownsCapture && this.state.state === 'recording') void this.command('stop');
             return;
         }
+        this.clearNotice();
         {
             this.confirming = true;
             this.render();
@@ -152,7 +198,7 @@ export class ManualVoiceController {
     }
 
     async start() {
-        if (!this.connected || this.pending || this.settingsPending || this.state.busy || document.hidden) return;
+        if (this.conversation || !this.connected || this.pending || this.settingsPending || this.state.busy || document.hidden) return;
         this.transcript = '';
         this.discardPartials = false;
         this.clearPartial(); this.wakeCapture = '';
@@ -182,11 +228,17 @@ export class ManualVoiceController {
                 if (action === 'start' && !Number.isFinite(result.revision)) {
                     this.state = { ...this.state, state: 'error', busy: false };
                 }
-                throw new Error(typeof result.detail === 'string' ? result.detail : 'No se pudo cambiar el micrófono.');
+                const error = new Error(typeof result.detail === 'string' ? result.detail : 'No se pudo cambiar el micrófono.');
+                if (result.code === 'microphone_blocked') error.code = result.code;
+                throw error;
             }
         } catch (error) {
             this.failure = error.message || 'No pude confirmar el estado del micrófono.';
-            this.notice(this.failure);
+            if (error.code && this.conversationBar) {
+                const message = this.failure;
+                this.failure = '';
+                this.showNotice(message, error.code);
+            } else this.notice(this.failure);
             // Never assume OFF or repeat an uncertain recording request.
             void this.refresh();
         } finally {
@@ -197,6 +249,10 @@ export class ManualVoiceController {
     }
 
     async cancel() {
+        if (this.conversation) {
+            if (!this.closingConversation || this.conversation.mic_uncertain) this.endConversation();
+            return;
+        }
         this.confirming = false;
         this.discardPartials = true;
         this.clearPartial(); this.wakeCapture = '';
@@ -210,6 +266,102 @@ export class ManualVoiceController {
         }
     }
 
+    startConversation() {
+        if (!this.conversationAvailable || !this.sendConversation || !this.confirming || !this.connected || this.pending
+            || this.settingsPending || this.state.busy || document.hidden) return;
+        const id = crypto.randomUUID();
+        this.confirming = false;
+        this.failure = '';
+        this.transcript = '';
+        this.clearPartial();
+        this.clearNotice();
+        this.discardPartials = false;
+        this.conversation = { id, phase: 'arming' };
+        if (!this.sendConversation({ action: 'start', id, client_id: this.clientId, confirmed: true })) {
+            this.conversation = null;
+            this.failure = 'No pude conectar con Core para iniciar la conversación.';
+        }
+        this.render();
+        if (this.conversation) this.endConversationButton?.focus();
+    }
+
+    setConversationAvailable(available) {
+        this.conversationAvailable = Boolean(available && this.sendConversation);
+        this.render();
+    }
+
+    endConversation() {
+        if (!this.conversation) return true;
+        this.clearPartial();
+        this.conversation.phase = 'ending';
+        const sent = this.sendConversation({ action: 'end', id: this.conversation.id, client_id: this.clientId });
+        if (!sent) {
+            this.conversation.mic_uncertain = true;
+            this.conversation.reason = 'No pude enviar el cierre. Reintenta o cierra esta ventana.';
+        }
+        this.render();
+        return Boolean(sent);
+    }
+
+    applyConversation(payload) {
+        if (payload?.id !== this.conversation?.id || !this.conversation) return;
+        if (this.conversation.phase === 'ending' && !['ending', 'off'].includes(payload.phase)) return;
+        if (payload.phase === 'off') {
+            const restoreFocus = document.activeElement === this.endConversationButton;
+            this.conversation = null;
+            this.clearPartial();
+            this.transcript = '';
+            if (payload.reason) this.showNotice(payload.reason, payload.code);
+            this.render();
+            if (restoreFocus && this.voiceNotice) {
+                (this.voiceNoticeAction.hidden ? this.closeVoiceNotice : this.voiceNoticeAction).focus();
+            } else if (restoreFocus) this.restoreFocus();
+        } else {
+            this.conversation = payload;
+            this.render();
+        }
+    }
+
+    showNotice(text, code = '') {
+        if (!text) return;
+        if (!this.conversationBar) { this.notice(text); return; }
+        clearTimeout(this.voiceNoticeTimer);
+        this.voiceNotice = { text, code };
+        if (!this.noticeActions[code]?.open) {
+            this.voiceNoticeTimer = setTimeout(() => {
+                if (!this.voiceNoticeBox.contains(document.activeElement)) this.clearNotice();
+            }, 7000);
+        }
+        this.render();
+    }
+
+    clearNotice(restoreFocus = false) {
+        if (!this.voiceNotice) return;
+        clearTimeout(this.voiceNoticeTimer);
+        this.voiceNotice = null;
+        this.render();
+        if (restoreFocus) this.restoreFocus();
+    }
+
+    restoreFocus() {
+        if (this.conversation) this.endConversationButton.focus();
+        else if (this.button.getClientRects().length) this.button.focus();
+        else this.focusFallback();
+    }
+
+    async openNoticeSettings() {
+        const entry = this.voiceNotice;
+        const action = this.noticeActions[entry?.code]?.open;
+        if (!action) return;
+        if (entry.code === 'voice_unavailable' && !this.endConversation()) return;
+        try {
+            if (await action() === false) throw new Error('Settings unavailable');
+            if (this.voiceNotice === entry) this.clearNotice(document.activeElement === this.voiceNoticeAction);
+        } catch {
+            if (this.voiceNotice === entry) this.showNotice('No pude abrir esta sección. Ábrela desde IRIS OS.', entry.code);
+        }
+    }
+
     render() {
         const themeRoot = document.querySelector('.hermes-workbench') || document.documentElement;
         const style = globalThis.getComputedStyle?.(themeRoot);
@@ -218,8 +370,10 @@ export class ManualVoiceController {
         if (accent) {
             this.panel.style.setProperty('--voice-accent', accent);
             this.button.style.setProperty('--voice-accent', accent);
+            this.conversationBar?.style.setProperty('--voice-accent', accent);
         }
         const { state, busy } = this.state;
+        const conversation = this.conversation;
         const error = this.failure || this.state.error;
         const own = this.ownsCapture;
         const recording = own && state === 'recording';
@@ -231,9 +385,18 @@ export class ManualVoiceController {
         this.button.setAttribute('aria-label', recording ? 'Terminar y enviar la grabación' : 'Hablar con IRIS');
         this.button.title = recording ? 'Terminar y enviar · Escape para cancelar' : 'Hablar directamente · Wake está en Configuración';
         const label = this.button.querySelector('[data-voice-label]');
-        if (label) label.textContent = recording ? 'Enviar' : 'Hablar';
+        if (label) label.textContent = conversation ? 'Voz activa' : recording ? 'Enviar' : 'Hablar';
+        if (conversation) {
+            this.button.disabled = false;
+            this.button.setAttribute('aria-label', 'Conversación por voz activa');
+            this.button.title = 'Conversación por voz · Escape para terminar';
+        }
         this.confirmButton.hidden = !this.confirming;
         this.confirmButton.disabled = this.settingsPending || this.pending || !this.connected;
+        if (this.converseButton) {
+            this.converseButton.hidden = !this.conversationAvailable || !this.confirming;
+            this.converseButton.disabled = this.confirmButton.disabled;
+        }
         this.streamingInput.checked = this.streaming;
         this.streamingInput.disabled = !this.settingsReady || busy || this.pending || this.settingsPending || !this.connected || !!this.wakeCapture;
         this.partialBox.hidden = !this.partial;
@@ -245,13 +408,39 @@ export class ManualVoiceController {
             processing: 'Enviando el texto a la conversación…', cancelling: 'Cancelando la grabación…',
         };
         this.message.textContent = this.confirming
-            ? 'El micrófono se abrirá solo para esta intervención. El audio puede ir al proveedor STT configurado. ¿Comenzar?'
+            ? (this.conversationAvailable
+                ? 'El audio puede ir al proveedor STT configurado. En conversación, Iris vuelve a escuchar después de responder.'
+                : 'El micrófono se abrirá solo para esta intervención. El audio puede ir al proveedor STT configurado. ¿Comenzar?')
             : error || (busy && !own ? 'El micrófono está en uso en otra ventana.' : messages[state] || 'Micrófono apagado.');
         if (this.wakeCapture && this.partial && !error) this.message.textContent = 'Hey Hermes · te escucho. El texto puede cambiar hasta terminar.';
         if (this.transcript && !error && !this.confirming) {
             this.message.textContent = 'Texto enviado: «' + this.transcript + '»';
         }
-        this.panel.hidden = document.hidden || !(this.confirming || busy || error || this.transcript || this.partial);
+        this.panel.hidden = document.hidden || Boolean(conversation || this.voiceNotice) || !(this.confirming || busy || error || this.transcript || this.partial);
+        if (this.conversationBar) {
+            this.conversationBar.hidden = !(conversation || this.voiceNotice) || document.hidden;
+            this.conversationBar.dataset.phase = conversation?.phase || 'off';
+            const messages = {
+                arming: 'Preparando micrófono…', listening: 'Micrófono activo · Te escucho',
+                transcribing: 'Transcribiendo…', replying: 'Preparando respuesta · Micrófono en pausa',
+                speaking: 'Iris está hablando · Micrófono en pausa', ending: 'Cerrando micrófono…',
+            };
+            const text = conversation?.mic_uncertain ? conversation.reason : messages[conversation?.phase] || '';
+            if (this.conversationStatus.textContent !== text) this.conversationStatus.textContent = text;
+            this.conversationStatus.hidden = !conversation;
+            this.endConversationButton.hidden = !conversation;
+            const preview = ['listening', 'transcribing'].includes(conversation?.phase) ? this.partial : '';
+            this.conversationPreview.hidden = !preview;
+            this.conversationPartial.textContent = preview;
+            this.endConversationButton.textContent = conversation?.mic_uncertain ? 'Reintentar cierre' : 'Terminar';
+            this.endConversationButton.disabled = this.closingConversation && !conversation.mic_uncertain;
+            this.voiceNoticeBox.hidden = !this.voiceNotice;
+            const noticeText = this.voiceNotice?.text || '';
+            if (this.voiceNoticeText.textContent !== noticeText) this.voiceNoticeText.textContent = noticeText;
+            const action = this.noticeActions[this.voiceNotice?.code];
+            this.voiceNoticeAction.hidden = !action?.open;
+            this.voiceNoticeAction.textContent = action?.label || '';
+        }
         this.onState(this.state);
     }
 }

@@ -25,10 +25,13 @@ test('a delayed start never confirms completion; ended does so exactly once', ()
     w.player.handle({ ...w.payload('whole response'), playback_id: 'turn-one' });
     assert.deepEqual(w.receipts, []);
     w.audios[0].onplaying();
-    assert.deepEqual(w.receipts, []);
+    w.audios[0].onplaying();
+    assert.deepEqual(w.receipts, [{ playback_id: 'turn-one', status: 'playing' }]);
     w.audios[0].onended();
     w.player.stop();
-    assert.deepEqual(w.receipts, [{ playback_id: 'turn-one', status: 'ended' }]);
+    assert.deepEqual(w.receipts, [
+        { playback_id: 'turn-one', status: 'playing' }, { playback_id: 'turn-one', status: 'ended' },
+    ]);
 });
 
 test('interruption and playback rejection notify Core, but old callbacks do not finish a newer turn', async () => {

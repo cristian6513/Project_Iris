@@ -60,6 +60,48 @@ def test_remote_peer_cannot_query_credentials(client, monkeypatch):
     discover.assert_not_called()
 
 
+def test_response_check_requires_intent_and_the_saved_oauth_route(client, monkeypatch):
+    check = AsyncMock(return_value={"status": "ok"})
+    monkeypatch.setattr(catalogs, "check_provider_response", check)
+    monkeypatch.setattr("wizard.hermes_config.has_hermes_auth_profile", lambda *a, **kw: True)
+    monkeypatch.setattr(wizard.IRISConfig, "load", lambda: SimpleNamespace(
+        llm_provider="openai", llm_model="saved-model", llm_use_oauth=True,
+    ))
+    url = "/api/provider-response-check"
+    headers = {"X-IRIS-Intent": "check-provider-response"}
+    selected = {"provider": "openai", "model": "saved-model"}
+    assert client.post(url, json=selected).status_code == 403
+    assert client.post(url, json={**selected, "model": "old-model"}, headers=headers).status_code == 409
+    check.assert_not_called()
+    assert client.post(url, json=selected, headers=headers).json() == {"status": "ok"}
+    check.assert_awaited_once_with(slug="openai-codex", model="saved-model")
+
+
+def test_response_probe_uses_one_fixed_prompt_and_reports_a_provider_rejection(monkeypatch):
+    calls = []
+
+    def create(**kwargs):
+        calls.append(kwargs)
+        raise httpx.HTTPStatusError("forbidden", request=httpx.Request("POST", "https://example.test"),
+                                    response=httpx.Response(403))
+
+    pkg = ModuleType("agent")
+    pkg.__path__ = []
+    adapter = ModuleType("agent.auxiliary_client")
+    adapter.resolve_provider_client = lambda provider, model: (
+        SimpleNamespace(chat=SimpleNamespace(completions=SimpleNamespace(create=create))), model,
+    )
+    monkeypatch.setitem(sys.modules, "agent", pkg)
+    monkeypatch.setitem(sys.modules, "agent.auxiliary_client", adapter)
+    namespace = {"__name__": "probe_test"}
+    exec(PROBE_SOURCE, namespace)
+    assert namespace["check_response"]({"slug": "xai-oauth", "model": "model"}) == {
+        "status": "error", "code": "forbidden",
+    }
+    assert calls == [{"model": "model", "messages": [{"role": "user", "content": "Responde solo: Hola."}],
+                      "max_tokens": 128, "timeout": 15}]
+
+
 def test_a_different_providers_saved_key_is_never_reused(client, monkeypatch):
     monkeypatch.delenv("OPENROUTER_API_KEY", raising=False)
     monkeypatch.setattr(wizard.IRISConfig, "load", lambda: SimpleNamespace(llm_provider="openai", llm_api_key="another-private-key"))

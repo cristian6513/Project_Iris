@@ -460,9 +460,9 @@ function startAdvancedSetup() {
     openWizardSection(3);
 }
 
-function openWizardSection(section) {
+function openWizardSection(section, { saveTheme = true } = {}) {
     if (![1, 2, 3, 4, 5].includes(section)) return;
-    void commitInstallerTheme();
+    if (saveTheme) void commitInstallerTheme();
     editingSection = section;
     summaryReturn = false;
     setInstallerMode('edit');
@@ -1345,6 +1345,7 @@ let LLM_PROVIDERS = {
     openai:     { name: 'OpenAI (GPT)', category: 'popular', auth: 'api+oauth', url: 'https://platform.openai.com/api-keys', hint: 'platform.openai.com' },
     google:     { name: 'Google (Gemini)', category: 'popular', auth: 'api', url: 'https://aistudio.google.com/apikey', hint: 'aistudio.google.com (gratis)' },
     deepseek:   { name: 'DeepSeek', category: 'popular', auth: 'api', url: 'https://platform.deepseek.com/api-keys', hint: 'platform.deepseek.com' },
+    nous:       { name: 'Nous Portal', category: 'popular', auth: 'oauth', hint: 'portal.nousresearch.com' },
     // ── Cloud Providers ──
     xai:        { name: 'xAI (Grok)', category: 'cloud', auth: 'api+oauth', url: 'https://console.x.ai/', hint: 'console.x.ai' },
     nvidia:     { name: 'NVIDIA NIM', category: 'cloud', auth: 'api', url: 'https://build.nvidia.com/', hint: 'build.nvidia.com' },
@@ -1398,9 +1399,7 @@ let PROVIDER_CATEGORIES = {
  *   }
  *
  * The UI keeps LLM_PROVIDERS keyed by id and LLM_MODELS keyed by id for
- * backwards compat. The richer fields (discovered, available, …) live on
- * `PROVIDER_META[id]` so the render layer can add 🆕 badges without
- * changing the existing call sites.
+ * backwards compat. Availability and warnings stay in the catalog metadata.
  */
 let PROVIDER_META = {};           // id → {discovered, hermes_detected}
 let MODEL_META    = {};           // `${provId}::${modelId}` → {discovered, available, context}
@@ -2612,71 +2611,75 @@ function _renderAuthBadges(p) {
     return `<span class="auth-badge auth-badge-key" title="API Key${envHint}. Pegas la clave en el siguiente paso."><wz-icon>🔑</wz-icon> API Key</span>`;
 }
 
+const QUICK_SIGN_IN = {
+    openai: { name: 'ChatGPT', hint: 'Inicia sesión con una cuenta con acceso a Codex.' },
+    nous: { name: 'Nous Portal', hint: 'Conecta tu cuenta y usa un modelo disponible en tu plan.' },
+    xai: { name: 'Grok', hint: 'Inicio de sesión con SuperGrok o X Premium+ elegible.' },
+};
+
+document.addEventListener('click', event => {
+    const link = event.target?.closest?.('a[data-key-field][href]');
+    if (link) document.getElementById(link.dataset.keyField)?.focus({ preventScroll: true });
+});
+
 function renderProviderList(filter = '') {
     const container = document.getElementById('provider-list');
     if (!container) return;
+    const featured = document.getElementById('provider-recommended');
+    const more = document.getElementById('provider-more');
+    const details = document.getElementById('provider-more-options');
 
     const q = filter.toLowerCase();
-    // Existing or user-selected providers always win, even while a search
-    // filter hides their card. A first run deliberately has no checked radio:
-    // the recommendation badge is informational, not permission to configure
-    // Hermes with Anthropic without an explicit click.
-    // Adding another provider lists only the ones that can sit next to the main
-    // provider, and nothing is checked until the user picks one.
+    // Keep the active card visible during search. The first run starts with no
+    // selection, and adding another provider uses only the backend's addable list.
     const adding = IrisLlmSetup.view(llmSetup, llmView) === 'add';
+    const active = document.activeElement;
+    const focusedProvider = active?.matches('input[name="llm_provider"]') && container.contains(active)
+        ? active.value : '';
     const selectedProvider = adding
         ? (document.querySelector('input[name="llm_provider"]:checked')?.value || '')
         : (wizardState.llm_provider
             || document.querySelector('input[name="llm_provider"]:checked')?.value
             || '');
     const listed = new Set(IrisLlmSetup.listedProviders(Object.keys(LLM_PROVIDERS), llmSetup, llmView));
-    let html = '';
+    const entries = Object.entries(LLM_PROVIDERS).filter(([key]) => listed.has(key));
+    const recommended = Object.entries(QUICK_SIGN_IN).flatMap(([key]) => {
+        const provider = LLM_PROVIDERS[key];
+        return listed.has(key) && ['oauth', 'api+oauth'].includes(provider?.auth) ? [[key, provider]] : [];
+    });
+    const featuredIds = new Set(recommended.map(([key]) => key));
     let lastCategory = '';
 
-    for (const [key, p] of Object.entries(LLM_PROVIDERS)) {
-        if (!listed.has(key)) continue;
-        // Filter check
-        if (q && !String(p.name || '').toLowerCase().includes(q) && !key.includes(q) && !String(p.category || '').includes(q)) continue;
-
-        // Category header
-        if (p.category !== lastCategory) {
-            lastCategory = p.category;
-            html += `<div class="provider-category">${iconLabelHtml(PROVIDER_CATEGORIES[p.category] || p.category)}</div>`;
-        }
-
-        const recommendedProvider = wizardState.recommendations?.inference?.provider || '';
-        const isRecommended = Boolean(recommendedProvider && recommendedProvider === key);
+    const card = ([key, p], quick = false) => {
+        const name = quick ? QUICK_SIGN_IN[key].name : p.name;
+        const hint = quick ? QUICK_SIGN_IN[key].hint : p.hint;
         const isSelected = key === selectedProvider;
-        const meta = PROVIDER_META[key] || {};
-        // Badges combine in a predictable order: "Recomendado" first,
-        // "🆕 Nuevo" for discovered providers, and "✓ Live" when the
-        // curated entry was confirmed by Hermes this session.
-        const badges = [];
-        if (isRecommended) badges.push('<span class="badge">Recomendado</span>');
-        if (meta.discovered) {
-            badges.push('<span class="badge badge-new" title="Detectado automáticamente en tu Hermes">🆕 Nuevo</span>');
-        } else if (meta.hermes_detected) {
-            badges.push('<span class="badge badge-live" title="Confirmado por tu Hermes instalado"><wz-icon>✓</wz-icon> Live</span>');
-        }
-        const badge = badges.join(' ');
-        const authBadges = _renderAuthBadges(p);
-
-        html += `
+        return `
             <label class="radio-card ${isSelected ? 'selected' : ''}" data-value="${escapeHtml(key)}">
                 <input type="radio" name="llm_provider" value="${escapeHtml(key)}" ${isSelected ? 'checked' : ''}>
                 <div class="radio-content">
                     <div class="radio-header">
-                        <strong><span class="provider-monogram" aria-hidden="true">${escapeHtml(String(p.name || key).slice(0, 2).toUpperCase())}</span>${escapeHtml(p.name)}</strong>
-                        ${badge}
+                        <strong><span class="provider-monogram" aria-hidden="true">${escapeHtml(String(name || key).slice(0, 2).toUpperCase())}</span>${escapeHtml(name)}</strong>
                     </div>
-                    <div class="auth-badges">${authBadges}</div>
-                    <span>${escapeHtml(p.hint)}</span>
+                    ${quick ? '' : `<div class="auth-badges">${_renderAuthBadges(p)}</div>`}
+                    <span>${escapeHtml(hint || '')}</span>
                 </div>
             </label>
         `;
-    }
-
-    container.innerHTML = html;
+    };
+    featured.innerHTML = recommended.map(entry => card(entry, true)).join('');
+    featured.hidden = recommended.length === 0;
+    const otherEntries = entries.filter(([key, p]) => !featuredIds.has(key) && (
+        key === selectedProvider || !q || `${p.name || ''} ${key} ${p.category || ''}`.toLowerCase().includes(q)
+    ));
+    more.innerHTML = otherEntries.map(entry => {
+        const category = entry[1].category;
+        const heading = lastCategory === category ? '' :
+            `<div class="provider-category">${iconLabelHtml(PROVIDER_CATEGORIES[category] || category)}</div>`;
+        lastCategory = category;
+        return heading + card(entry);
+    }).join('') || '<p class="dim">No se encontraron proveedores.</p>';
+    if (!recommended.length || (selectedProvider && !featuredIds.has(selectedProvider))) details.open = true;
 
     // The label already gives us native radio-card click behaviour. Binding
     // an additional click handler here used to call updateLLMProviderUI twice
@@ -2686,8 +2689,9 @@ function renderProviderList(filter = '') {
             if (!radio.checked) return;
             container.querySelectorAll('.radio-card').forEach(c => c.classList.remove('selected'));
             radio.closest('.radio-card')?.classList.add('selected');
-            updateLLMProviderUI(radio.value);
+            updateLLMProviderUI(radio.value, { preferSignIn: featuredIds.has(radio.value) });
         });
+        if (radio.value === focusedProvider) radio.focus({ preventScroll: true });
     });
 }
 
@@ -2795,7 +2799,7 @@ function filterModelOptions() {
     _setProviderModelOptions(selectedLLMProvider(), Boolean(document.getElementById('use-oauth')?.checked), true);
 }
 
-function updateLLMProviderUI(provider) {
+function updateLLMProviderUI(provider, { preferSignIn = false } = {}) {
     const providerInfo = LLM_PROVIDERS[provider] || {};
     _renderProviderWarning(provider);
 
@@ -2809,11 +2813,8 @@ function updateLLMProviderUI(provider) {
     const isManagedAuth = auth === 'aws' || auth === 'external';
     const isOAuthOnly = auth === 'oauth';
     const isDualAuth = auth === 'api+oauth';
-    const keepOAuth = isOAuthOnly || (
-        isDualAuth
-        && sameProvider
-        && Boolean(document.getElementById('use-oauth')?.checked)
-    );
+    const keepOAuth = isOAuthOnly || (isDualAuth && (sameProvider
+        ? Boolean(document.getElementById('use-oauth')?.checked) : preferSignIn));
     const modelSelect = _setProviderModelOptions(provider, keepOAuth, sameProvider);
     if (!modelSelect) return;
 
@@ -2900,10 +2901,7 @@ function updateLLMProviderUI(provider) {
         if (customModelInput) customModelInput.value = '';
     }
 
-    // For OAuth-only providers, lock the toggle ON and reveal the
-    // auth button immediately. For dual auth, the toggle defaults
-    // OFF (API Key path) and the user can switch. For API-only or
-    // local, reset the toggle so it's not stuck in a stale state.
+    // Respect the saved method; newly selected featured cards offer sign-in first.
     const oauthToggle = document.getElementById('use-oauth');
     const oauthAction = document.getElementById('llm-oauth-action-section');
     if (oauthToggle) {
@@ -2925,6 +2923,11 @@ function updateLLMProviderUI(provider) {
         }
     }
     _syncOAuthChoice();
+    const connect = document.getElementById('btn-auth-oauth');
+    if (connect && !connect.disabled) {
+        connect.textContent = provider === 'openai' ? 'Conectar con ChatGPT'
+            : provider === 'xai' ? 'Conectar con xAI' : 'Conectar cuenta';
+    }
 
     // Update API-key help on every switch. Leaving this conditional on a URL
     // leaked the previous card's text/link into custom endpoints (for example
@@ -2937,8 +2940,9 @@ function updateLLMProviderUI(provider) {
             : (providerInfo.hint || 'Pega la API key del proveedor seleccionado');
     }
     if (keyLink) {
-        if (providerInfo.url && !isManagedAuth) {
+        if (String(providerInfo.url || '').startsWith('https://') && !isManagedAuth && !isLocal && !isOAuthOnly) {
             keyLink.href = providerInfo.url;
+            keyLink.textContent = `Obtener clave de ${providerInfo.name}`;
             keyLink.style.display = 'inline-flex';
         } else {
             keyLink.removeAttribute('href');
@@ -4234,6 +4238,7 @@ function renderLlmSetup() {
     if (editor) editor.hidden = view === 'summary';
 
     const primary = llmSetup.primary;
+    _renderProviderResponseCheck(primary, view);
     if (primary) {
         const name = document.getElementById('llm-configured-name');
         const detail = document.getElementById('llm-configured-detail');
@@ -4302,6 +4307,65 @@ function _applyLlmViewToForm(view = IrisLlmSetup.view(llmSetup, llmView)) {
     for (const id of ['llm-model-section', 'custom-model-section', 'ollama-section', 'llm-base-url-section']) {
         const element = document.getElementById(id);
         if (element) element.style.display = 'none';
+    }
+}
+
+let _providerResponseCheck = null;
+
+function _renderProviderResponseCheck(primary, view) {
+    const button = document.getElementById('btn-test-provider-response');
+    if (!button) return;
+    button.hidden = view !== 'summary' || primary?.auth !== 'oauth' || !primary.model
+        || !Object.hasOwn(QUICK_SIGN_IN, primary.provider);
+    const help = document.getElementById('llm-response-help');
+    if (help) help.hidden = button.hidden;
+    if (_providerResponseCheck && (button.hidden || _providerResponseCheck.provider !== primary.provider
+        || _providerResponseCheck.model !== primary.model)) {
+        _providerResponseCheck.controller.abort();
+        _providerResponseCheck = null;
+    }
+    button.disabled = _providerResponseCheck?.pending === true;
+    _setLlmStatus('llm-response-status', _providerResponseCheck?.message || '', _providerResponseCheck?.tone || '');
+}
+
+async function testProviderResponse() {
+    const button = document.getElementById('btn-test-provider-response');
+    const primary = llmSetup.primary;
+    if (!button || button.hidden || button.disabled || !primary) return;
+    const check = {
+        provider: primary.provider, model: primary.model, controller: new AbortController(),
+        pending: true, message: 'Enviando una frase de prueba…',
+    };
+    _providerResponseCheck = check;
+    const failures = {
+        missing_oauth: 'Vuelve a conectar tu cuenta y repite la prueba.',
+        quota: 'El proveedor indicó un límite de uso o de saldo. Revisa tu cuenta y reintenta.',
+        forbidden: 'La cuenta se conectó, pero el proveedor rechazó la prueba. Revisa el plan y el modelo.',
+        model_unavailable: 'El modelo dejó de estar disponible. Elige otro y reintenta.',
+        selection_changed: 'La configuración cambió. Recarga y vuelve a probar.',
+        engine_missing: 'Prepara el motor de Iris y vuelve a probar.',
+    };
+    _renderProviderResponseCheck(primary, 'summary');
+    try {
+        const response = await fetch('/api/provider-response-check', {
+            method: 'POST', cache: 'no-store', signal: check.controller.signal,
+            headers: { 'Content-Type': 'application/json', 'X-IRIS-Intent': 'check-provider-response' },
+            body: JSON.stringify({ provider: check.provider, model: check.model }),
+        });
+        const result = await response.json();
+        if (response.ok && result.status === 'ok') {
+            check.message = 'Lista para conversar. El modelo respondió a la prueba.';
+            check.tone = 'ok';
+        } else {
+            check.message = failures[result.code] || 'El modelo no respondió a la prueba. Revisa la conexión y reintenta.';
+            check.tone = 'error';
+        }
+    } catch {
+        check.message = 'No se pudo comprobar la respuesta. Revisa la conexión y reintenta.';
+        check.tone = 'error';
+    } finally {
+        check.pending = false;
+        if (_providerResponseCheck === check) _renderProviderResponseCheck(llmSetup.primary, IrisLlmSetup.view(llmSetup, llmView));
     }
 }
 
@@ -4448,7 +4512,7 @@ function _renderGatewayGate() {
             : running
                 ? (gatewayNeedsRestart
                     ? 'Guardaste un cambio de proveedor: pulsa «Reiniciar IRIS» para aplicarlo. Reinicia el asistente sin cerrar tus ventanas.'
-                    : 'IRIS ya puede conversar. Reiniciar el asistente aplica cambios sin cerrar tus ventanas.')
+                    : 'El servicio de IA está iniciado. Reiniciar aplica cambios sin cerrar tus ventanas.')
                 : gatewayEngine === 'failed'
                     ? (gatewayFailure ? `${gatewayFailure}. Revisa el detalle de abajo y vuelve a intentarlo.` : 'Revisa el detalle de abajo y vuelve a intentarlo.')
                     : 'Proveedor listo. La mensajería es opcional: puedes iniciar ya.';
@@ -5709,14 +5773,24 @@ function updateVoiceSelectorVisibility() {
     prepareApiKeysStep();
     updateVoiceSaveButton();
     const selectedCard = document.querySelector('input[name="tts"]:checked')?.closest('.radio-card');
-    const group = selectedCard?.closest('details');
-    if (group) group.open = true;
+    if (tts && tts !== 'edge-tts') {
+        const moreEngines = document.getElementById('voice-more-engines');
+        if (moreEngines) moreEngines.open = true;
+    }
+    const preview = document.getElementById('voice-test-controls');
+    const destination = document.getElementById(tts === 'edge-tts' ? 'voice-quick-preview' : 'voice-advanced-preview');
+    if (preview && destination && preview.parentNode !== destination) destination.append(preview);
+    const previewButton = document.getElementById('test-selected-voice');
+    if (previewButton) setIconText(previewButton, tts === 'edge-tts' ? '🔊 Escuchar a Iris' : '🔊 Escuchar voz seleccionada');
+    const privacy = document.getElementById('voice-preview-privacy');
+    if (privacy) privacy.textContent = tts === 'edge-tts' ? 'Microsoft recibe la frase de prueba.'
+        : 'Los servicios en línea reciben la frase. Un motor local puede descargar su modelo en la primera prueba.';
     const choice = document.getElementById('voice-current-choice');
     if (choice) choice.textContent = `Voz elegida: ${tts === 'edge-tts' ? edgeVoiceLabel(selectedVoice) : selectedCard?.querySelector('strong')?.textContent || tts || 'Sin elegir'}`;
     const sec = document.getElementById('voice-selector-section');
     if (sec) {
         sec.style.display = tts === 'edge-tts' ? 'block' : 'none';
-        if (tts === 'edge-tts' && allVoices.length === 0) loadVoices();
+        if (tts === 'edge-tts' && sec.open && allVoices.length === 0) loadVoices();
     }
 
     // Kokoro voice dropdown (only shown when Kokoro is selected)
@@ -6203,8 +6277,7 @@ const _configSaveSession = globalThis.crypto?.randomUUID?.()
     || `iris-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 const _wizardCompanionReadOnly = new URLSearchParams(window.location.search).get('preview') === 'companion';
 
-// The summary title says what actually happened: never "ready" before the save succeeded
-// and the AI provider can answer.
+// The summary follows the save and Gateway preflight; the response test is separate.
 function _renderSummaryState(state, detail = '') {
     _summarySaving = state === 'saving';
     for (const button of document.querySelectorAll('[data-step="8"] .step-buttons .btn-back, .setup-summary-links button')) {
@@ -6214,7 +6287,7 @@ function _renderSummaryState(state, detail = '') {
         saving: 'Guardando tu configuración…',
         failed: 'No se pudo guardar la configuración',
         'ai-pending': 'Tus preferencias están guardadas',
-        ready: '¡IRIS está lista!',
+        ready: 'IRIS está configurada',
         saved: 'Configuración guardada',
     };
     const title = document.getElementById('summary-title');
@@ -7472,7 +7545,11 @@ async function initWizard() {
         setInstallerModeLabel('READ ONLY');
         void loadWizardCompanionLifecycle();
     } else {
-        try { updateUI(); } catch(e) {}
+        try {
+            if (new URLSearchParams(location.search).get('section') === 'voice') {
+                openWizardSection(4, { saveTheme: false });
+            } else updateUI();
+        } catch(e) {}
     }
     console.log('[Wizard] Inicialización completada.');
 }

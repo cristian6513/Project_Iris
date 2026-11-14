@@ -81,7 +81,9 @@ function _renderProviderLogin(state) {
     if (!panel || !box || !status || !connect) return;
     panel.style.display = 'block';
     connect.disabled = ['starting', 'pending'].includes(state.status);
-    connect.textContent = connect.disabled ? 'Conectando…' : 'Conectar cuenta';
+    connect.textContent = connect.disabled ? 'Conectando…'
+        : state.provider === 'openai' ? 'Conectar con ChatGPT'
+            : state.provider === 'xai' ? 'Conectar con xAI' : 'Conectar cuenta';
     const signature = JSON.stringify(state);
     if (_lastProviderLoginView === signature) {
         _providerLoginExpiry(state);

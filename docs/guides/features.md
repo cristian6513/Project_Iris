@@ -5,9 +5,9 @@
 IRIS OS no reemplaza a Hermes Agent. Organiza sus capacidades dentro de una
 experiencia visual con identidad, voz, memoria y varias superficies.
 
-Revisión documental: 2026-11-06. Esta guía describe la **fuente actual**, no una
-release pública aprobada. Consulta [Estado actual](../estado-actual.md) para
-distinguir QA22, la fuente posterior y las comprobaciones pendientes.
+Revisión documental del 13 de noviembre de 2026. Consulta [Estado actual](../estado-actual.md)
+para distinguir la beta 0.9.3 QA24, las mejoras de la fuente posterior y las
+comprobaciones pendientes.
 
 ## Wizard y Hermes Doctor
 
@@ -208,7 +208,8 @@ audio, sensores ni cambios por horario.
   chino (el navegador puede traducirlo) y a veces tarda en cargar. Busca un
   `.pmx` humanoide con sus texturas. Si viene en un RAR, extráelo y crea un ZIP
   conservando la estructura de carpetas. Carga el ZIP desde **Configuración
-  rápida → Usar mi propio avatar**.
+  rápida → Usar mi propio avatar**. Si el ZIP tiene varias variantes, elige
+  cuál quieres importar.
   - El ZIP puede pesar hasta 128 MiB.
   - Iris guarda solo el modelo elegido y las texturas que usa, y eso puede pesar
     hasta 64 MiB.
@@ -297,10 +298,9 @@ del ruido con una cámara ya activa. La calibración solo dura esa captura y no 
 biométrica ni médica. El diagnóstico reciente tiene filtros, exportación manual
 y borrado; no transmite medios ni crea herramientas de Hermes. Más detalles y
 limitaciones en [los contratos del paso 6](../vision_v2_contracts.md#paso-6--ajustes-locales-calibración-y-diagnóstico).
-El registro de actualización 0.1.1 → 0.1.2 del 2026-09-06 es histórico. La
-fuente/manifiesto actual del Companion declara 0.1.8; la versión que realmente
-usas depende de su EXE. La calibración física prolongada sigue siendo una
-verificación aparte; instalarlo no la certifica.
+La beta QA24 incluye Companion 0.1.9. El registro del 6 de septiembre
+sobre 0.1.1 → 0.1.2 es histórico. La vista Solo avatar y la conversación por
+voz están en la fuente posterior. [Guía de Desktop Companion](desktop-companion.md).
 
 La entrega requiere Vision autorizado, señales fiables y disponibilidad declarada
 por 15 minutos desde la bandeja, además de presupuesto y retención. Sin esa declaración,

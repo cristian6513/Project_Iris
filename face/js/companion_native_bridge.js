@@ -27,8 +27,9 @@ function joinApiUrl(base, path) {
     return `${String(base || '').replace(/\/$/, '')}/${suffix.replace(/^\//, '')}`;
 }
 
-function browserOpenIrisOs() {
-    const irisWindow = globalThis.open?.('/face/', 'iris-os');
+function browserOpenIrisOs(section) {
+    const target = section === 'permissions' ? '/face/#permissions' : '/face/';
+    const irisWindow = globalThis.open?.(target, 'iris-os');
     irisWindow?.focus?.();
 }
 
@@ -45,7 +46,7 @@ export async function createCompanionBridge(scope = globalThis) {
             coreAssetUrl: async (path) => String(path || ''),
             releaseCoreAssetUrl() {},
             dispose() {},
-            openIrisOs: async () => browserOpenIrisOs(),
+            openIrisOs: async (section) => browserOpenIrisOs(section),
             hideCompanion: async () => ({ hidden: false, reason: 'native-required' }),
             startWindowDrag: async () => ({ started: false, reason: 'native-required' }),
             setAlwaysOnTop: async () => {},
@@ -63,6 +64,7 @@ export async function createCompanionBridge(scope = globalThis) {
     }
 
     const objectUrls = new Set();
+    const windowListeners = [];
     const bridge = {
         native: true,
         apiBase,
@@ -103,7 +105,7 @@ export async function createCompanionBridge(scope = globalThis) {
         releaseCoreAssetUrl(url) {
             if (objectUrls.delete(url)) URL.revokeObjectURL(url);
         },
-        openIrisOs: () => invoke('open_iris_os'),
+        openIrisOs: (section) => invoke('open_iris_os', { section }),
         hideCompanion: () => invoke('hide_companion'),
         startWindowDrag: () => invoke('start_window_drag'),
         setAlwaysOnTop: (enabled) => invoke('set_always_on_top', { enabled: Boolean(enabled) }),
@@ -111,7 +113,14 @@ export async function createCompanionBridge(scope = globalThis) {
             durationMs: Math.round(Number(durationMs) || 3100),
         }),
         cancelWindowWalk: () => invoke('cancel_window_walk'),
+        async onWindowEvent(event, handler) {
+            const { listen } = await import('@tauri-apps/api/event');
+            windowListeners.push(await listen(event, handler, {
+                target: { kind: 'WebviewWindow', label: 'companion' },
+            }));
+        },
         dispose() {
+            for (const unlisten of windowListeners.splice(0)) unlisten();
             for (const url of objectUrls) URL.revokeObjectURL(url);
             objectUrls.clear();
         },

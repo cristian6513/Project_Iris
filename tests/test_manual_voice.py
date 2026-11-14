@@ -170,11 +170,16 @@ def test_manual_capture_requires_local_origin_policy_and_explicit_activation(pee
     runtime, _ = runtime_fixture()
     with patch('core.hermes_wake.CapabilityPermissionStore') as store:
         store.return_value.evaluate.return_value = {'verdict': verdict}
-        with pytest.raises(HTTPException) as error:
-            asyncio.run(update_hermes_voice_runtime(HermesVoiceUpdate(
-                action='start', client_id='room', capture_id='one', confirmed=confirmed),
-                request_fixture(runtime, peer=peer, headers=headers)))
-    assert error.value.status_code == 403
+        request = request_fixture(runtime, peer=peer, headers=headers)
+        payload = HermesVoiceUpdate(action='start', client_id='room', capture_id='one', confirmed=confirmed)
+        if headers or peer != '127.0.0.1':
+            with pytest.raises(HTTPException) as error:
+                asyncio.run(update_hermes_voice_runtime(payload, request))
+            assert error.value.status_code == 403
+        else:
+            response = asyncio.run(update_hermes_voice_runtime(payload, request))
+            assert response.status_code == 403
+            assert json.loads(response.body)['code'] == ('microphone_blocked' if confirmed else 'confirmation_required')
     assert runtime.request.await_count == 0
 
 

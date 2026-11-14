@@ -212,3 +212,12 @@ test('refresh uses saved settings instead of stale native bootstrap preferences'
     assert.equal(applied.quietMode, true);
     assert.equal(applied.showControls, false);
 });
+
+test('a config read begun before a controls update cannot restore the previous view', async () => {
+    const reply = deferred();
+    const app = { _controlsRevision: 0, bridge: { apiFetch: () => reply.promise } };
+    const reading = method('_readAvatarConfig').call(app);
+    app._controlsRevision++;
+    reply.resolve({ ok: true, json: async () => ({ companion_show_controls: true, assistant_name: 'IRIS' }) });
+    assert.deepEqual(await reading, { assistant_name: 'IRIS' });
+});

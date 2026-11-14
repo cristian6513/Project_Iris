@@ -9,9 +9,18 @@
 > distinguen código, candidato y aceptación. Las comparaciones y pruebas fechadas
 > de este documento conservan su revisión original; no son una certificación de hoy.
 
-## Corte documental vigente — 2026-11-08
+## Corte documental vigente — 2026-11-13
 
-QA22 (informe interno no distribuido) es la referencia Windows
+La beta de referencia para Windows x64 es **0.9.3 QA24** (`02168be7`), con
+Companion 0.1.9, Hermes 0.21.6, 95 clips y soporte de avatares PMX.
+El arranque unificado, la conversación por voz y los nuevos ajustes del
+asistente y Companion corresponden a la fuente posterior. El [estado actual](estado-actual.md)
+y el resumen de QA24 (informe interno no distribuido) recogen
+el alcance de las comprobaciones y lo que falta probar en el siguiente EXE.
+
+### Corte de QA22 — 2026-11-08 (histórico)
+
+QA22 (informe interno no distribuido) fue la referencia Windows
 x64 de la [beta pública 0.9.2 de GitHub](https://github.com/cristian6513/Project_Iris/releases/tag/v0.9.2-beta), con ID ddd205bd y
 Companion 0.1.8. El [estado actual](estado-actual.md) distingue la beta publicada,
 la fuente posterior y la QA manual. Microsoft Store se prepara por separado

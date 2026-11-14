@@ -1416,7 +1416,7 @@ DISCOVERY_META: dict[str, dict[str, str]] = {
     "lmstudio":               {"name": "LM Studio (Local)",         "icon": "🏠", "category": "local",      "auth": "api-optional", "env_key": "LM_API_KEY"},
     "minimax-cn":             {"name": "MiniMax (CN region)",       "icon": "🔷", "category": "chinese",    "auth": "api",       "env_key": "MINIMAX_API_KEY"},
     "opencode":               {"name": "OpenCode",                  "icon": "💻", "category": "aggregator", "auth": "oauth",     "env_key": ""},
-    "opencode-go":            {"name": "OpenCode Go",               "icon": "💻", "category": "aggregator", "auth": "oauth",     "env_key": ""},
+    "opencode-go":            {"name": "OpenCode Go",               "icon": "💻", "category": "aggregator", "auth": "api",       "env_key": "OPENCODE_GO_API_KEY"},
     "vercel-ai-gateway":      {"name": "Vercel AI Gateway",         "icon": "▲",  "category": "aggregator", "auth": "api",       "env_key": "VERCEL_API_KEY"},
     "zai":                    {"name": "Z.AI (GLM)",                "icon": "🔶", "category": "chinese",    "auth": "api",       "env_key": "ZHIPUAI_API_KEY"},
 }

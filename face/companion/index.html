@@ -7,8 +7,8 @@
     <meta name="color-scheme" content="dark">
     <title>IRIS Companion</title>
     <link rel="icon" type="image/png" href="../public/assets/os/iris-profile-icon-v1.png?v=2">
-    <link rel="stylesheet" href="./companion.css?v=7">
-    <link rel="stylesheet" href="../css/manual_voice.css?v=3">
+    <link rel="stylesheet" href="./companion.css?v=9">
+    <link rel="stylesheet" href="../css/manual_voice.css?v=5">
     <link rel="stylesheet" href="../css/iris_dialog.css?v=6">
     <script>
         if (new URLSearchParams(location.search).has('preview')) {
@@ -29,7 +29,7 @@
 </head>
 <body data-operational-state="offline">
     <main id="iris-companion" aria-label="IRIS Desktop Companion">
-        <header class="signal-header" aria-live="polite" title="Arrastra para mover la ventana">
+        <header id="companion-header" class="signal-header" aria-live="polite" title="Arrastra para mover la ventana">
             <div class="identity-mark" aria-hidden="true"><span></span><i></i></div>
             <div class="identity-copy">
                 <strong id="assistant-name">IRIS</strong>
@@ -84,7 +84,7 @@
             <small id="chat-hint">Mismo agente, memoria y sesión de IRIS OS</small>
         </section>
 
-        <nav class="signal-rail" aria-label="Controles de IRIS Companion">
+        <nav id="companion-controls" class="signal-rail" aria-label="Controles de IRIS Companion">
             <div class="rail-rule" aria-hidden="true"><span></span></div>
             <button id="voice-manual" class="rail-button" type="button" aria-label="Abrir micrófono de Hermes" aria-pressed="false" data-state="off" disabled>
                 <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M6 11a6 6 0 0 0 12 0M12 17v4M9 21h6"/></svg>
@@ -108,12 +108,26 @@
             </button>
         </nav>
 
+        <div class="companion-view-actions">
+            <span id="companion-sensor-status" class="companion-view-status" role="status" hidden></span>
+            <button id="toggle-companion-controls" class="companion-view-toggle" type="button" hidden
+                aria-controls="companion-header companion-controls" aria-expanded="true"
+                aria-label="Ocultar controles" title="Ocultar controles">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z"/>
+                    <circle cx="12" cy="12" r="2.7"/>
+                    <path class="companion-eye-slash" d="M3 21 21 3"/>
+                </svg>
+            </button>
+        </div>
+        <output id="companion-view-feedback" class="companion-view-feedback" hidden></output>
+
         <div id="loading-state" class="loading-state" role="status">
             <span class="loader-glyph"><i></i></span>
             <div><strong>Materializando IRIS</strong><small>Preparando superficie ligera</small></div>
         </div>
     </main>
     <link rel="stylesheet" href="../css/inbox.css">
-    <script type="module" src="./companion.js?v=92"></script>
+    <script type="module" src="./companion.js?v=95"></script>
 </body>
 </html>

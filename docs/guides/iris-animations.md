@@ -1,23 +1,24 @@
 # Animaciones corporales de Iris
 
-> Revisión documental: 2026-11-06. Disponibilidad y candidato exacto:
+> Revisión documental: 2026-11-13. Disponibilidad y candidato exacto:
 > [Estado actual](../estado-actual.md). Los informes fechados conservan el alcance
 > de su propia prueba; no acreditan automáticamente todos los VRM o ejecutables.
 
 ## Biblioteca distribuida
 
-QA22 contiene **59 clips de fábrica**: los 18 gestos/reposos basados en las
-animaciones originales de Cristian y los clips de sala, lectura, tablet, silla,
-PC y ventana. Las versiones actuales de los 18 gestos están revisadas; **no son
-copias byte por byte de los originales de Descargas**. Los originales se
-conservaron en el historial y en las copias de entrega de animación.
+**QA24 contiene 95 clips de fábrica**. Incluye gestos originales de Cristian,
+gestos adaptados de movimientos de Tripo AI, variantes de habla y caminata,
+acciones de sala y reposo boca abajo. Las variantes se eligen al reproducir
+la acción. Si reemplazas un gesto de fábrica, Iris usa tu clip y deja de
+mezclarlo con las variantes y expresiones sincronizadas de fábrica.
+[Licencias y créditos](licenses.md).
 
 El catálogo de fuente está en face/animations/manifest.json. El empaquetado usa
 los inventarios explícitos scripts/release_assets.json y
 core/factory_animation_inventory.py, con hashes. Los dos recursos antiguos
 sit y walk_in_place pueden seguir en la fuente
 para pruebas/compatibilidad (los borradores pc_sit_down_v2 y pc_seated_idle_v2 se
-retiraron el 2026-11-11), pero **no forman parte de los 59 distribuidos** ni
+retiraron el 2026-11-11), pero **no forman parte de los clips distribuidos** ni
 se ofrecen al agente como gestos.
 
 Los gestos del menú **Poses** se filtran por los recursos disponibles. Las
@@ -34,8 +35,8 @@ al inventario de fábrica por un comodín.
 - listen entra al confirmar una captura manual o activar realmente la captura
   de Wake. Se reproduce una vez y conserva el último fotograma hasta terminar;
   tener Wake esperando no la activa.
-- think acompaña el procesamiento y talk el habla. Sus ciclos mantienen la
-  velocidad del clip y transiciones suaves.
+- think acompaña el procesamiento. El habla alterna tres versiones entre
+  respuestas, con transiciones suaves.
 - Un gesto de respuesta puede terminar antes de continuar la animación de habla.
 - listen y talk se reservan al estado de voz, aunque se puedan previsualizar.
 - Las acciones sentadas conservan el asiento: los gestos de cabeza compatibles
@@ -87,7 +88,7 @@ real del clip; las duraciones de respaldo de poses procedurales no recortan un
 VRMA a tres segundos. Separar claves ralentiza un movimiento; extender solo la
 última clave añade espera.
 
-La entrada y el retorno mezclan poses. En QA22, detener un clip también reduce
+La entrada y el retorno mezclan poses. Desde QA22, detener un clip también reduce
 la instantánea gradualmente sin necesitar una animación entrante: no debe
 mantenerla congelada y soltarla de golpe al terminar el plazo. La prueba
 permanente comprueba el punto medio y el máximo cambio entre fotogramas.
@@ -100,13 +101,13 @@ segundo. Las secuencias de sala necesitan puntos de asiento, manos y cámara
 compatibles con los modelos; una malla nueva o un VRM de proporciones distintas
 requiere comprobación visual.
 
-Para el corte vigente: QA22 (informe interno no distribuido),
-revisión de gestos (informe interno no distribuido), su
+Consulta el resumen de QA24 (informe interno no distribuido)
+para conocer su alcance. Como referencias históricas, consulta la revisión de gestos (informe interno no distribuido), su
 cierre de transición (informe interno no distribuido) y
 rutinas de sala y Companion (informe interno no distribuido).
-Se comprobó el paquete con IRIS y Cantarella, incluyendo seis clips de
-gesto/reposo por modelo y las secuencias de sala. Eso no equivale a revisar los
-59 clips completos con todos los avatares ni a usar voz real en WebView2.
+La comprobación de QA22 incluyó seis clips de gesto o reposo por modelo y
+las secuencias de sala con IRIS y Cantarella. La cobertura visual depende
+del avatar y del candidato.
 
 Las galerías anteriores de cuatro modelos y scripts como verify_pose_faces.mjs
 son evidencia histórica o herramientas de diagnóstico de su corte. Para añadir

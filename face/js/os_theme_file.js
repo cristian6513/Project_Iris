@@ -1,5 +1,5 @@
 /** Theme JSON v1: visual preferences only. Imported image references never reach CSS. */
-import { OS_THEME_DEFAULT } from './os_theme.js?v=3';
+import { OS_THEME_DEFAULT } from './os_theme.js?v=4';
 import { themeTransitions } from './os_transition_format.js?v=1';
 import { validFont, FONT_ID } from './os_fonts.js?v=2';
 
@@ -9,9 +9,10 @@ const record = value => !!value && typeof value === 'object' && !Array.isArray(v
 const fail = message => { throw new Error(message); };
 const ranges = { accentGlow: [0, 100], borderGlow: [0, 100], cardOpacity: [30, 95], blurIntensity: [0, 40],
     neonIntensity: [0, 100], backgroundDim: [0, 95], liveIntensity: [0, 100] };
-const flags = ['compactMode', 'animatedGlow', 'reducedMotion', 'transparentCards'];
+const flags = ['compactMode', 'animatedGlow', 'reducedMotion', 'transparentCards', 'systemCursor'];
 const images = ['backgroundUrl', 'profileUrl'];
 const keys = Object.keys(OS_THEME_DEFAULT);
+const sharedKeys = keys.filter(key => key !== 'systemCursor');
 
 function field(key, value) {
     if (key === 'textFont' || key === 'titleFont') {
@@ -79,9 +80,9 @@ export function decodeThemeFile(source) {
         if (own(parsed, 'exportedAt') && (typeof parsed.exportedAt !== 'string' || parsed.exportedAt.length > 60 || Number.isNaN(Date.parse(parsed.exportedAt)))) fail('Fecha de exportación no válida.');
         input = parsed.theme;
     }
-    if (!Object.keys(input).length || !Object.keys(input).some(key => keys.includes(key) && !images.includes(key))) fail('El archivo no incluye ajustes de tema.');
-    if (Object.keys(input).some(key => !keys.includes(key))) fail('El tema contiene un ajuste no reconocido.');
-    const theme = { ...OS_THEME_DEFAULT };
+    if (!Object.keys(input).some(key => sharedKeys.includes(key) && !images.includes(key))) fail('El archivo no incluye ajustes de tema.');
+    if (Object.keys(input).some(key => !sharedKeys.includes(key))) fail('El tema contiene un ajuste no reconocido.');
+    const { systemCursor: _systemCursor, ...theme } = OS_THEME_DEFAULT;
     for (const key of Object.keys(input)) theme[key] = field(key, input[key]);
     Object.assign(theme, themeTransitions(theme, { strict: true }));
     const omittedImages = images.filter(key => theme[key] !== '');
@@ -93,7 +94,7 @@ export function decodeThemeFile(source) {
 }
 
 export function encodeThemeFile(value, exportedAt = new Date().toISOString()) {
-    const theme = normalizeStoredTheme(value);
+    const { systemCursor: _systemCursor, ...theme } = normalizeStoredTheme(value);
     const omittedImages = images.filter(key => typeof value?.[key] === 'string' && value[key].trim());
     for (const key of images) theme[key] = '';
     const omittedFonts = ['textFont', 'titleFont'].filter(key => FONT_ID.test(theme[key]));

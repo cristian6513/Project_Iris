@@ -4310,6 +4310,54 @@ body[data-wizard-step="0"] :is(.installer-hero, .setup-welcome-actions, #setup-s
 .voice-engine-options .setup-details .radio-group { margin:0; }
 .voice-engine-options .radio-card { min-width:0; }
 .voice-engine-options .radio-content { min-width:0; }
+.provider-grid.provider-recommended {
+    max-height:none;
+    overflow:visible;
+    padding-right:0;
+}
+.provider-grid.provider-recommended[hidden] { display:none !important; }
+.provider-grid.provider-recommended .radio-content > span,
+.voice-engine-recommended .radio-content > span {
+    color:color-mix(in srgb, var(--text) 82%, transparent);
+    font-family:inherit;
+    font-size:13px;
+}
+.provider-grid .radio-card { position:relative; }
+.provider-grid .radio-card input {
+    display:block;
+    position:absolute;
+    width:1px;
+    height:1px;
+    clip-path:inset(50%);
+}
+.provider-grid .radio-card:has(input:focus-visible),
+.voice-engine-options .radio-card:focus-visible {
+    outline:2px solid var(--installer-accent);
+    outline-offset:-3px;
+}
+.llm-recommended-model:not([hidden]) {
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    align-items:center;
+    justify-content:space-between;
+}
+.llm-recommended-model span { display:block; }
+#voice-quick-preview #voice-test-controls {
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px 12px;
+    align-items:center;
+}
+#voice-quick-preview #voice-current-choice {
+    margin:0;
+    flex:1 1 175px;
+}
+#voice-quick-preview #tts-test-result, #voice-quick-preview .setup-privacy {
+    flex-basis:100%;
+}
+#voice-quick-preview .setup-privacy { margin:0; }
+#voice-quick-preview details { order:1; flex-basis:100%; }
 .os-installer-shell .voice-card { cursor:default; padding:0 10px 0 0; gap:10px; }
 .os-installer-shell .voice-card .voice-select { display:flex; flex:1; gap:4px; align-items:flex-start; padding:12px; text-align:left; border:0; border-radius:8px; background:transparent; color:var(--text); font:inherit; cursor:pointer; min-width:0; }
 .os-installer-shell .voice-card .voice-select:hover { background:color-mix(in srgb, var(--installer-accent) 9%, transparent); }
@@ -4343,7 +4391,7 @@ body[data-wizard-step="0"] :is(.installer-hero, .setup-welcome-actions, #setup-s
 .os-installer-shell:has(.wizard-step.active[data-step="4"]) { overflow: clip; }
 .voice-save-row #voice-save-status { color: var(--text, #edf2fa); }
 .voice-save-row #save-voice-selection:disabled { cursor: wait; }
-@media (max-width: 480px) { .voice-save-row { padding: 12px; gap: 8px; } .voice-save-row #save-voice-selection { width: 100%; } }
+@media (max-width: 480px) { .voice-save-row { position: static; padding: 12px; gap: 8px; } .voice-save-row #save-voice-selection { width: 100%; } }
 .iris-audio-player { display: grid; grid-template-columns: auto minmax(70px,1fr) auto; align-items: center; gap: 12px; border: 1px solid var(--border); background: var(--void); padding: 12px; border-radius: 12px; color-scheme: dark; }
 .iris-audio-player input[type=range] { width: 100%; min-width: 0; accent-color: var(--installer-accent); }
 .iris-audio-player button:focus-visible,.iris-audio-player input:focus-visible { outline: 2px solid var(--installer-accent); outline-offset: 3px; }

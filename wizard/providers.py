@@ -464,7 +464,7 @@ PROVIDERS: list[dict[str, Any]] = [
     {
         "id": "opencode-zen", "name": "OpenCode Zen", "icon": "🧘",
         "category": "aggregator", "auth": "api",
-        "url": "https://opencode.ai/docs/zen/",
+        "url": "https://opencode.ai/docs/console/harnesses#get-an-api-key",
         "hint": "35+ modelos curados, pay-as-you-go",
         "hermes_id": "opencode-zen", "env_key": "OPENCODE_ZEN_API_KEY",
         "models": [
@@ -474,8 +474,8 @@ PROVIDERS: list[dict[str, Any]] = [
     {
         "id": "opencode-go", "name": "OpenCode Go", "icon": "🧘",
         "category": "aggregator", "auth": "api",
-        "url": "https://opencode.ai/docs/go/",
-        "hint": "Modelos open, $10/mes",
+        "url": "https://opencode.ai/docs/console/harnesses#get-an-api-key",
+        "hint": "Suscripción Go y clave API de OpenCode",
         "hermes_id": "opencode-go", "env_key": "OPENCODE_GO_API_KEY",
         "models": [
             {"value": "auto", "label": "Auto-select", "tier": "mid"},

@@ -82,8 +82,11 @@ class DesktopHome(BaseModel):
 
 def default_home():
     # Only a genuinely absent preference row receives factory shortcuts.
-    return DesktopHome(schema='iris.desktop-home/v1', revision=0,
-                       shortcuts=['theme', 'camera', 'player', 'settings'], hidden_apps=[], order=[])
+    return DesktopHome(
+        schema='iris.desktop-home/v1', revision=0,
+        shortcuts=['theme', 'camera', 'player', 'settings', 'permissions'],
+        hidden_apps=[], order=[],
+    )
 
 
 DESKTOP_SPEC = StoreSpec(

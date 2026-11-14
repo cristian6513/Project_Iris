@@ -14,16 +14,20 @@ const { chromium } = require(arg >= 0 ? process.argv[arg + 1] : 'playwright');
 const output = fs.mkdtempSync(path.join(os.tmpdir(), 'iris-manual-voice-'));
 function html(companion) {
     const source = fs.readFileSync(path.join(root, companion ? 'face/companion/index.html' : 'face/index.html'), 'utf8');
-    const controls = companion ? source.match(/<nav class="signal-rail"[^]*?<\/nav>/)[0]
+    const controls = companion ? source.match(/<nav[^>]*class="signal-rail"[^]*?<\/nav>/)[0]
         : source.match(/<div id="action-buttons">[^]*?<\/div>/)[0];
+    const viewToggle = companion ? source.match(/<div class="companion-view-actions">[^]*?<\/div>/)[0] : '';
     return `<!doctype html><html lang="es"><head><meta charset="utf-8">
         <link rel="stylesheet" href="/face/${companion ? 'companion/companion.css' : 'css/styles.css'}">
         <link rel="stylesheet" href="/face/css/manual_voice.css"></head>
-        <body data-controls="visible"><main id="companion-app">${controls}</main><script type="module">
+        <body data-controls="visible"><main id="iris-companion">${controls}${viewToggle}</main><script type="module">
         import { ManualVoiceController } from '/face/js/manual_voice.js';
-        window.qaCalls = []; let revision = 0;
+        window.qaCalls = []; window.voiceCommands = []; window.destinations = []; let revision = 0;
         let state = { state: 'off', busy: false, revision };
         window.ui = new ManualVoiceController({ button: document.getElementById('${companion ? 'voice-manual' : 'btn-hermes-voice'}'),
+            sendConversation: payload => { voiceCommands.push(payload); return true; },
+            openPermissions: () => destinations.push('permissions'),
+            openVoiceSettings: () => destinations.push('voice'),
             fetchImpl: async (url, options) => {
                 qaCalls.push({ url, method: options.method || 'GET' });
                 if (options.method === 'POST') {
@@ -32,7 +36,7 @@ function html(companion) {
                         state: data.action === 'start' ? 'recording' : data.action === 'stop' ? 'transcribing' : 'off' };
                 }
                 return { ok: true, json: async () => state };
-            } }); ui.setConnected(true);
+            } }); ui.setConversationAvailable(true); ui.setConnected(true);
         </script></body></html>`;
 }
 const server = http.createServer((req, res) => {
@@ -58,7 +62,7 @@ try {
     const origin = 'http://127.0.0.1:' + server.address().port;
     const results = [];
     for (const companion of [false, true]) {
-        const page = await browser.newPage({ viewport: companion ? { width: 420, height: 680 } : { width: 1440, height: 900 } });
+        const page = await browser.newPage({ viewport: companion ? { width: 300, height: 390 } : { width: 1440, height: 900 } });
         const errors = [];
         page.on('pageerror', error => errors.push(error.message));
         await page.route('**/*', route => route.request().url().startsWith(origin + '/') ? route.continue() : route.abort());
@@ -96,6 +100,46 @@ try {
         await page.screenshot({ path:path.join(output,companion?'companion-sent.jpg':'room-sent.jpg'),type:'jpeg',quality:80 });
         await page.keyboard.press('Escape');
         assert.equal(await page.locator('.manual-voice-panel').isVisible(),false);
+        await button.click();
+        assert.equal(await page.evaluate(() => voiceCommands.length), 0);
+        await page.getByRole('button', { name: 'Iniciar conversación' }).click();
+        await page.evaluate(() => ui.applyConversation({ id: voiceCommands[0].id, phase: 'listening' }));
+        const bar = page.getByRole('region', { name: 'Conversación por voz' });
+        assert.match(await bar.innerText(), /Micrófono activo/);
+        const conversationBounds = await bar.boundingBox();
+        assert.ok(conversationBounds.x >= 0 && conversationBounds.y >= 0
+            && conversationBounds.x + conversationBounds.width <= size.width);
+        if (companion) {
+            await page.evaluate(() => {
+                document.body.dataset.controls = 'hidden';
+                document.getElementById('companion-controls').hidden = true;
+                const eye = document.getElementById('toggle-companion-controls');
+                eye.hidden = false;
+                eye.setAttribute('aria-expanded', 'false');
+                eye.setAttribute('aria-label', 'Mostrar controles');
+            });
+            assert.equal(await button.isVisible(), false);
+            assert.equal(await page.getByRole('button', { name: 'Mostrar controles' }).isVisible(), true);
+        }
+        await page.evaluate(() => ui.applyConversation({ id: voiceCommands[0].id, phase: 'replying' }));
+        assert.match(await bar.innerText(), /Preparando respuesta/);
+        await page.evaluate(() => ui.applyConversation({ id: voiceCommands[0].id, phase: 'speaking' }));
+        assert.match(await bar.innerText(), /Iris está hablando/);
+        await page.screenshot({ path: path.join(output, companion ? 'companion-conversacion.jpg' : 'room-conversacion.jpg') });
+        await bar.getByRole('button', { name: 'Terminar' }).click();
+        assert.deepEqual(await page.evaluate(() => voiceCommands.map(c => c.action)), ['start', 'end']);
+        await page.evaluate(() => ui.applyConversation({ id: voiceCommands[0].id, phase: 'off', reason: 'El micrófono se bloqueó en Permisos.', code: 'microphone_blocked' }));
+        assert.match(await bar.innerText(), /micrófono se bloqueó/);
+        const noticeBounds = await bar.boundingBox();
+        assert.ok(noticeBounds.x >= 0 && noticeBounds.x + noticeBounds.width <= size.width);
+        assert.ok(noticeBounds.y >= 0 && noticeBounds.y + noticeBounds.height <= size.height);
+        await page.screenshot({ path: path.join(output, companion ? 'companion-voz-aviso.jpg' : 'room-voz-aviso.jpg') });
+        await bar.getByRole('button', { name: 'Abrir Permisos' }).press('Enter');
+        assert.equal(await bar.isVisible(), false);
+        await page.evaluate(() => ui.showNotice('Iris no pudo hablar.', 'voice_unavailable'));
+        await bar.getByRole('button', { name: 'Abrir ajustes de voz' }).click();
+        assert.deepEqual(await page.evaluate(() => destinations), ['permissions', 'voice']);
+        assert.equal(await bar.isVisible(), false);
         assert.deepEqual(errors, []);
         results.push({ surface: companion ? 'companion' : 'room', consent: true, send: true, transcriptVisible: true, noDuplicateSend: true, cancel: true, bounds: true });
         await page.close();

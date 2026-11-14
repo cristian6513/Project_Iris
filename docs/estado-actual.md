@@ -1,9 +1,24 @@
 # Estado actual de IRIS OS
 
-Revisión documental: **2026-11-12**. Esta matriz distingue fuente, candidato de
+Revisión documental: **2026-11-14**. Esta matriz distingue fuente, candidato de
 QA y publicación. No sustituye los criterios del
 plan A08/F01–F16 (informe interno no distribuido) ni da por
 aprobada una instalación manual por haber pasado pruebas automáticas.
+
+## Iris OS 0.9.4 beta · QA25
+
+Candidato **1e71c1c9** para Windows x64, con Companion **0.1.10** y Hermes
+**0.21.6**. Incluye el arranque unificado, el cursor temático, Solo avatar en
+Companion, conversación por voz y un asistente inicial más sencillo. El
+[manual integrado](../wizard/ui/help.html) explica estas novedades.
+
+El escritorio con un perfil nuevo y el ojo de Companion se comprobaron en
+WebView2. QA24 pudo descargar y verificar QA25 desde un canal firmado local.
+Queda comprobar la activación del actualizador público y la conversación con
+un micrófono, altavoces y un proveedor reales.
+
+[Descargas y notas de QA25](https://github.com/cristian6513/Project_Iris/releases/tag/v0.9.4-beta.qa25) ·
+[Procedencia y hashes](../SOURCE.json).
 
 ## Iris OS 0.9.3 beta · QA24
 

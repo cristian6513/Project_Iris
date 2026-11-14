@@ -64,6 +64,8 @@ REVIEWED = {
     ("POST", "/api/start-gateway"), ("POST", "/api/restart-gateway"), ("GET", "/api/autostart-status"),
     ("GET", "/api/providers"), ("POST", "/api/providers/refresh"), ("GET", "/api/auth-provider-stream"),
     ("POST", "/api/provider-models"),  # Metadata only; private engine probe, no installer or draft credential write.
+    # Explicit local request for a short response through the saved OAuth route.
+    ("POST", "/api/provider-response-check"),
     ("GET", "/api/hermes-status"), ("GET", "/api/test-hermes"), ("GET", "/api/voices"),
     ("POST", "/api/test-audio"), ("POST", "/api/test-tts-audio"), ("POST", "/api/test-tts"),
     ("GET", "/api/tts-voices"), ("POST", "/api/clone-voice"), ("POST", "/api/upload-model"),

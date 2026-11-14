@@ -3,21 +3,22 @@
 Este índice separa las guías de uso y desarrollo de los registros de diseño y
 validación. **Consulta primero el [estado actual](estado-actual.md)** para saber
 qué está en fuente, qué contiene cada candidato y qué falta por aprobar.
-El candidato de referencia es QA22 (2026-11-06); su informe distingue pruebas
-automáticas y QA manual pendiente. Las guías también identifican funciones
-experimentales o aún no integradas.
+La beta de referencia es **0.9.3 QA24**. El resumen del 13 de noviembre (informe interno no distribuido)
+recoge su alcance, las mejoras posteriores y la QA pendiente.
 
 ## Guías
 
 | Necesito… | Documento |
 | --- | --- |
+| Leer la ayuda que viene con Iris | [Manual integrado](../wizard/ui/help.html) |
 | Instalar IRIS o reparar Hermes | [Instalación y primeros pasos](guides/getting-started.md) |
 | Elegir proveedor, modelo, voz o personalidad | [Configuración](guides/configuration.md) |
+| Hablar con Iris, usar Wake o iniciar una conversación por voz | [Micrófono y Wake](guides/manual-voice.md) |
 | Cambiar el modelo del chat o de visión | [Modelos](guides/models.md) |
 | Crear reglas por inactividad y consultar sus resultados | [Automatizaciones y Bandeja](guides/automations.md) |
 | Conectar WhatsApp, Telegram y otros canales de Hermes | [Mensajería](guides/messaging.md) |
 | Entender qué puede hacer IRIS | [Funcionalidades](guides/features.md) |
-| Configurar permisos y comprobar guards de Hermes | [Capability & Permission Center](guides/capability-permission-center.md) |
+| Configurar permisos y comprobar los controles de Hermes | [Capability & Permission Center](guides/capability-permission-center.md) |
 | Administrar perfiles y sesiones | [Continuity Center](guides/continuity-center.md) |
 | Usar o extender el reproductor local | [IRIS Player](guides/iris-player.md) |
 | Ejemplo comunitario sin cuentas: app, widget y skill | [Player](../apps/player/README.md) |
@@ -28,11 +29,11 @@ experimentales o aún no integradas.
 | Clic derecho, pulsación prolongada y galería con vistas previas | Interacción de Inicio (informe interno no distribuido) |
 | Buscar apps, organizar el inicio y recuperar iconos ocultos (en fuente) | [Inicio y aplicaciones](guides/desktop-home.md) |
 | Instalar o desinstalar apps desde un .zip o una carpeta (F17, en fuente) | [Iris Store](guides/iris-store.md) |
-| Crear una app externa con Python, acciones, widget y skill opcional (SDK 2, incluido en QA22) | [SDK comunitario y Contador](guides/community-apps-python.md) |
+| Crear una app externa con Python, acciones, widget y skill opcional (SDK 2) | [SDK comunitario y Contador](guides/community-apps-python.md) |
 | Revisar la propuesta de fuentes, transiciones y temas compartibles | [Theme Studio: diagnóstico y diseño](iris_theme_studio_extension_plan_2026-10-18.md) |
 | Importar/exportar ajustes sin cargar imágenes externas (en fuente) | [Temas de Theme Studio](guides/theme-studio.md) |
 | Importar, crear y compartir transiciones CSS/JSON (en fuente) | [Transiciones de Theme Studio](guides/theme-transitions.md) |
-| Gestos, expresiones y 59 clips de fábrica | [Animaciones](guides/iris-animations.md) |
+| Gestos, expresiones y biblioteca de fábrica | [Animaciones](guides/iris-animations.md) |
 | Explorar la habitación, Vida propia y teletransporte | [Habitación 3D](guides/room.md) |
 | Comprender los componentes y flujos | [Arquitectura](guides/architecture.md) |
 | Revisar micrófono, cámara, claves y acceso LAN | [Privacidad y seguridad](guides/privacy-security.md) |
@@ -55,6 +56,7 @@ fechados describen la revisión que probaron; sus conteos y «siguientes pasos»
 no son un estado vivo. El plan coordinador registra el alcance y la aceptación;
 el [estado actual](estado-actual.md) facilita la lectura de las últimas entregas.
 
+- QA24 y mejoras posteriores (informe interno no distribuido)
 - QA22: construcción, comprobaciones y límites (informe interno no distribuido)
 - Cambio de voz en vivo: revisión y cierre (informe interno no distribuido)
 - Rutinas de sala, Companion y teletransporte (informe interno no distribuido)

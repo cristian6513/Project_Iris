@@ -4,9 +4,9 @@
 > Los resultados fechados de esta guía corresponden a aquella comprobación,
 > no a una validación nueva de todos los ejecutables.
 
-La habitación es la escena visual de IRIS OS. Esta guía describe el corte
-**QA22 (2026-11-06)**: muebles texturizados, acciones del avatar, Vida propia y
-controles visuales. Los informes fechados mantienen sus mediciones originales.
+La habitación es la escena visual de IRIS OS. Esta guía recoge las acciones y
+controles de **0.9.3 QA24**. Los informes fechados mantienen sus mediciones
+originales. Consulta [Estado actual](../estado-actual.md) para las mejoras posteriores.
 
 ## Qué incluye
 
@@ -50,9 +50,10 @@ una malla exige revisar de nuevo asientos, manos, recorridos y cámaras.
 ## Acciones del avatar
 
 Abre **Explorar → Acciones** para volver al centro, leer o usar la tablet de
-pie, sentarte en la silla/sofá/cama, usar el PC, leer en un asiento, acostarte,
-mirar por la ventana o ir al librero. **Usar PC** incluye la silla y las manos
-sobre teclado/mouse. **Ventana** apoya la mano en el cristal y cambia el encuadre.
+pie, sentarte en la silla, el sofá, la cama o el borde del escritorio, usar
+el PC, leer en un asiento, acostarte, ponerte **Boca abajo**, mirar por la
+ventana o **Leer en el librero**. **Usar PC** incluye la silla y las manos
+sobre teclado y ratón. **Ventana** apoya la mano en el cristal y cambia el encuadre.
 Los controles solo ejecutan acciones que tengan recursos compatibles disponibles.
 
 Son acciones visuales del avatar: no conceden control de Windows ni hacen que
@@ -68,8 +69,8 @@ se guarda por navegador y origen; es independiente de la preferencia de Companio
 | Tiempo sin interacción | Tranquila | Activa |
 | --- | --- | --- |
 | Lectura o tablet cerca del centro | 1 minuto | 25 segundos |
-| Visita al sofá, cama, silla o ventana | 4 minutos | 1 minuto y medio |
-| Descanso acostada | 15 minutos | 10 minutos |
+| Visita al sofá, cama, silla, borde del escritorio o ventana | 4 minutos | 1 minuto y medio |
+| Descanso boca arriba o boca abajo | 15 minutos | 10 minutos |
 
 Son umbrales de decisión, no alarmas exactas. Las órdenes y la conversación van
 por delante. No empieza rutinas con movimiento reducido, la sala/ventana oculta,
@@ -97,7 +98,7 @@ orden nueva o el comienzo del habla lo cancela para que no siga desapareciendo
 mientras responde.
 
 Diseño y comprobaciones de rutinas (informe interno no distribuido) ·
-Recursos empaquetados y límites de QA22 (informe interno no distribuido).
+Recursos empaquetados y límites de QA24 (informe interno no distribuido).
 
 ## Acercar el avatar
 
@@ -273,17 +274,17 @@ Hermes ni reproduce una conversación real para esa comprobación.
 
 La revisión histórica del acabado de septiembre comprobó los cuatro temas y
 encuadres estrechos con una escena aislada. Para los recursos que hoy contiene
-el instalador y las pruebas recientes, consulta el informe QA22 (informe interno no distribuido);
-los conteos de aquella escena no validan por sí solos el candidato actual.
+la beta actual, consulta el resumen de QA24 (informe interno no distribuido).
+Los conteos de aquella escena corresponden a su propia prueba.
 
 ## Límites y próximos pasos
 
-QA22 incluye estas acciones y sus animaciones, y Companion 0.1.8 incorpora las
-alternativas de pie. La comprobación automática de recursos empaquetados usa
-IRIS y Cantarella en Edge, con fotogramas adelantados en muchos casos; no
-sustituye voz real, WebView2 instalado ni tiempos normales de Vida propia.
+QA24 incluye estas acciones y sus animaciones. Companion 0.1.9 ofrece
+alternativas de pie. Las comprobaciones de animación en Edge usaron a IRIS y
+avatares de prueba, con el reloj adelantado en muchos casos. Quedan por probar
+la voz real y los tiempos normales de Vida propia en WebView2 instalado.
 
-Las proporciones, los pesos y las físicas de cada VRM pueden producir cruces
+Las proporciones, los pesos y las físicas de cada avatar pueden producir cruces
 con ropa o muebles. Un modelo con falda muy larga puede sobresalir del barrido
 de teletransporte. Cambiar el modelo de una cama o silla requiere revisar sus
 puntos de interacción. El rendimiento en el equipo mínimo sigue pendiente.

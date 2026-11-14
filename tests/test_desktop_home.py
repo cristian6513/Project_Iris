@@ -15,7 +15,7 @@ def test_default_home_read_is_passive_and_ids_come_from_bundled_catalog(tmp_path
     api = client(tmp_path)
     reply = api.get(URL)
     assert reply.status_code == 200
-    assert reply.json()['shortcuts'] == ['theme', 'camera', 'player', 'settings']
+    assert reply.json()['shortcuts'] == ['theme', 'camera', 'player', 'settings', 'permissions']
     assert reply.json()['hidden_apps'] == []
     assert not (tmp_path / 'apps').exists()
     assert 'no-store' in reply.headers['cache-control']

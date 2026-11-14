@@ -6,8 +6,9 @@ IRIS OS utiliza Hermes Agent como motor. El wizard detecta el equipo y el
 estado real de Hermes antes de proponer una instalación, reparación o
 configuración.
 
-Consulta el [estado actual](../estado-actual.md) para identificar qué candidato
-contiene cada función. No hay una descarga pública nueva aprobada por esta guía.
+La [beta 0.9.3 QA24](https://github.com/cristian6513/Project_Iris/releases/tag/v0.9.3-beta.qa24)
+está disponible para instalación manual. Consulta el [estado actual](../estado-actual.md)
+para ver qué incluye y qué mejoras se añadieron después en la fuente.
 
 ## Probar el paquete de Windows
 
@@ -154,6 +155,12 @@ las pantallas de los instaladores anteriores.
 
 ## Elegir proveedor
 
+En la fuente posterior a QA24, el asistente destaca **ChatGPT**, **Nous Portal**
+y **Grok**. ChatGPT requiere acceso a Codex en la cuenta. Cada proveedor indica
+qué acceso admite. En **Más proveedores** puedes elegir otra ruta. **Cargar
+modelos** consulta el catálogo. **Probar respuesta**, tras guardar el proveedor
+principal, envía una frase de prueba y puede usar parte de tu cuota.
+
 El wizard distingue tres familias:
 
 1. **Proveedor remoto con API key.** Recomendado cuando el equipo tiene poca
@@ -175,7 +182,9 @@ Puedes personalizar:
 - tema visual;
 - nombre y perfil;
 - personalidad, rasgos y backstory;
-- voz y motores opcionales;
+- voz y motores opcionales. En la fuente posterior a QA24, prueba Edge TTS con
+  **Escuchar a Iris**, con internet y sin clave. **Ver más voces** despliega
+  los demás motores;
 - Desktop Companion opcional en Windows.
 
 Después, desde Ajustes de IRIS OS, puedes preparar la activación por voz nativa

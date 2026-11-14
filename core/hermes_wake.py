@@ -442,6 +442,7 @@ class HermesWakeRuntime:
         self.state = "off"
         self.last_error = ""
         self.manual_voice = ManualVoiceCapture(self)
+        self.voice_conversation = None
         self._wake_capture_id = ""
         self._wake_partial = ""
         self._wake_partial_sequence = 0
@@ -1164,6 +1165,8 @@ async def get_hermes_wake_settings(request: Request, probe: bool = True) -> JSON
 async def update_hermes_wake_settings(payload: HermesWakeSettingsUpdate, request: Request) -> JSONResponse:
     _enforce_local_request(request)
     runtime = _runtime_from(request)
+    if runtime and runtime.voice_conversation and runtime.voice_conversation.session:
+        raise HTTPException(status_code=409, detail="Termina la conversación por voz antes de cambiar Wake.")
     was_active = bool(runtime and runtime.listening)
     if was_active and runtime:
         try:
@@ -1207,6 +1210,11 @@ async def update_hermes_wake_runtime(payload: HermesWakeRuntimeUpdate, request: 
     runtime = _runtime_from(request)
     if runtime is None:
         raise HTTPException(status_code=409, detail="IRIS Core aún no inició el runtime de voz de Hermes.")
+    conversation = runtime.voice_conversation
+    if conversation and conversation.session:
+        if payload.active:
+            raise HTTPException(status_code=409, detail="Termina la conversación por voz antes de activar Wake.")
+        conversation.session.restore_wake = False
     try:
         result = (
             await runtime.start_listener(persist=True)
@@ -1244,7 +1252,8 @@ async def update_hermes_voice_settings(payload: HermesVoiceSettings, request: Re
     runtime = _runtime_from(request)
     if runtime is None:
         raise HTTPException(status_code=409, detail="El runtime de voz todavía no está listo.")
-    if runtime.manual_voice.busy or runtime.state in {"arming", "detected", "recording", "transcribing", "processing"}:
+    if (runtime.manual_voice.busy or (runtime.voice_conversation and runtime.voice_conversation.session)
+            or runtime.state in {"arming", "detected", "recording", "transcribing", "processing"}):
         raise HTTPException(status_code=409, detail="Termina o cancela la intervención antes de cambiar la transcripción.")
     try:
         return configure_voice_streaming(payload.streaming)
@@ -1276,14 +1285,16 @@ async def update_hermes_voice_runtime(payload: HermesVoiceUpdate, request: Reque
     if runtime is None:
         raise HTTPException(status_code=409, detail="IRIS Core aún no inició el runtime de voz de Hermes.")
     if payload.action == "start":
+        if runtime.voice_conversation and runtime.voice_conversation.session:
+            raise HTTPException(status_code=409, detail="Termina la conversación por voz antes de usar Hablar ahora.")
         verdict = CapabilityPermissionStore().evaluate(
             "microphone.capture", trigger="manual", confirmed=payload.confirmed,
         )
         if not payload.confirmed or verdict["verdict"] != "allow":
-            raise HTTPException(status_code=403, detail=(
-                "Activa Preguntar para Micrófono en Capability & Permission Center "
-                "y confirma la captura manual. La transcripción usa el proveedor STT de Hermes."
-            ))
+            return JSONResponse({
+                "code": "microphone_blocked" if payload.confirmed else "confirmation_required",
+                "detail": "Activa Preguntar para Micrófono en Permisos y confirma la captura manual.",
+            }, status_code=403)
     voice = runtime.manual_voice
     try:
         if payload.action == "start":

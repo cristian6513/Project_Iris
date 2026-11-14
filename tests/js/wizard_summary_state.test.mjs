@@ -222,7 +222,7 @@ test('a saved Fish Audio account keeps its voice/model without exposing or resen
 
 test('a saved setup with a ready provider is ready and launches', async () => {
     const step = await finalStep({ ok: true, status: 200, body: { status: 'saved', ai: { ready: true, code: '', message: '' } } });
-    assert.equal(step.title, '¡IRIS está lista!');
+    assert.equal(step.title, 'IRIS está configurada');
     assert.equal(step.status, '');
     assert.equal(step.launchEnabled, true);
     assert.equal(step.launchSent, true);
@@ -265,7 +265,7 @@ test('a first read that never answers also ends with a reason and a retry', asyn
 test('a valid retry after a timeout reaches the ready state', async () => {
     const ready = { ok: true, status: 200, body: { status: 'saved', ai: { ready: true, code: '', message: '' } } };
     const step = await finalStep({ hang: true, retry: ready }, { attempts: 2 });
-    assert.equal(step.title, '¡IRIS está lista!');
+    assert.equal(step.title, 'IRIS está configurada');
     assert.equal(step.retryShown, false);
     assert.equal(step.launchEnabled, true);
 });
@@ -273,7 +273,7 @@ test('a valid retry after a timeout reaches the ready state', async () => {
 test('a replaced attempt cannot overwrite the newer result when its deadline passes', async () => {
     const ready = { ok: true, status: 200, body: { status: 'saved', ai: { ready: true, code: '', message: '' } } };
     const step = await finalStep({ getHang: true, retryBeforeDeadline: true, retry: ready });
-    assert.equal(step.title, '¡IRIS está lista!');
+    assert.equal(step.title, 'IRIS está configurada');
     assert.equal(step.retryShown, false);
     assert.equal(step.launchEnabled, true);
 });
@@ -288,14 +288,14 @@ test('the summary names the enabled channels and still saves', async () => {
         { id: 'api_server', name: 'API server', enabled: true, managed: true },  // Iris' own link to Hermes
     ];
     const step = await finalStep({ ok: true, status: 200, body: { status: 'saved', ai: { ready: true, code: '', message: '' } } }, { channels });
-    assert.equal(step.title, '¡IRIS está lista!');
+    assert.equal(step.title, 'IRIS está configurada');
     assert.match(step.summary, /Canales<\/span><span class="value">Telegram<\/span>/);
     assert.doesNotMatch(step.summary, /Discord|API server/);
 });
 
 test('without the messaging panel the summary saves and lists no channels', async () => {
     const step = await finalStep({ ok: true, status: 200, body: { status: 'saved', ai: { ready: true, code: '', message: '' } } });
-    assert.equal(step.title, '¡IRIS está lista!');
+    assert.equal(step.title, 'IRIS está configurada');
     assert.doesNotMatch(step.summary, /Canales/);
 });
 

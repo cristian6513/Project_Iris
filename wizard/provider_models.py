@@ -85,6 +85,20 @@ async def discover_models(*, slug: str, api_key: str = "", use_oauth: bool = Fal
         except (httpx.HTTPError, ValueError, TypeError):
             return {"status": "error", "code": "catalog_unavailable"}
 
+    return await _run_provider_probe(
+        {"slug": slug, "api_key": api_key, "use_oauth": use_oauth, "base_url": base_url},
+        timeout=40, failure="catalog_unavailable",
+    )
+
+
+async def check_provider_response(*, slug: str, model: str) -> dict:
+    return await _run_provider_probe(
+        {"slug": slug, "model": model, "probe_response": True},
+        timeout=25, failure="no_response",
+    )
+
+
+async def _run_provider_probe(request: dict, *, timeout: int, failure: str) -> dict:
     from wizard.provider_sync import _resolve_hermes_python, _hermes_python_probe_command, _hermes_probe_kwargs
 
     python = _resolve_hermes_python()
@@ -92,7 +106,7 @@ async def discover_models(*, slug: str, api_key: str = "", use_oauth: bool = Fal
         return {"status": "error", "code": "engine_missing"}
     from wizard.provider_models_probe import PROBE_SOURCE
     probe = PROBE_SOURCE
-    kwargs = _hermes_probe_kwargs(40)
+    kwargs = _hermes_probe_kwargs(timeout)
     timeout = kwargs.pop("timeout")
     for key in ("capture_output", "text", "encoding", "errors"):
         kwargs.pop(key, None)
@@ -102,7 +116,7 @@ async def discover_models(*, slug: str, api_key: str = "", use_oauth: bool = Fal
             *_hermes_python_probe_command(python, probe), stdin=subprocess.PIPE,
             stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, **kwargs,
         )
-        body = json.dumps({"slug": slug, "api_key": api_key, "use_oauth": use_oauth, "base_url": base_url}).encode()
+        body = json.dumps(request).encode()
         stdout, _ = await asyncio.wait_for(process.communicate(body), timeout=timeout)
         marker = "IRIS_PROVIDER_MODELS="
         line = next(s[len(marker):] for s in reversed(stdout.decode("utf-8").splitlines()) if s.startswith(marker))
@@ -111,7 +125,7 @@ async def discover_models(*, slug: str, api_key: str = "", use_oauth: bool = Fal
             raise ValueError("invalid_catalog")
         return result
     except (OSError, ValueError, StopIteration, asyncio.TimeoutError):
-        return {"status": "error", "code": "catalog_unavailable"}
+        return {"status": "error", "code": failure}
     finally:
         if process is not None and process.returncode is None:
             process.kill()

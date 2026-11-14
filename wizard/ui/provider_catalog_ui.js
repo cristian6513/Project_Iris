@@ -24,10 +24,12 @@ class IrisProviderModels {
         } finally {
             if (generation === this.generation) { this.controller = null; this.changed(); }
         }
+        if (generation === this.generation && this.state === 'ready') return this.result;
     }
 }
 globalThis.IrisProviderModels = IrisProviderModels;
 let _providerModelAccess;
+let _providerModelPickerOpen = false;
 function _providerModelsController() {
     return _providerModelAccess ||= new IrisProviderModels(async (body, signal) => {
         const response = await fetch('/api/provider-models', {
@@ -68,7 +70,13 @@ function _renderProviderModelsAccess() {
     const loading = matches && access.state === 'loading';
     const select = document.getElementById('llm-model');
     const section = document.getElementById('llm-model-section');
-    if (section) section.style.display = ready ? 'block' : 'none';
+    const recommendation = ready && access.result.recommended_model;
+    const showRecommendation = Boolean(recommendation && !_providerModelPickerOpen && select?.value === recommendation);
+    const recommended = document.getElementById('llm-recommended-model');
+    if (recommended) recommended.hidden = !showRecommendation;
+    const name = document.getElementById('llm-recommended-model-name');
+    if (name) name.textContent = showRecommendation ? recommendation : '';
+    if (section) section.style.display = ready && !showRecommendation ? 'block' : 'none';
     if (!ready) {
         if (select) { select.value = ''; select.disabled = true; }
         const custom = document.getElementById('custom-model-section');
@@ -89,21 +97,52 @@ function _renderProviderModelsAccess() {
             : access.result.source === 'reference'
                 ? 'El proveedor no devolvió una lista en vivo. Modelos de referencia de Hermes; acceso y cuota sin verificar.'
                 : access.result.source === 'hermes'
-                    ? `${access.result.models.length} modelos del catálogo de Hermes para este método de acceso. Su disponibilidad depende del proveedor.`
-                : `${access.result.models.length} modelos para este acceso. Elige uno; la cuota y disponibilidad dependen del proveedor.`
+                    ? `${access.result.models.length} modelos del catálogo de Hermes. El proveedor confirma el acceso al responder.`
+                : `${access.result.models.length} modelos para esta cuenta. La cuota depende de tu plan.`
         : matches && access.state === 'error' ? access.result?.message || 'No se pudo cargar el catálogo. Reintenta.'
             : _providerModelsDraft().use_oauth ? 'Primero conecta tu cuenta. Después Iris cargará sus modelos.'
                 : 'Pega tu API key y pulsa «Cargar modelos». No se guarda ni se genera una respuesta al consultar la lista.';
 }
 function invalidateProviderModels() {
+    _providerModelPickerOpen = false;
     _providerModelsController().reset();
     if (typeof markModelStepDone === 'function') markModelStepDone();
 }
 async function loadProviderModels() {
+    if (!_providerModelsRequired()) return;
     const draft = _providerModelsDraft();
-    await _providerModelsController().load(JSON.stringify(draft), draft);
-    if (!_providerModelsFor(draft.provider, draft.use_oauth)) return;
-    _setProviderModelOptions(draft.provider, draft.use_oauth, true);
+    const context = JSON.stringify(draft);
+    const controller = _providerModelsController();
+    const select = document.getElementById('llm-model');
+    const previous = controller.context === context ? select?.value : '';
+    const previousCustom = previous === '__custom__' ? document.getElementById('llm-custom-model')?.value : '';
+    const saved = llmSetup.primary;
+    const savedModel = saved?.provider === draft.provider && (saved.auth === 'oauth') === draft.use_oauth
+        ? saved.model : '';
+    const result = await controller.load(context, draft);
+    if (!result || _providerModelsFor(draft.provider, draft.use_oauth) !== result) return;
+    const filter = document.getElementById('llm-model-filter');
+    if (filter) filter.value = '';
+    const modelSelect = _setProviderModelOptions(draft.provider, draft.use_oauth, false);
+    const preferred = previous || savedModel || (draft.use_oauth && result.recommended_model);
+    if (modelSelect && [...modelSelect.options].some(option => option.value === preferred && !option.disabled)) {
+        modelSelect.value = preferred;
+        const input = document.getElementById('llm-custom-model');
+        if (input && previousCustom) input.value = previousCustom;
+    } else if (preferred && (previous || savedModel) && draft.provider !== 'nous' && [...(modelSelect?.options || [])]
+        .some(option => option.value === '__custom__')) {
+        modelSelect.value = '__custom__';
+        const input = document.getElementById('llm-custom-model');
+        if (input) input.value = preferred;
+    }
+    const custom = document.getElementById('custom-model-section');
+    if (custom && modelSelect?.value === '__custom__') custom.style.display = 'block';
     _renderProviderModelsAccess();
     markModelStepDone();
+}
+
+function showProviderModelPicker() {
+    _providerModelPickerOpen = true;
+    _renderProviderModelsAccess();
+    document.getElementById('llm-model')?.focus();
 }

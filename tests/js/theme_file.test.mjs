@@ -12,7 +12,8 @@ const remote = 'https://images.example.invalid/track?recipient=fixture';
 const recipe = () => parseTransitionFile(TRANSITION_EXAMPLE_CSS).transitions[0];
 
 test('real v1 exports and raw legacy preferences preserve IDs, booleans, zero and numeric string representation', () => {
-    const input = { ...OS_THEME_DEFAULT, ...OS_THEME_PRESETS.verdant, blurIntensity: 0, accentGlow: '0', reducedMotion: false };
+    const input = { ...encodeThemeFile(OS_THEME_DEFAULT).payload.theme, ...OS_THEME_PRESETS.verdant,
+        blurIntensity: 0, accentGlow: '0', reducedMotion: false };
     for (const payload of [input, wrapped(input)]) {
         const { theme, omittedImages } = decode(payload);
         assert.equal(theme.background, 'hacker'); assert.equal(theme.profile, 'iris');
@@ -129,6 +130,18 @@ test('actual import cancels image references by default; explicit acceptance app
     assert.doesNotMatch(JSON.stringify([...accepted.css.values()]), /example.invalid/);
     assert.doesNotMatch(accepted.stored.get('theme'), /example.invalid/); assert.equal(accepted.published.length, 1);
     assert.deepEqual(accepted.notices, []);
+});
+
+test('cursor preference stays local when saving or importing a shared theme', async () => {
+    const s = setup();
+    s.shell._osTheme.systemCursor = true;
+    const { payload } = encodeThemeFile(s.shell._osTheme);
+    assert.equal(Object.hasOwn(payload.theme, 'systemCursor'), false);
+    assert.equal(normalizeStoredTheme({ systemCursor: true }).systemCursor, true);
+    assert.equal(normalizeStoredTheme({ systemCursor: 'true' }).systemCursor, false);
+    await s.choose(wrapped({ accent: '#abcdef' }));
+    assert.equal(s.shell._osTheme.systemCursor, true);
+    assert.equal(JSON.parse(s.stored.get('theme')).systemCursor, true);
 });
 
 test('invalid imports and a failed snapshot write leave live state/CSS untouched and explain failure', async () => {

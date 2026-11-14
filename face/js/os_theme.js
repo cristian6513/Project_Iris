@@ -21,6 +21,7 @@ export const OS_THEME_DEFAULT = Object.freeze({
     animatedGlow: true,
     reducedMotion: false,
     transparentCards: true,
+    systemCursor: false,
 });
 
 export const OS_THEME_PRESETS = Object.freeze({

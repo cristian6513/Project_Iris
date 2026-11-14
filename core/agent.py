@@ -43,7 +43,9 @@ from core.websocket_server import (
     broadcast_to_face,
     current_turn,
     handle_hermes_wake_event,
+    local_speech_started_callback,
     mount_static_files,
+    prepare_conversational_mic_for_speech,
     send_animation,
     send_emotion,
     send_lip_sync,
@@ -495,6 +497,7 @@ class IRISAgent:
         # delegation fields. Hermes handles advanced delegation and
         # scheduled work inside its own runtime.
         if spoken_text:
+            await prepare_conversational_mic_for_speech()
             console.print(f"[gold1]IRIS ({emotion}): {spoken_text}[/]")
             async with self._speak_lock:
                 # Phase 1 — visual setup (can happen during TTS generation).
@@ -576,6 +579,7 @@ class IRISAgent:
                 # rate). Cheap (one decode, tiny overhead vs the
                 # synthesis itself).
                 playback_duration: float = 0.0
+                play_on_host = bool(real_audio)
                 if has_audio_surface and real_audio:
                     try:
                         from core.tts import decode_audio
@@ -606,13 +610,13 @@ class IRISAgent:
                         "mime":    mime,
                         "visemes": viseme_data or [],
                     }, wait_for_end=True, duration_s=playback_duration)
-                    if not delivered:
+                    play_on_host = not delivered
+                    if play_on_host:
                         # The selected owner disconnected during send. Do not
                         # lose the utterance: keep any remaining renderer's
                         # mouth moving and fall back to host speakers.
                         if viseme_data:
                             await send_lip_sync(viseme_data)
-                        await self.tts.play_audio(audio_bytes)
                 elif has_audio_surface and viseme_data:
                     # No audio (fallback exhausted) but we still have
                     # word boundaries — keep the mouth alive in sync
@@ -641,8 +645,12 @@ class IRISAgent:
                     # listener — debug tooling, future logging).
                     if viseme_data:
                         await send_lip_sync(viseme_data)
-                    if real_audio:
-                        await self.tts.play_audio(audio_bytes)
+
+                host_audio_failed = False
+                if play_on_host:
+                    on_started = local_speech_started_callback()
+                    options = {"on_started": on_started} if on_started is not None else {}
+                    host_audio_failed = await self.tts.play_audio(audio_bytes, **options) is False
 
                 # Phase 5 — close the loop.
                 await send_speech_end()
@@ -652,6 +660,12 @@ class IRISAgent:
                     reason = getattr(self.tts, "last_failure", "")
                     await broadcast_to_face("voice_unavailable", {
                         "message": f"Iris no pudo hablar. {reason} Revisa la voz en Configuración.".replace("  ", " "),
+                    })
+                elif host_audio_failed:
+                    await broadcast_to_face("voice_unavailable", {
+                        "message": "Iris generó la voz, pero no se pudo reproducir. "
+                                   "Revisa la salida de audio.",
+                        "code": "audio_playback_failed",
                     })
         return True
 
@@ -1055,6 +1069,11 @@ async def _run_agent_services() -> None:
         background_task.cancel()  # its runs keep their records; the next start recovers them
         app_notices_task.cancel()  # notices are stored; the next start shows what fell due
         google_task.cancel()
+        conversation = hermes_wake.voice_conversation
+        if conversation is not None:
+            cleanup = conversation.stop(restore_wake=False)
+            if cleanup is not None:
+                await cleanup
         await hermes_wake.close()
         await agent.shutdown()
 

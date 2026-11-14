@@ -7,14 +7,15 @@ import { ThemeHomePreview } from './os_theme_home_preview.js?v=13';
 import { TransitionStudio } from './os_transition_studio.js?v=1';
 import { TransitionPlayer } from './os_transition_player.js?v=1';
 import { themeTransitions } from './os_transition_format.js?v=1';
-import { decodeThemeFile, encodeThemeFile, normalizeStoredTheme, managedThemeImage, THEME_FILE_MAX_BYTES } from './os_theme_file.js?v=3';
+import { decodeThemeFile, encodeThemeFile, normalizeStoredTheme, managedThemeImage, THEME_FILE_MAX_BYTES } from './os_theme_file.js?v=4';
 import { DesktopHome, HomePreferences } from './os_desktop_home.js?v=10';
 import { OS_ICON_PATHS, osIconSvg } from './os_icons.js?v=3';
 // F17: bundled apps plus the ones installed from Iris Store, read once when the desktop loads.
 import { OS_APP_CATALOG, OS_APP_MODULES, OS_APP_STYLES, OS_WIDGET_CATALOG, INSTALLED_APPS, reloadInstalledApps } from './os_app_sources.js?v=4';
 import { createAppHost } from './os_app_host.js?v=5';
 import { createAppRegistry } from './os_app_registry.js?v=6';
-import { OS_THEME_DEFAULT, OS_THEME_PRESETS } from './os_theme.js?v=3';
+import { OS_THEME_DEFAULT, OS_THEME_PRESETS } from './os_theme.js?v=4';
+import { installIrisCursor } from './iris_cursor.js?v=1';
 import { CAMERA_ERROR_MESSAGES, attachCameraPreview, hasLiveCameraStream } from './camera_preview.js?v=2';
 import * as THREE from 'three';
 import {
@@ -433,6 +434,7 @@ export class HermesActivityCanvas {
         this._hoveredMonitor = false;
         this._themePanelOpen = false;
         this._osTheme = this._loadOsTheme(initialTheme);
+        this._applyCursor = installIrisCursor(document);
         this._transitionPlayer = new TransitionPlayer({ reduced: () => !!this._osTheme.reducedMotion });
         this._systemUpdates = null;
         this._systemUpdateLoading = false;
@@ -1177,6 +1179,7 @@ export class HermesActivityCanvas {
                             <label><div>${osIcon('desktop')}<span><strong>Modo compacto</strong><small>Reduce el espaciado para ver más contenido.</small></span></div><input type="checkbox" data-os-theme-field="compactMode"></label>
                             <label><div>${osIcon('tools')}<span><strong>Brillo animado</strong><small>Activa animaciones sutiles en la interfaz.</small></span></div><input type="checkbox" data-os-theme-field="animatedGlow"></label>
                             <label><div>${osIcon('activity')}<span><strong>Reducir movimiento</strong><small>Minimiza animaciones y efectos.</small></span></div><input type="checkbox" data-os-theme-field="reducedMotion"></label>
+                            <label><div>${osIcon('desktop')}<span><strong>Cursor del sistema</strong><small>Usa el puntero de Windows dentro de Iris.</small></span></div><input type="checkbox" data-os-theme-field="systemCursor"></label>
                             <label><div>${osIcon('doctor')}<span><strong>Paneles transparentes</strong><small>Aplica transparencia a los paneles.</small></span></div><input type="checkbox" data-os-theme-field="transparentCards"></label>
                             <label class="os-theme-range-row"><span>Intensidad del fondo animado</span><input type="range" min="0" max="100" data-os-theme-field="liveIntensity" value="70"><b data-os-theme-readout="liveIntensity">70%</b></label>
                         </aside>
@@ -2648,6 +2651,7 @@ ${this._moduleViewsHtml()}
         const theme = normalizeStoredTheme({ ...OS_THEME_DEFAULT, ...this._osTheme });
         this._themeRevision = (this._themeRevision || 0) + 1;
         this._osTheme = theme;
+        this._applyCursor?.(theme);
         this._themeFonts?.apply(theme);
         this.panel.style.setProperty('--iris-os-accent', theme.accent);
         this.panel.style.setProperty('--iris-os-accent-2', theme.accent2);
@@ -4533,7 +4537,8 @@ ${this._moduleViewsHtml()}
     }
 
     _resetOsTheme() {
-        const next = { ...OS_THEME_DEFAULT, transitionLibrary: themeTransitions(this._osTheme).transitionLibrary };
+        const next = { ...OS_THEME_DEFAULT, systemCursor: this._osTheme.systemCursor,
+            transitionLibrary: themeTransitions(this._osTheme).transitionLibrary };
         if (!this._commitTransitionTheme(next)) {
             void irisAlert({ title: 'Tema no restaurado', icon: 'warning', message: 'No se pudo guardar. Tu tema anterior se conserva.' });
         }
@@ -4650,6 +4655,7 @@ ${this._moduleViewsHtml()}
                     confirmLabel: 'Importar ajustes' })) return;
                 if (!current()) return;
                 if (!hasLibrary) next.transitionLibrary = themeTransitions(this._osTheme).transitionLibrary;
+                next.systemCursor = this._osTheme.systemCursor;
                 if (!this._commitTransitionTheme(next)) throw new Error('No pude guardar ese tema. Se conserva el anterior.');
             } catch (error) {
                 if (current()) await irisAlert({ title: 'Tema no importado', icon: 'warning', message: error.message || 'No pude importar ese tema.' });
@@ -4861,9 +4867,7 @@ ${this._moduleViewsHtml()}
         const hit = this._intersectsMonitor(ev, false);
         if (hit === this._hoveredMonitor) return;
         this._hoveredMonitor = hit;
-        if (this.renderer?.domElement) {
-            this.renderer.domElement.style.cursor = hit ? 'pointer' : '';
-        }
+        this.renderer?.domElement?.classList.toggle('iris-monitor-hover', hit);
     }
 
     _intersectsMonitor(ev, consume = true) {

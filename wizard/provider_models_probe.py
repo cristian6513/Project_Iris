@@ -1,7 +1,7 @@
-"""Single-provider picker, executed by the private Hermes Python with JSON on stdin.
+"""Provider discovery and an explicit response check in the private Hermes Python.
 
-No credential or draft configuration is written; stdout is a small, sanitized contract.
-Hermes owns OAuth discovery and its provider-specific recommendation rules.
+JSON arrives on stdin and stdout carries only sanitized results. Hermes owns
+OAuth discovery, model recommendation and credential resolution.
 """
 PROBE_SOURCE = r'''
 import json
@@ -14,6 +14,7 @@ def discover(request):
 
     slug = request["slug"]
     source = "hermes"
+    recommendation_models = None
     if request.get("use_oauth"):
         models = provider_model_ids(slug, force_refresh=True)
         source = "reference" if type(models).__name__ == "CuratedFallbackModels" else "hermes"
@@ -57,16 +58,56 @@ def discover(request):
             if not pricing:
                 return {"status": "error", "code": "plan_unknown", "reason": "pricing_unavailable"}
             models = partition_nous_models_by_tier(models, pricing, free_tier=True)[0]
+            from hermes_cli import models as hermes_models
+            subscription_billed = getattr(hermes_models, "_is_subscription_billed", None)
+            if callable(subscription_billed):
+                recommendation_models = {m for m in models if not subscription_billed(pricing.get(m))}
 
     models = list(dict.fromkeys(str(m) for m in without_generation_models(models or []) if m))
-    return {"status": "ok", "source": source, "models": [
+    recommended = ""
+    if request.get("use_oauth") and source != "reference" and slug in {"nous", "openai-codex", "xai-oauth"}:
+        # Reuse the tier-filtered list already checked above; a second account
+        # lookup could produce a recommendation for a different access state.
+        from hermes_cli import models as hermes_models
+        pick_default = getattr(hermes_models, "pick_silent_default_model", None)
+        if callable(pick_default):
+            eligible = models if recommendation_models is None else [m for m in models if m in recommendation_models]
+            preferred = pick_default(eligible, provider=slug)
+            if preferred in eligible:
+                recommended = preferred
+    return {"status": "ok", "source": source, "recommended_model": recommended, "models": [
         {"value": m, "label": m + (" · Gratis" if m.endswith((":free", "-free")) else "")}
         for m in models]}
 
 
+def check_response(request):
+    from agent.auxiliary_client import resolve_provider_client
+
+    # Resolve only the selected provider, without the auxiliary fallback ladder.
+    # A single fixed prompt, no agent, tools, memory, conversation or user content.
+    try:
+        client, model = resolve_provider_client(request["slug"], model=request["model"])
+        if not client or not model:
+            return {"status": "error", "code": "missing_oauth"}
+        response = client.chat.completions.create(
+            model=model, messages=[{"role": "user", "content": "Responde solo: Hola."}],
+            max_tokens=128, timeout=15,
+        )
+        content = response.choices[0].message.content
+        if isinstance(content, str) and content.strip():
+            return {"status": "ok"}
+    except Exception as exc:
+        status = getattr(exc, "status_code", None) or getattr(getattr(exc, "response", None), "status_code", None)
+        code = {401: "missing_oauth", 402: "quota", 403: "forbidden", 404: "model_unavailable",
+                429: "quota"}.get(status, "no_response")
+        return {"status": "error", "code": code}
+    return {"status": "error", "code": "no_response"}
+
+
 if __name__ == "__main__":
     try:
-        result = discover(json.load(sys.stdin))
+        request = json.load(sys.stdin)
+        result = check_response(request) if request.get("probe_response") else discover(request)
     except Exception:
         # Provider exceptions can contain URLs, headers or credentials. Never echo them.
         result = {"status": "error", "code": "catalog_unavailable"}

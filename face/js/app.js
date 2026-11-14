@@ -15,7 +15,7 @@ import { AnimationLibrarySync } from './animation_library_sync.js';
  */
 
 import { AvatarSwapCoordinator, commitAvatarReplacement } from './avatar_lifecycle.js?v=4';
-import { requestDesktopSetup } from './desktop_host.js';
+import { publishDesktopFaceState, requestDesktopSetup } from './desktop_host.js?v=3';
 import * as THREE from 'three';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
@@ -28,7 +28,7 @@ import { AvatarManager } from './avatar.js?v=30';
 import { avatarUrl, IRIS_AVATAR_URL } from './avatar_state.js?v=4';
 import { ParticleSystem } from './particles.js?v=2';
 import { WebSocketManager } from './websocket.js?v=3';
-import { ManualVoiceController } from './manual_voice.js?v=4';
+import { ManualVoiceController } from './manual_voice.js?v=6';
 import { SubtitleManager } from './subtitles.js?v=1';
 import { LipSyncEngine } from './lipsync.js?v=3';
 
@@ -60,7 +60,7 @@ import { askIrisSender } from './app_ask_iris.js?v=3';
 import { EmotionClassifier } from './emotion_classifier.js';
 import { SpeechAnimator } from './speech_animator.js?v=5';
 import { MicroLife } from './micro_life.js?v=10';
-import { HermesActivityCanvas, refreshAppCatalog } from './hermes_activity.js?v=146';
+import { HermesActivityCanvas, refreshAppCatalog } from './hermes_activity.js?v=147';
 import { loadInstalledApps } from './os_app_sources.js?v=4';
 import { openChatSurface } from './open_chat_surface.js?v=1';
 import { SnapshotPrompt, SnapshotRequests } from './vision_snapshot.js?v=4';
@@ -69,7 +69,7 @@ import { FrameLimiter } from './frame_limiter.js?v=2';
 import { GraphicsQuality, avatarTextureLimit } from './graphics_quality.js?v=3';
 import { prepareNotificationChatDraft } from './notification_chat_draft.js?v=1';
 import { AnimationDirector } from './animation_director.js?v=6';
-import { TtsAudioPlayer } from './tts_audio_player.js?v=4';
+import { TtsAudioPlayer } from './tts_audio_player.js?v=5';
 import { SpeechPresentation } from './speech_presentation.js?v=1';
 import {
     buildSurfaceReadyPayload,
@@ -502,7 +502,7 @@ class IrisApp {
         // Owns the avatar's blinker and breathing from this point on;
         // the legacy code paths inside VRMAvatar self-suppress when
         // `microLifeOwnsBlink` / `microLifeOwnsBreathing` flags flip.
-        // Press `M` to toggle the live tuning HUD.
+        // For development, open the tuning panel with iris.microLife.attachDebugHUD().
         this.microLife = new MicroLife({
             avatarManager: this.avatarManager,
             camera: this.camera,
@@ -514,22 +514,6 @@ class IrisApp {
             this.avatarManager.avatar.microLifeOwnsBlink = true;
             this.avatarManager.avatar.microLifeOwnsBreathing = true;
         }
-        // Hotkey: M opens / closes the tuning HUD. Tuning is live —
-        // no reload needed when dragging sliders.
-        //
-        // Guard against typing-in-chat triggering the HUD: ignore the
-        // key when the focused element is a text input, textarea or
-        // contentEditable surface. Without this, writing "mañana" in
-        // the chat would toggle the HUD on every "m".
-        window.addEventListener('keydown', (ev) => {
-            if (ev.key !== 'm' && ev.key !== 'M') return;
-            const t = ev.target;
-            const tag = (t?.tagName || '').toUpperCase();
-            if (tag === 'INPUT' || tag === 'TEXTAREA' || t?.isContentEditable) return;
-            if (this.microLife._hud) this.microLife.detachDebugHUD();
-            else this.microLife.attachDebugHUD();
-        });
-
         // 10. Side Panel
         this.panel = new SidePanel();
         if (this._avatarNotice) {
@@ -762,6 +746,11 @@ class IrisApp {
         // One quick microphone button. Wake remains in settings.
         this.manualVoice = new ManualVoiceController({
             button: document.getElementById('btn-hermes-voice'),
+            sendConversation: payload => this.ws?.send('voice_conversation', payload),
+            openPermissions: () => this.activityCanvas?.openApp('permissions'),
+            openVoiceSettings: ['127.0.0.1', 'localhost', '[::1]'].includes(location.hostname)
+                ? () => requestDesktopSetup(window, 'voice') || this.ws?.send('launch_wizard', { section: 'voice' }) === true
+                : null,
             notice: (text) => this.subtitles?.show(text, 5000),
             onState: (state) => {
                 if (this.ws?.connected) this.animationDirector?.handleRuntimeEvent('hermes_voice_state', state);
@@ -771,6 +760,12 @@ class IrisApp {
             },
         });
         this.manualVoice.setConnected(this.ws?.connected);
+        if (this.ws?.connected) this.manualVoice.setConversationAvailable(this._supportsVoiceConversation);
+        const openRequestedApp = () => {
+            if (location.hash === '#permissions') this.activityCanvas?.openApp('permissions');
+        };
+        openRequestedApp();
+        window.addEventListener('hashchange', openRequestedApp);
         window.addEventListener('IRIS:hermes-wake-toggle', () => this._toggleHermesWake());
         window.addEventListener('IRIS:hermes-wake-runtime-sync', (ev) => {
             this._setWakeUiState(ev.detail || {});
@@ -808,13 +803,11 @@ class IrisApp {
 
         this.sceneActions?.prepareTeleport(this.renderer, this.camera);
 
-        // 17. Hide loading screen
-        setTimeout(() => this.loadingScreen.classList.add('hidden'), 1200);
-
-        // 18. Start render loop
+        // Keep the welcome screen until the first frame is rendered.
+        this._awaitingFirstFrame = true;
         this._animate();
 
-        // 19. Expose to window for pose-menu and debug access
+        // Expose to window for pose-menu and debug access.
         window.iris = this;
         window.IRIS = this;
 
@@ -1036,6 +1029,7 @@ class IrisApp {
 
     _toggleInspectorMode() {
         this.inspectorMode = !this.inspectorMode;
+        this.renderer?.domElement?.classList?.toggle('iris-orbit-cursor', this.inspectorMode);
         this.avatarZoom?.setExploring(this.inspectorMode);
         // The rim-light panel only works from the conversation camera; seen
         // from Explore angles it floats as two translucent columns.
@@ -1842,6 +1836,8 @@ class IrisApp {
                 void this.animationLibrary?.refresh();
                 break;
             case 'hello':
+                this._supportsVoiceConversation = payload.voice_conversation === true;
+                this.manualVoice?.setConversationAvailable(this._supportsVoiceConversation);
                 this._updateStatus('connected');
                 void this._fetchConfig();
                 this._setWakeUiState({
@@ -2122,7 +2118,8 @@ class IrisApp {
                 break;
 
             case 'voice_unavailable':
-                this.subtitles?.show(payload.message, 7000);
+                if (this.manualVoice) this.manualVoice.showNotice(payload.message, payload.code || 'voice_unavailable');
+                else this.subtitles?.show(payload.message, 7000);
                 break;
 
             case 'turn_started':
@@ -2204,6 +2201,9 @@ class IrisApp {
                 break;
             }
 
+            case 'voice_conversation_state':
+                this.manualVoice?.applyConversation(payload);
+                break;
             case 'hermes_voice_state':
                 this.manualVoice?.apply(payload);
                 break;
@@ -2226,6 +2226,11 @@ class IrisApp {
             case 'wizard_launched':
                 this.subtitles.show("Abriendo el Asistente de Configuración...");
                 setTimeout(() => this.subtitles.hide(), 4000);
+                break;
+
+            case 'wizard_launch_failed':
+                if (payload.section === 'voice') this.manualVoice?.showNotice(payload.message, 'voice_unavailable');
+                else this.subtitles?.show(payload.message, 5000);
                 break;
 
             case 'hermes_command_result':
@@ -2539,6 +2544,11 @@ class IrisApp {
         // Apply the complete pose once, then simulate spring bones and render.
         this.avatarManager.finalizeFrame(dt);
         this.composer.render();
+        if (this._awaitingFirstFrame) {
+            this._awaitingFirstFrame = false;
+            this.loadingScreen.classList.add('hidden');
+            if (publishDesktopFaceState('ready')) this.loadingScreen.style.display = 'none';
+        }
     }
 
     // Trigger emotion bounce on the UI emoji
@@ -2608,6 +2618,8 @@ class IrisApp {
 const app = new IrisApp();
 app.init().catch(err => {
     console.error('IRIS init failed:', err);
+    cancelAnimationFrame(app._animationFrame);
+    publishDesktopFaceState('error');
     const loading = document.getElementById('loading-screen');
     if (loading) {
         const message = document.createElement('p');

@@ -27,6 +27,7 @@ import json
 import logging
 import subprocess
 import wave
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
@@ -749,7 +750,7 @@ class TextToSpeech:
         # Holding the Future lets us .cancel() it and confirm the
         # thread has unwound before subsequent synthesize/play calls
         # start a new stream.
-        self._playback_future: asyncio.Future[None] | None = None
+        self._playback_future: asyncio.Future[bool] | None = None
 
     async def initialize(self) -> None:
         name = self.config.tts_provider
@@ -1111,7 +1112,8 @@ class TextToSpeech:
             except Exception as exc:
                 logger.debug("Playback future await raised: %s", exc)
 
-    async def play_audio(self, audio_bytes: bytes) -> None:
+    async def play_audio(self, audio_bytes: bytes, *,
+                         on_started: Callable[[], None] | None = None) -> bool:
         """
         Decode any audio format and play through speakers via sounddevice.
 
@@ -1119,14 +1121,14 @@ class TextToSpeech:
         Works on Windows, Linux, and macOS.
         """
         if not audio_bytes:
-            return
+            return False
         # FIX T2 — sentinel returned by speak() when both primary and
         # fallback engines failed. Treat as "nothing to play".
         if audio_bytes == b"FALLBACK_FAILED":
             logger.warning("play_audio: FALLBACK_FAILED sentinel — skipping playback.")
-            return
+            return False
 
-        def _play() -> None:
+        def _play() -> bool:
             try:
                 samples, sr = decode_audio(audio_bytes)
 
@@ -1134,7 +1136,10 @@ class TextToSpeech:
                 float_audio = samples.astype(np.float32) / 32768.0
 
                 sd.play(float_audio, samplerate=sr)
+                if on_started is not None:
+                    on_started()
                 sd.wait()   # block until playback finishes
+                return True
 
             except RuntimeError as e:
                 logger.error("Audio decode error: %s", e)
@@ -1142,6 +1147,7 @@ class TextToSpeech:
                 logger.error("Speaker error: %s  — are speakers connected?", e)
             except Exception as e:
                 logger.error("Playback error: %s", e)
+            return False
 
         # FIX T4 — wrap the executor call in a tracked Future so stop()
         # can wait for the thread to drain instead of leaving it
@@ -1150,7 +1156,7 @@ class TextToSpeech:
         fut = loop.run_in_executor(None, _play)
         self._playback_future = asyncio.ensure_future(fut)
         try:
-            await self._playback_future
+            return await self._playback_future
         finally:
             # Clear only if we are still the active playback; stop()
             # may have already replaced/cleared it.

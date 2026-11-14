@@ -145,7 +145,11 @@ def test_tauri_shell_is_minimal_persistent_and_single_instance() -> None:
         "../third-party/MediaPipe-Apache-2.0.txt",
     }
     assert all((ROOT / "companion" / path.removeprefix("../")).is_file() for path in config["bundle"]["resources"])
-    assert capability["permissions"] == ["core:window:allow-start-dragging"]
+    assert set(capability["permissions"]) == {
+        "core:window:allow-start-dragging",
+        "core:event:allow-listen",
+        "core:event:allow-unlisten",
+    }
     assert "tauri_plugin_single_instance::init" in rust
     assert "tauri_plugin_window_state" in rust
     assert "TrayIconBuilder" in rust

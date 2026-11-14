@@ -10,7 +10,7 @@ import { companionAvatarSelection, CompanionAvatarSync, disposeCompanionAvatar }
 import {
     createCompanionBridge,
     localAnimationBase,
-} from '../js/companion_native_bridge.js?v=4';
+} from '../js/companion_native_bridge.js?v=7';
 import { AnimationDirector } from '../js/animation_director.js?v=6';
 import { loadAnimationContexts } from '../js/animation_context_resolver.js?v=2';
 import {
@@ -36,12 +36,12 @@ import {
     buildSurfaceStatePayload,
     getOrCreateSurfaceId,
 } from '../js/surface_protocol.js?v=8';
-import { TtsAudioPlayer } from '../js/tts_audio_player.js?v=4';
+import { TtsAudioPlayer } from '../js/tts_audio_player.js?v=5';
 import { SpeechPresentation } from '../js/speech_presentation.js?v=1';
 import { InboxNotice } from '../js/inbox_notice.js?v=2';
 import { InboxVoicePlayer } from '../js/inbox_voice.js?v=1';
 import { WebSocketManager } from '../js/websocket.js?v=3';
-import { ManualVoiceController } from '../js/manual_voice.js?v=3';
+import { ManualVoiceController } from '../js/manual_voice.js?v=6';
 import { FrameLimiter } from '../js/frame_limiter.js?v=2';
 import { GraphicsQuality, avatarTextureLimit, graphicsQuality } from '../js/graphics_quality.js?v=3';
 import { ScreenSnapshotRequests } from '../js/screen_snapshot.js?v=2';
@@ -135,8 +135,12 @@ class IrisCompanionApp {
         this.cameraPrivacy = document.getElementById('camera-privacy');
         this.cameraPreview = document.getElementById('camera-preview');
         this.cameraPrivacyLabel = document.getElementById('camera-privacy-label');
-        this.dragRegion = document.querySelector('.signal-header');
+        this.dragRegion = document.getElementById('companion-header');
         this.hideButton = document.getElementById('hide-companion');
+        this.controlRail = document.getElementById('companion-controls');
+        this.viewToggle = document.getElementById('toggle-companion-controls');
+        this.viewSensorStatus = document.getElementById('companion-sensor-status');
+        this.viewFeedback = document.getElementById('companion-view-feedback');
 
         this.surfaceId = getOrCreateSurfaceId('desktop_companion');
         this.config = { avatar_vrm_path: '', visual_theme: 'iris' };
@@ -159,6 +163,8 @@ class IrisCompanionApp {
         this.wakeState = 'off';
         this.wakePhrase = 'hey hermes';
         this.showControlsPreference = true;
+        this._controlsOverride = null;
+        this._controlsRevision = 0;
         this.locomotionEnabled = false;
         this.quietMode = false;
         this.life = 'calm';
@@ -238,6 +244,7 @@ class IrisCompanionApp {
         this.config = { ...this.config, ...(this.bridge.preferences || {}) };
         await this._fetchConfig();
         this._applyIdentityAndTheme();
+        this._setupViewToggle();
         this._setupThree();
         this._setupRoutines();
 
@@ -288,6 +295,7 @@ class IrisCompanionApp {
 
     async _fetchConfig() {
         const renderRevision = this._renderRevision || 0;
+        const controlsRevision = this._controlsRevision;
         try {
             const response = await this.bridge.apiFetch('/api/config', { cache: 'no-store' });
             if (!response.ok) return;
@@ -296,6 +304,7 @@ class IrisCompanionApp {
                 delete config.render_fps_limit;
                 delete config.render_quality;
             }
+            if (controlsRevision !== this._controlsRevision) delete config.companion_show_controls;
             if (config && typeof config === 'object') this.config = { ...this.config, ...config };
             this._frameLimiter.setLimit(this.config.render_fps_limit);
             this.graphicsQuality?.setQuality(this.config.render_quality);
@@ -308,12 +317,16 @@ class IrisCompanionApp {
      * reply's render preferences, or the model would load with the old texture limit. */
     async _readAvatarConfig() {
         const renderRevision = this._renderRevision || 0;
+        const controlsRevision = this._controlsRevision;
         const response = await this.bridge.apiFetch('/api/config', { cache: 'no-store' });
         if (!response.ok) throw new Error('No pude consultar el avatar guardado.');
         const config = await response.json();
-        if (config && typeof config === 'object' && renderRevision !== (this._renderRevision || 0)) {
-            delete config.render_fps_limit;
-            delete config.render_quality;
+        if (config && typeof config === 'object') {
+            if (renderRevision !== (this._renderRevision || 0)) {
+                delete config.render_fps_limit;
+                delete config.render_quality;
+            }
+            if (controlsRevision !== this._controlsRevision) delete config.companion_show_controls;
         }
         return config;
     }
@@ -385,7 +398,7 @@ class IrisCompanionApp {
         this.quietMode = quietMode;
         this.life = read('life', 'companion_life', this.life);
         document.documentElement.style.setProperty('--companion-avatar-scale', String(scale));
-        this._syncControlRailVisibility();
+        this._syncControlsVisibility();
         if (!locomotionEnabled || quietMode || reducedMotion) this._cancelWindowWalk();
 
         if (this.bridge?.native && this._appliedAlwaysOnTop !== alwaysOnTop) {
@@ -397,17 +410,87 @@ class IrisCompanionApp {
         }
     }
 
-    _syncControlRailVisibility() {
-        const visible = Boolean(
-            this.showControlsPreference
-            || this.manualVoice?.state.busy
-            || this.wakeActive
-            || this.cameraStream
-            || this.cameraLeasePending,
-        );
+    _syncControlsVisibility() {
+        const visible = this._controlsOverride ?? this.showControlsPreference;
+        const focused = document.activeElement;
         document.body.dataset.controls = visible ? 'visible' : 'hidden';
-        const rail = document.querySelector('.signal-rail');
-        if (rail) rail.hidden = !visible;
+        this.dragRegion.hidden = !visible;
+        this.controlRail.hidden = !visible;
+        this.viewToggle.setAttribute('aria-expanded', String(visible));
+        const label = visible ? 'Ocultar controles' : 'Mostrar controles';
+        this.viewToggle.setAttribute('aria-label', label);
+        this.viewToggle.title = label;
+        if (!visible) {
+            this._setChatOpen(false);
+            this.inboxNotice?.close();
+            if (focused?.closest('.signal-header, .signal-rail, .companion-chat, .avatar-stage, .manual-voice-panel, .inbox-notice-host')) {
+                this.viewToggle.focus();
+            }
+        }
+
+        const indicators = [];
+        if (!this.manualVoice?.conversation && this.manualVoice?.ownsCapture && this.manualVoice.state.busy
+            && !['transcribing', 'processing'].includes(this.manualVoice.state.state)) {
+            indicators.push('Micrófono en uso');
+        }
+        if (this.wakeActive) indicators.push('Activación por voz activa');
+        if (this.cameraStream) indicators.push('Cámara activa');
+        else if (this.cameraLeasePending) indicators.push('Preparando cámara');
+        const status = visible ? '' : indicators.join(' · ');
+        if (this.viewSensorStatus.textContent !== status) this.viewSensorStatus.textContent = status;
+        this.viewSensorStatus.hidden = !status;
+    }
+
+    _setupViewToggle() {
+        document.body.dataset.nativeWindow = String(this.bridge.native);
+        this.viewToggle.hidden = false;
+        this.viewToggle.addEventListener('click', () => {
+            this._setControlsVisible(!(this._controlsOverride ?? this.showControlsPreference));
+        });
+        if (this.bridge.native) {
+            void this.bridge.onWindowEvent('iris-show-companion-controls', () => {
+                this._setControlsVisible(true);
+            }).catch(error => {
+                console.warn('[companion] Could not listen for the tray controls action:', error);
+            });
+        }
+    }
+
+    _setControlsVisible(visible) {
+        if ((this._controlsOverride ?? this.showControlsPreference) === visible) return;
+        this._controlsOverride = visible;
+        this._syncControlsVisibility();
+        this._controlsSave = (this._controlsSave ?? Promise.resolve()).then(() => {
+            if (this._controlsOverride === visible) return this._saveControlsVisibility(visible);
+        });
+    }
+
+    async _saveControlsVisibility(visible) {
+        const revision = this._controlsRevision;
+        clearTimeout(this._viewFeedbackTimer);
+        this.viewFeedback.hidden = true;
+        try {
+            const response = await this.bridge.apiFetch('/api/companion/settings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ companion_show_controls: visible }),
+                signal: AbortSignal.timeout(4000),
+            });
+            const saved = await response.json();
+            if (!response.ok || saved.companion_show_controls !== visible) throw new Error('Preference was not saved');
+            if (revision === this._controlsRevision) {
+                this._controlsRevision++;
+                this.config.companion_show_controls = visible;
+                this.showControlsPreference = visible;
+            }
+            if (this._controlsOverride === visible) this._controlsOverride = null;
+            this._syncControlsVisibility();
+        } catch {
+            if (this._controlsOverride !== visible) return;
+            this.viewFeedback.hidden = false;
+            this.viewFeedback.textContent = 'Cambio aplicado en esta ventana. No se pudo guardar la preferencia.';
+            this._viewFeedbackTimer = setTimeout(() => { this.viewFeedback.hidden = true; }, 4200);
+        }
     }
 
     _setupThree() {
@@ -452,7 +535,7 @@ class IrisCompanionApp {
     }
 
     _setupControls() {
-        this.dragRegion?.addEventListener('pointerdown', (event) => {
+        const startDrag = (event) => {
             if (
                 !this.bridge?.native
                 || !event.isPrimary
@@ -461,8 +544,12 @@ class IrisCompanionApp {
             ) return;
             this._cancelWindowWalk();
             this.bridge.startWindowDrag().catch(() => {
-                this._showError('No pude mover la ventana. Intenta arrastrar de nuevo desde la barra superior.');
+                this._showError('No pude mover la ventana. Vuelve a intentar arrastrarla.');
             });
+        };
+        this.dragRegion.addEventListener('pointerdown', startDrag);
+        this.canvas.addEventListener('pointerdown', (event) => {
+            if (document.body.dataset.controls === 'hidden') startDrag(event);
         });
         this.hideButton?.addEventListener('click', async () => {
             if (!this.bridge?.native) {
@@ -482,14 +569,25 @@ class IrisCompanionApp {
         });
         this.manualVoice = new ManualVoiceController({
             button: document.getElementById('voice-manual'),
+            sendConversation: payload => this.ws?.send('voice_conversation', payload),
+            openPermissions: () => this.bridge.openIrisOs('permissions'),
+            openVoiceSettings: this.bridge.native || ['127.0.0.1', 'localhost', '[::1]'].includes(location.hostname)
+                ? () => this.ws?.send('launch_wizard', { section: 'voice' }) === true
+                : null,
+            focusFallback: () => this.viewToggle.focus(),
             fetchImpl: (...args) => this.bridge.apiFetch(...args),
             notice: (text) => this._showError(text),
             onState: (state) => {
                 if (this.ws?.connected) this.animationDirector?.handleRuntimeEvent('hermes_voice_state', state);
-                this._syncControlRailVisibility();
+                this._syncControlsVisibility();
             },
         });
         this.manualVoice.setConnected(this.ws?.connected);
+        if (this.bridge.native) {
+            void this.bridge.onWindowEvent('iris-companion-hidden', () => {
+                void this.manualVoice.cancel();
+            }).catch(error => console.warn('[companion] Could not listen for native hide:', error));
+        }
         this.cameraButton.addEventListener('click', () => this._toggleCamera());
         document.getElementById('chat-toggle').addEventListener('click', () => {
             this._setChatOpen(this.chatPanel.hidden);
@@ -695,6 +793,7 @@ class IrisCompanionApp {
         });
         window.addEventListener('beforeunload', () => {
             stageResize.disconnect();
+            clearTimeout(this._viewFeedbackTimer);
             if (this.cameraStream || this.cameraLeasePending) {
                 this.ws?.send('camera_lease_release', {});
                 this._stopLocalPerception();
@@ -732,7 +831,8 @@ class IrisCompanionApp {
         switch (type) {
             case 'inbox_presentation':
                 this.inboxNotice.present(payload, { surfaceId: this.surfaceId, documentLike: document,
-                    quiet: this.quietMode, status: this.manualVoice?.state.busy ? 'listening' : document.body.dataset.operationalState });
+                    quiet: this.quietMode || document.body.dataset.controls === 'hidden',
+                    status: this.manualVoice?.state.busy ? 'listening' : document.body.dataset.operationalState });
                 break;
             case 'inbox_voice':
                 this.inboxVoice.present(payload);
@@ -747,6 +847,7 @@ class IrisCompanionApp {
                 void this.animationLibrary?.refresh();
                 break;
             case 'hello':
+                this.manualVoice?.setConversationAvailable(payload.voice_conversation === true);
                 this._setOperationalState('idle');
                 this._setWakeState({
                     active: Boolean(payload.hermes_wake_active),
@@ -794,7 +895,12 @@ class IrisCompanionApp {
                 break;
 
             case 'voice_unavailable':
-                this._showError(payload.message);
+                if (this.manualVoice) this.manualVoice.showNotice(payload.message, payload.code || 'voice_unavailable');
+                else this._showError(payload.message);
+                break;
+
+            case 'wizard_launch_failed':
+                if (payload.section === 'voice') this.manualVoice?.showNotice(payload.message, 'voice_unavailable');
                 break;
 
             case 'turn_started':
@@ -833,9 +939,12 @@ class IrisCompanionApp {
                 this.routines?.toolRunning(payload.turn);
                 break;
 
+            case 'voice_conversation_state':
+                this.manualVoice?.applyConversation(payload);
+                break;
             case 'hermes_voice_state':
                 this.manualVoice?.apply(payload);
-                this._syncControlRailVisibility();
+                this._syncControlsVisibility();
                 break;
 
             case 'hermes_wake_state':
@@ -943,6 +1052,7 @@ class IrisCompanionApp {
                 break;
 
             case 'companion_preferences':
+                if (typeof payload.companion_show_controls === 'boolean') this._controlsRevision++;
                 this.config = { ...this.config, ...payload };
                 this._applyCompanionPreferences(payload);
                 break;
@@ -1181,7 +1291,7 @@ class IrisCompanionApp {
         this.wakeActive = active;
         this.wakeState = state;
         if (payload.phrase) this.wakePhrase = payload.phrase;
-        this._syncControlRailVisibility();
+        this._syncControlsVisibility();
         if (ACTIVE_WAKE_STATES.has(state) && ['detected', 'recording'].includes(state)) {
             this._setOperationalState('listening');
         } else if (state === 'processing') {
@@ -1366,7 +1476,7 @@ class IrisCompanionApp {
         );
         this.cameraPrivacy.hidden = !active;
         if (!active) this._setCameraPrivacyState('off');
-        this._syncControlRailVisibility();
+        this._syncControlsVisibility();
     }
 
     _setCameraPrivacyState(state) {

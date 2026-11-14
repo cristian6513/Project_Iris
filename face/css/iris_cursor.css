@@ -1,0 +1,33 @@
+@media (any-pointer: fine) and (forced-colors: none) {
+    html[data-iris-cursor="iris"] body {
+        cursor: var(--iris-cursor-arrow, auto);
+    }
+
+    html[data-iris-cursor="iris"] :where(textarea, input:not([type]),
+        input:is([type="text"], [type="search"], [type="password"], [type="email"],
+            [type="url"], [type="tel"], [type="number"]), [contenteditable="true"],
+        [contenteditable="plaintext-only"], [contenteditable=""]) {
+        cursor: text;
+    }
+}
+
+#IRIS-canvas.iris-monitor-hover:not(.iris-orbit-cursor) { cursor: pointer; }
+#IRIS-canvas.iris-orbit-cursor { cursor: grab; }
+#IRIS-canvas.iris-orbit-cursor:active { cursor: grabbing; }
+
+.iris-cursor-pulse {
+    position: fixed;
+    z-index: 14000;
+    width: 23px;
+    height: 23px;
+    translate: -50% -50%;
+    border: 1.5px solid color-mix(in srgb, var(--iris-theme-accent, #73f7ff) 70%, white);
+    border-radius: 50%;
+    box-shadow: 0 0 7px var(--iris-theme-accent, #73f7ff);
+    opacity: 0;
+    pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce), (forced-colors: active) {
+    .iris-cursor-pulse { display: none; }
+}

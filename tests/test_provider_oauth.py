@@ -673,7 +673,11 @@ def test_provider_catalog_refreshes_daily_and_repaints_without_reload() -> None:
     assert "const hasSeparateOAuthCatalog = !!LLM_OAUTH_CATALOG[provider]" in source
     assert "LLM_MODELS = {};" in source
     assert "!useDetectedOllama && modelSelect.value === '__custom__'" in source
-    assert "isDualAuth\n        && sameProvider" in source
+    # Preserve the existing OAuth choice for the same provider. A newly
+    # selected featured card can instead suggest signing in.
+    assert "const sameProvider = !adding && wizardState.llm_provider === provider;" in source
+    assert "const keepOAuth = isOAuthOnly || (isDualAuth && (sameProvider" in source
+    assert "? Boolean(document.getElementById('use-oauth')?.checked) : preferSignIn" in source
     assert "if (window._catalogRefreshState === run)" in source
     assert "_catalogRefreshGeneration !== run.generation" in source
     assert "fetch('/api/providers', { cache: 'no-store' })" in source

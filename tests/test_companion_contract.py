@@ -152,7 +152,7 @@ def test_companion_camera_emits_only_local_derived_signals() -> None:
     assert "buildCompanionEmotionPayload(emotion)" in source
     assert "this.ws?.send?.('user_emotion'" in source
     assert "this.wakeActive" in source and "this.cameraStream" in source
-    assert "_syncControlRailVisibility" in source
+    assert "_syncControlsVisibility" in source
     for field in ("label", "valence", "arousal", "confidence", "intensity"):
         assert field in policy
     for forbidden in ("frame", "image", "scores"):

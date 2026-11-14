@@ -12,10 +12,19 @@ function postToDesktop(message, host = window) {
     } catch { return false; }
 }
 
-export function requestDesktopSetup(host = window) {
-    return postToDesktop({ type: 'iris.desktop.configure' }, host);
+export function requestDesktopSetup(host = window, section = '') {
+    const message = { type: 'iris.desktop.configure' };
+    if (section === 'voice') message.section = section;
+    return postToDesktop(message, host);
 }
 
 export function publishDesktopTheme(theme, host = window) {
     return postToDesktop({ type: 'iris.desktop.theme', theme }, host);
+}
+
+export function publishDesktopFaceState(status, host = window) {
+    if (host.parent === host) return false;
+    const id = new URL(host.location.href).searchParams.get('desktop_load');
+    if (!id) return false;
+    return postToDesktop({ type: 'iris.desktop.face-state', id, status }, host);
 }

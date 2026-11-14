@@ -4703,6 +4703,31 @@ async def llm_setup() -> JSONResponse:
                         headers={"Cache-Control": "no-store"})
 
 
+class ProviderResponseCheck(BaseModel):
+    provider: Literal["openai", "nous", "xai"]
+    model: str = Field(min_length=1, max_length=240)
+
+
+@app.post("/api/provider-response-check")
+async def provider_response_check(payload: ProviderResponseCheck, request: Request) -> JSONResponse:
+    """Verify the saved OAuth route with a short inference, separate from account login."""
+    from wizard.hermes_config import has_hermes_auth_profile
+    from wizard.provider_models import check_provider_response
+    from wizard.providers import hermes_id_for
+
+    _enforce_local_install_request(request, "check-provider-response", "la prueba de respuesta")
+    if not request.client or not is_loopback_host(request.client.host):
+        raise HTTPException(status_code=403, detail="La prueba solo está disponible en este equipo.")
+    cfg = IRISConfig.load()
+    if not cfg.llm_use_oauth or (cfg.llm_provider, cfg.llm_model) != (payload.provider, payload.model):
+        return JSONResponse({"status": "error", "code": "selection_changed"}, status_code=409)
+    slug = hermes_id_for(payload.provider, use_oauth=True)
+    if not await asyncio.to_thread(has_hermes_auth_profile, slug, auth_type="oauth"):
+        return JSONResponse({"status": "error", "code": "missing_oauth"}, status_code=400)
+    result = await check_provider_response(slug=slug, model=payload.model)
+    return JSONResponse(result)
+
+
 class AdditionalProviderRequest(BaseModel):
     """Body for /api/add-llm-provider: one more provider, never the main one."""
     model_config = ConfigDict(extra="forbid")
@@ -5368,6 +5393,38 @@ if __name__ == "__main__":
     import webbrowser
     import threading
     import time
+
+    if "--voice" in sys.argv[1:]:
+        import socket
+        from urllib.request import urlopen
+
+        base = "http://127.0.0.1:8000"
+
+        with socket.socket() as listener:
+            try:
+                listener.bind(("127.0.0.1", 8000))
+            except OSError:
+                try:
+                    with urlopen(base, timeout=0.75) as response:
+                        existing = json.loads(response.read(512))
+                    if existing == {"message": "IRIS Setup Wizard", "ui": "/ui/index.html"}:
+                        webbrowser.open(base + "/ui/?section=voice")
+                        raise SystemExit(0)
+                except (ValueError, OSError):
+                    pass
+                listener.bind(("127.0.0.1", 0))
+            port = listener.getsockname()[1]
+            server = uvicorn.Server(uvicorn.Config(app, host="127.0.0.1", port=port))
+
+            def open_voice_when_ready():
+                while not server.started and not server.should_exit:
+                    time.sleep(0.05)
+                if server.started:
+                    webbrowser.open(f"http://127.0.0.1:{port}/ui/?section=voice")
+
+            threading.Thread(target=open_voice_when_ready, daemon=True).start()
+            server.run(sockets=[listener])
+        raise SystemExit(0 if server.started else 1)
     
     # Abrir el navegador tras esperar 1 segundo a que uvicorn inicie
     def open_browser():

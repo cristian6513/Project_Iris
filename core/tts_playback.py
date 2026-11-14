@@ -22,13 +22,18 @@ class TtsPlaybackReceipts:
             return False
         pending = self._pending.get(token)
         status = payload.get("status")
-        if pending is None or pending[0] is not owner or status not in ("ended", "failed", "stopped"):
+        if (pending is None or pending[0] is not owner
+                or status not in ("ended", "failed", "stopped")):
             return False
         future = pending[1]
         if future.done():
             return False
         future.set_result(status)
         return True
+
+    def awaiting(self, token: str, owner: Any) -> bool:
+        pending = self._pending.get(token)
+        return pending is not None and pending[0] is owner and not pending[1].done()
 
     async def wait(self, token: str, duration_s: float) -> str:
         pending = self._pending[token]

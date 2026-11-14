@@ -4,6 +4,7 @@ from __future__ import annotations
 import asyncio
 import uuid
 from collections import deque
+from collections.abc import Callable
 from typing import Any
 
 MAX_PARTIAL_CHARS = 4096
@@ -64,7 +65,8 @@ class ManualVoiceCapture:
         self.state = "off"
         self.partial = ""
 
-    async def start(self, client_id: str, capture_id: str | None = None) -> dict[str, Any]:
+    async def start(self, client_id: str, capture_id: str | None = None, *,
+                    still_allowed: Callable[[], bool] | None = None) -> dict[str, Any]:
         if (client_id, capture_id) in self._cancelled:
             raise RuntimeError("La grabación ya fue cancelada desde esa ventana.")
         if self.busy or self._lock.locked():
@@ -93,16 +95,21 @@ class ManualVoiceCapture:
                 enabled = await self.rpc("voice.toggle", {"action": "on"})
                 if enabled.get("enabled") is not True:
                     raise RuntimeError("Hermes no confirmó el modo de voz.")
-                result = await self.rpc("voice.record", {"action": "start"})
-                if result.get("status") != "recording":
-                    raise RuntimeError("Hermes no pudo iniciar la grabación: " + str(result.get("reason") or result.get("status") or "respuesta desconocida"))
-                if self.state == "arming":
-                    self.state = "recording"
-                self._timer = asyncio.create_task(self._expire(self.capture_id), name="IRIS-manual-voice-limit")
+                if still_allowed is None or still_allowed():
+                    result = await self.rpc("voice.record", {"action": "start"})
+                    if result.get("status") != "recording":
+                        raise RuntimeError("Hermes no pudo iniciar la grabación: " + str(result.get("reason") or result.get("status") or "respuesta desconocida"))
+                    if self.state == "arming":
+                        self.state = "recording"
+                    self._timer = asyncio.create_task(self._expire(self.capture_id), name="IRIS-manual-voice-limit")
             except Exception as exc:
                 self.error = str(exc)
                 await self._release(reset_transport=True)
                 raise
+            if still_allowed is not None and not still_allowed():
+                self.error = "La conversación por voz ya terminó."
+                await self._release(reset_transport=self.state == "recording")
+                return self.snapshot()
             await self.publish()
             return self.snapshot()
 
@@ -232,7 +239,9 @@ class ManualVoiceCapture:
                 return True
             self._clear_timer()
             self.partial = ""
-            generation = self.generation
+            generation, client_id, capture_id = self.generation, self.client_id, self.capture_id
+            if (client_id, capture_id) in self._cancelled:
+                return True  # The cancelling request owns cleanup, even if it is waiting for this lock.
             self.state = "processing"
             try:
                 # Hermes may resume Wake when the native recorder ends.
@@ -248,9 +257,10 @@ class ManualVoiceCapture:
             await self.publish()
         # Do not hold the capture lock during a potentially long agent turn.
         try:
-            await self.runtime._emit("manual_voice.transcript", {
-                "text": text, "client_id": self.client_id, "capture_id": self.capture_id,
-            })
+            if (client_id, capture_id) not in self._cancelled and generation == self.generation:
+                await self.runtime._emit("manual_voice.transcript", {
+                    "text": text, "client_id": client_id, "capture_id": capture_id,
+                })
         except Exception as exc:
             if generation == self.generation:
                 self.error = f"No se pudo enviar la transcripción: {exc}"

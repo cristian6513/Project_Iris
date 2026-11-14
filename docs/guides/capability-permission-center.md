@@ -10,7 +10,8 @@ comandos peligrosos y acceso real a cada proveedor.
 
 ## Abrir el centro
 
-En IRIS OS abre **Aplicaciones → Permisos**. La aplicación solo consulta su
+En IRIS OS abre **Aplicaciones → Permisos**. En un perfil nuevo también
+aparece como acceso en **Inicio**. La aplicación solo consulta su
 inventario al abrirse o al pulsar **Sincronizar**, por lo que no ejecuta el CLI
 de Hermes durante una conversación normal.
 

@@ -13,7 +13,7 @@ use tauri::{
     menu::{Menu, MenuItem},
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
     webview::PageLoadEvent,
-    Manager, PhysicalPosition, WebviewWindow,
+    Emitter, EventTarget, Manager, PhysicalPosition, WebviewWindow,
 };
 use tauri_plugin_window_state::StateFlags;
 
@@ -317,15 +317,26 @@ fn companion_bootstrap() -> Result<CompanionBootstrap, String> {
 }
 
 #[tauri::command]
-fn open_iris_os() -> Result<(), String> {
+fn open_iris_os(section: Option<String>) -> Result<(), String> {
     let (_, _, url) = endpoint_snapshot();
+    if section.as_deref() == Some("permissions") {
+        let mut target = tauri::Url::parse(&url).map_err(|error| error.to_string())?;
+        target.set_fragment(Some("permissions"));
+        return open_external_url(target.as_str());
+    }
     open_external_url(&url)
 }
 
 #[tauri::command]
 fn hide_companion(window: WebviewWindow) -> Result<(), String> {
     cancel_active_walk();
-    window.hide().map_err(|error| error.to_string())
+    window.hide().map_err(|error| error.to_string())?;
+    let _ = window.emit_to(
+        EventTarget::webview_window("companion"),
+        "iris-companion-hidden",
+        (),
+    );
+    Ok(())
 }
 
 #[tauri::command]
@@ -619,20 +630,36 @@ pub fn run() {
         })
         .setup(|app| {
             let show = MenuItem::with_id(app, "show", "Mostrar IRIS", true, None::<&str>)?;
+            let controls = MenuItem::with_id(
+                app,
+                "show-controls",
+                "Mostrar controles",
+                true,
+                None::<&str>,
+            )?;
             let hide = MenuItem::with_id(app, "hide", "Ocultar", true, None::<&str>)?;
             let open = MenuItem::with_id(app, "open-os", "Abrir IRIS OS", true, None::<&str>)?;
             let exit = MenuItem::with_id(app, "exit", "Salir del companion", true, None::<&str>)?;
-            let menu = Menu::with_items(app, &[&show, &hide, &open, &exit])?;
+            let menu = Menu::with_items(app, &[&show, &controls, &hide, &open, &exit])?;
             let mut tray = TrayIconBuilder::with_id("iris-companion-tray")
                 .menu(&menu)
                 .show_menu_on_left_click(false)
                 .tooltip("IRIS Desktop Companion")
                 .on_menu_event(|app, event| match event.id.as_ref() {
                     "show" => show_companion(app),
+                    "show-controls" => {
+                        show_companion(app);
+                        if let Err(error) = app.emit_to(
+                            EventTarget::webview_window("companion"),
+                            "iris-show-companion-controls",
+                            (),
+                        ) {
+                            eprintln!("IRIS Companion could not restore its controls: {error}");
+                        }
+                    }
                     "hide" => {
-                        cancel_active_walk();
                         if let Some(window) = app.get_webview_window("companion") {
-                            let _ = window.hide();
+                            let _ = hide_companion(window);
                         }
                     }
                     "open-os" => {
@@ -689,8 +716,9 @@ pub fn run() {
                 if let tauri::WindowEvent::CloseRequested { api, .. } = event {
                     if !EXITING.load(Ordering::SeqCst) {
                         api.prevent_close();
-                        cancel_active_walk();
-                        let _ = window.hide();
+                        if let Some(webview) = window.app_handle().get_webview_window("companion") {
+                            let _ = hide_companion(webview);
+                        }
                     }
                 }
             }

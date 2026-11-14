@@ -107,7 +107,8 @@ puede editarse o eliminarse.
 
 ## Voz
 
-El proveedor de voz se elige de forma independiente al proveedor del modelo:
+El proveedor de voz se elige de forma independiente al proveedor del modelo.
+En la fuente posterior a QA24, **Escuchar a Iris** prueba Edge TTS con la voz elegida. Edge TTS requiere internet y funciona sin clave. **Ver más voces** reúne los otros motores. Al abrir la configuración, se muestra el motor que ya está guardado.
 
 | Motor | Tipo | Consideraciones |
 | --- | --- | --- |
@@ -217,10 +218,13 @@ selectores o fallar al guardar no cambia esa etiqueta. El ajuste también se
 conserva al reiniciar. Consulta las mediciones y límites (informe interno no distribuido).
 
 Además, **Ahorro** limita las texturas compatibles del avatar a un máximo de 1024 px por lado
-**al cargar el modelo**, manteniendo su proporción y sin modificar el VRM
-original. Cambiar la calidad no recarga automáticamente el avatar que ya está
+**al cargar el modelo**, manteniendo su proporción y sin modificar el modelo original. Cambiar la calidad no recarga automáticamente el avatar que ya está
 en pantalla: vuelve a cargarlo para aplicar ese límite. El renderizado y los
 FPS sí cambian al guardar, sin esa recarga.
+
+Los PMX usan física a 65 Hz en Equilibrado y Alta calidad. En Ahorro, la
+simulación de los modelos más pesados baja a 32,5 Hz para reducir el uso de
+CPU. El cambio se aplica al guardar sin recargar el avatar.
 
 30 FPS puede reducir la carga de CPU/GPU; sin límite permite que Iris renderice
 al ritmo que admita la pantalla. Son máximos, no una garantía de rendimiento:

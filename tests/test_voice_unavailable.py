@@ -81,9 +81,18 @@ def test_a_provider_message_is_shown_and_does_not_outlive_its_failure(face):
     assert "Sin saldo." in face.await_args.args[1]["message"]
     face.reset_mock()
     provider.synthesize = AsyncMock(return_value=(b"audio", []))
+    engine.play_audio = AsyncMock(return_value=True)
     spoken_through(engine)
     face.assert_not_awaited()
     assert engine.last_failure == ""
+
+
+def test_host_audio_failure_reports_the_speaker_problem(face):
+    provider = SimpleNamespace(synthesize=AsyncMock(return_value=(b"audio", [])))
+    engine = real_engine(provider)
+    engine.play_audio = AsyncMock(return_value=False)
+    spoken_through(engine)
+    assert face.await_args.args[1]["code"] == "audio_playback_failed"
 
 
 def test_a_reply_with_nothing_to_say_is_not_an_error(face):
