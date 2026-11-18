@@ -14,7 +14,7 @@
   },
   "launcher": {
     "visible": true,
-    "order": 165
+    "order": 210
   },
   "ui": {
     "module": "os_app_manager.js"

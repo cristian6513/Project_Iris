@@ -17,7 +17,7 @@ export const OS_APP_CATALOG = [
         },
         "launcher": {
             "visible": true,
-            "order": 20
+            "order": 140
         },
         "ui": {
             "adapter": "legacy"
@@ -41,7 +41,7 @@ export const OS_APP_CATALOG = [
         },
         "launcher": {
             "visible": true,
-            "order": 10
+            "order": 130
         },
         "ui": {
             "adapter": "legacy"
@@ -65,7 +65,7 @@ export const OS_APP_CATALOG = [
         },
         "launcher": {
             "visible": true,
-            "order": 165
+            "order": 210
         },
         "ui": {
             "module": "os_app_manager.js"
@@ -89,7 +89,7 @@ export const OS_APP_CATALOG = [
         },
         "launcher": {
             "visible": true,
-            "order": 50
+            "order": 120
         },
         "ui": {
             "module": "automation_app.js"
@@ -113,7 +113,7 @@ export const OS_APP_CATALOG = [
         },
         "launcher": {
             "visible": true,
-            "order": 116
+            "order": 50
         },
         "ui": {
             "entry": "main.js",
@@ -163,7 +163,7 @@ export const OS_APP_CATALOG = [
         "presentation": "tab",
         "launcher": {
             "visible": true,
-            "order": 160
+            "order": 20
         },
         "ui": {
             "adapter": "legacy"
@@ -187,7 +187,7 @@ export const OS_APP_CATALOG = [
         },
         "launcher": {
             "visible": true,
-            "order": 115
+            "order": 40
         },
         "ui": {
             "entry": "main.js",
@@ -212,7 +212,7 @@ export const OS_APP_CATALOG = [
         },
         "launcher": {
             "visible": true,
-            "order": 130
+            "order": 200
         },
         "ui": {
             "adapter": "legacy"
@@ -236,7 +236,7 @@ export const OS_APP_CATALOG = [
         },
         "launcher": {
             "visible": true,
-            "order": 60
+            "order": 220
         },
         "ui": {
             "adapter": "legacy"
@@ -260,7 +260,7 @@ export const OS_APP_CATALOG = [
         },
         "launcher": {
             "visible": true,
-            "order": 117
+            "order": 60
         },
         "ui": {
             "entry": "main.js",
@@ -285,7 +285,7 @@ export const OS_APP_CATALOG = [
         },
         "launcher": {
             "visible": true,
-            "order": 90,
+            "order": 170,
             "label": "Marketplace"
         },
         "ui": {
@@ -310,7 +310,7 @@ export const OS_APP_CATALOG = [
         },
         "launcher": {
             "visible": true,
-            "order": 30
+            "order": 150
         },
         "ui": {
             "adapter": "legacy"
@@ -334,7 +334,7 @@ export const OS_APP_CATALOG = [
         },
         "launcher": {
             "visible": true,
-            "order": 140
+            "order": 100
         },
         "ui": {
             "adapter": "legacy"
@@ -358,7 +358,7 @@ export const OS_APP_CATALOG = [
         },
         "launcher": {
             "visible": true,
-            "order": 100
+            "order": 110
         },
         "ui": {
             "adapter": "legacy"
@@ -382,7 +382,7 @@ export const OS_APP_CATALOG = [
         },
         "launcher": {
             "visible": true,
-            "order": 110
+            "order": 90
         },
         "ui": {
             "adapter": "legacy"
@@ -406,7 +406,7 @@ export const OS_APP_CATALOG = [
         },
         "launcher": {
             "visible": true,
-            "order": 120
+            "order": 30
         },
         "ui": {
             "adapter": "legacy"
@@ -446,7 +446,7 @@ export const OS_APP_CATALOG = [
         },
         "launcher": {
             "visible": true,
-            "order": 40
+            "order": 160
         },
         "ui": {
             "adapter": "legacy"
@@ -466,7 +466,7 @@ export const OS_APP_CATALOG = [
         "presentation": "tab",
         "launcher": {
             "visible": true,
-            "order": 170
+            "order": 80
         },
         "ui": {
             "adapter": "legacy"
@@ -490,7 +490,7 @@ export const OS_APP_CATALOG = [
         },
         "launcher": {
             "visible": true,
-            "order": 80
+            "order": 180
         },
         "ui": {
             "adapter": "legacy"
@@ -514,7 +514,7 @@ export const OS_APP_CATALOG = [
         },
         "launcher": {
             "visible": true,
-            "order": 95,
+            "order": 70,
             "label": "Iris Store"
         },
         "ui": {
@@ -540,7 +540,7 @@ export const OS_APP_CATALOG = [
         },
         "launcher": {
             "visible": true,
-            "order": 150
+            "order": 10
         },
         "ui": {
             "adapter": "legacy"
@@ -564,7 +564,7 @@ export const OS_APP_CATALOG = [
         },
         "launcher": {
             "visible": true,
-            "order": 70
+            "order": 190
         },
         "ui": {
             "adapter": "legacy"
@@ -577,11 +577,11 @@ export const OS_APP_CATALOG = [
 // Modules of the apps with their own code (ui.module or ui.entry), as static imports chosen by the build.
 export const OS_APP_MODULES = Object.freeze({
     "app-manager": () => import("./os_app_manager.js?v=27cc5bdf89"),
-    "automations": () => import("./automation_app.js?v=8989489774"),
+    "automations": () => import("./automation_app.js?v=a87e35dfbd"),
     "calendar": () => import("../apps/calendar/main.js?v=c389b75ff2"),
     "conexiones": () => import("../apps/conexiones/main.js?v=fc58d4daa2"),
     "mail": () => import("../apps/mail/main.js?v=43eb4af107"),
-    "store": () => import("../apps/store/main.js?v=64a6c164bd"),
+    "store": () => import("../apps/store/main.js?v=5941238976"),
 });
 
 // Stylesheets of the apps with their own folder (ui.style), as modules exporting the CSS text.
@@ -589,7 +589,7 @@ export const OS_APP_STYLES = Object.freeze({
     "calendar": () => import("../apps/calendar/style.css.js?v=1d460b9193"),
     "conexiones": () => import("../apps/conexiones/style.css.js?v=80ae2062b3"),
     "mail": () => import("../apps/mail/style.css.js?v=a330d52c1b"),
-    "store": () => import("../apps/store/style.css.js?v=8fbf990d74"),
+    "store": () => import("../apps/store/style.css.js?v=031fabf95a"),
 });
 
 // F12: widget metadata and local imports derived from the same reviewed app.json.

@@ -7,9 +7,9 @@ reemplaza la interfaz completa y no es necesario para utilizar Hermes.
 
 ## Estado actual
 
-Revisión documental del 13 de noviembre de 2026. **QA24 incluye Companion
-0.1.9**. La vista Solo avatar y la conversación por voz corresponden a la fuente
-posterior. Queda probarlas en el siguiente instalador con el puente nativo.
+Revisión documental del 17 de noviembre de 2026. **QA25 incluye Companion
+0.1.10**, con la vista Solo avatar y la conversación por voz. El ojo de Solo avatar
+se comprobó en WebView2; la conversación con micrófono y altavoces reales sigue pendiente.
 Consulta [Estado actual](../estado-actual.md) para identificar tu versión.
 
 - plataforma empaquetada: Windows x64;
@@ -63,8 +63,8 @@ progreso. El detalle de herramientas sigue disponible en Iris OS. Este ajuste
 del 26 de octubre requiere recompilar Companion; el instalado con QA16 conserva
 la presentación anterior.
 
-En QA24, **Hablar** graba una intervención con Hermes y permite enviarla o
-cancelarla. En la fuente posterior, **Iniciar conversación** permite varios
+**Hablar** graba una intervención con Hermes y permite enviarla o
+cancelarla. Desde QA25, **Iniciar conversación** permite varios
 turnos y deja **Terminar** visible incluso en Solo avatar. La activación por
 voz se administra en los ajustes de IRIS OS. [Micrófono manual y Wake](manual-voice.md).
 
@@ -93,7 +93,7 @@ la habitación completa.
 ## Activación
 
 El Companion se abre y administra desde Iris OS. Desde QA18, instalarlo o repararlo desde Iris no crea accesos directos propios
-en Windows. QA24 conserva ese comportamiento. Si una instalación anterior
+en Windows. QA25 conserva ese comportamiento. Si una instalación anterior
 ya dejó un icono del Companion en el escritorio, puedes eliminar ese acceso:
 no desinstala el componente ni afecta al acceso principal de Iris OS.
 

@@ -138,7 +138,12 @@ def test_model_text_and_marketplace_links_are_rendered_safely() -> None:
 
     assert "this.container.innerHTML" not in subtitles_js
     assert "document.createTextNode(safeText.slice(1))" in subtitles_js
-    assert "loading.replaceChildren(message);" in app_js
+    # A failed start shows its error as text. face_bootstrap.js owns that message
+    # since it loads app.js, so a module that never evaluates is reported too.
+    bootstrap_js = (ROOT / "face" / "js" / "face_bootstrap.js").read_text(encoding="utf-8")
+    assert "loading.replaceChildren(message);" in bootstrap_js
+    assert "message.textContent = " in bootstrap_js
+    assert "loading.innerHTML" not in bootstrap_js and "loading.innerHTML" not in app_js
     assert "_safeExternalUrl(value)" in activity_js
     assert "url.protocol !== 'http:' && url.protocol !== 'https:'" in activity_js
     assert 'rel="noopener noreferrer"' in activity_js

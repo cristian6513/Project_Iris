@@ -58,10 +58,12 @@ test('every current app keeps its ID, presentation and initial size', () => {
 });
 
 test('the launcher keeps its order and labels', () => {
+    // Everyday apps first, then Iris' own, then the advanced tools (UX review, 2026-11-17):
+    // a newcomer found Agentes, Diagnóstico and Skills before Calendario or Theme Studio.
     assert.deepEqual(registry.launcher().map((app) => app.launcher.label || app.name), [
-        'Agentes', 'Actividad', 'Tablero de tareas', 'Tareas programadas', 'Automatizaciones', 'Diagnóstico', 'Herramientas MCP',
-        'Skills', 'Marketplace', 'Iris Store', 'Notificaciones', 'Permisos', 'Conexiones', 'Calendario', 'Correo', 'IRIS Player', 'Perfiles y sesiones',
-        'Modelos', 'Theme Studio', 'Cámara', 'Administrar aplicaciones', 'Ajustes',
+        'Theme Studio', 'Cámara', 'IRIS Player', 'Conexiones', 'Calendario', 'Correo', 'Iris Store',
+        'Ajustes', 'Permisos', 'Modelos', 'Notificaciones', 'Automatizaciones', 'Agentes', 'Actividad', 'Tablero de tareas', 'Tareas programadas',
+        'Marketplace', 'Skills', 'Herramientas MCP', 'Perfiles y sesiones', 'Administrar aplicaciones', 'Diagnóstico',
     ]);
     const escape = (value) => String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
     const osIcon = (name) => `<i data-icon="${name}"></i>`;

@@ -1,4 +1,4 @@
-import { ROOM_ATMOSPHERES } from './room_atmosphere.js?v=2';
+import { ROOM_ATMOSPHERES } from './room_atmosphere.js?v=3';
 
 /** Shared select binding for inspection and Quick Configuration, with lazy room wiring. */
 export function bindRoomAtmosphereControls(root, getAtmosphere) {

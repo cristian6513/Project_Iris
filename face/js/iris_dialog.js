@@ -10,7 +10,7 @@
  * that stubs window.confirm keeps working.
  */
 
-import { osIconSvg } from './os_icons.js?v=2';
+import { osIconSvg } from './os_icons.js?v=3';
 
 // The same line icons as the IRIS OS desktop (the badge is the «IRIS OS» mark).
 function icon(name, className = 'iris-dialog-svg') {
@@ -261,32 +261,6 @@ export function irisForm(options = {}) {
         return Promise.resolve(answer);
     }
     return show('form', options);
-}
-
-/** The «Actualización del sistema» dialog: current version → target, with what changes. */
-export function systemUpdateDialog(snapshot = {}, rollback = false) {
-    const current = (snapshot?.items || []).find((item) => item?.id === 'iris-os')?.version || '';
-    const target = rollback ? snapshot?.previous : snapshot?.available;
-    const version = target?.version || (rollback ? 'anterior' : 'nueva');
-    const items = [];
-    if (target?.hermes_version) items.push(`Iris ${target.version} incluye Hermes Agent ${target.hermes_version}.`);
-    if (!rollback && Number(target?.size) > 0) items.push(`Descarga de ${(Number(target.size) / 1048576).toFixed(0)} MB.`);
-    items.push('Tu perfil, tus conversaciones y tu configuración se conservan.');
-    items.push('Iris se reinicia: termina lo que estés haciendo antes de continuar.');
-    return {
-        title: 'Actualización del sistema',
-        icon: 'iris',
-        message: `IRIS se cerrará y volverá a abrirse con la versión ${version}.`,
-        question: '¿Deseas continuar?',
-        versions: current || target?.version ? { from: current, to: target?.version } : null,
-        details: {
-            label: 'Ver cambios',
-            text: rollback ? `Vuelves a la versión ${version} que tenías instalada.` : (target?.notes || 'Esta versión no trae notas.'),
-            items,
-        },
-        confirmLabel: rollback ? `Volver a ${version}` : 'Confirmar actualización',
-        confirmIcon: 'update',
-    };
 }
 
 globalThis.IrisDialog = Object.freeze({ confirm: irisConfirm, alert: irisAlert, form: irisForm });

@@ -300,7 +300,8 @@ def _member(name: str) -> str:
     return name
 
 
-def safe_extract(archive: Path, destination: Path, release: Release) -> None:
+def safe_extract(archive: Path, destination: Path, release: Release,
+                 progress: Callable[[int, int], None] | None = None) -> None:
     """Extract only plain files with confined names, within the declared sizes."""
     with zipfile.ZipFile(archive) as package:
         members = package.infolist()
@@ -327,6 +328,7 @@ def safe_extract(archive: Path, destination: Path, release: Release) -> None:
         if files != release.files or total != release.unpacked_size:
             raise UpdateError("El contenido del paquete no coincide con el canal.")
         destination.mkdir(parents=True)
+        extracted = 0
         for member in members:
             target = destination / member.filename
             if member.is_dir():
@@ -340,6 +342,9 @@ def safe_extract(archive: Path, destination: Path, release: Release) -> None:
                     if written > member.file_size:
                         raise UpdateError("El paquete declara un tamaño menor que su contenido.")
                     output.write(block)
+            extracted += 1
+            if progress is not None:
+                progress(extracted, files)
 
 
 def download(release: Release, target: Path, progress: Callable[[int, int], None] | None = None,
@@ -405,10 +410,15 @@ def prepare_release(install: Install, release: Release,
     """Download, verify and place the release in ``v/<id>``; activates nothing."""
     folder = install.folder(release.id)
     report = progress or (lambda *_: None)
+
+    def verify(folder: Path, *, hashes: bool) -> dict[str, Any]:
+        report("verifying", 0, 0)
+        return inst.verify_version(folder, release.staging_sha256, hashes=hashes, executables=not hashes,
+                                   progress=lambda done, total: report("verifying", done, total))
+
     if folder.exists():
         # Fully hashed when it was first prepared (or installed); kept since.
-        report("verifying", 0, 0)
-        info = inst.verify_version(folder, release.staging_sha256, hashes=False, executables=True)
+        info = verify(folder, hashes=False)
         if info["iris"] != release.iris:
             raise UpdateError("La versión conservada no coincide con el canal.")
         return folder
@@ -423,16 +433,17 @@ def prepare_release(install: Install, release: Release,
     try:
         if not archive.exists() or inst.sha256_file(archive) != release.sha256:
             archive.unlink(missing_ok=True)
+            report("downloading", 0, release.size)
             download(release, archive, lambda done, total: report("downloading", done, total), client)
-        report("extracting", 0, 0)
+        report("extracting", 0, release.files)
         if staging.exists():
             shutil.rmtree(staging)
-        safe_extract(archive, staging, release)
-        report("verifying", 0, 0)
-        info = inst.verify_version(staging, release.staging_sha256)
+        safe_extract(archive, staging, release, lambda done, total: report("extracting", done, total))
+        info = verify(staging, hashes=True)
         if (info["iris"], info["iris_revision"], info["hermes"], info["hermes_revision"], info["profile_format"]) != (
                 release.iris, release.iris_revision, release.hermes, release.hermes_revision, release.profile_format):
             raise UpdateError("El contenido de la versión no coincide con el canal.")
+        report("finalizing", 0, 0)
         _self_check(staging, release)
         for attempt in range(50):
             try:
@@ -946,9 +957,19 @@ def run_update_job() -> None:
         if release is None:
             raise UpdateError(reason or "No hay una versión nueva.")
 
+        _job(target=release.public())
+        next_report = 0.0
+        last_phase = ""
+        last_total = 0
+
         def progress(phase: str, done: int, total: int) -> None:
+            nonlocal next_report, last_phase, last_total
+            now = time.monotonic()
+            if phase == last_phase and total == last_total and now < next_report and (not total or done < total):
+                return
+            next_report, last_phase, last_total = now + 0.25, phase, total
             labels = {"downloading": "Descargando la actualización…", "extracting": "Preparando los archivos…",
-                      "verifying": "Verificando la versión nueva…"}
+                      "verifying": "Verificando la versión nueva…", "finalizing": "Comprobando el arranque de la versión nueva…"}
             _job(phase=phase, message=labels.get(phase, ""), progress={"done": done, "total": total} if total else None)
 
         prepare_release(install, release, progress)
@@ -972,7 +993,7 @@ def run_rollback_job() -> None:
         previous = state.get("previous")
         if not previous or not install.folder(previous).is_dir():
             raise UpdateError("No hay una versión anterior conservada.")
-        _job(phase="verifying", message="Verificando la versión anterior…")
+        _job(phase="verifying", message="Verificando la versión anterior…", target=_record(state, previous))
         # Fully hashed when it was installed; structure, sizes and programs now.
         inst.verify_version(install.folder(previous), hashes=False, executables=True)
         _job(phase="activating", message=f"Iris se cerrará y volverá a abrirse con {inst.describe(state, previous)}.")

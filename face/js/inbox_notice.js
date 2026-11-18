@@ -10,7 +10,7 @@
  * opening the inbox from it changes nothing else.
  */
 
-import { OUTCOME_LABELS, noticeDeferral, noticeHeadline, normalizeNotice } from './inbox_state.js?v=1';
+import { OUTCOME_LABELS, noticeDeferral, noticeHeadline, normalizeNotice } from './inbox_state.js?v=6';
 
 const VISIBLE_MS = 30000;
 const MAX_ROWS = 3;

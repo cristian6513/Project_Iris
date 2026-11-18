@@ -3,13 +3,14 @@ import { applyThemeSnapshot, receiveFaceTheme, receiveWizardPreset, setThemeView
 const $ = (id) => document.getElementById(id);
 const frame = $('workspace');
 const welcome = $('welcome');
-const FACE_LOAD_TIMEOUT_MS = 60_000;
+const FACE_SLOW_AFTER_MS = 60_000;
+const FACE_LOAD_TIMEOUT_MS = 5 * 60_000;
 let state = { phase: 'idle', face_url: '' };
 let view = 'home';
 let enterWhenReady = true;
 let faceLoad = null;
 let faceError = '';
-let pollTimer;
+let pollTimer = null;
 let disposed = false;
 
 export function safeFaceUrl(raw) {
@@ -24,8 +25,10 @@ export function safeFaceUrl(raw) {
 function render() {
     applyThemeSnapshot(state.visual);
     const phase = faceError ? 'error' : faceLoad ? 'iris' : state.phase;
-    const message = faceError || (faceLoad ? 'Cargando la habitación y el avatar…' : state.message);
-    $('message').textContent = message || 'Conectando…';
+    const message = faceError || (faceLoad?.slow
+        ? 'La habitación está tardando más de lo esperado. Sigue cargando y se abrirá cuando esté lista.'
+        : faceLoad ? 'Cargando la habitación y el avatar…' : state.message) || 'Conectando…';
+    if ($('message').textContent !== message) $('message').textContent = message;
     $('connection').textContent = phase === 'ready' ? 'Conectado' :
         phase === 'error' ? 'Necesita atención' : phase === 'setup' ? 'Configura tu asistente' : 'Preparando tu espacio';
     // The preview label belongs to the checkout; an installed Iris shows its version.
@@ -34,7 +37,7 @@ function render() {
     }
     $('log').hidden = !state.log_path;
     $('log').textContent = state.log_path ? `Registro: ${state.log_path}` : '';
-    $('retry').hidden = !['error', 'idle'].includes(phase);
+    $('retry').hidden = !faceLoad?.slow && !['error', 'idle'].includes(phase);
     $('setup').hidden = phase !== 'setup';
     $('enter').hidden = phase !== 'ready';
     $('return').hidden = view !== 'setup';
@@ -86,7 +89,7 @@ function loadFace() {
     const id = crypto.randomUUID();
     url.searchParams.set('desktop_origin', location.origin);
     url.searchParams.set('desktop_load', id);
-    faceLoad = { id, origin: url.origin, timer: null };
+    faceLoad = { id, origin: url.origin, timer: null, slow: false, visibleSince: null, visibleMs: 0 };
     watchFaceLoad();
     // Keep the frame in the viewport so it can render behind the welcome screen.
     frame.inert = true;
@@ -96,11 +99,29 @@ function loadFace() {
 }
 
 function watchFaceLoad() {
-    if (!faceLoad) return;
-    clearTimeout(faceLoad.timer);
-    faceLoad.timer = document.hidden ? null : setTimeout(() => {
-        showHome('La habitación está tardando más de lo esperado. Puedes volver a comprobar.');
-    }, FACE_LOAD_TIMEOUT_MS);
+    const load = faceLoad;
+    if (!load) return;
+    clearTimeout(load.timer);
+    load.timer = null;
+    const now = performance.now();
+    if (load.visibleSince !== null) {
+        load.visibleMs += now - load.visibleSince;
+        load.visibleSince = null;
+    }
+    if (document.hidden) return;
+    if (load.visibleMs >= FACE_LOAD_TIMEOUT_MS) {
+        showHome('La habitación no terminó de cargar tras 5 minutos de espera. Vuelve a comprobar para iniciar una carga nueva.');
+        return;
+    }
+    if (!load.slow && load.visibleMs >= FACE_SLOW_AFTER_MS) {
+        load.slow = true;
+        render();
+    }
+    load.visibleSince = now;
+    const next = load.slow ? FACE_LOAD_TIMEOUT_MS : FACE_SLOW_AFTER_MS;
+    load.timer = setTimeout(() => {
+        if (faceLoad === load) watchFaceLoad();
+    }, Math.ceil(next - load.visibleMs));
 }
 
 function revealFace() {
@@ -132,6 +153,7 @@ async function start() {
 }
 
 async function poll() {
+    pollTimer = null;
     try {
         const response = await fetch('/desktop/state', { cache: 'no-store' });
         if (!response.ok) throw new Error('El servicio de Iris no responde. Cierra y vuelve a abrir Iris.');
@@ -144,6 +166,14 @@ async function poll() {
     } finally {
         if (!disposed) pollTimer = setTimeout(poll, view === 'home' ? 700 : 4000);
     }
+}
+
+function retry() {
+    if (!faceLoad) return start();
+    // A slow Face still owns its iframe. Refresh the service status without navigating it.
+    if (pollTimer === null) return;
+    clearTimeout(pollTimer);
+    return poll();
 }
 
 window.addEventListener('message', (event) => {
@@ -167,7 +197,7 @@ window.addEventListener('message', (event) => {
 $('configure').addEventListener('click', showSetup);
 $('setup').addEventListener('click', showSetup);
 $('home').addEventListener('click', () => showHome());
-$('retry').addEventListener('click', start);
+$('retry').addEventListener('click', retry);
 $('return').addEventListener('click', start);
 $('enter').addEventListener('click', start);
 document.addEventListener('visibilitychange', watchFaceLoad);

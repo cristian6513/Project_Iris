@@ -10,7 +10,7 @@
   "presentation": "tab",
   "launcher": {
     "visible": true,
-    "order": 170
+    "order": 80
   },
   "ui": {
     "adapter": "legacy"

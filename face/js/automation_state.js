@@ -8,7 +8,7 @@
  * user are kept as plain strings (the app sets them with textContent).
  */
 
-import { optionGroups, parseSelectionValue, selectionValue } from './model_selector_state.js?v=1';
+import { optionGroups, parseSelectionValue, selectionValue } from './model_selector_state.js?v=4';
 
 const text = (value, limit) => String(value ?? '').slice(0, limit);
 const number = (value, fallback = 0) => (Number.isFinite(Number(value)) ? Number(value) : fallback);

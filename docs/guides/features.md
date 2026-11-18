@@ -5,8 +5,8 @@
 IRIS OS no reemplaza a Hermes Agent. Organiza sus capacidades dentro de una
 experiencia visual con identidad, voz, memoria y varias superficies.
 
-Revisión documental del 13 de noviembre de 2026. Consulta [Estado actual](../estado-actual.md)
-para distinguir la beta 0.9.3 QA24, las mejoras de la fuente posterior y las
+Revisión documental del 17 de noviembre de 2026. Consulta [Estado actual](../estado-actual.md)
+para distinguir la beta 0.9.4 QA25, las mejoras de la fuente posterior y las
 comprobaciones pendientes.
 
 ## Wizard y Hermes Doctor
@@ -160,7 +160,7 @@ siguiente respuesta sin reiniciar Core; no activa el micrófono.
   una variante. Iris guarda solo la elegida con sus texturas, hasta 64 MiB.
 - Los avatares compatibles se guardan localmente y se sincronizan con Companion.
 - emociones y visemas;
-- animaciones procedurales y [59 clips de fábrica](iris-animations.md);
+- animaciones procedurales y [95 clips de fábrica](iris-animations.md);
 - lectura/tablet con objetos, visitas a muebles y ventana;
 - [Vida propia y teletransporte](room.md#vida-propia), con prioridades de conversación y movimiento reducido;
 - FPS y calidad gráfica configurables en Ajustes → Rendimiento;
@@ -298,9 +298,9 @@ del ruido con una cámara ya activa. La calibración solo dura esa captura y no 
 biométrica ni médica. El diagnóstico reciente tiene filtros, exportación manual
 y borrado; no transmite medios ni crea herramientas de Hermes. Más detalles y
 limitaciones en [los contratos del paso 6](../vision_v2_contracts.md#paso-6--ajustes-locales-calibración-y-diagnóstico).
-La beta QA24 incluye Companion 0.1.9. El registro del 6 de septiembre
-sobre 0.1.1 → 0.1.2 es histórico. La vista Solo avatar y la conversación por
-voz están en la fuente posterior. [Guía de Desktop Companion](desktop-companion.md).
+La beta QA25 incluye Companion 0.1.10, con la vista Solo avatar y la
+conversación por voz. El registro del 6 de septiembre sobre 0.1.1 → 0.1.2 es
+histórico. [Guía de Desktop Companion](desktop-companion.md).
 
 La entrega requiere Vision autorizado, señales fiables y disponibilidad declarada
 por 15 minutos desde la bandeja, además de presupuesto y retención. Sin esa declaración,

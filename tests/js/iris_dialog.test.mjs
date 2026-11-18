@@ -5,7 +5,8 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readdirSync, readFileSync } from 'node:fs';
 
-const { irisAlert, irisConfirm, irisConsent, irisChoice, irisForm, systemUpdateDialog } = await import('../../face/js/iris_dialog.js');
+const { irisAlert, irisConfirm, irisConsent, irisChoice, irisForm } = await import('../../face/js/iris_dialog.js');
+const { systemUpdateDialog } = await import('../../face/js/system_update_view.js');
 
 test('consent fallback can approve once but cannot remember a permission', async () => {
     globalThis.window = { confirm: () => true };
@@ -74,12 +75,12 @@ test('going back shows the current and the previous version, as in the mockup', 
 test('an update shows its notes and size; missing data never invents a version', () => {
     const update = systemUpdateDialog({
         items: [{ id: 'iris-os', version: '0.9.2' }],
-        available: { version: '0.9.3', hermes_version: '0.21.6', size: 412 * 1048576, notes: 'Novedades.' },
+        available: { version: '0.9.3', hermes_version: '0.21.6', size: 508635913, notes: 'Novedades.' },
     });
     assert.deepEqual(update.versions, { from: '0.9.2', to: '0.9.3' });
     assert.equal(update.confirmLabel, 'Confirmar actualización');
     assert.equal(update.details.text, 'Novedades.');
-    assert.ok(update.details.items.includes('Descarga de 412 MB.'));
+    assert.ok(update.details.items.includes('Descarga de 508,6 MB.'));
     const unknown = systemUpdateDialog({}, true);
     assert.equal(unknown.versions, null);
     assert.equal(unknown.message, 'IRIS se cerrará y volverá a abrirse con la versión anterior.');

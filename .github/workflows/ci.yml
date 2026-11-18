@@ -1,9 +1,15 @@
 name: CI
 
 on:
+  # Each candidate is published as a version branch (0.9.4) and a release tag
+  # (v0.9.4-beta.qa25). Both run CI, so every candidate has a result for the exact
+  # commit it ships.
   push:
     branches:
       - main
+      - "[0-9]+.[0-9]+.[0-9]+"
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+*"
   pull_request:
   workflow_dispatch:
 

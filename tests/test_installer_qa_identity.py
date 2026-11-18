@@ -28,7 +28,7 @@ import pytest
 
 from core.runtime_descriptor import runtime_service_identity
 
-SCRIPT = Path(__file__).resolve().parents[1] / "desktop" / "installer" / "qa" / "verificar-instalacion.ps1"
+SCRIPT = Path(__file__).resolve().parents[1] / "desktop" / "installer" / "verificar-instalacion.ps1"
 POWERSHELL = shutil.which("powershell.exe")
 PROFILE_CHECK = "Usa el perfil esperado"
 HERMES_CHECK = "Usa la carpeta de Hermes esperada"

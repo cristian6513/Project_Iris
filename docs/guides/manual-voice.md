@@ -29,7 +29,7 @@ grabación no deshace esa orden; el panel indica que ya fue enviada.
 
 ## Conversación por voz
 
-Esta función está en la fuente posterior a QA24. En **Hablar → Iniciar conversación**, confirma la escucha para la ventana actual.
+Esta función está incluida desde QA25. En **Hablar → Iniciar conversación**, confirma la escucha para la ventana actual.
 Puedes hablar varios turnos sin tocar el botón ni repetir «Hey Iris». Hermes envía
 cada frase cuando detecta el silencio configurado (3 segundos por defecto).
 El micrófono queda en pausa durante la respuesta. Iris espera el fin de la

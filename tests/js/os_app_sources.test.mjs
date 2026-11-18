@@ -118,7 +118,7 @@ test('every importer uses one specifier for os_app_sources.js, so the desktop sh
 // Last in this file: it changes the module's state for the rest of the process.
 test('app.js loads the installed apps once; every importer then reads the merged list (live bindings)', async () => {
     // The same specifier as the shell's importers: another «?v=» would be another instance with its own state.
-    const sources = await import('../../face/js/os_app_sources.js?v=4');
+    const sources = await import('../../face/js/os_app_sources.js?v=5');
     const widgets = await import('../../face/js/os_widgets.js');
     assert.equal(widgets.WIDGET_CATALOG['demo.timer'], undefined);
     globalThis.location = { href: 'http://127.0.0.1/face/' };
@@ -140,7 +140,7 @@ test('app.js loads the installed apps once; every importer then reads the merged
 
 // After the test above (same module instance): refreshing while the desktop runs.
 test('F17: Iris Store refreshes the live list without a reload; a failed refresh leaves it as it was', async () => {
-    const sources = await import('../../face/js/os_app_sources.js?v=4');
+    const sources = await import('../../face/js/os_app_sources.js?v=5');
     const widgets = await import('../../face/js/os_widgets.js');
     globalThis.location = { href: 'http://127.0.0.1/face/' };
     const updatedFile = (name) => `/api/app-packages/files/ins_${'b'.repeat(32)}/${name}`;

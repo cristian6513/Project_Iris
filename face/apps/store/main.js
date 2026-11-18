@@ -15,6 +15,13 @@ export const MAX_FOLDER_BYTES = 4 * 1024 * 1024;
 export const WARNING = 'Una app instalada tiene el mismo acceso que Iris: puede leer tu correo y tus conversaciones '
     + 'o solicitar acciones al motor de IA. Instala solo apps de personas en las que confíes. Si la descargaste de internet, '
     + 'revisa antes su código o pídele a una IA que lo revise.';
+// What kind of app it is, shown first in the review: Python reaches the whole PC, an
+// interface-only app stays inside Iris' window (both audits of 2026-11-17 asked for this).
+export const KIND_UI = Object.freeze({ title: 'Solo interfaz',
+    text: 'Su código funciona dentro de la ventana de Iris. No instala nada que se ejecute fuera de Iris.' });
+export const KIND_PYTHON = Object.freeze({ title: 'Ejecuta Python con tus permisos de Windows',
+    text: 'Su código Python se ejecuta en tu equipo y puede leer y cambiar tus archivos, como cualquier '
+        + 'programa que instales. No hay aislamiento.' });
 
 export function formatSize(bytes) {
     if (bytes < 1024) return `${bytes} B`;
@@ -149,13 +156,18 @@ export function createApp(context = {}) {
         if (!review || state.busy) return;
         const update = !!review.app.current;
         const running = update && !!context.appInUse?.(review.app.id);
-        const components = review.app.extension
-            ? ` ${review.app.extension.python ? 'Incluye código Python que se ejecuta en tu equipo.' : ''}${review.app.extension.skill ? ' Añade una skill de uso para Hermes.' : ''}` : '';
+        const python = !!review.app.extension?.python;
+        const skill = review.app.extension?.skill ? ' Añade una skill de uso para Hermes.' : '';
+        // Python goes first and the dialog opens on «Cancelar»: Enter must not install code
+        // that runs with the person's Windows permissions.
+        const message = (python ? `${KIND_PYTHON.title}: ${KIND_PYTHON.text} ` : '') + WARNING + skill
+            + (running ? ` «${review.app.name}» está abierta: se reiniciará con la nueva versión y perderás lo que no hayas guardado en ella.` : '');
         const ok = await context.confirm?.({
             title: `${update ? 'Actualizar' : 'Instalar'} «${review.app.name}»`,
-            message: running ? `${WARNING}${components} «${review.app.name}» está abierta: se reiniciará con la nueva versión y perderás lo que no hayas guardado en ella.` : WARNING + components,
+            message,
             question: update ? '¿Quieres actualizarla?' : '¿Quieres instalarla?',
-            confirmLabel: update ? 'Actualizar' : 'Instalar', cancelLabel: 'Cancelar',
+            confirmLabel: `${update ? 'Actualizar' : 'Instalar'}${python ? ' con Python' : ''}`, cancelLabel: 'Cancelar',
+            ...(python ? { tone: 'danger' } : {}),
         });
         if (!ok || disposed || state.review !== review) return;
         set({ busy: update ? 'Actualizando…' : 'Instalando…', error: '' });
@@ -256,7 +268,13 @@ export function createApp(context = {}) {
             : ` · reemplaza la ${app.current.version}`;
         heading.append(title, el('p', 'review-version', `Versión ${app.version}${replaces}`));
         head.append(icon(app.icon), heading);
-        card.append(head, el('p', 'review-description', app.description));
+        const python = !!app.extension?.python;
+        const kind = python ? KIND_PYTHON : KIND_UI;
+        const kindNote = el('p', python ? 'kind-python' : 'kind-ui');
+        kindNote.setAttribute('role', 'note');
+        // The leading space keeps the two parts apart when read aloud; the flex layout hides it.
+        kindNote.append(el('strong', 'kind-title', kind.title), el('span', 'kind-text', ` ${kind.text}`));
+        card.append(head, kindNote, el('p', 'review-description', app.description));
         if (app.widgets.length) card.append(el('p', 'review-widgets', `Incluye ${app.widgets.length === 1 ? 'un widget' : `${app.widgets.length} widgets`}: ${app.widgets.map((widget) => widget.name).join(', ')}.`));
         if (app.extension) {
             const components = el('section', 'components');

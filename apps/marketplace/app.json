@@ -14,7 +14,7 @@
   },
   "launcher": {
     "visible": true,
-    "order": 90,
+    "order": 170,
     "label": "Marketplace"
   },
   "ui": {

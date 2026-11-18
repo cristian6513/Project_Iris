@@ -53,4 +53,10 @@ def test_ci_has_manual_and_change_driven_entry_points() -> None:
     assert "push:" in workflow
     assert "pull_request:" in workflow
     assert "workflow_dispatch:" in workflow
+    # QA23 and QA25 lived only on the 0.9.4 branch and never ran CI (2026-11-17).
+    # Version branches and release tags must trigger it, so each candidate has a
+    # result for the commit it ships.
+    push = workflow[workflow.index("push:"):workflow.index("pull_request:")]
+    assert '- "[0-9]+.[0-9]+.[0-9]+"' in push
+    assert '- "v[0-9]+.[0-9]+.[0-9]+*"' in push
     assert workflow.count("timeout-minutes:") == 3

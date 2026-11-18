@@ -5,7 +5,7 @@
 > no a una validación nueva de todos los ejecutables.
 
 La habitación es la escena visual de IRIS OS. Esta guía recoge las acciones y
-controles de **0.9.3 QA24**. Los informes fechados mantienen sus mediciones
+controles de **0.9.4 QA25**, que conserva la sala de QA24. Los informes fechados mantienen sus mediciones
 originales. Consulta [Estado actual](../estado-actual.md) para las mejoras posteriores.
 
 ## Qué incluye
@@ -279,7 +279,7 @@ Los conteos de aquella escena corresponden a su propia prueba.
 
 ## Límites y próximos pasos
 
-QA24 incluye estas acciones y sus animaciones. Companion 0.1.9 ofrece
+QA25 incluye estas acciones y sus animaciones. Companion 0.1.10 ofrece
 alternativas de pie. Las comprobaciones de animación en Edge usaron a IRIS y
 avatares de prueba, con el reloj adelantado en muchos casos. Quedan por probar
 la voz real y los tiempos normales de Vida propia en WebView2 instalado.

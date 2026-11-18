@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { normalizeSelectorState, optionGroups, selectionValue } from '../../face/js/model_selector_state.js?v=3';
+import { normalizeSelectorState, optionGroups, selectionValue } from '../../face/js/model_selector_state.js?v=4';
 import {
     allValues,
     catalogView,

@@ -6,7 +6,7 @@
 
 ## Biblioteca distribuida
 
-**QA24 contiene 95 clips de fábrica**. Incluye gestos originales de Cristian,
+**QA24 y QA25 contienen 95 clips de fábrica**. Incluye gestos originales de Cristian,
 gestos adaptados de movimientos de Tripo AI, variantes de habla y caminata,
 acciones de sala y reposo boca abajo. Las variantes se eligen al reproducir
 la acción. Si reemplazas un gesto de fábrica, Iris usa tu clip y deja de
@@ -48,7 +48,7 @@ los pequeños modelos de libro y tablet cuando existen. Consulta sus
 
 ## Expresiones faciales por pose
 
-El manifiesto declara perfiles faciales y body_only_clips para los 59 clips
+El manifiesto declara perfiles faciales y body_only_clips para los 95 clips
 corporales. El cuerpo conserva su propiedad de los huesos, mientras ojos,
 visemas y emoción se coordinan aparte. Un clip externo con rostro propio puede
 conservar su control facial: no se trata como corporal solo por su nombre.

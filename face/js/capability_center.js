@@ -1,5 +1,5 @@
 import { irisConfirm } from './iris_dialog.js?v=9';
-import { osIconSvg } from './os_icons.js?v=2';
+import { osIconSvg } from './os_icons.js?v=3';
 import {
     PERMISSION_MODES,
     groupCapabilities,

@@ -31,7 +31,7 @@ import {
     updatePayload,
     validateDraft,
 } from './automation_state.js?v=1';
-import { normalizeSelectorState, parseSelectionValue } from './model_selector_state.js?v=1';
+import { normalizeSelectorState, parseSelectionValue } from './model_selector_state.js?v=4';
 import { irisConfirm } from './iris_dialog.js?v=9';
 
 const ACTIVE_REFRESH_MS = 5000;

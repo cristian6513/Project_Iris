@@ -1,6 +1,6 @@
 /** Passive projection of the saved Home, never a second shell or widget host. */
 import { orderedHomeRefs } from './os_desktop_home.js?v=10';
-import { widgetLayout } from './os_widgets.js?v=12';
+import { widgetLayout } from './os_widgets.js?v=13';
 
 export function homePreviewItems(layout, widgets, registry, catalog) {
     if (!layout) return [];

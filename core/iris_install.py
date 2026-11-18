@@ -27,7 +27,7 @@ from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Iterator
+from typing import Any, Callable, Iterator
 
 from core.update_signing import SignatureError, strict_json
 
@@ -314,7 +314,8 @@ def fits(root: Path, max_relative_path: int) -> bool:
 
 
 def verify_version(folder: Path, staging_sha256: str | None = None, *, hashes: bool = True,
-                   executables: bool = False) -> dict[str, Any]:
+                   executables: bool = False,
+                   progress: Callable[[int, int], None] | None = None) -> dict[str, Any]:
     """Static check of a version folder against its own manifests; runs nothing.
 
     The staging manifest binds the files it adds and the runtime inventory,
@@ -371,10 +372,15 @@ def verify_version(folder: Path, staging_sha256: str | None = None, *, hashes: b
         missing = sorted(set(expected) - set(present))[:5]
         extra = sorted(set(present) - set(expected))[:5]
         raise InstallError(f"La versión tiene archivos distintos a su manifiesto (faltan {missing}, sobran {extra}).")
-    for name, (size, sha) in expected.items():
+    total = len(expected)
+    if progress is not None:
+        progress(0, total)
+    for checked, (name, (size, sha)) in enumerate(expected.items(), 1):
         read = hashes or (executables and name.casefold().endswith(".exe"))
         if present[name] != size or (read and sha256_file(folder / name) != sha):
             raise InstallError(f"Archivo alterado en la versión: {name}")
+        if progress is not None:
+            progress(checked, total)
     if sha256_file(folder / PIN) != runtime["pin_sha256"]:
         raise InstallError("El pin del runtime no coincide con la versión.")
     descriptor = _json(folder / DESCRIPTOR, 64 * 1024)

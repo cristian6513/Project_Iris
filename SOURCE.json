@@ -1,37 +1,28 @@
 {
   "schema": 1,
   "component": "main",
-  "source_base_commit": "49951db0042405b7a60a0c4dd3d7896bdd920784",
-  "source_has_uncommitted_changes": true,
-  "source_tree_sha256": "90564b35f62d01973808d58c3dd0fdb7b5f18b9d2de0a7833d8d286161e1b1d1",
-  "content_tree_sha256": "f787c2890691dbc41b7c4f1e110c4feaa61f7c968c091c94c7bdb085fd6fced0",
-  "payload_files": 1448,
-  "documentation_references_adapted": 149,
-  "exact_source_commit": false,
-  "installer_acceptance": false,
-  "qa_artifacts": {
-    "candidate": "QA25",
-    "version": "0.9.4",
-    "build_id": "1e71c1c9",
-    "build_tree_sha256": "32a40c81bd92700a52c20fcaff0a72626f8edf7727dbe669ccf9fff206eadd32",
-    "staging_sha256": "1e71c1c97113ae829c91f0f71b48a3c37ab85dac4c2ee47c585882bc423c57b8",
-    "installer_sha256": "7ced53e6ba07e3256ddd45e66ccc53bbf8f88e648917c9a30a45863b7beaeb25",
-    "package_sha256": "84908c0daaeec8afa824c1312189eb66c7aabb917edb38d4fe38dab91b1d71e3"
+  "candidate": "QA26",
+  "version": "0.9.5",
+  "public_base_commit": "349c41f6c7e7648d52fe05adce0b800af1102e11",
+  "payload_files": 1457,
+  "content_tree_sha256": "67a14bba5c3462c784b1118f33f4dc76d3eaedf3b5e4dafc99cdffe6372301f0",
+  "content_tree_definition": "SHA-256 over sorted repository paths and SHA-256 of Git blob bytes, excluding SOURCE.json",
+  "iris_wheel_sha256": "91978e5972d1e6742a87f93a70d4a8275a88fea5d881d3cee47a08a4f9503df9",
+  "web_contract_sha256": "b3f64fd3855691aecffaf067bb06fa593a318ae26171a147ef97427061ad9af5",
+  "companion": {
+    "schema": 1,
+    "product": "IRIS Desktop Companion",
+    "version": "0.1.11",
+    "platform": "windows",
+    "arch": "x64",
+    "filename": "IRIS Desktop Companion_0.1.11_x64-setup.exe",
+    "sha256": "44f69aa4c3a2750e7673b793b4106f1900ecc1ed9a5a152c612b8badf08b5021",
+    "signed": false,
+    "webview2_mode": "skip"
   },
-  "public_adaptations": {
-    "build_version_files": [
-      "core/version.py",
-      "desktop/src-tauri/tauri.conf.json",
-      "scripts/runtime_sources.json"
-    ],
-    "documentation": [
-      "Public Markdown links",
-      "README.md",
-      "docs/estado-actual.md"
-    ],
-    "tests_after_build": [
-      "tests/test_provider_oauth.py",
-      "tests/test_wizard_packaged_setup.py"
-    ]
-  }
+  "hermes": {
+    "version": "0.21.6",
+    "revision": "818c13be1dc4fd28987e1e881a9408224afd4535"
+  },
+  "installer_acceptance": false
 }

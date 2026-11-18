@@ -496,11 +496,20 @@ def _serving(archive: Path, *, cut: int | None = None):
 def test_prepare_release_downloads_verifies_and_places_a_new_folder(installed, monkeypatch):
     monkeypatch.setattr(upd, "_self_check", Mock())
     release, archive = _publish(installed)
-    phases = []
-    folder = upd.prepare_release(installed.install, release, lambda phase, *_: phases.append(phase), _serving(archive))
+    progress = []
+    folder = upd.prepare_release(installed.install, release, lambda *step: progress.append(step), _serving(archive))
     assert folder == installed.install.folder(release.id)
     assert inst.verify_version(folder)["iris"] == "1.0.1"
-    assert {"downloading", "extracting", "verifying"} <= set(phases)
+    assert progress[0] == ("downloading", 0, release.size)
+    assert ("downloading", release.size, release.size) in progress
+    assert [step for step in progress if step[0] == "extracting"] == [
+        ("extracting", done, release.files) for done in range(release.files + 1)
+    ]
+    verified = release.files - 2  # The staging manifest and inventory are checked before counting their entries.
+    assert [step for step in progress if step[0] == "verifying"] == [
+        ("verifying", 0, 0), *(("verifying", done, verified) for done in range(verified + 1))
+    ]
+    assert progress[-1] == ("finalizing", 0, 0)
     assert not list(installed.install.updates.glob("*.zip")) and not list(installed.install.versions.glob("_*"))
     assert inst.read_state(installed.install)["active"] == installed.active  # nothing activated
 

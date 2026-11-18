@@ -9,7 +9,7 @@
   "accent": "magenta",
   "presentation": "window",
   "window": { "width": 1180, "height": 720 },
-  "launcher": { "visible": true, "order": 116 },
+  "launcher": { "visible": true, "order": 50 },
   "ui": { "entry": "main.js", "style": "style.css" },
   "widgets": [
     { "id": "calendar.month", "name": "Calendario", "entry": "widget.js", "style": "widget.css", "size": "compact", "configVersion": 1,

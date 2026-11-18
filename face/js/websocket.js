@@ -202,6 +202,6 @@ export class WebSocketManager {
         const dot = document.querySelector('.status-dot');
         const txt = document.querySelector('.status-text');
         if (dot) dot.className = `status-dot ${connected ? 'connected' : ''}`;
-        if (txt) txt.textContent = connected ? 'Connected' : 'Reconnecting…';
+        if (txt) txt.textContent = connected ? 'Conectado' : 'Reconectando…';
     }
 }

@@ -1,11 +1,11 @@
 {
   "schema": 1,
   "product": "IRIS Desktop Companion",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "platform": "windows",
   "arch": "x64",
-  "filename": "IRIS Desktop Companion_0.1.10_x64-setup.exe",
-  "sha256": "3c5bf9e7882e4d276ee100449ca10a0f38006673d101684f367e5e7036dbac2e",
+  "filename": "IRIS Desktop Companion_0.1.11_x64-setup.exe",
+  "sha256": "44f69aa4c3a2750e7673b793b4106f1900ecc1ed9a5a152c612b8badf08b5021",
   "signed": false,
   "webview2_mode": "skip"
 }

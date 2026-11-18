@@ -14,7 +14,7 @@
   },
   "launcher": {
     "visible": true,
-    "order": 50
+    "order": 120
   },
   "ui": {
     "module": "automation_app.js"

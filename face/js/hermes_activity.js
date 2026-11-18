@@ -2,8 +2,8 @@ import { desktopStatus } from './os_desktop_status.js?v=2';
 import { ThemeFonts } from './os_fonts.js?v=2';
 import { FontStudio } from './os_font_studio.js?v=3';
 import { publishDesktopTheme } from './desktop_host.js';
-import { DesktopWidgets } from './os_widgets.js?v=12';
-import { ThemeHomePreview } from './os_theme_home_preview.js?v=13';
+import { DesktopWidgets } from './os_widgets.js?v=13';
+import { ThemeHomePreview } from './os_theme_home_preview.js?v=14';
 import { TransitionStudio } from './os_transition_studio.js?v=1';
 import { TransitionPlayer } from './os_transition_player.js?v=1';
 import { themeTransitions } from './os_transition_format.js?v=1';
@@ -11,7 +11,7 @@ import { decodeThemeFile, encodeThemeFile, normalizeStoredTheme, managedThemeIma
 import { DesktopHome, HomePreferences } from './os_desktop_home.js?v=10';
 import { OS_ICON_PATHS, osIconSvg } from './os_icons.js?v=3';
 // F17: bundled apps plus the ones installed from Iris Store, read once when the desktop loads.
-import { OS_APP_CATALOG, OS_APP_MODULES, OS_APP_STYLES, OS_WIDGET_CATALOG, INSTALLED_APPS, reloadInstalledApps } from './os_app_sources.js?v=4';
+import { OS_APP_CATALOG, OS_APP_MODULES, OS_APP_STYLES, OS_WIDGET_CATALOG, INSTALLED_APPS, reloadInstalledApps } from './os_app_sources.js?v=5';
 import { createAppHost } from './os_app_host.js?v=5';
 import { createAppRegistry } from './os_app_registry.js?v=6';
 import { OS_THEME_DEFAULT, OS_THEME_PRESETS } from './os_theme.js?v=4';
@@ -24,7 +24,7 @@ import {
     marketplacePage,
     marketplaceSummary,
 } from './marketplace_state.js?v=2';
-import { companionLocomotionStatus } from './companion_locomotion_policy.js?v=1';
+import { companionLocomotionStatus } from './companion_locomotion_policy.js?v=2';
 import { IrisPlayerApp } from './iris_player.js?v=7';
 import { ContinuityCenterApp } from './continuity_center.js?v=9';
 import { ModelCatalogApp } from './model_catalog.js?v=2';
@@ -39,9 +39,10 @@ import {
     mergeWakeSettingsSnapshot,
     wakeReadinessState,
 } from './wake_settings_state.js?v=1';
-import { irisAlert, irisConfirm, irisChoice, irisForm, systemUpdateDialog } from './iris_dialog.js?v=9';
+import { irisAlert, irisConfirm, irisChoice, irisForm } from './iris_dialog.js?v=9';
+import { formatUpdateSize, systemUpdateDialog, systemUpdateProgress } from './system_update_view.js?v=1';
 import { askIrisPreview, askIrisRequest, askIrisTrust } from './app_ask_iris.js?v=3';
-import { appNoticeModes } from './app_notice.js?v=1';
+import { appNoticeModes } from './app_notice.js?v=2';
 
 /** The routine form: name, schedule and what Hermes must do (all three required). */
 function routineForm(title, values, confirmLabel) {
@@ -583,9 +584,10 @@ export class HermesActivityCanvas {
                         <small data-voice-profile-detail>El micrófono no se inicia solo</small>
                     </button>
                 </aside>
+                <!-- Panel lives in the dock only: the sidebar keeps Inicio, Ajustes and Cámara, the
+                     ways back from any view (user's choice, UX review of 2026-11-17). -->
                 <nav class="workbench-tabs" aria-label="Vistas de IRIS OS">
                     <button class="active" type="button" data-workbench-tab="desktop" aria-label="Inicio" aria-current="page">${osIcon('desktop')}<span>Inicio</span></button>
-                    <button type="button" data-os-desktop-mode="dashboard" aria-label="Panel">${osIcon('activity')}<span>Panel</span></button>
                     <button type="button" data-workbench-tab="settings" aria-label="Ajustes">${osIcon('settings')}<span>Ajustes</span></button>
                     <button type="button" data-workbench-tab="camera" aria-label="Cámara">${osIcon('camera')}<span>Cámara</span></button>
                     <button class="os-sidebar-toggle" type="button" aria-label="Contraer navegación" title="Contraer navegación">‹‹</button>
@@ -1330,15 +1332,25 @@ ${this._moduleViewsHtml()}
                         <div class="os-advanced-grid">
                             <section class="os-theme-card os-system-update-zone" id="settings-system">
                                 <header><span>Actualizaciones del sistema</span><strong class="os-update-pill" data-update-summary>En espera</strong></header>
-                                <p data-update-message>Comprueba IRIS OS y sus componentes antes de instalar cambios.</p>
-                                <p class="os-update-last" data-update-last hidden></p>
+                                <p data-update-message role="status">Comprueba IRIS OS y sus componentes antes de instalar cambios.</p>
+                                <p class="os-update-last" data-update-last role="status" hidden></p>
+                                <div class="os-update-progress" hidden>
+                                    <div class="os-update-progress-head">
+                                        <strong id="os-update-phase" role="status"></strong>
+                                        <span data-update-percent aria-hidden="true"></span>
+                                    </div>
+                                    <progress max="100" aria-labelledby="os-update-phase" aria-describedby="os-update-progress-detail"></progress>
+                                    <span class="os-update-progress-detail" id="os-update-progress-detail"></span>
+                                </div>
                                 <div class="os-update-components" data-update-components>
                                     <article><span>IRIS OS</span><strong>No verificado</strong><small>Esperando revision.</small></article>
                                     <article><span>Hermes Agent</span><strong>No verificado</strong><small>Esperando revision.</small></article>
                                 </div>
-                                <div class="os-update-actions">
+                                <div class="os-update-actions os-system-update-actions">
+                                    <button type="button" data-system-update-action="apply" hidden>
+                                        ${osIcon('download')}<span data-update-apply-label>Actualizar</span>
+                                    </button>
                                     <button type="button" data-system-update-action="check">Buscar actualizaciones</button>
-                                    <button type="button" data-system-update-action="apply" disabled>Actualizar</button>
                                     <button type="button" data-system-update-action="rollback" hidden>Volver a la versión anterior</button>
                                 </div>
                                 <details class="os-about">
@@ -4678,7 +4690,7 @@ ${this._moduleViewsHtml()}
     }
 
     async _checkSystemUpdates(force = false, { resumeOnly = false } = {}) {
-        if (this._systemUpdateLoading) return;
+        if (this._systemUpdateLoading || this._systemUpdateApplying) return;
         this._systemUpdateLoading = true;
         this._systemUpdateError = '';
         this._renderSystemUpdates();
@@ -4687,8 +4699,9 @@ ${this._moduleViewsHtml()}
             let job = null;
             if (status.ok) {
                 job = await status.json();
-                if (job.active || (resumeOnly && ['completed', 'failed'].includes(job.phase))) {
-                    this._systemUpdateApplying = Boolean(job.active);
+                const restarting = job.phase === 'activating' && job.snapshot?.summary === 'updating';
+                if (job.active || restarting || (resumeOnly && ['completed', 'failed'].includes(job.phase))) {
+                    this._systemUpdateApplying = Boolean(job.active || restarting);
                     await this._followSystemUpdate(job);
                     return;
                 }
@@ -4704,6 +4717,7 @@ ${this._moduleViewsHtml()}
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
             this._systemUpdates = await res.json();
         } catch (err) {
+            this._systemUpdateJob = null;
             this._systemUpdateError = err?.message || 'No se pudieron buscar actualizaciones.';
         } finally {
             this._systemUpdateLoading = false;
@@ -4714,7 +4728,7 @@ ${this._moduleViewsHtml()}
 
     async _followSystemUpdate(job = {}) {
         this._systemUpdateJob = job;
-        while (job.active) {
+        while (job.active || (job.phase === 'activating' && job.snapshot?.summary === 'updating')) {
             this._renderSystemUpdates();
             await new Promise(resolve => setTimeout(resolve, 1500));
             const response = await fetch('/api/system-updates/status', { cache: 'no-store' });
@@ -4726,15 +4740,19 @@ ${this._moduleViewsHtml()}
         this._systemUpdates = job.snapshot || this._systemUpdates;
         if (job.ok === false) {
             this._systemUpdateError = job.message || 'La actualización no se completó.';
-        } else if (job.message && this._systemUpdates) {
+        } else if (job.phase === 'completed' && job.message && this._systemUpdates) {
             this._systemUpdates.message = job.message;
         }
     }
 
     async _applySystemUpdates(kind = 'apply') {
         const rollback = kind === 'rollback';
-        if (this._systemUpdateApplying || !(rollback ? this._systemUpdates?.can_rollback : this._systemUpdates?.can_update)) return;
+        if (this._systemUpdateApplying || this._systemUpdateLoading
+            || !(rollback ? this._systemUpdates?.can_rollback : this._systemUpdates?.can_update)) return;
+        const snapshot = this._systemUpdates;
         if (!await irisConfirm(systemUpdateDialog(this._systemUpdates, rollback))) return;
+        if (this._systemUpdateApplying || this._systemUpdateLoading || this._systemUpdates !== snapshot) return;
+        this._systemUpdateJob = { phase: 'checking', operation: rollback ? 'rollback' : 'upgrade' };
         this._systemUpdateApplying = true;
         this._systemUpdateError = '';
         this._renderSystemUpdates();
@@ -4744,7 +4762,8 @@ ${this._moduleViewsHtml()}
             if (!res.ok) throw new Error(payload?.detail || `HTTP ${res.status}`);
             await this._followSystemUpdate(payload);
         } catch (err) {
-            this._systemUpdateError = err?.message || 'No se pudo instalar la actualizacion.';
+            this._systemUpdateJob = null;
+            this._systemUpdateError = err?.message || 'No se pudo instalar la actualización.';
         } finally {
             this._systemUpdateApplying = false;
             this._renderSystemUpdates();
@@ -4761,11 +4780,14 @@ ${this._moduleViewsHtml()}
         const applyBtn = root.querySelector('[data-system-update-action="apply"]');
         const rollbackBtn = root.querySelector('[data-system-update-action="rollback"]');
         const last = root.querySelector('[data-update-last]');
-        const busy = this._systemUpdateLoading || this._systemUpdateApplying;
         const snapshot = this._systemUpdates;
+        const job = this._systemUpdateJob;
+        const applying = this._systemUpdateApplying;
+        const busy = this._systemUpdateLoading || applying;
+        const progress = root.querySelector('.os-update-progress');
         const state = this._systemUpdateError
             ? 'error'
-            : this._systemUpdateApplying
+            : applying
                 ? 'applying'
                 : this._systemUpdateLoading
                     ? 'checking'
@@ -4773,7 +4795,7 @@ ${this._moduleViewsHtml()}
 
         root.dataset.updateState = state;
         if (summary) {
-            summary.textContent = this._systemUpdateApplying
+            summary.textContent = applying
                 ? 'Actualizando'
                 : this._systemUpdateLoading
                     ? 'Comprobando'
@@ -4782,31 +4804,46 @@ ${this._moduleViewsHtml()}
                         : this._updateSummaryLabel(snapshot?.summary);
         }
         if (message) {
-            const job = this._systemUpdateJob;
-            const progress = job?.progress?.total
-                ? ` ${Math.min(100, Math.floor((job.progress.done / job.progress.total) * 100))} %`
-                : '';
-            message.textContent = this._systemUpdateError
-                || (this._systemUpdateApplying && job?.message ? `${job.message}${progress}` : '')
-                || snapshot?.message
+            message.hidden = applying;
+            let text = this._systemUpdateError || snapshot?.message
                 || 'Comprueba IRIS OS y sus componentes antes de instalar cambios.';
+            if (!this._systemUpdateError && snapshot?.can_update && snapshot.available?.size > 0) {
+                text += ` Descarga de ${formatUpdateSize(snapshot.available.size)}.`;
+            }
+            if (message.textContent !== text) message.textContent = text;
+        }
+        if (progress) {
+            progress.hidden = !applying;
+            if (applying) {
+                const { title, detail, percent } = systemUpdateProgress(job, snapshot);
+                const heading = progress.querySelector('#os-update-phase');
+                if (heading.textContent !== title) heading.textContent = title;
+                progress.querySelector('#os-update-progress-detail').textContent = detail;
+                progress.querySelector('[data-update-percent]').textContent = percent === null ? '' : `${percent} %`;
+                const bar = progress.querySelector('progress');
+                if (percent === null) bar.removeAttribute('value');
+                else bar.value = percent;
+            }
         }
         if (last) {
             // A08.8: what the previous activation did, shown after Iris restarts.
             const outcome = snapshot?.last_activation;
-            last.hidden = !outcome?.message || this._systemUpdateApplying;
-            last.textContent = outcome?.message || '';
+            last.hidden = !outcome?.message || applying;
+            if (last.textContent !== (outcome?.message || '')) last.textContent = outcome?.message || '';
             last.dataset.outcome = outcome?.outcome || '';
         }
         if (checkBtn) {
             checkBtn.disabled = busy;
-            checkBtn.textContent = this._systemUpdateLoading ? 'Buscando...' : 'Buscar actualizaciones';
+            checkBtn.textContent = this._systemUpdateLoading && !applying ? 'Buscando…' : 'Buscar actualizaciones';
         }
         if (applyBtn) {
             applyBtn.disabled = busy || !snapshot?.can_update;
-            applyBtn.textContent = this._systemUpdateApplying
-                ? 'Actualizando...'
-                : snapshot?.available?.version ? `Actualizar a ${snapshot.available.version}` : 'Actualizar';
+            const upgrading = applying && job?.operation !== 'rollback';
+            applyBtn.hidden = !snapshot?.can_update && !upgrading;
+            const version = upgrading ? job?.target?.version || snapshot?.available?.version : snapshot?.available?.version;
+            const action = upgrading ? 'Actualizando' : 'Actualizar';
+            applyBtn.querySelector('[data-update-apply-label]').textContent =
+                `${action}${version ? ` a ${version}` : ''}${upgrading ? '…' : ''}`;
         }
         if (rollbackBtn) {
             rollbackBtn.hidden = !snapshot?.can_rollback;
@@ -4815,7 +4852,8 @@ ${this._moduleViewsHtml()}
                 ? `Volver a ${snapshot.previous.version}`
                 : 'Volver a la versión anterior';
         }
-        if (list) {
+        if (list) list.hidden = applying;
+        if (list && !applying) {
             const items = snapshot?.items?.length ? snapshot.items : [
                 { label: 'IRIS OS', status: 'standby', detail: 'Esperando revisión.' },
                 { label: 'Hermes Agent', status: 'standby', detail: 'Esperando revisión.' },

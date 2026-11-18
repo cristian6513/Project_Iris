@@ -108,7 +108,7 @@ puede editarse o eliminarse.
 ## Voz
 
 El proveedor de voz se elige de forma independiente al proveedor del modelo.
-En la fuente posterior a QA24, **Escuchar a Iris** prueba Edge TTS con la voz elegida. Edge TTS requiere internet y funciona sin clave. **Ver más voces** reúne los otros motores. Al abrir la configuración, se muestra el motor que ya está guardado.
+Desde QA25, **Escuchar a Iris** prueba Edge TTS con la voz elegida. Edge TTS requiere internet y funciona sin clave. **Ver más voces** reúne los otros motores. Al abrir la configuración, se muestra el motor que ya está guardado.
 
 | Motor | Tipo | Consideraciones |
 | --- | --- | --- |

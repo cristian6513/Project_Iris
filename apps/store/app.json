@@ -14,7 +14,7 @@
   },
   "launcher": {
     "visible": true,
-    "order": 95,
+    "order": 70,
     "label": "Iris Store"
   },
   "ui": {

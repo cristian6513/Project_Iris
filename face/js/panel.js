@@ -2523,7 +2523,7 @@ export class SidePanel {
             <div class="panel-section-body">
                 <div class="lan-launcher">
                     <p class="dim" style="margin:0 0 10px 0; font-size:12px; line-height:1.45">
-                        Abre IRIS desde tu telefono, tablet o cualquier
+                        Abre IRIS desde tu teléfono, tablet o cualquier
                         dispositivo en la misma red Wi-Fi escaneando el
                         QR o copiando la URL.
                     </p>
@@ -2669,7 +2669,7 @@ export class SidePanel {
         const remoteDisabled = isPC ? 'disabled' : '';
         const hostDisabled = isPC ? '' : 'disabled';
         const remoteHint = isPC
-            ? 'Abre IRIS en tu telefono desde el QR de arriba para activar este modo.'
+            ? 'Abre IRIS en tu teléfono desde el QR de arriba para activar este modo.'
             : '';
         const hostHint = isPC
             ? ''
@@ -2685,7 +2685,7 @@ export class SidePanel {
                 <div class="webrtc-mode-card" data-mode="host">
                     <button id="btn-webrtc-host" class="action-btn webrtc-mode-btn" style="width:100%;justify-content:center" ${hostDisabled}>
                         <span>PC</span>
-                        <span class="btn-label">Modo Host - Recibir camara y mic del telefono</span>
+                        <span class="btn-label">Modo Host - Recibir cámara y mic del teléfono</span>
                     </button>
                     <p class="dim webrtc-mode-hint" style="margin:6px 0 0 0;font-size:11px;line-height:1.4">${hostHint}</p>
                     <p id="webrtc-host-status" class="dim" style="margin:6px 0 0 0;font-size:11px;text-align:center"></p>
@@ -2699,14 +2699,14 @@ export class SidePanel {
                 <div class="webrtc-mode-card" data-mode="remote" style="margin-top:12px">
                     <button id="btn-webrtc-remote" class="action-btn webrtc-mode-btn" style="width:100%;justify-content:center" ${remoteDisabled}>
                         <span>MB</span>
-                        <span class="btn-label">Modo Remoto - Usar camara y mic de este dispositivo</span>
+                        <span class="btn-label">Modo Remoto - Usar cámara y mic de este dispositivo</span>
                     </button>
                     <p class="dim webrtc-mode-hint" style="margin:6px 0 0 0;font-size:11px;line-height:1.4">${remoteHint}</p>
                     <p id="webrtc-remote-status" class="dim" style="margin:6px 0 0 0;font-size:11px;text-align:center"></p>
                     <div id="webrtc-remote-controls" class="webrtc-controls" style="display:none; margin-top:10px; gap:6px; flex-wrap:wrap">
-                        <button id="btn-remote-cam"   class="action-btn webrtc-toggle">Camara: ON</button>
+                        <button id="btn-remote-cam"   class="action-btn webrtc-toggle">Cámara: ON</button>
                         <button id="btn-remote-mic"   class="action-btn webrtc-toggle">Mic: ON</button>
-                        <button id="btn-remote-flip"  class="action-btn webrtc-toggle">Cambiar camara</button>
+                        <button id="btn-remote-flip"  class="action-btn webrtc-toggle">Cambiar cámara</button>
                         <button id="btn-remote-stop"  class="action-btn webrtc-toggle webrtc-stop">Desconectar</button>
                     </div>
                 </div>
@@ -2728,7 +2728,7 @@ export class SidePanel {
 
         hostBtn?.addEventListener('click', async () => {
             hostBtn.disabled = true;
-            hostStatus.textContent = 'Cargando modulo WebRTC...';
+            hostStatus.textContent = 'Cargando módulo WebRTC…';
             try {
                 if (!window.HostClient) await import('./webrtc_host.js');
             } catch (err) {
@@ -2743,7 +2743,7 @@ export class SidePanel {
                 return;
             }
 
-            hostStatus.textContent = 'Esperando que el telefono se conecte...';
+            hostStatus.textContent = 'Esperando que el teléfono se conecte…';
             try {
                 const canvas = document.getElementById('IRIS-canvas')
                     || document.getElementById('canvas-3d')
@@ -2756,15 +2756,15 @@ export class SidePanel {
 
                 host.onStateChange = (state) => {
                     if (state === 'connected') {
-                        hostStatus.textContent = 'Conectado - el telefono esta enviando camara y mic';
+                        hostStatus.textContent = 'Conectado: el teléfono está enviando cámara y mic';
                         hostBtn.innerHTML = '<span>ON</span><span class="btn-label">Host activo</span>';
                         hostControls.style.display = 'flex';
                     } else if (state === 'closed' || state === 'failed' || state === 'disconnected') {
                         hostStatus.textContent = state === 'failed'
-                            ? 'Conexion perdida'
+                            ? 'Conexión perdida'
                             : 'Host detenido';
                         hostBtn.disabled = false;
-                        hostBtn.innerHTML = '<span>PC</span><span class="btn-label">Modo Host - Recibir camara y mic del telefono</span>';
+                        hostBtn.innerHTML = '<span>PC</span><span class="btn-label">Modo Host - Recibir cámara y mic del teléfono</span>';
                         hostControls.style.display = 'none';
                         window._irisHostClient = null;
                     }
@@ -2806,13 +2806,13 @@ export class SidePanel {
         const refreshRemoteButtons = () => {
             const c = window._irisRemoteClient;
             if (!c) return;
-            camBtn.textContent  = c.isCameraEnabled() ? 'Camara: ON' : 'Camara: OFF';
+            camBtn.textContent  = c.isCameraEnabled() ? 'Cámara: ON' : 'Cámara: OFF';
             micBtn.textContent  = c.isMicEnabled()    ? 'Mic: ON'    : 'Mic: OFF';
         };
 
         rtcBtn?.addEventListener('click', async () => {
             rtcBtn.disabled = true;
-            rtcStatus.textContent = 'Cargando modulo WebRTC...';
+            rtcStatus.textContent = 'Cargando módulo WebRTC…';
             try {
                 if (!window.RemoteClient) await import('./webrtc_remote.js');
             } catch (err) {
@@ -2827,7 +2827,7 @@ export class SidePanel {
                 return;
             }
 
-            rtcStatus.textContent = 'Pidiendo permiso de camara y microfono...';
+            rtcStatus.textContent = 'Pidiendo permiso de cámara y micrófono…';
             try {
                 const remote = new window.RemoteClient(window._irisWs);
                 window._irisRemoteClient = remote;
@@ -2840,17 +2840,17 @@ export class SidePanel {
                         refreshRemoteButtons();
                     } else if (state === 'closed' || state === 'failed' || state === 'disconnected') {
                         rtcStatus.textContent = state === 'failed'
-                            ? 'Conexion perdida'
+                            ? 'Conexión perdida'
                             : 'Desconectado';
                         rtcBtn.disabled = false;
-                        rtcBtn.innerHTML = '<span>MB</span><span class="btn-label">Modo Remoto - Usar camara y mic de este dispositivo</span>';
+                        rtcBtn.innerHTML = '<span>MB</span><span class="btn-label">Modo Remoto - Usar cámara y mic de este dispositivo</span>';
                         rtcControls.style.display = 'none';
                         window._irisRemoteClient = null;
                     }
                 };
 
                 await remote.connect({ video: true, audio: true, facingMode: 'user' });
-                rtcStatus.textContent = 'Negociando conexion con la PC...';
+                rtcStatus.textContent = 'Negociando conexión con la PC…';
             } catch (err) {
                 rtcStatus.textContent = `Error: ${err.message || err}`;
                 rtcBtn.disabled = false;

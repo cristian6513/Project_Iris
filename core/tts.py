@@ -26,13 +26,13 @@ import io
 import json
 import logging
 import subprocess
+import threading
 import wave
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
 import numpy as np
-import sounddevice as sd
 
 from core.config import IRISConfig, get_iris_home
 from core.runtime_descriptor import get_runtime
@@ -51,6 +51,22 @@ from core.tts_engines import (  # noqa: F401 - re-exported provider API
 )
 
 logger = logging.getLogger("IRIS.tts")
+
+# Importing sounddevice starts PortAudio. On a machine with no audio system
+# (CI, a headless server) that fails, and it used to take every user of this
+# module down with it, text-only code included. The speakers are opened on
+# the first playback instead.
+_sounddevice: Any = None
+
+
+def _audio_output() -> Any:
+    """sounddevice, loaded on first use. Raises when there is no audio system."""
+    global _sounddevice
+    if _sounddevice is None:
+        import sounddevice
+        _sounddevice = sounddevice
+    return _sounddevice
+
 
 # What an engine is built from; any other saved setting leaves it running.
 _VOICE_SETTING_PREFIXES = (
@@ -751,6 +767,13 @@ class TextToSpeech:
         # thread has unwound before subsequent synthesize/play calls
         # start a new stream.
         self._playback_future: asyncio.Future[bool] | None = None
+        # Stop also has to reach a phrase that has not started yet: one still
+        # opening the speakers (the first one loads PortAudio) or decoding.
+        # stop() bumps the generation, and the player checks it right before
+        # sd.play(); the lock keeps that check and sd.play() on one side of
+        # stop()'s bump and sd.stop().
+        self._playback_generation = 0
+        self._playback_lock = threading.Lock()
 
     async def initialize(self) -> None:
         name = self.config.tts_provider
@@ -1089,10 +1112,14 @@ class TextToSpeech:
         thread (sd.play queued buffers + sd.stop) and produce a fraction
         of the previous utterance bleeding into the new one.
         """
-        try:
-            sd.stop()
-        except Exception as exc:  # PortAudio can throw odd errors on race
-            logger.debug("sd.stop() raised: %s", exc)
+        with self._playback_lock:
+            self._playback_generation += 1  # a phrase still being prepared won't start
+            sd = _sounddevice
+            if sd is not None:  # never loaded: nothing has played, nothing to stop
+                try:
+                    sd.stop()
+                except Exception as exc:  # PortAudio can throw odd errors on race
+                    logger.debug("sd.stop() raised: %s", exc)
 
         # Drain the playback future if there's one in flight. We give
         # it a short grace window — sd.stop() should make sd.wait()
@@ -1128,26 +1155,47 @@ class TextToSpeech:
             logger.warning("play_audio: FALLBACK_FAILED sentinel — skipping playback.")
             return False
 
+        generation = self._playback_generation
+
+        def _failed(message: str, error: BaseException) -> bool:
+            # A phrase the user already stopped stays silent either way, so a
+            # failure after Stop is not a speaker problem to report. Without a
+            # Stop, it is one, and play_audio says so.
+            if self._playback_generation != generation:
+                logger.debug("Stopped phrase, then: " + message, error)
+                return True
+            logger.error(message, error)
+            return False
+
         def _play() -> bool:
+            try:
+                sd = _audio_output()
+            except Exception as e:  # no PortAudio or no audio system at all
+                return _failed("Speaker error: %s  — no audio output is available.", e)
             try:
                 samples, sr = decode_audio(audio_bytes)
 
                 # Convert int16 → float32 normalised  (sounddevice wants float)
                 float_audio = samples.astype(np.float32) / 32768.0
 
-                sd.play(float_audio, samplerate=sr)
+                with self._playback_lock:
+                    if self._playback_generation != generation:
+                        # Stopped while being prepared. Like a phrase stopped
+                        # mid-way, that is not a speaker failure.
+                        logger.debug("Playback stopped before it started.")
+                        return True
+                    sd.play(float_audio, samplerate=sr)
                 if on_started is not None:
                     on_started()
                 sd.wait()   # block until playback finishes
                 return True
 
             except RuntimeError as e:
-                logger.error("Audio decode error: %s", e)
+                return _failed("Audio decode error: %s", e)
             except sd.PortAudioError as e:
-                logger.error("Speaker error: %s  — are speakers connected?", e)
+                return _failed("Speaker error: %s  — are speakers connected?", e)
             except Exception as e:
-                logger.error("Playback error: %s", e)
-            return False
+                return _failed("Playback error: %s", e)
 
         # FIX T4 — wrap the executor call in a tracked Future so stop()
         # can wait for the thread to drain instead of leaving it

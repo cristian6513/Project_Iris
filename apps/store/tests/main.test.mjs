@@ -24,7 +24,7 @@ class Node {
 }
 globalThis.document = { activeElement: null, createElement: (tag) => new Node(tag) };
 
-const { createApp, formatSize, folderEntries, toBase64, WARNING, MAX_FOLDER_FILES } = await import('../ui/main.js');
+const { createApp, formatSize, folderEntries, toBase64, WARNING, KIND_UI, KIND_PYTHON, MAX_FOLDER_FILES } = await import('../ui/main.js');
 
 const APP = { id: 'demo', name: 'Demo', version: '0.1.0', description: 'App de prueba', icon: 'sparkle', accent: 'magenta',
     widgets: [{ id: 'demo.timer', name: 'Demo' }], size: 2048, files: 6, ignored: ['README.md'], risks: [], current: null };
@@ -71,6 +71,27 @@ test('SDK 2 review names Python, skill and operations, and the confirmation incl
     await root.find('install').click(); await settle();
     assert.match(asked[0].message, /código Python/);
     assert.match(asked[0].message, /skill/);
+});
+
+test('a Python app says first that it runs with your Windows permissions, and the dialog opens on Cancelar', async () => {
+    const extension = { python: 'main.py', operations: [] };
+    core({ 'POST /api/app-packages/inspect': async () => ({ ok: true, json: async () => ({ token: 't'.repeat(43), app: { ...APP, extension } }) }) });
+    const { root, asked } = await mounted();
+    await chooseZip(root);
+    const kind = root.find('kind-python');
+    assert.ok(kind, 'the review shows the Python kind');
+    assert.equal(kind.getAttribute('role'), 'note');
+    assert.equal(root.find('kind-title').textContent, KIND_PYTHON.title);
+    assert.match(kind.text(), /permisos de Windows/);
+    assert.match(kind.text(), /No hay aislamiento/);
+    assert.equal(root.find('kind-ui'), undefined);
+    const review = root.find('review').children;
+    assert.ok(review.indexOf(kind) < review.indexOf(root.find('review-description')), 'before the description');
+    await root.find('install').click(); await settle();
+    assert.ok(asked[0].message.startsWith(`${KIND_PYTHON.title}: ${KIND_PYTHON.text}`));
+    assert.ok(asked[0].message.includes(WARNING));
+    assert.equal(asked[0].confirmLabel, 'Instalar con Python');
+    assert.equal(asked[0].tone, 'danger');
 });
 
 test('deleting Python app data is opt-in and the destructive confirmation names it', async () => {
@@ -139,6 +160,8 @@ test('a .zip is reviewed with the warning, and installs only after the person sa
     assert.equal(root.find('review-title').textContent, 'Demo');
     assert.equal(globalThis.document.activeElement, root.find('review-title'), 'the review takes the focus');
     assert.match(root.find('warning').textContent, /mismo acceso que Iris/);
+    assert.equal(root.find('kind-title').textContent, KIND_UI.title, 'an interface-only app says so');
+    assert.equal(root.find('kind-python'), undefined);
     assert.match(root.find('risks-none').textContent, /No encontramos/);
     assert.match(root.find('review-widgets').textContent, /un widget: Demo/);
     assert.equal(calls.filter((call) => call.url.endsWith('/install')).length, 0, 'nothing installs by choosing a file');
@@ -147,6 +170,7 @@ test('a .zip is reviewed with the warning, and installs only after the person sa
     assert.equal(asked.length, 1);
     assert.equal(asked[0].message, WARNING);
     assert.equal(asked[0].confirmLabel, 'Instalar');
+    assert.equal(asked[0].tone, undefined, 'an interface-only app keeps the usual dialog');
     const install = calls.find((call) => call.url.endsWith('/install'));
     assert.deepEqual(JSON.parse(install.init.body), { token: 't'.repeat(43) });
     // This context has no refreshApps (an older shell): the reload button stays as the way in.

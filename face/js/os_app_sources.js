@@ -12,7 +12,7 @@
 import {
     OS_APP_CATALOG as BUNDLED_CATALOG, OS_APP_MODULES as BUNDLED_MODULES, OS_APP_STYLES as BUNDLED_STYLES,
     OS_WIDGET_CATALOG as BUNDLED_WIDGETS, OS_WIDGET_MODULES as BUNDLED_WIDGET_MODULES, OS_WIDGET_STYLES as BUNDLED_WIDGET_STYLES,
-} from './os_app_catalog.js?v=27';
+} from './os_app_catalog.js?v=28';
 import { validateAppManifest } from './os_app_manifest.js?v=5';
 import { OS_ICON_PATHS } from './os_icons.js?v=3';
 import { withAppCaller } from './os_app_client.js?v=2';

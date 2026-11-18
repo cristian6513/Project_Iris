@@ -50,6 +50,13 @@
 .store-root .store-risk { color: #ffd59a; }
 .store-root .store-risk small { color: var(--os-muted, #a9b4c6); }
 .store-root .store-risks-none { color: #9ff0c3; }
+.store-root .store-kind-ui, .store-root .store-kind-python {
+  margin: 0; padding: 10px 12px; border-radius: 10px; display: flex; flex-direction: column; gap: 2px;
+}
+.store-root .store-kind-ui { color: #c9f7e1; background: rgba(80, 220, 160, .08); border: 1px solid rgba(80, 220, 160, .35); }
+.store-root .store-kind-python { color: #ffd2c8; background: rgba(255, 96, 72, .12); border: 1px solid rgba(255, 96, 72, .55); }
+.store-root .store-kind-title { font-size: 13px; }
+.store-root .store-kind-text { font-size: 12px; }
 .store-root .store-warning {
   padding: 10px 12px; border-radius: 10px; color: #ffe7b8;
   background: rgba(255, 190, 80, .1); border: 1px solid rgba(255, 190, 80, .35);

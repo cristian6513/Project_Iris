@@ -624,7 +624,10 @@ def test_quick_panel_keeps_only_avatar_and_room() -> None:
     panel_version = re.search(r"panel\.js\?v=(\d+)", source)
     assert panel_version and int(panel_version[1]) >= 31
     html = (ROOT / "face" / "index.html").read_text(encoding="utf-8")
-    version = re.search(r'js/app\.js\?v=(\d+)', html)
+    # index.html loads face_bootstrap.js, which imports app.js with its version.
+    assert re.search(r'src="js/face_bootstrap\.js\?v=\d+"', html)
+    bootstrap = (ROOT / "face" / "js" / "face_bootstrap.js").read_text(encoding="utf-8")
+    version = re.search(r"\./app\.js\?v=(\d+)", bootstrap)
     assert version and int(version[1]) >= 196
     assert 'elif msg_type == "set_personality":' in server
 

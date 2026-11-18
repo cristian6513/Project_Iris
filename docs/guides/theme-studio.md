@@ -8,7 +8,7 @@ acoplar una ventana estrecha, las tarjetas se apilan y los valores de los
 deslizadores permanecen dentro de ellas. Maximizar recupera las columnas cuando
 hay espacio; no hace falta maximizar para usar sus controles.
 
-En la fuente posterior a QA24, abre **Opciones de interfaz** y activa **Cursor del sistema** para usar el puntero
+Desde QA25, abre **Opciones de interfaz** y activa **Cursor del sistema** para usar el puntero
 del equipo dentro de la ventana de Iris. El cursor de Iris toma el color
 principal del tema. Su destello al pulsar respeta **Reducir movimiento**,
 **Brillo animado** y el modo de alto contraste del sistema.

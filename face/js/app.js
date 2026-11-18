@@ -25,9 +25,9 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 import { AvatarManager } from './avatar.js?v=30';
-import { avatarUrl, IRIS_AVATAR_URL } from './avatar_state.js?v=4';
+import { avatarUrl, IRIS_AVATAR_URL } from './avatar_state.js?v=5';
 import { ParticleSystem } from './particles.js?v=2';
-import { WebSocketManager } from './websocket.js?v=3';
+import { WebSocketManager } from './websocket.js?v=4';
 import { ManualVoiceController } from './manual_voice.js?v=6';
 import { SubtitleManager } from './subtitles.js?v=1';
 import { LipSyncEngine } from './lipsync.js?v=3';
@@ -43,7 +43,7 @@ import { SceneActionManager } from './scene_actions.js?v=64';
 import { getRoomAction } from './room_actions.js?v=30';
 import { FloatingBook, ThinkingCloud, DataStream, MemorySymbol } from './contextual_fx.js?v=2';
 import { IdleSystem } from './idle_system.js?v=64';
-import { SidePanel } from './panel.js?v=64';
+import { SidePanel } from './panel.js?v=65';
 import { RoomSurfaceVisibility } from './room_surface_visibility.js?v=1';
 import { normalizeRoomText, ROOM_STATUS_LABELS } from './room_labels.js?v=1';
 import { AmbientAudio } from './ambient_audio.js?v=2';
@@ -55,18 +55,20 @@ import { VisionPresentation } from './vision_presentation.js?v=2';
 import { InboxNotice } from './inbox_notice.js?v=2';
 import { InboxVoicePlayer } from './inbox_voice.js?v=1';
 import { CalendarNotice } from './calendar_notice.js?v=6';
-import { AppNotice } from './app_notice.js?v=1';
+import { AppNotice } from './app_notice.js?v=2';
 import { askIrisSender } from './app_ask_iris.js?v=3';
 import { EmotionClassifier } from './emotion_classifier.js';
 import { SpeechAnimator } from './speech_animator.js?v=5';
 import { MicroLife } from './micro_life.js?v=10';
-import { HermesActivityCanvas, refreshAppCatalog } from './hermes_activity.js?v=147';
-import { loadInstalledApps } from './os_app_sources.js?v=4';
+import { HermesActivityCanvas, refreshAppCatalog } from './hermes_activity.js?v=150';
+import { loadInstalledApps } from './os_app_sources.js?v=5';
 import { openChatSurface } from './open_chat_surface.js?v=1';
 import { SnapshotPrompt, SnapshotRequests } from './vision_snapshot.js?v=4';
 import { ScreenSnapshotRequests } from './screen_snapshot.js?v=2';
 import { FrameLimiter } from './frame_limiter.js?v=2';
 import { GraphicsQuality, avatarTextureLimit } from './graphics_quality.js?v=3';
+import { suggestSavingOnSoftwareRendering } from './software_rendering.js?v=2';
+import { irisConfirm } from './iris_dialog.js?v=9';
 import { prepareNotificationChatDraft } from './notification_chat_draft.js?v=1';
 import { AnimationDirector } from './animation_director.js?v=6';
 import { TtsAudioPlayer } from './tts_audio_player.js?v=5';
@@ -296,6 +298,8 @@ class IrisApp {
             room_theme: 'cyber',
         };
         this._frameLimiter = new FrameLimiter();
+        // Settles when the room's first frame replaces the loading screen.
+        this._firstFrameShown = new Promise((resolve) => { this._resolveFirstFrame = resolve; });
         this.graphicsQuality = new GraphicsQuality({
             getRenderer: () => this.renderer, getComposer: () => this.composer,
             getBloom: () => this._bloomPass, getRoom: () => this.room, updateStyle: true,
@@ -520,6 +524,18 @@ class IrisApp {
             this.subtitles.show(this._avatarNotice, 7000);
             this.panel.addMessage('system', this._avatarNotice);
         }
+        // A PC drawing without a GPU (a virtual machine, a missing driver) is offered
+        // «Ahorro» at 30 FPS once the room shows; nothing changes unless the user
+        // accepts. See software_rendering.js.
+        this._firstFrameShown.then(() => suggestSavingOnSoftwareRendering({
+            gl: this.renderer.getContext(),
+            ask: (dialog) => irisConfirm({ ...dialog, icon: 'iris' }),
+            apply: (choice) => {
+                Object.assign(this.config, choice);
+                this._frameLimiter.setLimit(choice.render_fps_limit);
+                this.graphicsQuality.setQuality(choice.render_quality);
+            },
+        })).catch((error) => console.warn('[render] software rendering check failed:', error));
         this.panel.room = this.room;           // wire room for theme switching
         this.panel.avatarZoom = this.avatarZoom;
         this.panel.roomLife = this.roomLife;
@@ -1096,7 +1112,7 @@ class IrisApp {
 
             btn?.classList.remove('active-mode');
             document.getElementById('inspect-top-toggle')?.classList.remove('active-mode');
-            this.subtitles?.show('Volviendo a la habitacion...', 1500);
+            this.subtitles?.show('Volviendo a la habitación…', 1500);
             console.log('Inspector mode OFF');
         }
     }
@@ -2548,6 +2564,7 @@ class IrisApp {
             this._awaitingFirstFrame = false;
             this.loadingScreen.classList.add('hidden');
             if (publishDesktopFaceState('ready')) this.loadingScreen.style.display = 'none';
+            this._resolveFirstFrame?.();
         }
     }
 
@@ -2614,18 +2631,13 @@ class IrisApp {
 
 }
 
-// ── Boot ──
-const app = new IrisApp();
-app.init().catch(err => {
-    console.error('IRIS init failed:', err);
-    cancelAnimationFrame(app._animationFrame);
-    publishDesktopFaceState('error');
-    const loading = document.getElementById('loading-screen');
-    if (loading) {
-        const message = document.createElement('p');
-        message.style.color = '#ef4444';
-        message.textContent = `Error: ${err?.message || err || 'fallo de inicio desconocido'}`;
-        loading.replaceChildren(message);
+export async function startIrisFace() {
+    const app = new IrisApp();
+    try {
+        await app.init();
+    } catch (error) {
+        cancelAnimationFrame(app._animationFrame);
+        throw error;
     }
-});
+}
 

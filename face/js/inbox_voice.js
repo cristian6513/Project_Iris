@@ -1,8 +1,8 @@
 /** F08b: one local return utterance, with an actual playback receipt.
  * No speechSynthesis fallback, chat message, retry or server speakers.
  */
-import { TtsAudioPlayer } from './tts_audio_player.js?v=4';
-import { noticeDeferral } from './inbox_state.js?v=1';
+import { TtsAudioPlayer } from './tts_audio_player.js?v=5';
+import { noticeDeferral } from './inbox_state.js?v=6';
 
 const ID = /^[0-9a-f]{32}$/;
 

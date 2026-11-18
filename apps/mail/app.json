@@ -9,6 +9,6 @@
   "accent": "magenta",
   "presentation": "window",
   "window": { "width": 1180, "height": 720 },
-  "launcher": { "visible": true, "order": 117 },
+  "launcher": { "visible": true, "order": 60 },
   "ui": { "entry": "main.js", "style": "style.css" }
 }

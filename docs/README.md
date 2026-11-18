@@ -3,8 +3,8 @@
 Este índice separa las guías de uso y desarrollo de los registros de diseño y
 validación. **Consulta primero el [estado actual](estado-actual.md)** para saber
 qué está en fuente, qué contiene cada candidato y qué falta por aprobar.
-La beta de referencia es **0.9.3 QA24**. El resumen del 13 de noviembre (informe interno no distribuido)
-recoge su alcance, las mejoras posteriores y la QA pendiente.
+La beta de referencia es **0.9.4 QA25**. El [estado actual](estado-actual.md) recoge su alcance,
+los cambios del candidato QA26 y las comprobaciones pendientes.
 
 ## Guías
 

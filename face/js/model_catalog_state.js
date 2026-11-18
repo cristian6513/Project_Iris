@@ -8,7 +8,7 @@
  * No DOM here (tests/js/model_catalog_state.test.mjs).
  */
 
-import { parseSelectionValue, selectionValue } from './model_selector_state.js?v=3';
+import { parseSelectionValue, selectionValue } from './model_selector_state.js?v=4';
 
 /** Every selection value of the inventory, in display order. */
 export function allValues(state) {

@@ -1,9 +1,30 @@
 # Estado actual de IRIS OS
 
-Revisión documental: **2026-11-14**. Esta matriz distingue fuente, candidato de
+Revisión documental: **2026-11-18**. Esta matriz distingue fuente, candidato de
 QA y publicación. No sustituye los criterios del
 plan A08/F01–F16 (informe interno no distribuido) ni da por
 aprobada una instalación manual por haber pasado pruebas automáticas.
+
+## Candidato 0.9.5 beta (QA26)
+
+QA26 reúne las mejoras posteriores a QA25 para Windows x64. Incluye Companion
+0.1.11 y Hermes 0.21.6. El contrato registra 449 recursos web y el catálogo
+conserva 95 animaciones.
+
+- La bienvenida mantiene la habitación en carga al superar un minuto. El límite
+  de cinco minutos cuenta el tiempo que la ventana está visible.
+- La tarjeta del actualizador muestra las etapas y el progreso disponible.
+- Iris abre el altavoz al reproducir la primera frase y respeta Detener durante
+  la preparación del audio.
+- La habitación propone Ahorro a 30 FPS cuando detecta dibujo por software.
+  El usuario decide si guarda el cambio.
+- La revisión de aplicaciones informa si la instalación ejecutará Python con
+  los permisos del usuario. El cajón prioriza las apps de uso diario. La barra
+  lateral ofrece Inicio, Ajustes y Cámara. Correo y Calendario siguen en el cajón.
+
+Quedan pendientes las comprobaciones manuales de arranque, bandeja y VirtualBox,
+y las pruebas con dos personas. QA25 sigue siendo la referencia de descarga
+mientras se evalúa el candidato.
 
 ## Iris OS 0.9.4 beta · QA25
 

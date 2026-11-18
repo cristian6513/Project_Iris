@@ -7,7 +7,7 @@
 <p align="center"><strong>Una presencia visual, configurable y habitable para Hermes Agent.</strong></p>
 
 <p align="center">
-  <a href="core/version.py"><img alt="Version 0.9.3 beta" src="https://img.shields.io/badge/version-0.9.3-ff78cb?style=flat-square"></a>
+  <a href="core/version.py"><img alt="Versión 0.9.5 beta" src="https://img.shields.io/badge/version-0.9.5-ff78cb?style=flat-square"></a>
   <a href="#estado"><img alt="Estado beta" src="https://img.shields.io/badge/estado-beta-f4c95d?style=flat-square"></a>
   <a href="pyproject.toml"><img alt="Python 3.11+" src="https://img.shields.io/badge/Python-3.11%2B-48cae4?style=flat-square&amp;logo=python&amp;logoColor=white"></a>
   <a href="scripts/runtime_sources.json"><img alt="Hermes fijado 0.21.6" src="https://img.shields.io/badge/Hermes-0.21.6-9b5de5?style=flat-square"></a>
@@ -19,7 +19,7 @@ IRIS OS es una experiencia de asistente de IA local primero, impulsada por
 instalación guiada, escritorio web, identidad, memoria, voz, avatar VRM y una
 presencia flotante opcional.
 
-**Fuente de Iris OS 0.9.4 beta (QA25).** Consulta el [estado actual](docs/estado-actual.md)
+**Candidato de Iris OS 0.9.5 beta (QA26).** Consulta el [estado actual](docs/estado-actual.md)
 antes de probar una función o preparar un candidato. Con proveedores remotos,
 el contenido autorizado sale del equipo; «local primero» no significa offline.
 
@@ -173,9 +173,8 @@ un checkout, las de un instalador y la aprobación de publicación son hechos
 distintos. Hay QA real documentada de candidatos y de Google; no cubre por sí
 sola cada cambio posterior, dispositivo o proveedor.
 
-El candidato privado actual es QA22 (informe interno no distribuido):
-Iris 0.9.2, ID ddd205bd, con Companion 0.1.8. Incluye voz en vivo y gestos
-corregidos; la QA manual de esa versión y la publicación siguen separadas.
+QA26 es el candidato 0.9.5 beta con Companion 0.1.11 y Hermes 0.21.6.
+La última beta publicada al preparar este candidato es QA25.
 Consulta la [matriz vigente](docs/estado-actual.md) antes de usar un informe anterior.
 
 Para ejecutar las pruebas:

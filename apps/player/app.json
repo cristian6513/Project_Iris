@@ -14,7 +14,7 @@
   },
   "launcher": {
     "visible": true,
-    "order": 120
+    "order": 30
   },
   "ui": {
     "adapter": "legacy"

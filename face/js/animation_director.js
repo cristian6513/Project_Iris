@@ -2,7 +2,7 @@ import { AvatarActivity } from './avatar_activity.js?v=1';
 
 import {
     resolveAnimationContext,
-} from './animation_context_resolver.js?v=1';
+} from './animation_context_resolver.js?v=2';
 
 /**
  * Shared animation playback policy for Face and Desktop Companion.

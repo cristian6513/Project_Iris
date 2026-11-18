@@ -1,7 +1,7 @@
 /** F12a: built-in widgets only; profile-backed preferences independent of OS windows. */
 export const WIDGET_SCHEMA = 'iris.desktop-widgets/v1';
 // Live bindings: they include the apps installed from Iris Store once app.js has loaded them (F17).
-import { OS_WIDGET_CATALOG as WIDGET_CATALOG, OS_WIDGET_MODULES, OS_WIDGET_STYLES } from './os_app_sources.js?v=4';
+import { OS_WIDGET_CATALOG as WIDGET_CATALOG, OS_WIDGET_MODULES, OS_WIDGET_STYLES } from './os_app_sources.js?v=5';
 import { renderWidgetPreview } from './os_widget_preview.js?v=1';
 export { WIDGET_CATALOG };
 
