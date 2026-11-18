@@ -439,6 +439,7 @@ export class HermesActivityCanvas {
         this._transitionPlayer = new TransitionPlayer({ reduced: () => !!this._osTheme.reducedMotion });
         this._systemUpdates = null;
         this._systemUpdateLoading = false;
+        this._systemUpdateResume = null;
         this._systemUpdateApplying = false;
         this._systemUpdateError = '';
         this._wakeSettings = {
@@ -3641,7 +3642,9 @@ ${this._moduleViewsHtml()}
             camera: reload((force) => this.loadVisionAssistant(force)),
             settings: {
                 load: () => {
-                    void this._checkSystemUpdates(false, { resumeOnly: true });
+                    if (!this._systemUpdateLoading) {
+                        this._systemUpdateResume = this._checkSystemUpdates(false, { resumeOnly: true });
+                    }
                     this._loadWakeSettings();
                     void this._renderSettings?.load();
                     this._loadCompanionSettings();
@@ -4689,6 +4692,22 @@ ${this._moduleViewsHtml()}
         }
     }
 
+    /**
+     * «Buscar actualizaciones» from the room's control center: IRIS OS opens at Ajustes, at its
+     * updates section, and checks the channel right away. Opening Ajustes alone only shows the
+     * installed state (resumeOnly): a tester read that as «no updates» and didn't know updates
+     * live in IRIS OS → Ajustes (2026-11-18). Core caches a check for 60 s; installing stays a
+     * button of its own.
+     */
+    async openSystemUpdates() {
+        this.open();
+        this._setTab('settings');
+        this.panel?.querySelector('#settings-system')?.scrollIntoView?.({ behavior: 'smooth', block: 'start' });
+        // The first local read can exceed three seconds on a slow disk.
+        await this._systemUpdateResume;
+        if (!this._systemUpdateApplying) await this._checkSystemUpdates(false);
+    }
+
     async _checkSystemUpdates(force = false, { resumeOnly = false } = {}) {
         if (this._systemUpdateLoading || this._systemUpdateApplying) return;
         this._systemUpdateLoading = true;
@@ -4716,6 +4735,8 @@ ${this._moduleViewsHtml()}
             const res = await fetch(url, { cache: 'no-store' });
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
             this._systemUpdates = await res.json();
+            // The control center's update dot follows a manual check too (update_notice.js).
+            window.dispatchEvent(new CustomEvent('IRIS:system-updates', { detail: this._systemUpdates }));
         } catch (err) {
             this._systemUpdateJob = null;
             this._systemUpdateError = err?.message || 'No se pudieron buscar actualizaciones.';

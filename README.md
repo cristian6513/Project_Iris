@@ -19,7 +19,7 @@ IRIS OS es una experiencia de asistente de IA local primero, impulsada por
 instalación guiada, escritorio web, identidad, memoria, voz, avatar VRM y una
 presencia flotante opcional.
 
-**Candidato de Iris OS 0.9.5 beta (QA26).** Consulta el [estado actual](docs/estado-actual.md)
+**Iris OS 0.9.5 beta (QA26).** Consulta el [estado actual](docs/estado-actual.md)
 antes de probar una función o preparar un candidato. Con proveedores remotos,
 el contenido autorizado sale del equipo; «local primero» no significa offline.
 
@@ -174,7 +174,7 @@ distintos. Hay QA real documentada de candidatos y de Google; no cubre por sí
 sola cada cambio posterior, dispositivo o proveedor.
 
 QA26 es el candidato 0.9.5 beta con Companion 0.1.11 y Hermes 0.21.6.
-La última beta publicada al preparar este candidato es QA25.
+Incluye mejoras de interfaz, acceso a actualizaciones y permisos, aviso visual de versiones nuevas, la voz oficial de Fish y correcciones de arranque y audio.
 Consulta la [matriz vigente](docs/estado-actual.md) antes de usar un informe anterior.
 
 Para ejecutar las pruebas:

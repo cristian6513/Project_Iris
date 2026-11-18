@@ -792,8 +792,11 @@ class TextToSpeech:
                 self.config.minimax_tts_model,
             )
         elif name == "fish-audio":
+            from core.fish_audio import IRIS_VOICE_ID
+
+            # A profile saved before the official voice existed may have no voice: it speaks as Iris.
             self._provider = FishAudioTTSProvider(
-                self.config.fish_audio_api_key, self.config.fish_audio_voice_id,
+                self.config.fish_audio_api_key, self.config.fish_audio_voice_id or IRIS_VOICE_ID,
                 self.config.fish_audio_model,
             )
         elif name == "fish-speech":

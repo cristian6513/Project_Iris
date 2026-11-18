@@ -1770,6 +1770,56 @@ body::after {
     margin-top: 6px;
 }
 
+/* Control center quick access (2026-11-18): updates and permissions, one click away. */
+.panel-shortcuts-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.panel-shortcut {
+    flex: 1 1 140px;
+    padding: 9px 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(115, 247, 255, 0.35);
+    background: rgba(255, 255, 255, 0.04);
+    color: inherit;
+    font: inherit;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.18s ease, border-color 0.18s ease;
+}
+.panel-shortcut:hover,
+.panel-shortcut:focus-visible {
+    background: rgba(115, 247, 255, 0.1);
+    border-color: rgba(115, 247, 255, 0.7);
+}
+/* A new version is out (update_notice.js): a dot on the button and on the control center's tab.
+   Iris doesn't announce it, so no model or voice is spent. */
+.panel-shortcut { position: relative; }
+.panel-shortcut-dot {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #ff74d4;
+    box-shadow: 0 0 8px rgba(255, 116, 212, 0.85);
+}
+.panel-shortcut-dot[hidden] { display: none; }
+.panel-toggle-btn.has-update::after {
+    content: "";
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #ff74d4;
+    box-shadow: 0 0 6px rgba(255, 116, 212, 0.85);
+    pointer-events: none;
+}
+
 /* Settings toggle — sits under the camera preview and only renders
  * when the camera is active (panel.js flips display:none/flex). Visual
  * goal: a single inline row that reads "[checkbox] 🪞 Modo Espejo (?)"
@@ -9382,6 +9432,9 @@ body.IRIS-workbench-focus .workbench-shell::after {
     position: absolute;
     right: 0;
     bottom: 0;
+    /* Above the window's content and the edge strips (z-index 3): without it, the app's view
+       covered the visible grip and only the invisible 6 px edges resized (user report, 2026-11-18). */
+    z-index: 4;
     width: 22px;
     height: 22px;
     cursor: nwse-resize;

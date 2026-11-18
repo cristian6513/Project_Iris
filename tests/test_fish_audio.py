@@ -434,3 +434,59 @@ def test_other_two_cloud_providers_preview_and_clone_through_the_wizard(setup, p
     audio = preview(client, provider, voice=voice)
     assert audio.status_code == 200 and audio.content == MP3
     assert all('fish.audio' not in str(request.url) for request in requests)
+
+
+# ── Iris's official voice (2026-11-18) ───────────────────────────────────────
+
+def _wizard_js() -> str:
+    from pathlib import Path
+    return (Path(__file__).resolve().parents[1] / 'wizard' / 'ui' / 'wizard.js').read_text(encoding='utf-8')
+
+
+def test_the_official_voice_is_a_valid_fish_id_and_the_default_of_new_profiles():
+    from core.fish_audio import IRIS_VOICE_ID, IRIS_VOICE_NAME, validate_voice_id
+    assert validate_voice_id(IRIS_VOICE_ID) == IRIS_VOICE_ID
+    assert IRISConfig().fish_audio_voice_id == IRIS_VOICE_ID
+    assert IRISConfig().fish_audio_voice_name == IRIS_VOICE_NAME == 'Iris (voz oficial)'
+    assert wizard.ConfigUpdate().fish_audio_voice_id == IRIS_VOICE_ID
+    assert wizard.ConfigUpdate().fish_audio_voice_name == IRIS_VOICE_NAME
+
+
+def test_a_profile_saved_without_a_voice_speaks_with_the_official_one(setup):
+    # Profiles saved before the official voice existed keep an empty id on disk.
+    from core.fish_audio import IRIS_VOICE_ID
+    config, requests, _, _, _ = setup
+    config.tts_provider = 'fish-audio'
+    config.fish_audio_api_key, config.fish_audio_voice_id = 'stored-key', ''
+
+    async def run():
+        engine = TextToSpeech(config)
+        await engine.initialize()
+        audio, _ = await engine.speak('Hola, soy Iris')
+        await engine.close()
+        return audio
+
+    assert asyncio.run(run()) == MP3
+    assert json.loads(requests[0].content)['reference_id'] == IRIS_VOICE_ID
+
+
+def test_saving_fish_audio_without_choosing_a_voice_is_valid_and_a_chosen_one_still_wins(setup):
+    config, _, _, _, _ = setup
+    config.tts_provider, config.fish_audio_api_key = 'fish-audio', 'stored-key'
+    config.fish_audio_voice_id = ''
+    assert wizard._tts_config_error(config) is None
+    config.fish_audio_voice_id = '../bad'
+    assert wizard._tts_config_error(config)[0] == 'invalid_tts_voice'
+
+
+def test_the_wizard_lists_the_same_official_voice_first_and_preselects_it():
+    from core.fish_audio import IRIS_VOICE_ID, IRIS_VOICE_NAME
+    js = _wizard_js()
+    assert f"id: '{IRIS_VOICE_ID}', name: '{IRIS_VOICE_NAME}'" in js, 'wizard.js and core/fish_audio.py must agree'
+    search = js[js.index('async function searchFishAudioVoices'):js.index('function _fishAudioVoiceChanged')]
+    # First after the placeholder in every catalog search, never among «Solo mis voces».
+    assert search.index("placeholder.textContent = 'Selecciona una voz'") < search.index('if (!filters.self_only) _addIrisFishVoice(select);')
+    assert search.index('_addIrisFishVoice(select)') < search.index('for (const voice of data.voices')
+    restore = js[js.index("// No saved voice means Iris's official one"):js.index("const fishAudioModelInput = document.getElementById('fish-audio-model');")]
+    assert 'config.fish_audio_voice_id || IRIS_FISH_VOICE.id' in restore
+    assert '_addIrisFishVoice(fishAudioSelect)' in restore

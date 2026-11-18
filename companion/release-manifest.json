@@ -5,7 +5,7 @@
   "platform": "windows",
   "arch": "x64",
   "filename": "IRIS Desktop Companion_0.1.11_x64-setup.exe",
-  "sha256": "44f69aa4c3a2750e7673b793b4106f1900ecc1ed9a5a152c612b8badf08b5021",
+  "sha256": "6a02c26fc293f7e673de0411bea79124acb22b1f50b1428cd52d108b66a780e9",
   "signed": false,
   "webview2_mode": "skip"
 }

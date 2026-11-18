@@ -5,15 +5,20 @@ QA y publicación. No sustituye los criterios del
 plan A08/F01–F16 (informe interno no distribuido) ni da por
 aprobada una instalación manual por haber pasado pruebas automáticas.
 
-## Candidato 0.9.5 beta (QA26)
+## Iris OS 0.9.5 beta · QA26
 
-QA26 reúne las mejoras posteriores a QA25 para Windows x64. Incluye Companion
-0.1.11 y Hermes 0.21.6. El contrato registra 449 recursos web y el catálogo
+QA26, ID `47ccb7f3`, reúne las mejoras posteriores a QA25 para Windows x64. Incluye Companion
+0.1.11 y Hermes 0.21.6. El contrato registra 450 recursos web y el catálogo
 conserva 95 animaciones.
 
 - La bienvenida mantiene la habitación en carga al superar un minuto. El límite
   de cinco minutos cuenta el tiempo que la ventana está visible.
 - La tarjeta del actualizador muestra las etapas y el progreso disponible.
+- El centro de control ofrece accesos a Actualizaciones y Permisos y muestra
+  un punto cuando detecta una versión nueva.
+- Las ventanas se pueden agrandar desde la marca visible de su esquina.
+- Fish Audio ofrece la voz oficial de Iris como selección inicial, usando la
+  clave del usuario.
 - Iris abre el altavoz al reproducir la primera frase y respeta Detener durante
   la preparación del audio.
 - La habitación propone Ahorro a 30 FPS cuando detecta dibujo por software.
@@ -22,9 +27,10 @@ conserva 95 animaciones.
   los permisos del usuario. El cajón prioriza las apps de uso diario. La barra
   lateral ofrece Inicio, Ajustes y Cámara. Correo y Calendario siguen en el cajón.
 
-Quedan pendientes las comprobaciones manuales de arranque, bandeja y VirtualBox,
-y las pruebas con dos personas. QA25 sigue siendo la referencia de descarga
-mientras se evalúa el candidato.
+Las suites del candidato pasaron con 5.359 pruebas Python y 1.607 JavaScript.
+La bienvenida, el asistente y el manual se comprobaron en WebView2 con un perfil
+aislado. Siguen pendientes las pruebas manuales en VirtualBox y la voz con una
+clave real, además de las pruebas con personas. El canal beta ofrece QA26. El instalador conserva el perfil existente.
 
 ## Iris OS 0.9.4 beta · QA25
 

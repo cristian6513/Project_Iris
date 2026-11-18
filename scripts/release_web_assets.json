@@ -258,9 +258,9 @@
       "sha256": "076204cf13bbdb8ac2679f3c5a06a8932236711358cc92c862e245fcce84cb1f"
     },
     {
-      "path": "face/assets/app-BUrlnhqQ.js",
-      "size": 981466,
-      "sha256": "851d6664a00519e294dac7cd8078be0a8813ef568fc09bb444913ffb579e3076"
+      "path": "face/assets/app-Bw8ISczC.js",
+      "size": 985713,
+      "sha256": "0e42ed930fbdf5ffac645f206a6a31cb3bc5f841d4cc54b844287c1ba8e20ee9"
     },
     {
       "path": "face/assets/app_model_picker-C1ZwNYgs.js",
@@ -323,14 +323,14 @@
       "sha256": "3e05e906da66c284cd114853eff49b0c77fe04e9125d3a56cedb2833c9cb6ce7"
     },
     {
-      "path": "face/assets/face-CA4pOSow.js",
-      "size": 13985,
-      "sha256": "32ea3b07960b67ff2fe28c35c1ac4d7ba8081907c951d13e5dab9a6b7cafba0c"
+      "path": "face/assets/face-BuHUR3CQ.css",
+      "size": 379953,
+      "sha256": "186846a88ec90b9fa43a3d76b0645aa605ad07094f72165c5925df61a8a52435"
     },
     {
-      "path": "face/assets/face-D29xCWIH.css",
-      "size": 379127,
-      "sha256": "57431d8c55bfc9157054f1cc0eca98245aba22da365df4b4a88896e7bfdef71f"
+      "path": "face/assets/face-v58Nkulw.js",
+      "size": 13985,
+      "sha256": "2091f307e3aba665b7c2e2d46e04c5de19f2f7a71ea4500c45f28fee9de1200d"
     },
     {
       "path": "face/assets/fbx_retargeter-BXNYJYoD.js",
@@ -669,13 +669,13 @@
     },
     {
       "path": "face/css/styles.css",
-      "size": 387719,
-      "sha256": "c3760c8c1afc24cafd2f65bbd1dc851ada02a0a7993ba079587ee6f9f090bb07"
+      "size": 389298,
+      "sha256": "43b6843aea4a89c8f86cc41e9707265c6cd0968dcae565a95ff3c5d670dccabb"
     },
     {
       "path": "face/index.html",
-      "size": 40669,
-      "sha256": "0d378112cdd2fff4d0c9d5f5bfd9fb05b6afb77206f7b6a0fdbe2bf0422307a0"
+      "size": 41844,
+      "sha256": "fa89fbbe9695b14f4d195e0b86cd620eff25069106e856baa0c2cf4f579006d6"
     },
     {
       "path": "face/js/ambient_audio.js",
@@ -699,8 +699,8 @@
     },
     {
       "path": "face/js/app.js",
-      "size": 120536,
-      "sha256": "0611bd0d5fb76f12e6d926f7823ae4c70228460ffde74f6d2ff65d238603ea80"
+      "size": 122591,
+      "sha256": "ac27df7137b3ff67f14c3f5d80d04e93a66f8b5627b0872c83c87f01b1d59e9c"
     },
     {
       "path": "face/js/app_ask_iris.js",
@@ -885,7 +885,7 @@
     {
       "path": "face/js/face_bootstrap.js",
       "size": 724,
-      "sha256": "6e4e2d388c694e7bfb1204b28dc6662a4911b86526af210e8582962507050a1f"
+      "sha256": "84f097e6ce21628c27d484039c116458bceb131b70eeabeef02c0b3c58cf57a7"
     },
     {
       "path": "face/js/fbx_retargeter.js",
@@ -919,8 +919,8 @@
     },
     {
       "path": "face/js/hermes_activity.js",
-      "size": 419548,
-      "sha256": "a39ff55313d746399387da950dd2efdcc5a370f3098f3caf6411c2b03f0716e9"
+      "size": 420725,
+      "sha256": "04e33a2b5437c5d2ff65e7af9e92050af5dbd684da6d08dc7c2abd80cd603e2e"
     },
     {
       "path": "face/js/idle_system.js",
@@ -1366,6 +1366,11 @@
       "path": "face/js/tts_audio_player.js",
       "size": 6008,
       "sha256": "ca6ab6530f60b8cdb3d52c032577d7c6dd60f37ef549da84e15eeac7ca535c11"
+    },
+    {
+      "path": "face/js/update_notice.js",
+      "size": 5632,
+      "sha256": "ba209e4ccb2c14a67771efa1f0b3b25e3188a7d6d98008b89e687a6dc5ee0a2d"
     },
     {
       "path": "face/js/vision_activity.js",
@@ -2159,8 +2164,8 @@
     },
     {
       "path": "wizard/ui/index.html",
-      "size": 112391,
-      "sha256": "1360d21caca5524381571c39e8a81029317501ba42e8b7bf665218801eefc5ac"
+      "size": 112599,
+      "sha256": "44ce7e5898b93d36c225f70d879728aee3904eddbc9d57c7d5abb3187a6df153"
     },
     {
       "path": "wizard/ui/llm_setup.js",
@@ -2479,8 +2484,8 @@
     },
     {
       "path": "wizard/ui/wizard.js",
-      "size": 369920,
-      "sha256": "796318ebb75e01e3e3a4970162d8499a0e6255871313e01657a4f29348f564e8"
+      "size": 371703,
+      "sha256": "8f5d0aa8c78d5f4ac3bd51e4439ac72d5d477311927d34ad3c666aa4774c5445"
     },
     {
       "path": "wizard/ui/wizard_icon_tokens.js",

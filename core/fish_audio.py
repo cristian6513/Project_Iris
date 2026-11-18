@@ -13,6 +13,11 @@ import httpx
 
 FISH_AUDIO_MODELS = frozenset({'s2.1-pro-free', 's2.1-pro', 's2-pro'})
 FISH_AUDIO_DEFAULT_MODEL = 's2.1-pro-free'
+# Iris's own voice: designed for her on Fish Audio (Voice Design, 2026-11-18) and published,
+# so any user's key can speak with it. It is also the voice of her videos. wizard/ui/wizard.js
+# keeps the same id in IRIS_FISH_VOICE.
+IRIS_VOICE_ID = 'db09b3a3702c4e53b080390954849953'
+IRIS_VOICE_NAME = 'Iris (voz oficial)'
 # Catalog language filter; Fish tags voices with ISO 639-1 codes ("es", "en").
 FISH_AUDIO_LANGUAGES = frozenset({'es', 'en', 'pt', 'fr', 'de', 'it', 'ja', 'ko', 'zh', 'ru', 'ar'})
 PAGE_SIZE = 20

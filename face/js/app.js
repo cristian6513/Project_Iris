@@ -60,7 +60,7 @@ import { askIrisSender } from './app_ask_iris.js?v=3';
 import { EmotionClassifier } from './emotion_classifier.js';
 import { SpeechAnimator } from './speech_animator.js?v=5';
 import { MicroLife } from './micro_life.js?v=10';
-import { HermesActivityCanvas, refreshAppCatalog } from './hermes_activity.js?v=150';
+import { HermesActivityCanvas, refreshAppCatalog } from './hermes_activity.js?v=154';
 import { loadInstalledApps } from './os_app_sources.js?v=5';
 import { openChatSurface } from './open_chat_surface.js?v=1';
 import { SnapshotPrompt, SnapshotRequests } from './vision_snapshot.js?v=4';
@@ -69,6 +69,7 @@ import { FrameLimiter } from './frame_limiter.js?v=2';
 import { GraphicsQuality, avatarTextureLimit } from './graphics_quality.js?v=3';
 import { suggestSavingOnSoftwareRendering } from './software_rendering.js?v=2';
 import { irisConfirm } from './iris_dialog.js?v=9';
+import { cachedNotice, checkForUpdates, createUpdateNoticeStorage, rememberSnapshot, showUpdateDot } from './update_notice.js?v=2';
 import { prepareNotificationChatDraft } from './notification_chat_draft.js?v=1';
 import { AnimationDirector } from './animation_director.js?v=6';
 import { TtsAudioPlayer } from './tts_audio_player.js?v=5';
@@ -350,6 +351,31 @@ class IrisApp {
         group.userData.stageVisualLiftApplied = true;
     }
 
+    /**
+     * The control center's update dot (update_notice.js): the last answer at once, a channel check
+     * 30 s after the room shows, then an hourly look that asks again only after 12 h. A check from
+     * Ajustes updates it too. Iris doesn't say it: no model or voice is spent.
+     */
+    _startUpdateNotice() {
+        let storage = null;
+        try { storage = window.localStorage; } catch { /* use session memory */ }
+        storage = createUpdateNoticeStorage(storage);
+        const version = () => this.config?.iris_version || '';
+        const show = ({ available, version: release = '' }) => showUpdateDot(available, { version: release });
+        const check = () => checkForUpdates({ storage, currentVersion: version() }).then(show).catch(() => {});
+        this._firstFrameShown.then(() => {
+            const cached = cachedNotice({ storage, currentVersion: version() });
+            if (cached) show(cached);
+            setTimeout(check, 30_000);
+            setInterval(check, 60 * 60 * 1000);
+        });
+        window.addEventListener('IRIS:system-updates', (ev) => {
+            rememberSnapshot(ev.detail, { storage, currentVersion: version() });
+            const cached = cachedNotice({ storage, currentVersion: version() });
+            if (cached) show(cached);
+        });
+    }
+
     async init() {
         // 1. Try fetching config from backend (non-blocking)
         await this._fetchConfig();
@@ -625,6 +651,17 @@ class IrisApp {
         this.activityCanvas.onAskIris = (appId, appName, request) => this.askIris.send(appId, appName, request);
         document.getElementById('btn-iris-os')?.addEventListener('click', () => {
             this.activityCanvas?.open?.();
+        });
+        // Quiet update notice: a dot on «Buscar actualizaciones», never a spoken message.
+        this._startUpdateNotice();
+        // Control center quick access: straight into IRIS OS, where these live.
+        document.getElementById('panel-open-updates')?.addEventListener('click', () => {
+            this.panel?.close?.();
+            void this.activityCanvas?.openSystemUpdates?.();
+        });
+        document.getElementById('panel-open-permissions')?.addEventListener('click', () => {
+            this.panel?.close?.();
+            this.activityCanvas?.openApp?.('permissions');
         });
         // F17: after Iris Store reloads the page to add or remove an app, return to the desktop.
         this.activityCanvas?.resumeAfterReload?.();

@@ -12,7 +12,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="css/styles.css?v=87">
+    <link rel="stylesheet" href="css/styles.css?v=90">
     <link rel="stylesheet" href="css/notifications.css?v=3">
     <link rel="stylesheet" href="css/automations.css?v=6">
     <link rel="stylesheet" href="css/inbox.css?v=3">
@@ -582,6 +582,24 @@
                  Hidden on desktop via CSS. -->
             <button id="panel-close-mobile" class="panel-close-mobile" title="Cerrar panel" aria-label="Cerrar panel">x</button>
 
+            <!-- Quick access: what testers could not find (2026-11-18). Updates live in IRIS OS →
+                 Ajustes; a dot shows when a new version is out (update_notice.js, never spoken).
+                 Permissions shape what Iris may use. -->
+            <div id="panel-shortcuts" class="panel-section">
+                <div class="panel-section-header">
+                    <span>Accesos rápidos</span>
+                    <span class="collapse-arrow" aria-hidden="true">v</span>
+                </div>
+                <div class="panel-section-body">
+                    <div class="panel-shortcuts-row">
+                        <button id="panel-open-updates" type="button" class="panel-shortcut"
+                                title="Abre IRIS OS en Ajustes y busca una versión nueva">Buscar actualizaciones<span class="panel-shortcut-dot" aria-hidden="true" hidden></span></button>
+                        <button id="panel-open-permissions" type="button" class="panel-shortcut"
+                                title="Abre la app de Permisos: qué puede usar Iris">Permisos</button>
+                    </div>
+                </div>
+            </div>
+
             <!-- Camera Section -->
             <div id="panel-camera" class="panel-section">
                 <div class="panel-section-header">
@@ -682,7 +700,7 @@
          absolute ones where they are, so here they stay last in the installed build too. -->
     <link rel="stylesheet" href="/face/css/os_shell.css?v=3">
     <link rel="stylesheet" href="/face/css/os_fonts.css?v=2">
-    <script type="module" src="js/face_bootstrap.js?v=5"></script>
+    <script type="module" src="js/face_bootstrap.js?v=9"></script>
     <script type="module" src="js/memory_panel.js?v=4"></script>
     <script type="module" src="js/skills_panel.js?v=5"></script>
 </body>

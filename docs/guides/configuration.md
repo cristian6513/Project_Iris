@@ -138,6 +138,8 @@ Las claves de ElevenLabs/MiniMax/Fish Audio y sus identificadores de voz están 
 motor en Voz; la clonación y la prueba reutilizan esa misma credencial. Dejar
 la clave vacía conserva la guardada, sin mostrarla en la página.
 
+En Fish Audio, Iris usa de entrada **Iris (voz oficial)**, la voz de sus videos. Se diseñó para ella en Fish y es pública, así que funciona con tu propia clave. Aparece la primera en la lista y en cada búsqueda del catálogo, salvo en **Solo mis voces**. Un perfil guardado antes, sin voz elegida, también habla con ella.
+
 En Fish Audio, elige el idioma y pulsa **Buscar voces**. El nombre es opcional, y la
 búsqueda trae 20 voces por página, las más populares primero; **Ver más voces** trae la
 página siguiente. Cada voz muestra su idioma y sus ♥ en Fish. **Solo mis voces** consulta

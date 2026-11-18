@@ -4901,6 +4901,20 @@ let _fishAudioSampleController = null;
 let _fishAudioSampleAudio = null;
 // Voices listed so far: id → name, languages, popularity, whether Fish published a sample.
 const _fishAudioVoices = new Map();
+// Iris's own voice on Fish Audio, the one of her videos (core/fish_audio.py IRIS_VOICE_ID).
+// It is public, so the user's own key speaks with it; listed first, chosen when nothing else is.
+const IRIS_FISH_VOICE = Object.freeze({
+    id: 'db09b3a3702c4e53b080390954849953', name: 'Iris (voz oficial)', languages: ['es'], likes: 0, has_sample: true,
+});
+
+function _addIrisFishVoice(select) {
+    if (!select || _fishAudioVoices.has(IRIS_FISH_VOICE.id)) return;
+    _fishAudioVoices.set(IRIS_FISH_VOICE.id, IRIS_FISH_VOICE);
+    const option = document.createElement('option');
+    option.value = IRIS_FISH_VOICE.id;
+    option.textContent = `${IRIS_FISH_VOICE.name} · es`;
+    select.appendChild(option);
+}
 
 function _fishAudioKey() {
     return document.getElementById('key-fish-audio')?.value?.trim() || '';
@@ -5001,6 +5015,8 @@ async function searchFishAudioVoices({ more = false } = {}) {
             _clearFishAudioResults();
             const placeholder = document.createElement('option');
             placeholder.value = ''; placeholder.textContent = 'Selecciona una voz'; select.appendChild(placeholder);
+            // Her own voice heads every catalog search; «Solo mis voces» lists the account's alone.
+            if (!filters.self_only) _addIrisFishVoice(select);
         }
         for (const voice of data.voices || []) {
             if (_fishAudioVoices.has(voice.id)) continue;   // pages overlap when the ranking moves
@@ -7444,13 +7460,26 @@ async function initWizard() {
                 wizardState.minimax_voice_id = config.minimax_voice_id;
             }
             // Restore Fish Audio's public settings; never return its saved key.
+            // No saved voice means Iris's official one, as Core speaks it; it is listed before any search.
+            const fishAudioVoiceId = config.fish_audio_voice_id || IRIS_FISH_VOICE.id;
             const fishAudioInput = document.getElementById('key-fish-audio-voice');
-            if (fishAudioInput) fishAudioInput.value = config.fish_audio_voice_id || '';
+            if (fishAudioInput) fishAudioInput.value = fishAudioVoiceId;
+            const fishAudioSelect = document.getElementById('fish-audio-voices');
+            if (fishAudioSelect && !_fishAudioVoices.size) {
+                fishAudioSelect.replaceChildren();
+                const placeholder = document.createElement('option');
+                placeholder.value = ''; placeholder.textContent = 'Busca más voces o clona la tuya abajo';
+                fishAudioSelect.appendChild(placeholder);
+                _addIrisFishVoice(fishAudioSelect);
+                fishAudioSelect.disabled = false;
+                fishAudioSelect.value = fishAudioVoiceId === IRIS_FISH_VOICE.id ? IRIS_FISH_VOICE.id : '';
+            }
             const fishAudioModelInput = document.getElementById('fish-audio-model');
             if (fishAudioModelInput) fishAudioModelInput.value = config.fish_audio_model || 's2.1-pro-free';
-            _setFishAudioVoiceName(config.fish_audio_voice_id ? config.fish_audio_voice_name || '' : '');
+            _setFishAudioVoiceName(fishAudioVoiceId === IRIS_FISH_VOICE.id ? IRIS_FISH_VOICE.name : config.fish_audio_voice_name || '',
+                _fishAudioVoices.get(fishAudioVoiceId));
             const fishAudioSample = document.getElementById('fish-audio-sample');
-            if (fishAudioSample) fishAudioSample.disabled = !config.fish_audio_voice_id;
+            if (fishAudioSample) fishAudioSample.disabled = !fishAudioVoiceId;
             // Voices in the assistant's language first, when Fish has that language.
             const fishAudioLanguage = document.getElementById('fish-audio-language');
             const assistantLanguage = String(config.language || '').slice(0, 2).toLowerCase();

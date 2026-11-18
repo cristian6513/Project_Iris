@@ -84,7 +84,9 @@ test('the chosen language travels with the search and each voice shows its langu
     node('key-fish-audio').value='k';node('fish-audio-language').value='es';
     await ctx.searchFishAudioVoices();
     assert.equal(calls[0].language,'es');
-    assert.equal(node('fish-audio-voices').children[1].textContent,'Valentino · es/en/pt · 12 mil ♥');
+    // Iris's official voice heads every catalog search (2026-11-18); the catalog follows.
+    assert.equal(node('fish-audio-voices').children[1].textContent,'Iris (voz oficial) · es');
+    assert.equal(node('fish-audio-voices').children[2].textContent,'Valentino · es/en/pt · 12 mil ♥');
     assert.equal(node('fish-audio-more').style.display,'none');
 });
 
@@ -97,7 +99,7 @@ test('«Ver más voces» appends the next page once and hides when Fish has no m
     assert.equal(node('fish-audio-more').style.display,'');
     await ctx.searchFishAudioVoices({more:true});
     assert.deepEqual(bodies.map(body=>body.page),[1,2]);
-    assert.deepEqual(node('fish-audio-voices').children.map(option=>option.value),['','a','b']);
+    assert.deepEqual(node('fish-audio-voices').children.map(option=>option.value),['','db09b3a3702c4e53b080390954849953','a','b']);
     assert.equal(node('fish-audio-more').style.display,'none');
 });
 
@@ -167,7 +169,7 @@ test('a catalog from the previous account cannot replace a newer result',async()
     const second=ctx.searchFishAudioVoices();
     replies[1]({ok:true,json:async()=>({voices:[{id:'second',name:'Second account'}]})});await second;
     replies[0]({ok:true,json:async()=>({voices:[{id:'first',name:'Old account'}]})});await first;
-    assert.equal(node('fish-audio-voices').children[1].value,'second');
+    assert.equal(node('fish-audio-voices').children[2].value,'second');
     assert.equal(node('fish-audio-search').disabled,false);
 });
 
@@ -194,7 +196,9 @@ for (const [field, change] of [
     change(node);
     await ctx.searchFishAudioVoices({more:true});
     assert.deepEqual(bodies.map(body=>body.page),[1,1]);
-    assert.deepEqual(node('fish-audio-voices').children.map(option=>option.value),['','new']);
+    // «Solo mis voces» lists the account's own voices alone; the catalog adds the official one first.
+    const official=field==='own voices'?[]:['db09b3a3702c4e53b080390954849953'];
+    assert.deepEqual(node('fish-audio-voices').children.map(option=>option.value),['',...official,'new']);
 });
 
 test('«Ver más» without a completed search starts at page 1',async()=>{

@@ -51,6 +51,7 @@ from core.asset_uploads import (
 from core.upload_routes import asset_upload_route
 from core.config import IRISConfig, get_iris_home
 from core.file_lock import interprocess_file_lock
+from core.fish_audio import IRIS_VOICE_ID, IRIS_VOICE_NAME
 from core.hermes_runtime import (
     hermes_command_prefix,
     get_hermes_config_path,
@@ -305,8 +306,8 @@ class ConfigUpdate(BaseModel):
     elevenlabs_voice_id: str = ""
     minimax_api_key: str = ""
     fish_audio_api_key: str = ""
-    fish_audio_voice_id: str = ""
-    fish_audio_voice_name: str = Field("", max_length=120)
+    fish_audio_voice_id: str = IRIS_VOICE_ID
+    fish_audio_voice_name: str = Field(IRIS_VOICE_NAME, max_length=120)
     fish_audio_model: Literal["s2.1-pro-free", "s2.1-pro", "s2-pro"] = "s2.1-pro-free"
     minimax_voice_id: str = "Spanish_Wiselady"
     minimax_tts_model: str = "speech-2.8-hd"
@@ -2839,7 +2840,7 @@ async def test_tts_audio(
                 cfg.fish_audio_model = validate_model(model or cfg.fish_audio_model)
             except FishAudioError as exc:
                 return JSONResponse({"status": "error", "message": str(exc)}, status_code=400)
-            cfg.fish_audio_voice_id = voice or cfg.fish_audio_voice_id
+            cfg.fish_audio_voice_id = voice or cfg.fish_audio_voice_id or IRIS_VOICE_ID
             cfg.fish_audio_api_key = tts_api_key or cfg.fish_audio_api_key
             fish_error = _tts_config_error(cfg)
             if fish_error:
@@ -3865,7 +3866,8 @@ def _tts_config_error(config: IRISConfig) -> tuple[str, str] | None:
             return "missing_tts_api_key", "Fish Audio requiere tu API key para generar voz."
         try:
             validate_model(config.fish_audio_model)
-            validate_voice_id(config.fish_audio_voice_id)
+            # No voice yet means Iris's official one, as core/tts.py speaks it.
+            validate_voice_id(config.fish_audio_voice_id or IRIS_VOICE_ID)
         except FishAudioError as exc:
             return "invalid_tts_voice", str(exc)
     elif config.tts_provider == "neutts":

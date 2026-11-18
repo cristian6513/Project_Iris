@@ -24,6 +24,7 @@ from pydantic_settings import (
     SettingsConfigDict,
 )
 
+from core.fish_audio import IRIS_VOICE_ID, IRIS_VOICE_NAME
 from core.identity_profiles import normalize_trait_ids
 from core.vision_policy import VisionPolicySettings
 
@@ -636,8 +637,9 @@ class IRISConfig(BaseSettings):
     elevenlabs_voice_id: str = ""
     minimax_api_key: str = ""
     fish_audio_api_key: str = ""
-    fish_audio_voice_id: str = ""
-    fish_audio_voice_name: str = ""   # shown in the wizard; the id is what Fish uses
+    # Iris's official voice until the user picks or clones another (core/fish_audio.py).
+    fish_audio_voice_id: str = IRIS_VOICE_ID
+    fish_audio_voice_name: str = IRIS_VOICE_NAME   # shown in the wizard; the id is what Fish uses
     fish_audio_model: Literal["s2.1-pro-free", "s2.1-pro", "s2-pro"] = "s2.1-pro-free"
     # MiniMax default: official Spanish system voice. The original
     # `male-qn-qingse` is Chinese and `es-MX-CarmenNeural` belongs to

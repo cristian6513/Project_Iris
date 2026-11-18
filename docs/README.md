@@ -4,7 +4,8 @@ Este índice separa las guías de uso y desarrollo de los registros de diseño y
 validación. **Consulta primero el [estado actual](estado-actual.md)** para saber
 qué está en fuente, qué contiene cada candidato y qué falta por aprobar.
 La beta de referencia es **0.9.4 QA25**. El [estado actual](estado-actual.md) recoge su alcance,
-los cambios del candidato QA26 y las comprobaciones pendientes.
+lo que quedó en la fuente posterior y la QA pendiente; el [plan del 17 de noviembre](iris_plan_auditoria_2026-11-17.md)
+ordena las prioridades.
 
 ## Guías
 
@@ -56,6 +57,7 @@ fechados describen la revisión que probaron; sus conteos y «siguientes pasos»
 no son un estado vivo. El plan coordinador registra el alcance y la aceptación;
 el [estado actual](estado-actual.md) facilita la lectura de las últimas entregas.
 
+- [Plan para subir la puntuación de la auditoría del 17 de noviembre](iris_plan_auditoria_2026-11-17.md)
 - QA24 y mejoras posteriores (informe interno no distribuido)
 - QA22: construcción, comprobaciones y límites (informe interno no distribuido)
 - Cambio de voz en vivo: revisión y cierre (informe interno no distribuido)

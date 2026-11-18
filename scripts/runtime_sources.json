@@ -15,7 +15,7 @@
     "version": "0.9.5",
     "pyproject_sha256": "3b152c0b2218f5df6b3f6761ca711dc1c3da5f1a2b63a321bfd0dfbcd7225c48",
     "uv_lock_sha256": "e6bab5e7c5ee9fd4ad2d30c3643deec27cc07e4a2e71d6dd20eeaa33da4b4725",
-    "wheel_sha256": "0f9dd0e5523a6c26f06208877964f210d86b4fde54448a38ac4bbc84bf952c52",
+    "wheel_sha256": "528bb8d5e54c82c33ac157909c72c923906f1a092bf1761177d53789dca22ada",
     "wheel_filename": "iris_os-0.9.5-py3-none-any.whl"
   },
   "hermes": {

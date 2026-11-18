@@ -3,26 +3,28 @@
   "component": "main",
   "candidate": "QA26",
   "version": "0.9.5",
-  "public_base_commit": "fd1fe35c12bc0229407d0e8d53e70a5c90d143dc",
-  "payload_files": 1457,
-  "content_tree_sha256": "018834a0888c79c4f69be52e757e9e6076dac39ec8a92c87c87e51be802d9232",
-  "content_tree_definition": "SHA-256 over sorted repository paths and SHA-256 of Git blob bytes, excluding SOURCE.json",
-  "iris_wheel_sha256": "0f9dd0e5523a6c26f06208877964f210d86b4fde54448a38ac4bbc84bf952c52",
-  "web_contract_sha256": "b3f64fd3855691aecffaf067bb06fa593a318ae26171a147ef97427061ad9af5",
-  "companion": {
-    "schema": 1,
-    "product": "IRIS Desktop Companion",
-    "version": "0.1.11",
-    "platform": "windows",
-    "arch": "x64",
-    "filename": "IRIS Desktop Companion_0.1.11_x64-setup.exe",
-    "sha256": "44f69aa4c3a2750e7673b793b4106f1900ecc1ed9a5a152c612b8badf08b5021",
-    "signed": false,
-    "webview2_mode": "skip"
+  "source_base_commit": "49951db0042405b7a60a0c4dd3d7896bdd920784",
+  "source_has_uncommitted_changes": true,
+  "frozen_source_tree_sha256": "30e8edb809c9326f2120b8e5f4ccaf0bb03e8c0d5dd80907f943715c57c916a5",
+  "build_tree_sha256": "349a71a0382d91936543269aeebeafe97876ea61ec949f2125e37d1f194f108f",
+  "public_base_commit": "a2b0acb1981bdace2c84ea28a38f3cb65b4ee1dc",
+  "public_adaptations": [
+    "Release version metadata",
+    "Public Markdown references and release documentation",
+    "Runtime pin for the packaged wheel",
+    "Retained trusted-input line endings and public installer QA script",
+    "Factory animation manifest uses the same 95 clips as the shipped package"
+  ],
+  "qa_artifacts": {
+    "candidate": "QA26",
+    "version": "0.9.5",
+    "build_id": "47ccb7f3",
+    "installer_sha256": "52c3c1fed95ae421274fb549c459411ed99251b63d48b5f70faf99265c646b4d",
+    "package_sha256": "9a59029e306c2577c94fb0734f43b950c2e1af0472a0fcb3e17d38d56314841c",
+    "staging_sha256": "47ccb7f3ee430e5a8979a7e916068276db3186b6e63a906cc21f67472c726de3"
   },
-  "hermes": {
-    "version": "0.21.6",
-    "revision": "818c13be1dc4fd28987e1e881a9408224afd4535"
-  },
-  "installer_acceptance": false
+  "installer_acceptance": false,
+  "payload_files": 1460,
+  "content_tree_sha256": "d7d1ab3bb73acdf1f387260f6d6a520db77ea5b24f5dcc478169d8f6d8d6d3da",
+  "content_tree_definition": "Sorted Git blob paths and SHA-256 values, excluding SOURCE.json"
 }

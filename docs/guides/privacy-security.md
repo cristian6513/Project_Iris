@@ -158,6 +158,18 @@ autoarranque del Gateway. La aplicación:
 - debe validar los artefactos antes de reparar/instalar;
 - no debe aceptar páginas o comandos de orígenes arbitrarios.
 
+## Actualizaciones
+
+La versión instalada de Iris consulta sola su canal de actualizaciones: unos 30 segundos después
+de abrirse la habitación y, como mucho, una vez cada 12 horas. Solo lee el manifiesto firmado del
+canal en GitHub; no envía datos del perfil ni descarga la versión nueva. Si hay una, aparece un
+punto en **Buscar actualizaciones** del centro de control. Descargar e instalar requieren pulsar el
+botón en IRIS OS → Ajustes. El aviso no usa el modelo ni la voz.
+
+La marca de la consulta se guarda en el almacenamiento local del navegador. Si está
+bloqueado o lleno, Iris conserva el intervalo en memoria mientras permanece abierta
+la habitación. Un error del canal conserva el aviso de una versión ya detectada.
+
 ## Datos locales
 
 `~/.iris/` puede contener configuración, memoria, certificados y estado. El
