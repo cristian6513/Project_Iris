@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import builtins
 import json
+import os
 import tempfile
 import threading
 from pathlib import Path
@@ -230,12 +231,15 @@ def test_local_gateway_url_uses_hermes_port_but_preserves_remote_url() -> None:
 def test_fresh_windows_install_uses_one_canonical_hermes_home(tmp_path: Path) -> None:
     local = tmp_path / "LocalAppData"
     with (
-        patch("wizard.hermes_config.os.name", "nt"),
+        patch("wizard.hermes_config.os", wraps=os) as host_os,
         patch("wizard.hermes_config.Path.home", return_value=tmp_path / "User"),
         patch.dict("os.environ", {"LOCALAPPDATA": str(local)}, clear=True),
     ):
         from wizard.hermes_config import get_hermes_home
         from core.workspace_sync import get_hermes_home as get_workspace_home
+
+        host_os.name = "nt"
+        host_os.environ = os.environ
 
         assert get_hermes_home() == local / "hermes"
         assert get_workspace_home() == local / "hermes"

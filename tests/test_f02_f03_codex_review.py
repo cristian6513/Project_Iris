@@ -19,6 +19,7 @@ from types import SimpleNamespace
 import pytest
 
 from core import vision_model, vision_snapshot
+from tests.test_animation_store import remove_directory_alias
 from tests.test_f02_vision_model import FAKE_HERMES, IMAGE, TurnBridge, turn_agent
 from tests.test_f03b_vision_snapshot import PHOTO, Agent, core, turn  # noqa: F401
 
@@ -236,7 +237,7 @@ def test_temporary_copies_are_never_removed_through_a_link(tmp_path):
         assert vision_model.remove_temporary_images(home, "abcdef012345") == 0
         assert victim.exists()
     finally:
-        (home / "cache" / "vision").rmdir()
+        remove_directory_alias(home / "cache" / "vision")
     assert vision_model.remove_temporary_images(home, "../../x") == 0
 
 

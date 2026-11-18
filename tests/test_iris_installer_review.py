@@ -24,6 +24,8 @@ from tests.test_iris_updates import channel_doc, installed, keypair, make_versio
 
 
 def _junction(link: Path, target: Path) -> None:
+    if os.name != "nt":
+        pytest.skip("this installer integration uses a Windows directory junction")
     made = subprocess.run(["cmd.exe", "/d", "/c", "mklink", "/J", str(link), str(target)], capture_output=True)
     if made.returncode:
         pytest.skip("directory junctions are not available here")
@@ -375,6 +377,9 @@ def test_a_companion_program_reported_as_a_link_stops_the_cleanup(profile, monke
 def _companion_program(folder: Path) -> Path:
     """A real x64 program standing in for the Companion (the base interpreter)."""
     import sys
+
+    if os.name != "nt":
+        pytest.skip("this integration checks a real Windows PE executable")
 
     folder.mkdir(parents=True, exist_ok=True)
     program = folder / "iris-desktop-companion.exe"

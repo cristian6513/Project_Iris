@@ -1,7 +1,9 @@
 """Personal OAuth client import, isolation and API error hygiene; no browser or Google calls."""
 import asyncio
 import json
+import os
 import threading
+from uuid import uuid4
 
 import pytest
 from fastapi import FastAPI
@@ -16,6 +18,25 @@ from core.google_worker_client import GoogleWorkerClient
 
 CLIENT = {'installed': {'client_id': 'test-own-client.apps.googleusercontent.com', 'client_secret': 'synthetic-sensitive-value'}}
 TEXT = json.dumps(CLIENT)
+
+
+@pytest.fixture(autouse=True)
+def test_protection_on_non_windows(monkeypatch):
+    """Exercise the service on Linux. The Windows job exercises real DPAPI."""
+    if os.name == 'nt':
+        return
+    protected = {}
+
+    def crypt(data, *, protect, entropy):
+        if protect:
+            token = uuid4().bytes
+            protected[token, entropy] = data
+            return token
+        if (data, entropy) not in protected:
+            raise ValueError('Test data belongs to another profile')
+        return protected[data, entropy]
+
+    monkeypatch.setattr('core.google_client_config.crypt', crypt)
 
 
 def make(home):
@@ -38,6 +59,7 @@ def test_read_only_status_and_invalid_json_create_no_store(tmp_path):
     asyncio.run(run())
 
 
+@pytest.mark.skipif(os.name != 'nt', reason='DPAPI is a Windows integration')
 def test_real_dpapi_round_trip_and_other_profile_key_fails():
     client = parse_client(TEXT)
     blob = protect_client(client, b'a' * 32)

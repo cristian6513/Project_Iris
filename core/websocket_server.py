@@ -3789,7 +3789,12 @@ async def clear_vision_assistant_events() -> JSONResponse:
 def _public_avatar_url(configured_path: str) -> str:
     """Map a configured local avatar to a browser-safe, non-disclosing URL."""
     clean = str(configured_path or "").strip()
-    if not clean or clean.startswith(("/", "http://", "https://", "blob:")):
+    if not clean or clean.startswith(("http://", "https://", "blob:")):
+        return clean
+    if clean.startswith(("/avatars/", "/face/")) or clean.partition("?")[0] == "/api/avatar/current":
+        return clean
+    # A leading slash can also be an absolute filesystem path on POSIX.
+    if os.name == "nt" and clean.startswith("/"):
         return clean
 
     candidate = Path(clean).expanduser()

@@ -319,7 +319,7 @@ def test_whatsapp_qr_needs_the_bridge_and_node(fake_hermes):
     bridge.parent.mkdir(parents=True)
     bridge.write_text("// bridge", encoding="utf-8")
     assert worker.requirements("whatsapp", fake_hermes.repo)["code"] == "missing_program"
-    node = fake_hermes.home / "node" / "node.exe"
+    node = fake_hermes.home / "node" / ("node.exe" if os.name == "nt" else "node")
     node.parent.mkdir()
     node.write_bytes(b"MZ")
     assert worker.requirements("whatsapp", fake_hermes.repo)["available"] is True

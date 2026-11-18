@@ -15,6 +15,7 @@ from pathlib import Path
 
 import pytest
 from pydantic import ValidationError
+from tests.test_animation_store import remove_directory_alias
 
 from core.automation_contracts import (
     AutomationDelivery,
@@ -262,7 +263,7 @@ def test_each_profile_has_its_own_store_and_links_are_refused(tmp_path, monkeypa
             profile_store_path(c)
         assert list(outside.iterdir()) == []
     finally:
-        (c / "automations").rmdir()
+        remove_directory_alias(c / "automations")
 
 
 # ── Q02: the profile boundary holds on every real open ──────────────────
@@ -299,7 +300,7 @@ def test_a_folder_replaced_by_a_link_after_opening_is_never_written(tmp_path):
             store.list_rules()
         assert outside_rules(outside_db) == before  # the target is neither written nor touched
     finally:
-        folder.rmdir()  # removes the link, keeps its target
+        remove_directory_alias(folder)
     assert outside_rules(outside_db) == before
 
 
@@ -318,7 +319,7 @@ def test_the_runtime_refuses_a_folder_replaced_before_its_deferred_open(tmp_path
         assert runtime.store(create=True) is None and "enlace" in runtime.problem
         assert outside_rules(outside_db) == before
     finally:
-        (home / "automations").rmdir()
+        remove_directory_alias(home / "automations")
     assert runtime.store(create=True) is not None and runtime.problem == ""  # a plain folder again
 
 
@@ -384,7 +385,7 @@ def test_a_folder_swapped_and_put_back_while_sqlite_opens_is_refused_by_the_pins
         try:
             return real_connect(*args, **kwargs)
         finally:
-            folder.rmdir()
+            remove_directory_alias(folder)
             aside.rename(folder)
 
     monkeypatch.setattr(automation_store.sqlite3, "connect", swap_during_connect)
@@ -458,7 +459,7 @@ def test_the_first_open_cannot_be_redirected_while_the_database_is_created(tmp_p
         try:
             return real_connect(*args, **kwargs)
         finally:
-            folder.rmdir()
+            remove_directory_alias(folder)
             aside.rename(folder)
 
     monkeypatch.setattr(automation_store.sqlite3, "connect", swap_during_connect)
@@ -979,7 +980,7 @@ def test_an_authorised_alias_of_the_profile_root_still_works(tmp_path):
         assert store.path.parent.parent == real.resolve()
         assert len(AutomationStore.for_profile(real).list_rules()) == 1
     finally:
-        alias.rmdir()
+        remove_directory_alias(alias)
 
 
 def test_unreadable_rows_are_reported_not_deleted(store):
