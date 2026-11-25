@@ -4,7 +4,9 @@ import fs from 'node:fs';
 import { commitAvatarReplacement } from '../../face/js/avatar_lifecycle.js';
 const threeUrl=new URL('../../companion/node_modules/three/build/three.module.js',import.meta.url).href;
 const THREE=await import(threeUrl);
-const src=fs.readFileSync(new URL('../../face/js/micro_life.js',import.meta.url),'utf8').replace("from 'three'",`from '${threeUrl}'`);
+const emotionsUrl=new URL('../../face/js/emotions.js',import.meta.url).href;
+const src=fs.readFileSync(new URL('../../face/js/micro_life.js',import.meta.url),'utf8').replace("from 'three'",`from '${threeUrl}'`)
+    .replace(/from '\.\/emotions\.js(\?v=\d+)?'/,`from '${emotionsUrl}'`);
 const {MicroLife}=await import('data:text/javascript;base64,'+Buffer.from(src).toString('base64'));
 function fixture(){
  const bone=new THREE.Bone();bone.name='hips';

@@ -22,6 +22,78 @@ Consulta [Estado actual](../estado-actual.md) para identificar tu versión.
 Otros sistemas pueden usar IRIS OS desde el navegador mientras se valida un
 empaquetado nativo.
 
+## Modo juego experimental — fuente posterior a QA27
+
+Esta función aún no está en el EXE QA27. La primera implementación permite
+compartir una ventana y pedir ayuda por chat o voz local, sin abrir un selector
+en cada pregunta. También permite activar comentarios automáticos por separado.
+No controla el juego.
+
+1. En Companion, pulsa **Juego**. Comprueba que «Siempre encima» esté activado
+   y usa ventana sin bordes para la primera prueba.
+2. Escribe el nombre del juego si quieres y deja la preferencia sin spoilers.
+3. Pulsa **Elegir ventana del juego**, revisa el proveedor/modelo de visión y
+   confirma. Selecciona una ventana: monitor completo y pestañas no se aceptan.
+4. Con el indicador visible, pregunta por chat o por voz. Cada pregunta puede
+   enviar una captura nueva. El texto responde en el mismo chat y la voz usa
+   el servicio que ya configuraste. La escucha se activa por separado: abrir
+   Modo juego no enciende el micrófono ni la palabra de activación.
+5. **Silenciar voz** interrumpe la respuesta pendiente y permite seguir con
+   texto y pausa los comentarios. **Salir del modo juego** libera además la
+   captura. Silenciar y Salir permanecen disponibles en Solo avatar.
+
+Para comentarios, elige intervalo (45 s por defecto; 20–300 s), estilo
+**Consejos** o **Charla** y límite (100 intentos; 0 sin límite). Pulsa
+**Activar comentarios** y revisa el aviso con el destino y el consumo de cuota.
+No se activa por entrar al juego. Iris espera a estar libre y no acumula capturas;
+preguntar cancela el comentario pendiente. Durante conversación continua por voz
+cede la prioridad a la escucha. Puede callarse o evitar repetir el último texto,
+pero ese análisis ya consume cuota. El límite incluye análisis a petición y
+automáticos: al alcanzarlo se pausan solo los comentarios; puedes seguir preguntando.
+
+**Pausar comentarios** conserva la ventana compartida. Un error también pausa
+para evitar reintentos automáticos; usa **Reactivar comentarios** si quieres seguir.
+Después de silenciar, activar voz no reactiva los comentarios por sí solo.
+Las respuestas automáticas con más de 30 s desde la recepción del fotograma se
+descartan; esto no garantiza reacciones a tiempo en juegos de acción.
+
+**Objetivo y memoria de partida** permite indicar qué quieres conseguir y notas
+que se enviarán al proveedor con las siguientes consultas. Conserva hasta seis
+entradas recientes acotadas en RAM; no invoca otro modelo para resumirlas.
+**Borrar memoria de partida** cancela el resultado pendiente y limpia ese contexto,
+sin borrar el historial habitual del chat ni datos del proveedor. Salir lo borra.
+
+**Atajos globales · Windows** empieza desactivado. Marca Usar atajos y pulsa
+Aplicar: ayuda `Ctrl+Alt+F8`, silenciar/pausar `Ctrl+Alt+F9` y salir `Ctrl+Alt+F10`.
+Puedes cambiar combinaciones usando al menos dos de Ctrl/Alt/Shift y una letra,
+número o F1–F11. Ayuda pide una captura de la sesión; no abre el micro ni el
+selector. Un conflicto muestra error; usa los botones o elige otra combinación.
+Solo se registran durante la sesión y se liberan al salir, ocultar o desconectar.
+Se recuerdan las combinaciones, pero al reiniciar Companion vuelven apagados.
+El navegador no ofrece atajos globales.
+
+El texto del juego se mantiene visible en Solo avatar, con desplazamiento y
+cierre ×. Reserva espacio encima del renderizador para no tapar la cara. Tras
+la voz, deja 6–25 s para leer según longitud. Ocultar texto no silencia la voz.
+
+Bloquear el modo juego o las capturas base, cambiar de conversación/destino,
+ocultar Companion, perder la ventana o desconectarse termina la sesión.
+Una sesión dura como máximo tres horas y no se restaura automáticamente.
+El nombre del juego es una etiqueta, no una prueba de compatibilidad.
+
+El contador registra intentos de análisis, incluidos errores; no mide coste.
+La ayuda usa cuota del proveedor y posiblemente de voz. No se graba vídeo:
+Hermes procesa imágenes temporales que se limpian al terminar o cancelar;
+un cierre forzado puede impedir esa limpieza. Texto y respuestas pueden
+quedar en el historial. Sin spoilers es una instrucción al modelo y puede fallar.
+La compatibilidad, la latencia y el impacto en FPS requieren pruebas por juego.
+
+[Plan y fases](../iris_plan_modo_juego_2026-11-21.md) ·
+Evidencia de fase 1 (informe interno no distribuido) ·
+Fase 2 (informe interno no distribuido) ·
+Pulido de fase 3 (informe interno no distribuido) ·
+[Guía de pruebas](../qa/iris_pruebas_funcionales_2026-11-22.html).
+
 ### Registro histórico: actualización local 0.1.2 — 2026-09-06
 
 Companion 0.1.2 incorpora los cambios de Vision V2 de los pasos 1–6: señales

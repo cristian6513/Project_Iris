@@ -52,6 +52,7 @@ export async function createCompanionBridge(scope = globalThis) {
             setAlwaysOnTop: async () => {},
             startWindowWalk: async () => ({ started: false, reason: 'native-required' }),
             cancelWindowWalk: async () => {},
+            setGameHotkeys: async () => { throw new Error('Necesitas Companion para Windows.'); },
         };
     }
 
@@ -113,6 +114,7 @@ export async function createCompanionBridge(scope = globalThis) {
             durationMs: Math.round(Number(durationMs) || 3100),
         }),
         cancelWindowWalk: () => invoke('cancel_window_walk'),
+        setGameHotkeys: (session, bindings) => invoke('set_game_hotkeys', { session, bindings }),
         async onWindowEvent(event, handler) {
             const { listen } = await import('@tauri-apps/api/event');
             windowListeners.push(await listen(event, handler, {

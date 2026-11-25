@@ -41,6 +41,21 @@ def test_expression_and_look_at_nodes_are_not_stripped_or_retimed():
     assert assets.validate_asset(original, "vrma") == doc
 
 
+def test_glb_avatar_is_accepted_when_it_is_a_vrm_inside():
+    # Quick settings name only VRM and MMD ZIP, but some tools save a VRM as .glb.
+    assert assets.validate_asset(avatar(1), "glb", avatar=True)
+
+
+def test_plain_glb_avatar_says_how_to_make_it_a_vrm():
+    plain = container({"asset": {"version": "2.0"}, "nodes": [{}]})
+    with pytest.raises(assets.AssetUploadError) as error:
+        assets.validate_asset(plain, "glb", avatar=True)
+    message = str(error.value)
+    assert "no es un avatar VRM" in message
+    assert "VRoid Studio" in message and "Blender" in message
+    assert "humanoide" not in message
+
+
 @pytest.mark.parametrize(
     "payload",
     [b"", b"glTF", container([]), container({"asset": {"version": "2.0"}}), avatar()[:-1]],

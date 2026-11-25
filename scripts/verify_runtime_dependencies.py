@@ -31,11 +31,35 @@ REVIEWED_EXCLUSIONS = {
 }
 
 
-def check_dependencies(distributions, requirements, environment, excluded=None):
+def upstream_overrides(pyproject, environment):
+    """Hermes' own ``[tool.uv] override-dependencies`` that apply to this runtime.
+
+    When uv locks Hermes, such an override replaces every dependent's requirement on that
+    package (Hermes 0.23.3 sets ``Pillow==13.0.0`` although browser-harness 0.1.13 pins
+    12.3.0), and the installed set follows that lock. Only the reviewed Hermes source's
+    pyproject is read (its hash is pinned and checked when the stage is extracted).
+    """
+    import tomllib
+
+    data = tomllib.loads(Path(pyproject).read_text("utf-8"))
+    overrides = {}
+    for raw in ((data.get("tool") or {}).get("uv") or {}).get("override-dependencies") or []:
+        requirement = Requirement(raw)
+        if requirement.marker and not requirement.marker.evaluate({**environment, "extra": ""}):
+            continue
+        overrides[canonicalize_name(requirement.name)] = requirement
+    return overrides
+
+
+def check_dependencies(distributions, requirements, environment, excluded=None, overrides=None):
     """``excluded``: ``{name: {"version", "dependents": {name: version}}}`` left out of this
     runtime (``exclusion_policy``). Only those exact dependents may require it, and it
-    must not be installed; every other missing dependency is still an error."""
+    must not be installed; every other missing dependency is still an error.
+    ``overrides``: ``upstream_overrides``. A dependent's requirement on an overridden
+    package is replaced by the override, as uv did when it locked; the lock's own exact
+    pins and every other requirement are checked unchanged."""
     excluded = excluded or {}
+    overrides = overrides or {}
     installed = {}
     for distribution in distributions:
         name = canonicalize_name(distribution.metadata["Name"])
@@ -69,7 +93,10 @@ def check_dependencies(distributions, requirements, environment, excluded=None):
             errors.add(f"Missing dependency: {requirement}")
             continue
         if requirement.specifier and not requirement.specifier.contains(distribution.version):
-            errors.add(f"Incompatible dependency: {requirement}; installed {distribution.version}")
+            override = overrides.get(name)
+            if not (parent is not None and override is not None
+                    and override.specifier.contains(distribution.version)):
+                errors.add(f"Incompatible dependency: {requirement}; installed {distribution.version}")
         extras = activated.setdefault(name, {""})
         extras.update(requirement.extras)
         for extra in sorted(extras):
@@ -176,14 +203,19 @@ def main(argv=None):
     environment = default_environment()
     requirements = locked_requirements(args.lock, environment)
     excluded = exclusion_policy(requirements, args.excluded)
+    # Hermes' runtime follows Hermes' lock, overrides included; the Iris runtime has none.
+    upstream = (upstream_overrides(hermes_source / "pyproject.toml", environment)
+                if hermes_source is not None else {})
     records = check_dependencies(
         list(importlib.metadata.distributions()),
         [r for r in requirements if canonicalize_name(r.name) not in excluded], environment, excluded,
+        upstream,
     )
     document = {
         "python": platform.python_version(), "architecture": platform.machine(),
         "packages": records, "excluded": sorted(args.excluded), "search_paths": sys.path, "ok": True,
         "dependency_overrides": overrides,
+        "upstream_overrides": sorted(str(requirement) for requirement in upstream.values()),
     }
     if args.output:
         args.output.write_text(json.dumps(document, indent=2) + "\n", encoding="utf8")

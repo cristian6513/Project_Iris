@@ -5,8 +5,11 @@
  * 1. Viseme-driven: Maps TTS word boundary / viseme data → avatar mouth shapes
  * 2. Audio-reactive:  Analyses audio amplitude via Web Audio API → mouth shapes
  *
- * Both modes produce a single 0–1 value via avatar.setMouthOpen().
+ * Both modes produce a single 0–1 value via avatar.setMouthOpen(), and, when the spoken text is
+ * known (each word's, or the sentence's), the vowel shape via avatar.setMouthShape() (vowel_track.js).
  */
+
+import { VISEMES, layout, mouthAt, vowelUnits } from './vowel_track.js?v=1';
 
 export class LipSyncEngine {
     /**
@@ -28,6 +31,12 @@ export class LipSyncEngine {
 
         // Smoothing
         this._smoothedMouth = 0;
+
+        // Vowel shapes (vowel_track.js): the sentence's track while the audio leads.
+        this.audioTrack = null;
+        this.audioElement = null;
+        this._targetShape = null;
+        this._shape = null;
     }
 
     // ── Viseme-driven lip sync ──────────────────────────
@@ -40,11 +49,15 @@ export class LipSyncEngine {
      */
     processVisemes(visemes) {
         this.stopAudioReactive();
-        this.visemeQueue = visemes.map(v => ({
-            time:      v.time,
-            duration:  v.duration || 0.18,
-            intensity: this._textToIntensity(v.text || ''),
-        }));
+        this.visemeQueue = visemes.map(v => {
+            const units = vowelUnits(v.text || '');
+            return {
+                time:      v.time,
+                duration:  v.duration || 0.18,
+                intensity: this._textToIntensity(v.text || ''),
+                track:     units.length ? layout(units) : null,
+            };
+        });
         this.visemeStartTime = performance.now() / 1000;
         this.visemeActive = true;
     }
@@ -63,7 +76,9 @@ export class LipSyncEngine {
         this.visemeActive = false;
         this.visemeQueue = [];
         this._smoothedMouth = 0;
+        this._targetShape = this._shape = null;
         if (this.avatar) this.avatar.setMouthOpen(0);
+        this.avatar?.setMouthShape?.(null);
     }
 
     isDrivingMouth() {
@@ -76,8 +91,12 @@ export class LipSyncEngine {
      * Start analysing an <audio> element or MediaStream for amplitude.
      *
      * @param {HTMLAudioElement|MediaStream} source
+     * @param {{text?: string}} [options] what she says in it, for the vowel shapes
      */
-    startAudioReactive(source) {
+    startAudioReactive(source, { text = '' } = {}) {
+        const units = vowelUnits(text);
+        this.audioTrack = units.length ? layout(units) : null;
+        this.audioElement = typeof HTMLAudioElement !== 'undefined' && source instanceof HTMLAudioElement ? source : null;
         if (!this.audioContext) {
             this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
         }
@@ -130,6 +149,8 @@ export class LipSyncEngine {
 
     stopAudioReactive() {
         this.audioReactive = false;
+        this.audioTrack = null;
+        this.audioElement = null;
         try { this.audioSource?.disconnect?.(); } catch { /* ignore */ }
         try { this.analyser?.disconnect?.(); } catch { /* ignore */ }
         this.analyser = null;
@@ -149,6 +170,8 @@ export class LipSyncEngine {
         else if (this.audioReactive && this.analyser) {
             targetMouth = this._getAudioMouth();
         }
+        // Between words the last vowel holds while the mouth closes; with no speech, no shape.
+        if (!this.visemeActive && !(this.audioReactive && this.analyser)) this._targetShape = null;
 
         // Smooth the transition (fast attack, slower release)
         const speed = targetMouth > this._smoothedMouth ? 15 : 8;
@@ -157,6 +180,21 @@ export class LipSyncEngine {
         // Clamp and send to avatar
         const mouth = Math.max(0, Math.min(1, this._smoothedMouth));
         if (this.avatar) this.avatar.setMouthOpen(mouth);
+        this._sendShape(delta);
+    }
+
+    /** The vowel shape eases from one to the next (a vowel lasts about 0.1 s). */
+    _sendShape(delta) {
+        const target = this._targetShape;
+        if (!target) {
+            if (this._shape) { this._shape = null; this.avatar?.setMouthShape?.(null); }
+            return;
+        }
+        const k = Math.min(1, 22 * (Number.isFinite(delta) ? delta : 0));
+        const shape = this._shape ?? { ...target };
+        for (const v of VISEMES) shape[v] = (shape[v] ?? 0) + ((target[v] ?? 0) - (shape[v] ?? 0)) * k;
+        this._shape = shape;
+        this.avatar?.setMouthShape?.(shape);
     }
 
     _getVisemeMouth() {
@@ -169,7 +207,14 @@ export class LipSyncEngine {
             if (elapsed >= start && elapsed <= end) {
                 // Bell curve: sin(0→π) over the viseme duration
                 const progress = (elapsed - start) / v.duration;
-                mouth = v.intensity * Math.sin(progress * Math.PI);
+                const at = mouthAt(v.track, progress);
+                if (at) {
+                    // Her lips through the word's vowels and consonants, within the word's breath.
+                    mouth = v.intensity * at.open * Math.sin(progress * Math.PI) ** 0.35;
+                    this._targetShape = at.shape;
+                } else {
+                    mouth = v.intensity * Math.sin(progress * Math.PI);
+                }
                 break;
             }
         }
@@ -196,7 +241,14 @@ export class LipSyncEngine {
         const avg = sum / voiceBins / 255;
 
         // Threshold + scale
-        return Math.max(0, (avg - 0.08) * 2.5);
+        const level = Math.max(0, (avg - 0.08) * 2.5);
+        // The vowel at this point of the sentence, laid over the audio's length.
+        const audio = this.audioElement;
+        const at = this.audioTrack && audio?.duration > 0 ? mouthAt(this.audioTrack, audio.currentTime / audio.duration) : null;
+        if (!at) return level;
+        this._targetShape = at.shape;
+        // The audio's timing is approximate: consonants only soften the opening.
+        return level * (0.35 + 0.65 * at.open);
     }
 }
 

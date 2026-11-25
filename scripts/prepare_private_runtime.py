@@ -305,6 +305,15 @@ def clean_installer_metadata(site: Path) -> None:
             if path.is_dir():
                 path.rmdir()
         scripts.rmdir()
+    # The universal sounddevice wheel carries PortAudio for every Windows architecture
+    # (0.5.6 adds ASIO and ARM64 builds); only the AMD64 libraries, plain and ASIO, are
+    # part of this architecture-specific runtime. sounddevice loads by platform suffix.
+    for name in ("libportaudio32bit.dll", "libportaudio32bit-asio.dll",
+                 "libportaudioarm64.dll", "libportaudioarm64-asio.dll"):
+        other = site / "_sounddevice_data/portaudio-binaries" / name
+        if other.exists():
+            regular_file(other).unlink()
+            removed.add(other.relative_to(site).as_posix())
     # Drop exactly the removed files from installer RECORDs: uv's launcher bytes vary
     # per run, so stale rows would make the candidate both inaccurate and unreproducible.
     if removed:
@@ -313,11 +322,6 @@ def clean_installer_metadata(site: Path) -> None:
             kept = [row for row in rows if next(csv.reader([row]), [""])[0] not in removed]
             if len(kept) != len(rows):
                 record.write_text("".join(kept), encoding="utf8", newline="")
-    # The universal sounddevice wheel contains both architectures; only the
-    # AMD64 PortAudio library is part of this architecture-specific runtime.
-    x86_audio = site / "_sounddevice_data/portaudio-binaries/libportaudio32bit.dll"
-    if x86_audio.exists():
-        regular_file(x86_audio).unlink()
 
 
 def extract_audio(archive: Path, stage: Path, spec: dict) -> None:

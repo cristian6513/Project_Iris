@@ -495,6 +495,9 @@ class FishSpeechTTSProvider(TTSProvider):
         pensativa → [thoughtful]
         sorprendida → [surprised]
         enojada   → [angry]
+        emocionada → [excited], confundida → [thoughtful]; the other newer emotions
+        (core/emotions.py) get no tag: only tags already proven on the server, since an
+        unknown one could be read aloud.
     """
 
     EMOTION_TAGS: dict[str, str] = {
@@ -504,6 +507,12 @@ class FishSpeechTTSProvider(TTSProvider):
         "pensativa":    "[thoughtful] ",
         "sorprendida":  "[surprised] ",
         "enojada":      "[angry] ",
+        "avergonzada":  "",
+        "cariñosa":     "",
+        "emocionada":   "[excited] ",
+        "confundida":   "[thoughtful] ",
+        "nerviosa":     "",
+        "somnolienta":  "",
     }
 
     def __init__(

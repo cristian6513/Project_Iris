@@ -16,6 +16,7 @@ use tauri::{
     Emitter, EventTarget, Manager, PhysicalPosition, WebviewWindow,
 };
 use tauri_plugin_window_state::StateFlags;
+mod game_hotkeys;
 
 static EXITING: AtomicBool = AtomicBool::new(false);
 static WINDOW_READY: AtomicBool = AtomicBool::new(false);
@@ -329,6 +330,7 @@ fn open_iris_os(section: Option<String>) -> Result<(), String> {
 
 #[tauri::command]
 fn hide_companion(window: WebviewWindow) -> Result<(), String> {
+    window.state::<game_hotkeys::GameHotkeys>().clear();
     cancel_active_walk();
     window.hide().map_err(|error| error.to_string())?;
     let _ = window.emit_to(
@@ -337,6 +339,20 @@ fn hide_companion(window: WebviewWindow) -> Result<(), String> {
         (),
     );
     Ok(())
+}
+
+#[tauri::command]
+async fn set_game_hotkeys(
+    app: tauri::AppHandle,
+    session: String,
+    bindings: Option<game_hotkeys::Bindings>,
+) -> Result<(), String> {
+    tauri::async_runtime::spawn_blocking(move || {
+        app.state::<game_hotkeys::GameHotkeys>()
+            .configure(app.clone(), session, bindings)
+    })
+    .await
+    .map_err(|_| "No pude actualizar los atajos.".to_string())?
 }
 
 #[tauri::command]
@@ -590,6 +606,7 @@ fn ensure_window_visible<R: tauri::Runtime>(window: &WebviewWindow<R>) -> tauri:
 
 pub fn run() {
     tauri::Builder::default()
+        .manage(game_hotkeys::GameHotkeys::default())
         // This must be registered first so a second process never initializes
         // plugins or creates a duplicate listening/camera surface.
         .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
@@ -614,8 +631,12 @@ pub fn run() {
             set_always_on_top,
             start_window_walk,
             cancel_window_walk,
+            set_game_hotkeys,
         ])
         .on_page_load(|webview, payload| {
+            if webview.label() == "companion" && matches!(payload.event(), PageLoadEvent::Started) {
+                webview.state::<game_hotkeys::GameHotkeys>().clear();
+            }
             if webview.label() != "companion"
                 || !matches!(payload.event(), PageLoadEvent::Finished)
                 || WINDOW_READY.load(Ordering::SeqCst)

@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { SpeechPresentation } from '../../face/js/speech_presentation.js';
+import { EMOTIONS } from '../../face/js/emotions.js';
 
 function clock() {
     let next = 0;
@@ -189,6 +190,7 @@ for (const surface of ['face', 'companion']) {
             subtitles: { show() {}, hide() {} },
             panel: { addMessage: (...args) => transcripts.push(args), setBrainData() {} },
             _showSpeech() {}, _appendChat: (...args) => transcripts.push(args), _setOperationalState() {},
+            _scheduleSpeechHide() {},
             _setEmotion: mood => h.controller.setEmotion(mood),
             lipSync: { processVisemes: items => visemes.push(items) },
             inboxVoice: { stop() {} },
@@ -196,7 +198,7 @@ for (const surface of ['face', 'companion']) {
         };
         if (surface === 'face') {
             app._updateEmotionEnergy = () => {}; app._triggerEmotionBounce = () => {};
-            h.controller.onMood = mood => method(source, '_showEmotion', { document }).call(app, mood);
+            h.controller.onMood = mood => method(source, '_showEmotion', { document, EMOTIONS }).call(app, mood);
         }
         handle.call(app, 'speech_start', { text: 'Hola', emotion: 'feliz' });
         assert.equal(h.controller.emotion, 'feliz');

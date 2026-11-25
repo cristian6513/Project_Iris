@@ -10,15 +10,32 @@ import { disposeAvatarTree, retainAvatarResources } from './avatar_lifecycle.js?
 import { limitTextures } from './texture_limit.js?v=2';
 import { SeatDrape } from './seat_drape.js';
 import { LyingHips } from './lying_hips.js?v=4';
-import { ArmReach } from './arm_reach.js';
+import { ArmReach } from './arm_reach.js?v=3';
 import { useKTX2 } from './ktx2_support.js?v=2';
 import { autoRegisterSpringBones } from './auto_springbones.js';
-import { AvatarBreeze } from './avatar_breeze.js?v=4';
+import { AvatarBreeze } from './avatar_breeze.js?v=5';
+import { scaleHairColliders } from './spring_collider_scale.js?v=1';
 import { IKSolver } from './ik.js';
-import { PoseFace, NaturalBlink, VRM_EMOTION_PRESETS } from './pose_face.js';
+import { PoseFace, NaturalBlink, VRM_EMOTION_PRESETS, EMOTION_LIDS } from './pose_face.js?v=3';
+import { canonicalEmotion } from './emotions.js?v=3';
 import { VRMAnimationPlayer } from './vrm_animation_loader.js?v=10';
-import { isPmxArchive } from './avatar_state.js?v=5';
+import { isPmxArchive } from './avatar_state.js?v=6';
 
+// A mark that floats by her head for a moment when an emotion arrives, on avatars that have one
+// (MMD's ！ and ？ symbols, built in pmx_expressions.js): it pops in, holds, then fades.
+export const EMOTION_MARKS = Object.freeze({ sorprendida: 'markSurprise', pensativa: 'markThink', confundida: 'markThink' });
+// A quick one-sided gesture when an emotion arrives: cariñosa winks (MMD's wink morph, or a VRM's
+// right eyelid). The first expression the avatar has is used.
+export const EMOTION_PULSES = Object.freeze({ 'cariñosa': Object.freeze({ names: ['wink', 'blinkRight', 'blinkLeft'], seconds: 0.75 }) });
+const MARK_SECONDS = 1.6, MARK_IN = 0.12, MARK_OUT = 0.45;
+const VOWEL_VISEMES = Object.freeze(['aa', 'ih', 'ou', 'ee', 'oh']);
+
+/** How much of a mark shows `t` seconds after it popped (0 once it is over). */
+export function markLevel(t, seconds = MARK_SECONDS) {
+    if (!(t >= 0) || t >= seconds) return 0;
+    if (t < MARK_IN) return t / MARK_IN;
+    return Math.min(1, (seconds - t) / MARK_OUT);
+}
 
 // ════════════════════════════════════════════════════════════
 // AvatarManager — the visible VRM and its replacements
@@ -123,6 +140,7 @@ export class AvatarManager {
     // ── Delegated API ──
     setEmotion(e)       { this.avatar?.setEmotion(e); }
     setMouthOpen(v)     { this.avatar?.setMouthOpen(v); }
+    setMouthShape(s)    { this.avatar?.setMouthShape?.(s); }
     playAnimation(n)    { this.avatar?.playAnimation(n); }
     update(delta, time, options) { this.avatar?.update(delta, time, options); }
     finalizeFrame(delta) { this.avatar?.finalizeFrame?.(delta); }
@@ -216,6 +234,8 @@ export class VRMAvatar {
         }
 
         const arc = Math.sin(t * Math.PI);
+        // On top of a clip: remember the clip's rotation, given back after vrm.update.
+        if (this._headAnim.over && !this._headClip) this._headClip = { head, rotation: head.quaternion.clone() };
         const set = (axis, value) => { head.rotation[axis] = value + (this._headAnim.over ? head.rotation[axis] : 0); };
         switch (this._headAnim.type) {
             case 'nod':      set('x', -0.25 * arc); break;
@@ -223,6 +243,18 @@ export class VRMAvatar {
             case 'shake':    set('y', 0.3 * Math.sin(t * Math.PI * 3)); break;
             case 'tilt':     set('z', 0.2 * arc); break;
         }
+    }
+
+    /**
+     * Give the head back the clip's rotation once the gesture has reached the raw bones. The
+     * mixer does not rewrite a value the clip holds still, so a nod left on the bone was nodded
+     * again next frame: some 102 degrees over the still stretch of opening the book (Codex,
+     * 2026-11-20). Same as ArmReach.restore and LyingHips.restoreLegs.
+     */
+    _restoreHeadClip() {
+        if (!this._headClip) return;
+        this._headClip.head.quaternion.copy(this._headClip.rotation);
+        this._headClip = null;
     }
 
     async init(url, { pmx = false } = {}) {
@@ -393,6 +425,10 @@ export class VRMAvatar {
                             // not declare them in the VRMC_springBone extension.
                             // No-op on models without cloth bones at all.
                             if (!pmx) {
+                                // The file's hair colliders at the size she is drawn
+                                // (spring_collider_scale.js), before any joints of our own.
+                                const hair = scaleHairColliders(vrm);
+                                if (hair.joints) console.log(`[Avatar] hair colliders ×${hair.scale.toFixed(3)}: ${hair.joints} joints, ${hair.colliders} colliders`);
                                 await autoRegisterSpringBones(vrm).catch(e =>
                                     console.warn('[auto-springbones] failed:', e)
                                 );
@@ -481,7 +517,7 @@ export class VRMAvatar {
                 const load = async () => {
                     const response = await fetch(url, { cache: 'no-store' });
                     if (!response.ok) throw new Error('No se pudo leer el ZIP MMD guardado.');
-                    const { loadPmxAvatar } = await import('./pmx_avatar.js');
+                    const { loadPmxAvatar } = await import('./pmx_avatar.js?v=10');
                     const vrm = await loadPmxAvatar(new Uint8Array(await response.arrayBuffer()), { simulate: true });
                     await onModel({ scene: vrm.scene, userData: { vrm }, animations: [] });
                 };
@@ -683,7 +719,9 @@ export class VRMAvatar {
 
     // ── Public API (the AvatarManager delegates to these) ──
 
-    setEmotion(name) {
+    setEmotion(requested) {
+        // Any spelling the agent uses (cariñosa, carinosa, avergonzado…), as one of Iris's names.
+        const name = canonicalEmotion(requested);
         const preset = VRM_EMOTION_PRESETS[name] || VRM_EMOTION_PRESETS.neutral;
         // Snapshot the OUTGOING expression weights so `_updateExpressions`
         // can leak a residual (the "expression leaks" Tier 2 feature) —
@@ -697,6 +735,24 @@ export class VRMAvatar {
         this._emotionLeakStartedAt = performance.now() / 1000;
         this.targetExpressions = { ...preset };
         this._currentEmotionName = name || 'neutral';
+        // Her ！ or ？, if this avatar has it; a mark already showing is not restarted.
+        const mark = EMOTION_MARKS[name];
+        if (mark) this.pulseExpression(mark);
+        const gesture = EMOTION_PULSES[name];
+        const target = gesture?.names.find(candidate => this.vrm?.expressionManager?.getExpression?.(candidate));
+        if (target) this.pulseExpression(target, gesture.seconds);
+    }
+
+    /**
+     * Pops an expression for a moment (a mark, a blush): in fast, held, then faded, over the
+     * emotion's own value for it. Only on avatars that have it; one already showing goes on.
+     */
+    pulseExpression(name, seconds = MARK_SECONDS) {
+        if (!name || !this.vrm?.expressionManager?.getExpression?.(name)) return false;
+        this._pulses ??= new Map();
+        if (this._pulses.has(name)) return false;
+        this._pulses.set(name, { t: 0, seconds });
+        return true;
     }
 
     /** Her hair and clothes start again from where she is now, after a jump. */
@@ -706,11 +762,13 @@ export class VRMAvatar {
         this.vrm?.resetPhysics?.();
     }
 
-    /** How much the hands follow IRIS' this frame: 0 while no clip touches anything. */
-    setHandReach(weight) {
+    /** How much the hands follow IRIS' this frame: 0 while no clip touches anything. `soft` eases
+     *  the last of the reach (typing: arm_reach.js softReach). */
+    setHandReach(weight, { soft = false } = {}) {
         if (!this.vrm) return;
         if (this._armReach?.vrm !== this.vrm) this._armReach = new ArmReach(this.vrm, this.group);
         this._armReach.weight = weight;
+        this._armReach.soft = soft;
     }
 
     /** How far her skirt rests over her thighs: 0 standing, 1 seated. */
@@ -744,6 +802,11 @@ export class VRMAvatar {
 
     setMouthOpen(v) {
         this.mouthOpenness = Math.max(0, Math.min(1, v));
+    }
+
+    /** The vowel she is saying, as viseme weights (lipsync.js, vowel_track.js), or null for «a». */
+    setMouthShape(shape) {
+        this.mouthShape = shape && typeof shape === 'object' ? shape : null;
     }
 
     playAnimation(name) {
@@ -811,9 +874,12 @@ export class VRMAvatar {
             if (this._headAnim?.over) this._applyHeadAnim();
             this._armReach?.apply();
             this._poseFace?.apply(this, delta);
-            this.breeze?.apply(delta);
+            // The wind turns with her, so it never blows into her face (avatar_breeze.js).
+            this.breeze?.apply(delta, (this.group?.rotation.y ?? 0) - (this.restYaw || 0));
             this.vrm?.update(delta);
         } finally {
+            this._restoreHeadClip?.();
+            this._armReach?.restore();
             this._lyingHips?.restoreLegs();
         }
     }
@@ -938,9 +1004,54 @@ export class VRMAvatar {
             this.currentExpressions[name] = next;
             this._setExpression(name, next);
         }
+
+        const step = Number.isFinite(dt) ? Math.max(0, dt) : 0;
+        // Eyelids the emotion lowers (pose_face.js applies them over the blink).
+        const lids = EMOTION_LIDS[this._currentEmotionName] || 0;
+        this.emotionLids = (this.emotionLids || 0) + (lids - (this.emotionLids || 0)) * Math.min(1, step * 4);
+        for (const [name, pulse] of this._pulses ?? []) {
+            pulse.t += step;
+            const level = markLevel(pulse.t, pulse.seconds);
+            // An eyelid is written fresh each frame by the blink (MicroLife ran before): keep the
+            // larger. If nothing rewrote it since our last write, that value is our own: ignore it,
+            // or the eye would never open again. Other channels compare with the emotion's value.
+            let under = this.currentExpressions[name] || 0;
+            if (name.startsWith('blink')) {
+                const now = this.vrm?.expressionManager?.getValue?.(name) || 0;
+                under = now === pulse.written ? 0 : now;
+            }
+            pulse.written = Math.max(level, under);
+            this._setExpression(name, pulse.written);
+            if (level === 0 && pulse.t >= MARK_IN) this._pulses.delete(name);
+        }
     }
 
     _updateMouth(dt) {
+        // The vowel she is saying (setMouthShape): the openness shared among the five shapes.
+        const SILENCE = 0.04;
+        if (this.mouthShape && this.mouthOpenness > SILENCE) {
+            for (const name of VOWEL_VISEMES) {
+                const current = this.currentExpressions[name] || 0;
+                const target = this.mouthOpenness * (this.mouthShape[name] || 0);
+                const next = current + (target - current) * Math.min(1, 14 * dt);
+                this.currentExpressions[name] = next;
+                this._setExpression(name, next);
+            }
+            this._speechVowelsActive = true;
+            this._speechOhActive = true;
+            return;
+        }
+        if (this._speechVowelsActive) {
+            // Back to plain opening: the other vowels fade out (and «oh» is left to MicroLife).
+            let left = 0;
+            for (const name of ['ih', 'ou', 'ee']) {
+                const next = (this.currentExpressions[name] || 0) * Math.max(0, 1 - 14 * dt);
+                this.currentExpressions[name] = next < 0.001 ? 0 : next;
+                this._setExpression(name, this.currentExpressions[name]);
+                left += this.currentExpressions[name];
+            }
+            if (left === 0) this._speechVowelsActive = false;
+        }
         // Map mouth openness → VRM "aa" viseme (open mouth)
         const current = this.currentExpressions['aa'] || 0;
         const target = this.mouthOpenness;

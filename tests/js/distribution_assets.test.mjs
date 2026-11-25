@@ -52,7 +52,7 @@ for (const filename of ['/absolute.vrma', 'C:/file.vrma', '../outside.vrma', '..
 
 test("IRIS' avatar is pinned like the clips and travels with its licence", async () => {
     assert.deepEqual(factoryContract.avatar, { filename: 'iris.vrm',
-        sha256: 'c1dc7d03e96b4e166f13bced882ae20c09e13bb3129dd2ea42b56aae0ccd3531', license: 'LICENSE-IRIS-VRM.txt' });
+        sha256: '2c12afd9b24b8df26dd78b674d35aa2787ee3a2d14b1076e993c54e15251b323', license: 'LICENSE-IRIS-VRM.txt' });
     const assets = await prepareAnimationAssets(source);
     assert.match(assets.get('LICENSE-IRIS-VRM.txt').toString('utf8'), /NO forma parte de la licencia MIT/);
     for (const avatar of [{ ...factoryContract.avatar, sha256: '0'.repeat(64) }]) {

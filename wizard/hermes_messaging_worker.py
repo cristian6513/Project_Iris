@@ -289,8 +289,11 @@ async def dispatch(action, data):
             raise HTTPException(400, "El campo no pertenece a este canal.")
         if set(body.env) & set(body.clear_env):
             raise HTTPException(400, "No puedes cambiar y borrar el mismo campo a la vez.")
+        # Hermes 0.23 validates against the platform's rules (``_env_value_rules``, resolved
+        # right after ``_require_platform``); 0.21 took the platform id.
+        rules = native._env_value_rules(pid) if hasattr(native, "_env_value_rules") else pid
         for key, value in body.env.items():
-            native._validate_messaging_env_value(pid, key, value.strip())
+            native._validate_messaging_env_value(rules, key, value.strip())
         from hermes_cli.config import _env_write_blocked, load_env
 
         for key in set(body.env) | set(body.clear_env):

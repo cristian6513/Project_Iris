@@ -22,6 +22,20 @@ export const REFERENCE = Object.freeze({
     hand: [0.3012, 0, 0],
 });
 const REACH_LIMIT = 0.999;       // of the arm's length: a dead straight arm gives no elbow
+// Near a straight arm the elbow turns ever faster for the same move of the hand, so a target that
+// came back within reach snapped the elbow: Pearl's short arms, typing, turned the forearm 7.8
+// degrees in one frame. Where `soft` is asked for (typing only, Codex and the user, 2026-11-20) the
+// last part of the reach is eased: the arm straightens smoothly and never quite locks. Below 96 %
+// nothing changes; a target at 98 % lands 0.4 % of the arm short, one at full stretch 1.5 %
+// (some 1 cm). Elsewhere the hand still lands exactly.
+const SOFT_ZONE = 0.04;          // of the arm's length
+
+/** How far the arm reaches for a target this far away (both in the same units). */
+export function softReach(distance, length) {
+    const zone = length * SOFT_ZONE, from = length - zone;
+    if (!(distance > from)) return distance;
+    return from + zone * (1 - Math.exp(-(distance - from) / zone));
+}
 
 const SIDES = Object.freeze([
     Object.freeze({ sign: 1, shoulder: 'leftShoulder', upper: 'leftUpperArm', lower: 'leftLowerArm', hand: 'leftHand' }),
@@ -43,12 +57,15 @@ export class ArmReach {
         this.vrm = vrm;
         this.group = group;
         this.weight = 0;
+        this.soft = false;
         this.active = !isReferenceBody(vrm);
         const hips = vrm.humanoid?.normalizedRestPose?.hips?.position?.[1];
         this.hipsRatio = hips ? hips / REFERENCE.hips[1] : 1;
         // A VRM 0 model looks the other way in its own space: so do the clips written to it.
         this.flip = String(vrm.meta?.metaVersion) === '0';
         this.bone = (name) => vrm.humanoid.getNormalizedBoneNode(name);
+        // The clip's own rotations of the bones bent this frame, put back by restore().
+        this._clipRotations = new Map();
     }
 
     _offset(values, sign = 1) {
@@ -79,11 +96,25 @@ export class ArmReach {
     }
 
     apply() {
+        // Bent twice before a draw: start again from the clip.
+        this.restore();
         if (!this.active || this.weight <= 0) return;
         const root = this.bone('hips')?.parent;
         if (!root) return;
         root.updateWorldMatrix(true, true);
         for (const side of SIDES) this._reach(side);
+    }
+
+    /**
+     * Give the bones back the clip's rotations once the bent arm has reached the raw bones
+     * (after vrm.update). The mixer does not rewrite a value the clip holds still, so a bend
+     * left on the bone was bent again next frame: on other bodies the hand held still on the
+     * window turned some 7 degrees a frame, and a loop's repeated end frame bent the arms
+     * twice for one frame.
+     */
+    restore() {
+        for (const [bone, rotation] of this._clipRotations) bone.quaternion.copy(rotation);
+        this._clipRotations.clear();
     }
 
     _reach(side) {
@@ -99,7 +130,8 @@ export class ArmReach {
 
         const line = target.clone().sub(shoulder);
         const room = (first + second) * REACH_LIMIT;
-        const distance = THREE.MathUtils.clamp(line.length(), Math.abs(first - second) + 1e-4, room);
+        const wanted = this.soft ? softReach(line.length(), first + second) : line.length();
+        const distance = THREE.MathUtils.clamp(wanted, Math.abs(first - second) + 1e-4, room);
         const along = line.normalize();
         // The elbow keeps to the side the clip gave it.
         const side90 = elbow.clone().sub(shoulder);
@@ -121,6 +153,9 @@ export class ArmReach {
         lowerWorld.premultiply(lowerTurn);
         handWorld.slerp(turned, this.weight);
 
+        for (const bone of [upper, lower, hand]) {
+            if (!this._clipRotations.has(bone)) this._clipRotations.set(bone, bone.quaternion.clone());
+        }
         upper.quaternion.copy(q1.copy(upper.parent.getWorldQuaternion(q2)).invert().multiply(upperWorld));
         lower.quaternion.copy(q1.copy(upperWorld).invert().multiply(lowerWorld));
         hand.quaternion.copy(q1.copy(lowerWorld).invert().multiply(handWorld));

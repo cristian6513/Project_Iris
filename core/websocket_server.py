@@ -12,6 +12,7 @@ from __future__ import annotations
 import asyncio
 import hmac
 import json
+import re
 import sqlite3
 import logging
 import math
@@ -98,7 +99,7 @@ from core.identity_api import router as identity_router
 from core.model_selection_api import model_selection_router
 from core.vision_model_api import vision_model_router
 from core import (app_messages, app_notices, background_tasks, vision_model, vision_snapshot, screen_snapshot,
-                  visual_requests)
+                  visual_requests, game_session)
 from core.iris_skill_lifecycle import installed_iris_skill_dir
 from core.app_actions import AppActionBridge, AppActionRegistry, OperationRejected
 from core.google_api import create_google_router, require_local_peer
@@ -197,6 +198,30 @@ _snapshot_broker = vision_snapshot.SnapshotBroker()
 _screen_snapshot_broker = vision_snapshot.SnapshotBroker()
 _snapshot_consent = vision_snapshot.SnapshotConsent()
 _visual_gates = visual_requests.VisualRequestGates()  # Iris may ask to look once per local turn
+
+
+async def _interrupt_game_turn(task):
+    agent = getattr(app.state, "agent", None)
+    if agent is not None:
+        await agent.interrupt(reason="game_session_stopped", expected_turn=task)
+
+
+def _game_commentary_busy():
+    wake = getattr(app.state, "hermes_wake", None)
+    voice = getattr(wake, "manual_voice", None)
+    conversation = _voice_conversation()
+    return bool(
+        getattr(wake, "state", "") in {"detected", "recording", "transcribing"}
+        or getattr(voice, "intercept", False)
+        or conversation and conversation.session
+    )
+
+
+_game_sessions = game_session.GameSessions(
+    store=_capability_store, registry=_surface_registry,
+    is_local=lambda owner: _is_local_client(owner), agent=lambda: getattr(app.state, "agent", None),
+    interrupt=_interrupt_game_turn, busy=_game_commentary_busy,
+)
 _launch_offers = background_tasks.LaunchOffers()  # Iris may start one background task per local turn
 _background_runtime: background_tasks.BackgroundTaskRuntime | None = None  # started by core.agent
 _app_notices: app_notices.AppNoticeStore | None = None  # notices apps scheduled; started by core.agent
@@ -231,6 +256,7 @@ def _disconnect_surface(websocket: WebSocket) -> bool:
     """Remove a socket and report whether it released the camera lease."""
     _snapshot_broker.drop_surface(websocket)
     _screen_snapshot_broker.drop_surface(websocket)
+    _game_sessions.drop(websocket)
     _tts_playback.disconnect(websocket)
     released_camera = _surface_registry.camera_owner() is websocket
     _connected_clients.discard(websocket)
@@ -576,6 +602,7 @@ async def websocket_endpoint(websocket: WebSocket) -> None:
                 "name": "IRIS",
                 "status": "ready",
                 "voice_conversation": True,
+                "game_session": True,
                 "hermes_wake_active": bool(
                     getattr(getattr(app.state, "hermes_wake", None), "listening", False)
                 ),
@@ -770,6 +797,8 @@ async def _handle_face_message(websocket: WebSocket, message: Any) -> None:
             websocket,
             _surface_payload_for_peer(payload, peer_host),
         )
+        if not record.visible:
+            await _game_sessions.stop("Modo juego detenido al ocultar Companion.", owner=websocket)
         conversation = _voice_conversation()
         if conversation and conversation.session and conversation.session.owner is websocket and not record.visible:
             conversation.stop()
@@ -1046,6 +1075,24 @@ async def _handle_face_message(websocket: WebSocket, message: Any) -> None:
     elif msg_type == "screen_snapshot_result":
         if not isinstance(payload, dict) or not _screen_snapshot_broker.answer(websocket, payload):
             logger.warning("Ignored an unrequested or late screen capture answer.")
+    elif msg_type == "game_session_command":
+        if _is_local_client(websocket):
+            _surface_registry.mark_interaction(websocket)
+        async def game_command():
+            try:
+                await _game_sessions.command(websocket, payload)
+            except Exception:
+                message = "No pude preparar la captura. Revisa Modelos → Visión."
+                await _game_sessions.stop(message, owner=websocket)
+                await _game_sessions.send(websocket, "game_session_state", {
+                    "active": False, "message": message,
+                })
+        task = asyncio.create_task(game_command())
+        _background_deliveries.add(task)
+        task.add_done_callback(_background_deliveries.discard)
+    elif msg_type == "game_session_frame_result":
+        if isinstance(payload, dict):
+            _game_sessions.broker.answer(websocket, payload)
     elif msg_type in {"background_task_cancel", "background_task_release"}:
         # The indicator's «Cancelar», or «Liberar» for a start nobody can confirm (the user
         # accepts it may still run), from this PC only. «Detener» and new messages never get here.
@@ -1504,6 +1551,7 @@ async def _handle_user_text(
     # events and the next message can cross on the way. It ends however the turn ends.
     turn = current_turn.set(epoch)
     try:
+        await _game_sessions.commentary.begin_human(asyncio.current_task())
         await broadcast_to_face("turn_started", {"turn": epoch})
         _visual_gates.close(reason="superseded")  # the earlier turn's code no longer serves
         _launch_offers.close(reason="superseded")  # nor its offer to start a background task
@@ -1534,6 +1582,8 @@ async def _handle_user_text(
         async with conversation_lock:
             await run()
     finally:
+        _game_sessions.commentary.end_human(asyncio.current_task())
+        _game_sessions.release_turn(asyncio.current_task())
         current_turn.reset(turn)
         await asyncio.shield(broadcast_to_face("turn_ended", {"turn": epoch}))
 
@@ -2646,6 +2696,8 @@ async def _handle_user_text_unlocked(
 
     visual_gate = None
     launch_offer = None
+    game_scope = None
+    game_work = asyncio.current_task()
     try:
         # Reuse the agent's `_think()` pipeline — same code path as voice
         # input — so personality, memory, and JSON-parsing all behave
@@ -2654,7 +2706,25 @@ async def _handle_user_text_unlocked(
         snapshot = None
         local_origin = websocket is None or _is_local_client(websocket)  # None: local voice
         screen_question = not camera_question and screen_snapshot.is_screen_request(text)
-        if local_origin and not images and screen_question:
+        game_owner = websocket
+        if game_owner is None and _game_sessions.session is not None:
+            game_owner = _surface_registry.audio_owner()
+        explicit_camera = bool(vision_snapshot.is_visual_request(text) and
+                               re.search(r"\b(cámara|camara|webcam)\b", text, re.IGNORECASE))
+        if (local_origin and memory_text is None and not images and not camera_question
+                and not explicit_camera and _game_sessions.for_owner(game_owner)):
+            game_scope = _game_sessions.for_owner(game_owner)
+            outcome = await _game_sessions.take(
+                game_owner, current=lambda: turn_epoch is None or turn_epoch == _turn_epoch,
+            )
+            if outcome.get("code") == "stale":
+                raise asyncio.CancelledError()
+            if "image" in outcome:
+                images, snapshot = [outcome["image"]], outcome
+            else:
+                snapshot = {"source": "screen", "unavailable": outcome["code"],
+                            "route_token": agent.bridge.route_context()["token"]}
+        elif local_origin and not images and screen_question:
             screen_token = agent.bridge.route_context()["token"]
             outcome = await screen_snapshot.take_snapshot(
                 websocket, agent, broker=_screen_snapshot_broker, store=_capability_store,
@@ -2691,6 +2761,7 @@ async def _handle_user_text_unlocked(
             if local_origin:
                 launch_offer, background_context = await _offer_background_task(agent, text, turn_epoch)
             context = "\n\n".join(filter(None, [
+                _game_sessions.context(game_scope) if game_scope else "",
                 visual_requests.context_for(visual_gate, _iris_skill_script("visual_request.py"))
                 if visual_gate else "", background_context,
                 _app_builder_context(agent, local_origin=local_origin, app_message=memory_text is not None),
@@ -2706,6 +2777,10 @@ async def _handle_user_text_unlocked(
             )
             if noted:
                 await asyncio.to_thread(_background_runtime.store.mark_noted, noted)
+        if game_scope and (not _game_sessions.turn_current(game_scope, game_work)
+                           or turn_epoch is not None and turn_epoch != _turn_epoch
+                           or not await _game_sessions.authorized(game_scope)):
+            raise asyncio.CancelledError()
     except asyncio.CancelledError:
         # Barge-in cancelled us mid-think. Don't send any UI events
         # (interrupt() already fired speech_end / idle). Re-raise so
@@ -2768,7 +2843,23 @@ async def _handle_user_text_unlocked(
     # animation, scene action, all the events. This is the SAME
     # method `_run_loop` calls after voice input.
     try:
-        await agent._respond(response)
+        presented = True
+        if game_scope and game_scope.muted:
+            await _game_sessions.send(game_scope.owner, "game_session_answer", {
+                "session_id": game_scope.id, "text": response.get("texto_hablado") or "",
+            })
+        else:
+            if game_scope:
+                presented = await agent._respond(response, still_relevant=lambda: (
+                    _game_sessions.turn_current(game_scope, game_work) and not game_scope.muted
+                ))
+            else:
+                await agent._respond(response)
+        if (game_scope and presented is not False
+                and _game_sessions.turn_current(game_scope, game_work)):
+            game_scope.memory.add("pregunta_del_usuario", text)
+            game_scope.memory.add("respuesta_de_iris", response.get("texto_hablado"))
+            await _game_sessions.publish(game_scope)
     except asyncio.CancelledError:
         # Barge-in during speech. interrupt() already cleaned up the
         # face state; just unwind silently.
@@ -2800,6 +2891,8 @@ async def handle_hermes_wake_event(event_type: str, payload: dict[str, Any]) -> 
         await broadcast_to_face("voice_partial", payload)
         return
     if event_type == "manual_voice.state":
+        if payload.get("state") in {"recording", "listening", "transcribing"}:
+            await _game_sessions.commentary.preempt()
         await broadcast_to_face("hermes_voice_state", payload)
         conversation = _voice_conversation()
         if conversation is not None:
@@ -2838,6 +2931,7 @@ async def handle_hermes_wake_event(event_type: str, payload: dict[str, Any]) -> 
     }
 
     if event_type == "wake.detected":
+        await _game_sessions.commentary.preempt()
         agent = getattr(app.state, "agent", None)
         route_warning = ""
         route_result: dict[str, Any] = {}
@@ -5843,6 +5937,8 @@ async def _reconcile_runtime_capability_policy(
     """
     global _policy_revision
     _policy_revision += 1  # before any await: a capture still preparing sees it
+    if changed_capability in {None, "screen.snapshot", game_session.CAPABILITY}:
+        await _game_sessions.stop("Modo juego detenido por un cambio en Permisos.")
     if changed_capability in {None, "microphone.capture"} and not _conversational_mic_allowed():
         conversation = _voice_conversation()
         if conversation is not None:

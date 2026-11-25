@@ -1,4 +1,8 @@
-"""Executed as a file by Hermes' Python; deliberately imports no Iris modules."""
+"""Executed as a file by Hermes' Python; deliberately imports no Iris modules.
+
+Repairs Iris' API tool selection and, best effort, keeps Nous' free-tier guest off while the
+profile never chose (``keep_nous_guest_off``, Hermes 0.23+).
+"""
 
 from __future__ import annotations
 
@@ -25,6 +29,36 @@ def _hashes(paths: list[Path]) -> dict[str, str | None]:
     }
 
 
+def keep_nous_guest_off(config_path: Path, dependencies: list[Path]) -> None:
+    """Write ``nous.guest: false`` while the key is unset (Hermes 0.23+).
+
+    Hermes 0.23 dropped the launch gate of Nous' free tier: with ``nous.guest`` unset, the
+    first hosted-connector action mints an anonymous Nous identity (a portal request). Up to
+    0.21 that needed the desktop app's opt-in, so Iris keeps it off for profiles that never
+    chose; the wizard writes the same default. An explicit value, a managed key or a config
+    edited meanwhile is left alone. Best effort: the tool policy below never depends on it.
+    """
+    from hermes_cli import managed_scope
+    from hermes_cli.config import atomic_config_write, is_managed, require_readable_config_before_write
+
+    if is_managed() or managed_scope.is_key_managed("nous.guest"):
+        return
+    before = _hashes(dependencies)
+    if before[str(config_path)] is None:
+        return  # No profile config yet: the wizard's first write carries the default.
+    raw = require_readable_config_before_write(config_path)
+    nous = raw.get("nous")
+    if nous is not None and not isinstance(nous, dict):
+        return
+    if isinstance(nous, dict) and "guest" in nous:
+        return
+    replacement = copy.deepcopy(raw)
+    replacement["nous"] = {**(nous or {}), "guest": False}
+    if _hashes(dependencies) != before:
+        return  # Keep an edit made meanwhile; the next turn tries again.
+    atomic_config_write(config_path, replacement)
+
+
 def repair(blocked: list[str]) -> dict:
     from hermes_cli import managed_scope
     from hermes_cli.config import (
@@ -49,6 +83,10 @@ def repair(blocked: list[str]) -> dict:
     forbidden = {tool for name in blocked for tool in resolve_toolset(name)}
     if not forbidden:
         return {"ok": False}
+    try:
+        keep_nous_guest_off(config_path, dependencies)
+    except Exception:
+        pass  # Never blocks a turn; the verified hashes below include any write it made.
 
     def effective():
         config = load_user_config_effective(config_path, fail_closed=True)

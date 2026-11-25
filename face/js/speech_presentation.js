@@ -1,3 +1,4 @@
+import { canonicalEmotion } from './emotions.js?v=3';
 /**
  * Shared speech/affect lifecycle for Face and Desktop Companion.
  *
@@ -63,7 +64,8 @@ export class SpeechPresentation {
     }
 
     _setMood(emotion) {
-        this.emotion = typeof emotion === 'string' && emotion.trim() ? emotion : 'neutral';
+        // One of Iris's names, whatever spelling the agent used (emotions.js).
+        this.emotion = canonicalEmotion(emotion);
         this.getIdle()?.feedIrisEmotion?.(this.emotion);
         this.onMood(this.emotion);
     }

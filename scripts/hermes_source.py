@@ -3,6 +3,11 @@
 This is deliberately not an upstream wheel build or a copy of an installed
 environment. Git provenance and the upstream manifests are checked before any
 runtime file is written; callers supply a new Hermes source destination.
+
+The exported bytes are upstream's, except for the reviewed IRIS patches listed in
+the pin (``source_patches``). Each one names the exact upstream file hash it was
+written against and the hash of the result, so an upstream change to that file
+stops the build until the patch is reviewed again or dropped.
 """
 
 from __future__ import annotations
@@ -27,6 +32,9 @@ CODE_DIRECTORIES = frozenset({
     "acp_adapter", "plugins", "providers",
     # Hermes 0.21.6: its package manager and platform layer.
     "pm", "hermes_platform",
+    # Hermes 0.23.x: the agent package, session storage (the old hermes_state_* modules),
+    # session rules and utils (a module until 0.21).
+    "hermes_agent", "persistence", "session_rules", "utils",
 })
 ASSET_DIRECTORIES = frozenset({
     "skills", "optional-skills", "optional-mcps", "plugin-catalog", "locales", "assets",
@@ -45,7 +53,10 @@ WINDOWS_RESERVED_NAMES = frozenset({
     *{f"lpt{number}" for number in range(1, 10)},
 })
 
-CLI_LAUNCHER = '''"""Portable IRIS entry point into the unmodified pinned Hermes source."""
+_PATCH_ID = re.compile(r"[a-z0-9][a-z0-9-]{2,63}")
+_HASH = re.compile(r"[0-9a-f]{64}")
+
+CLI_LAUNCHER = '''"""Portable IRIS entry point into the pinned Hermes source."""
 import runpy
 import sys
 from pathlib import Path
@@ -146,6 +157,76 @@ def _validate_pin(pin: Mapping[str, Any]) -> tuple[str, str, str, dict[str, str]
     return version, revision, archive_hash, dict(source_hashes)
 
 
+def _validate_patches(pin: Mapping[str, Any]) -> dict[str, dict[str, Any]]:
+    """The pin's reviewed IRIS patches, keyed by the Hermes code file each one changes.
+
+    A patch is ``{"id", "reason", "files"}``; each file entry is ``{"path", "sha256",
+    "patched_sha256", "replace"}`` with ``replace`` a list of exact ``{"old", "new"}``
+    text blocks. One patch per file keeps both hashes unambiguous.
+    """
+    patches = pin.get("source_patches", [])
+    if not isinstance(patches, list):
+        raise HermesSourceError("Hermes source_patches must be a list.")
+    by_file: dict[str, dict[str, Any]] = {}
+    ids: set[str] = set()
+    for patch in patches:
+        if not isinstance(patch, Mapping) or set(patch) != {"id", "reason", "files"}:
+            raise HermesSourceError("Invalid Hermes source patch.")
+        patch_id = patch["id"]
+        if not isinstance(patch_id, str) or not _PATCH_ID.fullmatch(patch_id) or patch_id in ids:
+            raise HermesSourceError(f"Invalid or duplicate Hermes source patch id: {patch_id!r}.")
+        ids.add(patch_id)
+        if not isinstance(patch["reason"], str) or not patch["reason"].strip():
+            raise HermesSourceError(f"Hermes source patch {patch_id} needs a reason.")
+        files = patch["files"]
+        if not isinstance(files, list) or not files:
+            raise HermesSourceError(f"Hermes source patch {patch_id} changes no file.")
+        for item in files:
+            if not isinstance(item, Mapping) or set(item) != {"path", "sha256", "patched_sha256", "replace"}:
+                raise HermesSourceError(f"Invalid file entry in Hermes source patch {patch_id}.")
+            path = item["path"]
+            parts = PurePosixPath(path).parts if isinstance(path, str) else ()
+            if (not parts or str(PurePosixPath(*parts)) != path or not path.endswith(".py")
+                    or parts[0] not in CODE_DIRECTORIES or not _allowed(path)
+                    or any(part in {".", ".."} for part in parts)):
+                raise HermesSourceError(f"Hermes source patch {patch_id} targets an unexpected path: {path!r}.")
+            if path in by_file:
+                raise HermesSourceError(f"Two Hermes source patches change {path}.")
+            digests = (item["sha256"], item["patched_sha256"])
+            if not all(isinstance(value, str) and _HASH.fullmatch(value) for value in digests) or digests[0] == digests[1]:
+                raise HermesSourceError(f"Invalid hashes for {path} in Hermes source patch {patch_id}.")
+            steps = item["replace"]
+            if not isinstance(steps, list) or not steps or not all(
+                isinstance(step, Mapping) and set(step) == {"old", "new"}
+                and isinstance(step["old"], str) and step["old"]
+                and isinstance(step["new"], str) and step["old"] != step["new"]
+                for step in steps
+            ):
+                raise HermesSourceError(f"Invalid replacements for {path} in Hermes source patch {patch_id}.")
+            by_file[path] = {"id": patch_id, "sha256": digests[0], "patched_sha256": digests[1],
+                             "replace": [(step["old"], step["new"]) for step in steps]}
+    return by_file
+
+
+def apply_source_patch(name: str, payload: bytes, spec: Mapping[str, Any]) -> bytes:
+    """``payload`` (upstream bytes of ``name``) with one reviewed patch applied, or an error."""
+    if hashlib.sha256(payload).hexdigest() != spec["sha256"]:
+        raise HermesSourceError(
+            f"Hermes changed {name}: review IRIS patch {spec['id']} again, or drop it if upstream fixed the bug.")
+    try:
+        text = payload.decode("utf-8")
+    except UnicodeDecodeError as exc:
+        raise HermesSourceError(f"{name} is not UTF-8 text.") from exc
+    for old, new in spec["replace"]:
+        if text.count(old) != 1:
+            raise HermesSourceError(f"IRIS patch {spec['id']} does not match {name} exactly once.")
+        text = text.replace(old, new)
+    patched = text.encode("utf-8")
+    if hashlib.sha256(patched).hexdigest() != spec["patched_sha256"]:
+        raise HermesSourceError(f"IRIS patch {spec['id']} did not produce the reviewed {name}.")
+    return patched
+
+
 def _member_name(member: tarfile.TarInfo, prefix: str = DEFAULT_ARCHIVE_PREFIX) -> str | None:
     name = member.name
     if not name or "\\" in name or "\x00" in name or name.startswith("/"):
@@ -216,9 +297,14 @@ def extract_hermes_source(
     Hermes 0.21.4. From 0.21.6 Hermes reads it from ``install-stamp.json``: the pin
     then names the stamp's steward, pins that ``__init__.py`` by hash, and the
     stamp written here carries the reviewed version and revision.
+
+    Files named in the pin's ``source_patches`` are written with their reviewed IRIS
+    patch applied (``apply_source_patch``); the result lists the patch ids, and the version's full
+    runtime pin (``source_patches``) records them. ``runtime-pin.json`` here keeps its three fields.
     """
     version, revision, expected_archive_hash, source_hashes = _validate_pin(pin)
     prefix, stamp_policy = _archive_prefix(pin), _stamp_policy(pin)
+    patches = _validate_patches(pin)
     archive_path = Path(archive).resolve(strict=True)
     destination_path = Path(os.path.abspath(destination))
     _reject_linked_destination(destination_path)
@@ -258,6 +344,13 @@ def extract_hermes_source(
             raise HermesSourceError("Hermes source version does not match the reviewed pin.")
         stamp = None if stamp_policy is None else install_stamp(
             version, revision, int(selected["pyproject.toml"].mtime), stamp_policy)
+        missing = sorted(name for name in patches if name not in selected)
+        if missing:
+            raise HermesSourceError(f"IRIS patch target missing from the Hermes source: {missing[0]}.")
+        # Every patch is checked before anything is written.
+        patched = {name: apply_source_patch(name, _read_member(source, selected[name]), spec)
+                   for name, spec in patches.items()}
+        patch_ids = sorted({spec["id"] for spec in patches.values()})
         destination_path.parent.mkdir(parents=True, exist_ok=True)
         _reject_linked_destination(destination_path)
         temporary = Path(tempfile.mkdtemp(prefix=".hermes-source-", dir=destination_path.parent))
@@ -265,9 +358,16 @@ def extract_hermes_source(
             for name, member in selected.items():
                 target = temporary.joinpath(*PurePosixPath(name).parts)
                 target.parent.mkdir(parents=True, exist_ok=True)
+                if name in patched:
+                    with target.open("xb") as output:
+                        output.write(patched[name])
+                    continue
                 # Do not apply archive ownership, modes, links or metadata.
                 with source.extractfile(member) as handle, target.open("xb") as output:
                     shutil.copyfileobj(handle, output)
+            # Exactly these three fields: core.runtime_descriptor and the desktop launcher (Rust,
+            # deny_unknown_fields), including an installed older version verifying an update, refuse
+            # any other. The applied patches are recorded in the version's full runtime pin.
             (temporary / "runtime-pin.json").write_text(json.dumps({
                 "schema_version": 1, "version": version, "revision": revision,
             }, sort_keys=True, indent=2) + "\n", encoding="utf-8")
@@ -286,6 +386,7 @@ def extract_hermes_source(
                 shutil.rmtree(temporary)
     return {
         "root": str(destination_path), "source_archive_sha256": expected_archive_hash,
-        "source_files": len(selected), "source_bytes": sum(item.size for item in selected.values()),
-        "version": version, "revision": revision,
+        "source_files": len(selected),
+        "source_bytes": sum(len(patched[name]) if name in patched else item.size for name, item in selected.items()),
+        "version": version, "revision": revision, "patches": patch_ids,
     }

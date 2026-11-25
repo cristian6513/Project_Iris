@@ -1,13 +1,13 @@
 {
   "schema": 1,
   "component": "main",
-  "candidate": "QA26",
-  "version": "0.9.5",
+  "candidate": "QA29",
+  "version": "0.9.8",
   "source_base_commit": "49951db0042405b7a60a0c4dd3d7896bdd920784",
   "source_has_uncommitted_changes": true,
-  "frozen_source_tree_sha256": "30e8edb809c9326f2120b8e5f4ccaf0bb03e8c0d5dd80907f943715c57c916a5",
-  "build_tree_sha256": "349a71a0382d91936543269aeebeafe97876ea61ec949f2125e37d1f194f108f",
-  "public_base_commit": "a2b0acb1981bdace2c84ea28a38f3cb65b4ee1dc",
+  "frozen_source_tree_sha256": "6996386c59670989db1dd93c08f62f97579e568e0b7abe3c53af492a993e5107",
+  "build_tree_sha256": "9f39650fcb203948a76e17fa831b917e8f379818aa7606227b6b27e9332bc7ab",
+  "public_base_commit": "ca8c57a13e5378fd8e188833b752eff253723d53",
   "public_adaptations": [
     "Release version metadata",
     "Public Markdown references and release documentation",
@@ -16,15 +16,15 @@
     "Factory animation manifest uses the same 95 clips as the shipped package"
   ],
   "qa_artifacts": {
-    "candidate": "QA26",
-    "version": "0.9.5",
-    "build_id": "47ccb7f3",
-    "installer_sha256": "52c3c1fed95ae421274fb549c459411ed99251b63d48b5f70faf99265c646b4d",
-    "package_sha256": "9a59029e306c2577c94fb0734f43b950c2e1af0472a0fcb3e17d38d56314841c",
-    "staging_sha256": "47ccb7f3ee430e5a8979a7e916068276db3186b6e63a906cc21f67472c726de3"
+    "candidate": "QA29",
+    "version": "0.9.8",
+    "build_id": "fdc0e4cb",
+    "installer_sha256": "54ba450e4b81d96ecbed2eaa1495b935ffeb61993a653fd0710614d978781d0a",
+    "package_sha256": "4e07478f965c0659a7a742f7e5a649408e6b6286fde12b57fa1374c204fbcc17",
+    "staging_sha256": "fdc0e4cbc6c7f0f15a41063a1e66f2bc0336f8af936975a173bbb973073159cd"
   },
   "installer_acceptance": false,
-  "payload_files": 1460,
-  "content_tree_sha256": "d7d1ab3bb73acdf1f387260f6d6a520db77ea5b24f5dcc478169d8f6d8d6d3da",
+  "payload_files": 1499,
+  "content_tree_sha256": "b9d5dac3c56431b1e8fe65c909338ff12758359d38bd29a55d75782265cae2cc",
   "content_tree_definition": "Sorted Git blob paths and SHA-256 values, excluding SOURCE.json"
 }

@@ -18,6 +18,23 @@
         }
       ]
     },
+    "ctranslate2==4.8.3": {
+      "license": "MIT",
+      "source": "https://raw.githubusercontent.com/OpenNMT/CTranslate2/8d91aa08225004755360daa43deb62b35b1ed65d/LICENSE",
+      "provenance": {
+        "type": "git",
+        "repository": "https://github.com/OpenNMT/CTranslate2",
+        "revision": "8d91aa08225004755360daa43deb62b35b1ed65d",
+        "tag": "v4.8.3"
+      },
+      "files": [
+        {
+          "path": "licenses/python/ctranslate2-4.8.3/LICENSE",
+          "source_path": "runtime_notices/ctranslate2-4.8.3/LICENSE",
+          "sha256": "54aa79d9fe3c09e67a16dcd95b9e88676405a6ec174efda31036983cf7672ecb"
+        }
+      ]
+    },
     "davey==0.1.6": {
       "license": "MIT",
       "source": "https://raw.githubusercontent.com/Snazzah/davey/a1e2e741bea06bc3b7167a5c3792844b8975993c/LICENSE",
@@ -31,6 +48,23 @@
         {
           "path": "licenses/python/davey-0.1.6/LICENSE",
           "source_path": "runtime_notices/davey-0.1.6/LICENSE",
+          "sha256": "90760006b6e6c76a67476de39bee25e42e584679eac5d608765355d5d54e8afa"
+        }
+      ]
+    },
+    "davey==0.1.7": {
+      "license": "MIT",
+      "source": "https://raw.githubusercontent.com/Snazzah/davey/73bcec27b7190ce47088c831e0aa72600cc657e7/LICENSE",
+      "provenance": {
+        "type": "git",
+        "repository": "https://github.com/Snazzah/davey",
+        "revision": "73bcec27b7190ce47088c831e0aa72600cc657e7",
+        "tag": "py-0.1.7"
+      },
+      "files": [
+        {
+          "path": "licenses/python/davey-0.1.7/LICENSE",
+          "source_path": "runtime_notices/davey-0.1.7/LICENSE",
           "sha256": "90760006b6e6c76a67476de39bee25e42e584679eac5d608765355d5d54e8afa"
         }
       ]
@@ -69,6 +103,23 @@
         }
       ]
     },
+    "mistralai==2.10.1": {
+      "license": "Apache-2.0",
+      "source": "https://files.pythonhosted.org/packages/ca/db/a80c4ab96b1fec9529115dafaa3f14b28d0407fe1cb9b051ec2df9336fb7/mistralai-2.10.1.tar.gz",
+      "provenance": {
+        "type": "sdist",
+        "url": "https://files.pythonhosted.org/packages/ca/db/a80c4ab96b1fec9529115dafaa3f14b28d0407fe1cb9b051ec2df9336fb7/mistralai-2.10.1.tar.gz",
+        "sha256": "43b61643ba4f120463e5faf7305a6f40eb29f8e3a21321893969e56c20ed3fbc",
+        "filename": "mistralai-2.10.1.tar.gz"
+      },
+      "files": [
+        {
+          "path": "licenses/python/mistralai-2.10.1/LICENSE",
+          "source_path": "runtime_notices/mistralai-2.10.1/LICENSE",
+          "sha256": "ad4b50ffd183d0ec8b3e56fedae59575f13cee1cee74c466b16fad4bed032bed"
+        }
+      ]
+    },
     "mistralai==2.4.8": {
       "license": "Apache-2.0",
       "source": "https://files.pythonhosted.org/packages/55/1c/04119828a3da3be8c79efbe59035a621ae22af873c1ee5a4200355025aa6/mistralai-2.4.8.tar.gz",
@@ -99,6 +150,23 @@
         {
           "path": "licenses/python/resvg_py-0.4.0/LICENSE",
           "source_path": "runtime_notices/resvg_py-0.4.0/LICENSE",
+          "sha256": "753a9e3c09cece8584467a0f605e065005c2a5e5c6da4f0cbb0493d2d52b96f6"
+        }
+      ]
+    },
+    "resvg_py==0.5.0": {
+      "license": "MIT",
+      "source": "https://raw.githubusercontent.com/baseplate-admin/resvg-py/32480b13b1624497c9ac36ae654ecf3a48698c18/LICENSE",
+      "provenance": {
+        "type": "git",
+        "repository": "https://github.com/baseplate-admin/resvg-py",
+        "revision": "32480b13b1624497c9ac36ae654ecf3a48698c18",
+        "tag": "0.5.0"
+      },
+      "files": [
+        {
+          "path": "licenses/python/resvg_py-0.5.0/LICENSE",
+          "source_path": "runtime_notices/resvg_py-0.5.0/LICENSE",
           "sha256": "753a9e3c09cece8584467a0f605e065005c2a5e5c6da4f0cbb0493d2d52b96f6"
         }
       ]
@@ -175,6 +243,23 @@
         {
           "path": "licenses/python/tokenizers-0.23.1/LICENSE",
           "source_path": "runtime_notices/tokenizers-0.23.1/LICENSE",
+          "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+        }
+      ]
+    },
+    "tokenizers==0.23.3": {
+      "license": "Apache-2.0",
+      "source": "https://raw.githubusercontent.com/huggingface/tokenizers/301277072263fb3830eb66eec7e47adadf76f1dc/LICENSE",
+      "provenance": {
+        "type": "git",
+        "repository": "https://github.com/huggingface/tokenizers",
+        "revision": "301277072263fb3830eb66eec7e47adadf76f1dc",
+        "tag": "v0.23.3"
+      },
+      "files": [
+        {
+          "path": "licenses/python/tokenizers-0.23.3/LICENSE",
+          "source_path": "runtime_notices/tokenizers-0.23.3/LICENSE",
           "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
         }
       ]

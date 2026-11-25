@@ -77,6 +77,13 @@ _PUBLIC_CLIENT_SECRET_MODULES = frozenset({
     _HERMES_SITE + "openai/types/realtime/client_secret_create_response.py",
 })
 _PUBLIC_CERTIFICATES = frozenset({_HERMES_SITE + "botocore/cacert.pem"})
+# Anthropic SDK 0.125 (Hermes 0.23.3): the source of its credential providers, a code package
+# named "credentials". Only these modules; any other file in that folder stays private.
+_PUBLIC_CREDENTIAL_CODE = _HERMES_SITE + "anthropic/lib/credentials/"
+_PUBLIC_CREDENTIAL_MODULES = frozenset({
+    "__init__.py", "_auth.py", "_cache.py", "_chain.py", "_constants.py", "_providers.py",
+    "_secrets.py", "_types.py", "_workload.py",
+})
 # IRIS' own VRM: the factory asset pinned in scripts/release_assets.json (`avatar`), as
 # the IRIS wheel installs it. Every other model, the person's avatars, stays private.
 _PUBLIC_FACTORY_AVATAR = "runtimes/iris/lib/site-packages/face/animations/iris.vrm"
@@ -134,6 +141,11 @@ def _private_path(name: str) -> None:
     private_parts = [part for part in parts if part in _PRIVATE_PARTS]
     if log_model:
         private_parts.remove("logs")
+    if lowered == _PUBLIC_CREDENTIAL_CODE.rstrip("/") or (
+            lowered.startswith(_PUBLIC_CREDENTIAL_CODE)
+            and lowered.count("/") == _PUBLIC_CREDENTIAL_CODE.count("/")
+            and filename in _PUBLIC_CREDENTIAL_MODULES):
+        private_parts.remove("credentials")
     if (
         private_parts
         or filename in _PRIVATE_NAMES

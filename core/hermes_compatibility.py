@@ -29,8 +29,9 @@ from core.hermes_runtime import (
 # still negotiated live instead of being promised from a version number.
 IRIS_MIN_HERMES_VERSION = (0, 19, 0)
 IRIS_MIN_HERMES_VERSION_TEXT = ".".join(str(part) for part in IRIS_MIN_HERMES_VERSION)
-IRIS_VALIDATED_HERMES_SERIES = ((0, 20), (0, 21))
-IRIS_VALIDATED_HERMES_VERSION = "0.20.x–0.21.x"
+# 0.23 validated on 0.23.3 (QA27, 2026-11-20); 0.22 was never validated.
+IRIS_VALIDATED_HERMES_SERIES = ((0, 20), (0, 21), (0, 23))
+IRIS_VALIDATED_HERMES_VERSION = "0.20.x, 0.21.x y 0.23.x"
 
 _SEMVER_RE = re.compile(r"(?<!\d)(?:v(?:ersion)?\s*)?(\d+)\.(\d+)\.(\d+)(?!\d)", re.I)
 

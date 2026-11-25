@@ -84,7 +84,11 @@ def register(ctx):
     # through the LLM finalizer. Wrap the shared dispatcher, not vendor SDKs.
     # Its public function resolves _handle_send at call time, even when imported
     # before this plugin. Keep this wrapper idempotent on plugin force-reload.
-    from tools import send_message_tool as sender
+    try:
+        # Hermes 0.23 moved the dispatcher here (cron imports _send_to_platform at call time).
+        from gateway.outbound import send as sender
+    except ImportError:
+        from tools import send_message_tool as sender  # Hermes 0.21
 
     previous = sender._handle_send
     original = getattr(previous, "_iris_original", previous)

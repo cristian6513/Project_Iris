@@ -431,7 +431,14 @@ def _validate_gltf(content: bytes, extension: str, avatar: bool) -> dict:
                 and 0 <= hips["node"] < len(nodes)
             ):
                 valid = True
-        _require(valid, "El archivo no contiene un avatar VRM 0/1 con humanoide válido.")
+        # A .glb is accepted when it is a VRM inside; a plain GLB (Sketchfab, Mixamo, Blender
+        # without the VRM add-on) has no humanoid skeleton to animate.
+        _require(
+            valid,
+            "Este archivo no es un avatar VRM: le falta el esqueleto humano que IRIS necesita "
+            "para moverlo. Conviértelo a VRM, por ejemplo con VRoid Studio o con el add-on "
+            "de VRM para Blender.",
+        )
     else:
         _require(bool(animations), "El archivo no contiene animaciones.")
         if extension == "vrma":

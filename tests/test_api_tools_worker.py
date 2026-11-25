@@ -102,6 +102,7 @@ def test_normalization_preserves_every_other_setting(hermes, tools):
     safe = after["platform_toolsets"].pop("api_server")
     expected = copy.deepcopy(original)
     expected["platform_toolsets"].pop("api_server")
+    expected["nous"] = {"guest": False}  # keep_nous_guest_off: the profile never chose
     assert after == expected
     assert "file" in safe
     assert not set(safe) & {"all", "*", "hermes-api-server", "delegation", "code_execution"}
@@ -139,3 +140,70 @@ def test_post_write_verification_rejects_an_ineffective_writer(hermes):
     _, mods, _ = hermes
     mods["hermes_cli.config"].atomic_config_write = lambda path, data: None
     assert not repair(["delegation", "code_execution"])["ok"]
+
+
+# Hermes 0.23 dropped the launch gate of Nous' free tier (2026-11-20): Iris keeps it off
+# for profiles that never chose, without ever blocking a turn on it.
+
+
+def _config(home):
+    return yaml.safe_load((home / "config.yaml").read_text("utf-8"))
+
+
+def _write_config(home, data):
+    (home / "config.yaml").write_text(yaml.safe_dump(data, allow_unicode=True), "utf-8")
+
+
+def test_an_unset_guest_is_written_off_and_other_nous_keys_are_kept(hermes):
+    home, _, original = hermes
+    _write_config(home, {**original, "nous": {"portal": "keep"}})
+    assert repair(["delegation", "code_execution"])["ok"]
+    assert _config(home)["nous"] == {"portal": "keep", "guest": False}
+
+
+@pytest.mark.parametrize("value", [True, False, None])
+def test_an_explicit_guest_choice_is_kept(hermes, value):
+    home, _, original = hermes
+    _write_config(home, {**original, "platform_toolsets": {"api_server": ["file"]}, "nous": {"guest": value}})
+    before = (home / "config.yaml").read_bytes()
+    assert repair(["delegation", "code_execution"])["ok"]
+    assert (home / "config.yaml").read_bytes() == before
+
+
+def test_a_managed_guest_key_is_not_written(hermes):
+    home, mods, original = hermes
+    mods["hermes_cli.managed_scope"].is_key_managed = lambda key: key == "nous.guest"
+    _write_config(home, {**original, "platform_toolsets": {"api_server": ["file"]}})
+    assert repair(["delegation", "code_execution"])["ok"]
+    assert "nous" not in _config(home)
+
+
+def test_an_unexpected_nous_value_is_left_alone(hermes):
+    home, _, original = hermes
+    _write_config(home, {**original, "platform_toolsets": {"api_server": ["file"]}, "nous": "custom"})
+    assert repair(["delegation", "code_execution"])["ok"]
+    assert _config(home)["nous"] == "custom"
+
+
+def test_no_profile_config_gets_no_guest_file(hermes):
+    from core.hermes_api_tools_worker import keep_nous_guest_off
+
+    home, _, _ = hermes
+    (home / "config.yaml").unlink()
+    keep_nous_guest_off(home / "config.yaml", [home / "config.yaml", home / ".env"])
+    assert not (home / "config.yaml").exists()
+
+
+def test_a_failing_guest_step_never_blocks_the_tool_policy(hermes):
+    home, mods, _ = hermes
+
+    def broken(key):
+        if key == "nous.guest":
+            raise RuntimeError("unexpected Hermes API")
+        return False
+
+    mods["hermes_cli.managed_scope"].is_key_managed = broken
+    result = repair(["delegation", "code_execution"])
+    assert result["ok"]
+    assert "nous" not in _config(home)
+    assert not set(_config(home)["platform_toolsets"]["api_server"]) & {"all", "delegation"}

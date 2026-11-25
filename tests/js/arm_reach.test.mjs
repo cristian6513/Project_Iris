@@ -181,3 +181,65 @@ test('the weight fades between the clip and the reach, and zero touches nothing'
     assert.ok(halfway.distanceTo(goal) < start.distanceTo(goal) * 0.6);
     assert.ok(halfway.distanceTo(start) < start.distanceTo(goal) * 0.6);
 });
+
+test('a pose the clip holds still is bent once per frame, not again on top of the last bend', () => {
+    // The mixer does not rewrite a value the clip holds still: on other bodies the hand on the
+    // window turned about 7 degrees a frame. restore() gives the bones the clip's rotations back
+    // after the bent pose has reached the raw bones.
+    const other = rig({ long: 0.85, scale: 1.55, hipsY: 0.95 });
+    pose(other);
+    const names = ['leftUpperArm', 'leftLowerArm', 'leftHand', 'rightUpperArm', 'rightLowerArm', 'rightHand'];
+    const clip = names.map((name) => other.bones[name].quaternion.clone());
+    const reach = new ArmReach(other.vrm, other.group);
+    reach.weight = 1;
+    let first = null;
+    for (let frame = 0; frame < 30; frame += 1) {
+        reach.apply();
+        other.group.updateWorldMatrix(true, true);
+        const hand = worldTurn(other.bones.leftHand), at = world(other.bones.leftHand);
+        first ??= { hand, at };
+        assert.ok(angle(first.hand, hand) < 1e-6, `frame ${frame} turned the hand again`);
+        assert.ok(first.at.distanceTo(at) < 1e-7, `frame ${frame} moved the hand again`);
+        reach.restore();
+        names.forEach((name, i) => assert.ok(other.bones[name].quaternion.equals(clip[i]), name));
+    }
+    // Bent twice before a draw (apply with no restore between) still bends once.
+    reach.apply();
+    reach.apply();
+    other.group.updateWorldMatrix(true, true);
+    assert.ok(angle(first.hand, worldTurn(other.bones.leftHand)) < 1e-6);
+    reach.restore();
+});
+
+test('soft reach eases the last of the arm only when asked: typing with arms shorter than IRIS\'', async () => {
+    // Pearl's short arms, typing: the keyboard came back within reach and the forearm snapped
+    // 7.8 degrees in one frame. With `soft` the elbow bends smoothly; without it nothing changes.
+    const { softReach } = await import(`data:text/javascript;base64,${Buffer.from(text).toString('base64')}`);
+    const length = 0.5;
+    assert.equal(softReach(0.3, length), 0.3);
+    assert.equal(softReach(0.48, length), 0.48);
+    let last = softReach(0.45, length);
+    for (let d = 0.451; d < 0.7; d += 0.001) {
+        const r = softReach(d, length);
+        assert.ok(r > last && r < length && r - last <= 0.001 + 1e-9, `${d}`);
+        last = r;
+    }
+    assert.ok(length - softReach(length, length) < 0.016 * length);
+    assert.ok(0.98 * length - softReach(0.98 * length, length) < 0.005 * length, 'a target at 98 % lands within 0.5 %');
+
+    // The elbow's bend for a target moving 0.5 mm a step out past the reach: exact, it jumps as
+    // the arm comes off straight; soft, it changes smoothly (Pearl in the room: 7.8 -> 3.5 degrees).
+    const a = 0.25, b = 0.25, worstStep = (soft) => {
+        let previous = null, worst = 0;
+        for (let d = 0.40; d <= 0.60; d += 0.0005) {
+            const r = soft ? softReach(d, a + b) : Math.min(d, (a + b) * 0.999);
+            const bend = Math.acos(Math.max(-1, Math.min(1, (a * a + b * b - r * r) / (2 * a * b))));
+            if (previous !== null) worst = Math.max(worst, Math.abs(bend - previous));
+            previous = bend;
+        }
+        return worst;
+    };
+    const exact = worstStep(false), soft = worstStep(true);
+    const deg = (x) => (x * 180 / Math.PI).toFixed(2);
+    assert.ok(soft < exact * 0.35, `soft ${deg(soft)} vs exact ${deg(exact)} degrees per 0.5 mm`);
+});

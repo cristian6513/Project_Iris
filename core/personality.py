@@ -34,6 +34,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from core.emotions import EMOTION_GUIDE, IRIS_EMOTIONS
 from core.identity_profiles import (
     compose_personality_instructions,
     normalize_trait_ids,
@@ -120,10 +121,7 @@ class Personality:
     preferred_tts: str = ""            # empty = use config default
 
     # Response format
-    emotions: list[str] = field(default_factory=lambda: [
-        "neutral", "feliz", "triste", "pensativa",
-        "sorprendida", "enojada",
-    ])
+    emotions: list[str] = field(default_factory=lambda: list(IRIS_EMOTIONS))
     # Animations list intentionally empty: the real catalog comes from
     # ``core/animations.format_animation_catalog_for_prompt`` (reads
     # ``face/animations/manifest.json`` live) and is concatenated to
@@ -190,7 +188,7 @@ obligatorios). TODO: futuro — `accion_escena` (animaciones del cuarto
 
 ### Reglas del JSON:
 1. `texto_hablado`: Lo que {self.name} dice en voz alta. Natural, conversacional.
-2. `emocion`: Refleja el estado emocional de {self.name}.
+2. `emocion`: Refleja el estado emocional de {self.name} ({EMOTION_GUIDE}).
 3. `animacion_virtual`: El nombre EXACTO de una animación listada en
    "ANIMACIONES VRMA DISPONIBLES" (sección dinámica que aparece más
    abajo en este mismo system prompt). Si la conversación no requiere

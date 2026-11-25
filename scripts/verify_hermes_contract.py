@@ -231,13 +231,26 @@ async def native_server(hermes_root: Path):
     from aiohttp import web
     from gateway.config import PlatformConfig
     from gateway.platforms.api_server import APIServerAdapter
-    from hermes_state import SessionDB
-    db = SessionDB(Path(os.environ['HERMES_HOME']) / 'state.db')
     response = json.dumps({'texto_hablado': 'Hola desde la prueba de compatibilidad.',
                            'emocion': 'neutral', 'animacion_virtual': 'idle'})
-    sid = db.create_session('iris-contract-continuity', 'api_server')
-    db.replace_messages(sid, [{'role': 'user', 'content': 'hola'},
-                             {'role': 'assistant', 'content': response}])
+    home = Path(os.environ['HERMES_HOME'])
+    try:
+        # Hermes 0.23+: the storage interface. hermes_state.SessionDB is a deprecated subset
+        # there (no replace_messages) and is removed in 0.27.
+        from persistence.conversation.messages import NewMessage
+        from persistence.conversation.sessions import NewSession
+        from persistence_assembly import open_persistence, profile_scope
+    except ModuleNotFoundError:
+        from hermes_state import SessionDB
+        db = SessionDB(home / 'state.db')
+        sid = db.create_session('iris-contract-continuity', 'api_server')
+        db.replace_messages(sid, [{'role': 'user', 'content': 'hola'},
+                                 {'role': 'assistant', 'content': response}])
+    else:
+        db = open_persistence(profile_scope(home=home), eager=True)
+        sid = db.sessions.create(NewSession(session_id='iris-contract-continuity', source='api_server'))
+        db.messages.append_batch(sid, [NewMessage(role='user', content='hola'),
+                                       NewMessage(role='assistant', content=response)])
     adapter = APIServerAdapter(PlatformConfig(enabled=True, extra={
         'key': 'iris-isolated-contract-test', 'model_name': 'contract-fixture'}))
     adapter._session_db = db

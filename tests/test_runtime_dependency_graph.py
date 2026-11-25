@@ -130,12 +130,14 @@ def test_a_reviewed_exclusion_must_match_the_lock_and_appear_once():
         exclusion_policy(LOCK, ["fetch-use==0.4.0", "fetch_use==0.4.0"])
 
 
-def test_the_real_hermes_lock_keeps_157_requirements_with_the_exclusion():
+def test_the_real_hermes_lock_keeps_153_requirements_with_the_exclusion():
+    # Hermes 0.23.3 (2026-11-20): 157 with 0.21.6. Its lock dropped importlib-metadata, pytz,
+    # setuptools, tenacity and zipp and added httpx2-jsfetch; fetch-use is still excluded.
     environment = {**WINDOWS, "python_full_version": "3.14.8", "platform_system": "Windows",
                    "implementation_name": "cpython", "platform_python_implementation": "CPython"}
     lock = locked_requirements(Path(__file__).resolve().parents[1] / "scripts/locks/hermes-windows-cp314.txt", environment)
     policy = exclusion_policy(lock, ["fetch-use==0.4.0"])
-    assert len([r for r in lock if r.name not in policy]) == 157
+    assert len([r for r in lock if r.name not in policy]) == 153
 
 
 def test_builder_and_verifier_enforce_the_same_reviewed_exclusions():

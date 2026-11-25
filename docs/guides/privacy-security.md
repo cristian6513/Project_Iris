@@ -58,6 +58,30 @@ a petición puede salir al proveedor elegido. La imagen validada se conserva en
 memoria para ese turno; el destino y los permisos deben comprobarse antes de
 capturar. Abrir la cámara no autoriza enviar imágenes automáticamente.
 
+## Modo juego en Companion — fuente posterior a QA27
+
+`screen.game_session` autoriza una sesión con una ventana elegida y un destino
+de visión confirmado. Empieza a petición; los comentarios periódicos requieren
+otra confirmación que muestra intervalo, límite y consumo de cuota. No se graba
+vídeo, no se controla el juego y no se captura el audio del juego. Cada análisis,
+incluso si no produce un comentario, puede consumir cuota del proveedor. La voz
+puede consumir cuota adicional. El contador registra intentos, no facturación.
+Hermes puede usar imágenes temporales, eliminadas al terminar o cancelar; un
+cierre forzado puede impedir la limpieza. El proveedor aplica sus políticas.
+
+Pausar comentarios conserva la transmisión para preguntas. Silenciar corta la
+voz y pausa los comentarios; reactivar voz no los reanuda. Salir, ocultar o
+desconectar Companion, revocar permisos o cambiar de conversación/destino termina
+la sesión. El indicador y la salida siguen en Solo avatar. No se restaura una
+sesión tras reconectar. [Uso y límites](desktop-companion.md#modo-juego-experimental--fuente-posterior-a-qa27).
+
+La fase 3 añade objetivo/notas y seis entradas recientes de esa partida en RAM.
+Se incluyen como contexto del proveedor, sin imágenes guardadas ni otro modelo
+para resumir. Borrar memoria o salir limpia este contexto, no el historial normal
+ni registros del proveedor. Los atajos opcionales de Windows registran solo tres
+combinaciones, sin hook ni grabación de teclas; se liberan al terminar la sesión.
+Solo los nombres de las combinaciones se guardan localmente en Companion.
+
 ## Inactividad de Windows y resúmenes hablados
 
 F08a observa únicamente marcas de tiempo de entrada en tu sesión de Windows,

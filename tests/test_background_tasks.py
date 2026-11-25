@@ -116,7 +116,7 @@ def test_the_offer_carries_the_whole_procedure_and_a_code_argparse_accepts(tmp_p
     text = bt.launch_context(offer, script)
     assert CODE.search(text).group(1) == offer.token
     assert f"python \"{script}\" --turn {offer.token} --payload-file" in text and "write_file" in text
-    assert text.startswith("REGLA DE ESTE TURNO") and "browser_*" in text and "detente" in text
+    assert text.startswith("REGLA DE ESTE TURNO") and "browser_exec" in text and "detente" in text
     assert '"started"' in text and '"unconfirmed"' in text
     assert re.fullmatch(r"[0-9a-f]{32}", offer.token)  # never "-…", which argparse takes for an option
 

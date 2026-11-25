@@ -1,17 +1,43 @@
 /** Temporary facial accents for body-only poses, shared by Face and Companion. */
-export const VRM_EMOTION_PRESETS = {
-    neutral:     { happy: 0, sad: 0, angry: 0, surprised: 0, relaxed: 0.3 },
-    feliz:       { happy: 0.9, sad: 0, angry: 0, surprised: 0, relaxed: 0 },
-    triste:      { happy: 0, sad: 0.8, angry: 0, surprised: 0, relaxed: 0 },
-    pensativa:   { happy: 0, sad: 0.2, angry: 0, surprised: 0, relaxed: 0.5 },
-    sorprendida: { happy: 0, sad: 0, angry: 0, surprised: 0.9, relaxed: 0 },
-    enojada:     { happy: 0, sad: 0, angry: 0.8, surprised: 0, relaxed: 0 },
-};
+
+// Every channel an emotion can drive. The first five are VRM presets; the rest exist on MMD models
+// that have the morphs (pmx_expressions.js) and are skipped by faces without them.
+const CHANNELS = Object.freeze(['happy', 'sad', 'angry', 'surprised', 'relaxed',
+    'blush', 'heartEyes', 'starEyes', 'sweat', 'zzz', 'dubious', 'smallPupils', 'smirk']);
+const mix = channels => Object.freeze({ ...Object.fromEntries(CHANNELS.map(name => [name, 0])), ...channels });
+
+// Each emotion mixes several of them, so even a VRM with only the five presets shows more than one
+// note (2026-11-24): shy is a small smile with a little sadness, nervous an awkward smile with
+// worried brows and wide eyes. MMD models add blush, heart or star eyes, a sweat drop, ZZZ.
+export const VRM_EMOTION_PRESETS = Object.freeze({
+    neutral:     mix({ relaxed: 0.3 }),
+    feliz:       mix({ happy: 0.9 }),
+    triste:      mix({ sad: 0.8 }),
+    pensativa:   mix({ sad: 0.2, relaxed: 0.5 }),
+    sorprendida: mix({ surprised: 0.9 }),
+    enojada:     mix({ angry: 0.8 }),
+    avergonzada: mix({ happy: 0.35, sad: 0.2, relaxed: 0.35, blush: 1 }),
+    'cariñosa':  mix({ happy: 0.6, relaxed: 0.55, blush: 0.5, heartEyes: 0.9 }),
+    emocionada:  mix({ happy: 1, surprised: 0.35, starEyes: 0.9 }),
+    confundida:  mix({ sad: 0.3, surprised: 0.3, angry: 0.12, dubious: 1 }),
+    // A lopsided smile on MMD faces (smirk: one mouth corner); a VRM keeps a small even one.
+    nerviosa:    mix({ happy: 0.15, sad: 0.35, surprised: 0.3, sweat: 1, smallPupils: 0.5, smirk: 0.6 }),
+    somnolienta: mix({ sad: 0.15, relaxed: 0.6, zzz: 1 }),
+});
+
+// Eyelids an emotion lowers, on any face: heavy when sleepy, a little for shy, sad or angry eyes.
+export const EMOTION_LIDS = Object.freeze({
+    triste: 0.12, pensativa: 0.08, enojada: 0.1, avergonzada: 0.2, 'cariñosa': 0.12, somnolienta: 0.5,
+});
+export const EMOTION_LID_MAX = 0.55;
+
+// Marks and eye shapes are pieces that are there or not: a pose's mood shows them whole.
+const WHOLE_CHANNELS = new Set(['heartEyes', 'starEyes', 'sweat', 'zzz']);
 
 const clamp = (v, min = 0, max = 1) => Math.min(max, Math.max(min, Number.isFinite(v) ? v : min));
 const smooth = v => v * v * (3 - 2 * v);
 const MOOD_DRIFT = 1.6;   // a mood at rest comes and goes slowly; a gesture's arrives with the gesture
-const AGENT_MOOD = ['happy', 'sad', 'angry', 'surprised'];
+const AGENT_MOOD = ['happy', 'sad', 'angry', 'surprised', 'blush', 'heartEyes', 'starEyes', 'sweat', 'zzz', 'dubious'];
 
 /** A rest pose has no agent to give it a mood: it carries its own, which may change along the clip. */
 export function moodAt(profile, time) {
@@ -72,6 +98,7 @@ export class PoseFace {
     apply(avatar, dt) {
         const em = avatar.vrm?.expressionManager;
         if (!em) return;
+        this._marks(avatar);
         if (avatar.animationOwnsBlink) {
             // Authored facial animation owns these channels. Do not erase it.
             this.blend = this.mouth = this.lids = 0;
@@ -88,7 +115,8 @@ export class PoseFace {
         const set = (name, value) => em.setValue(name, clamp(value));
         for (const name of Object.keys(VRM_EMOTION_PRESETS.neutral)) {
             const current = this.accents[name] || 0;
-            const next = current + ((preset?.[name] || 0) * strength - current) * k;
+            const scale = WHOLE_CHANNELS.has(name) ? clamp(strength / 0.2) : strength;
+            const next = current + ((preset?.[name] || 0) * scale - current) * k;
             this.accents[name] = next;
             // Read the base mood, not last frame's composed output: no feedback
             // or stuck smile, and a new response can change the mood mid-pose.
@@ -104,8 +132,10 @@ export class PoseFace {
         // Real speech takes priority immediately, even during a surprise pose.
         set('aa', Math.max(avatar.currentExpressions?.aa || 0, speaking ? 0 : this.mouth));
 
-        const lids = (mood?.lidClosure ?? profile?.eyes?.lidClosure ?? 0) * room;
-        this.lids += (clamp(lids, 0, 0.3) - this.lids) * k;
+        // The pose's eyelids, or the emotion's (avatar.emotionLids), whichever is heavier.
+        const lids = Math.max(clamp((mood?.lidClosure ?? profile?.eyes?.lidClosure ?? 0) * room, 0, 0.3),
+            clamp(avatar.emotionLids ?? 0, 0, EMOTION_LID_MAX));
+        this.lids += (lids - this.lids) * k;
         if (this.lids > 0.001) {
             const names = avatar.microLifeOwnsBlink
                 ? (em.blinkExpressionNames || ['blink', 'blinkLeft', 'blinkRight']) : ['blink'];
@@ -118,5 +148,23 @@ export class PoseFace {
                 set(name, Math.max(em.getValue(name) || 0, this.lids));
             }
         }
+    }
+
+    /**
+     * A pose's marks: `marks: [{ at, mark }]` in its facial profile pops an expression (the ……
+     * while she reads, a blush as she waves) when the clip reaches `at`, every loop.
+     */
+    _marks(avatar) {
+        const profile = avatar.poseFacialProfile;
+        const time = avatar.poseClipTime ?? 0;
+        if (profile !== this.markProfile) {
+            this.markProfile = profile;
+            this.markTime = time - 1e-6;
+        }
+        if (time < this.markTime) this.markTime = -1e-6;    // the clip looped
+        for (const { at, mark } of profile?.marks ?? []) {
+            if (this.markTime < at && time >= at) avatar.pulseExpression?.(mark);
+        }
+        this.markTime = time;
     }
 }

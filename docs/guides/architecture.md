@@ -39,6 +39,16 @@ flowchart LR
 | Personality | `personality/` | Plantillas y contratos de identidad. |
 | Hardware | `hardware/` | Integraciones experimentales Arduino/ESP32. |
 
+## Modo juego — fuente posterior a QA27
+
+`core/game_session.py` liga el modo juego al Companion
+local, permiso, sesión y destino de visión. `game_commentary.py` coordina análisis
+opcionales con prioridad para la conversación; `game_memory.py` conserva contexto
+temporal acotado. La transmisión permanece en la superficie web, que solo envía
+fotogramas pedidos por Core. Los atajos opcionales se registran/liberan en el host
+Rust de Companion; no leen entradas generales ni controlan el juego. Véase el
+[plan y evidencia](../iris_plan_modo_juego_2026-11-21.md).
+
 ## Puertos locales
 
 | Puerto | Servicio | Exposición predeterminada |

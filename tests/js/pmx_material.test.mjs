@@ -7,7 +7,7 @@ const threeUrl = new URL('../../companion/node_modules/three/build/three.module.
 const THREE = await import(threeUrl);
 const source = readFileSync(new URL('../../face/js/pmx_material.js', import.meta.url), 'utf8')
     .replace("from 'three'", `from '${threeUrl}'`);
-const { PMX_AMBIENT_SHARE, useMmdAmbient } = await import('data:text/javascript;base64,' + Buffer.from(source).toString('base64'));
+const { OVERLAY_CLEAR_SHARE, PMX_AMBIENT_SHARE, overlayMaterials, useMmdAmbient, useOverlayAlpha } = await import('data:text/javascript;base64,' + Buffer.from(source).toString('base64'));
 
 const linear = value => new THREE.Color().setRGB(value, value, value, THREE.SRGBColorSpace).r;
 
@@ -48,4 +48,39 @@ test('the loader applies it once, right after building the mesh, with the parsed
     const loader = readFileSync(new URL('../../face/js/pmx_avatar.js', import.meta.url), 'utf8');
     assert.match(loader, /mesh = loader\.meshBuilder\.build\(.*\);\n\s*\/\/[^\n]*\n\s*useMmdAmbient\(mesh\.material, data\.materials\);/);
     assert.equal(loader.match(/useMmdAmbient\(/g).length, 1);
+});
+
+// 2026-11-24: Feixue's ！ and ？ marks rendered as dark boxes: MMDLoader had left their material opaque.
+function overlayMesh() {
+    // Two quads: material 0 (skin, opaque texture) and material 1 (a mark on a see-through atlas).
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.Float32BufferAttribute(new Array(8 * 3).fill(0), 3));
+    geometry.setAttribute('uv', new THREE.Float32BufferAttribute([0, 0, 0.5, 0, 0.5, 0.5, 0, 0.5, 0.5, 0.5, 1, 0.5, 1, 1, 0.5, 1], 2));
+    geometry.setIndex([0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7]);
+    geometry.addGroup(0, 6, 0);
+    geometry.addGroup(6, 6, 1);
+    const skin = new THREE.MeshPhongMaterial({ map: new THREE.Texture(), name: 'Face' });
+    const mark = new THREE.MeshPhongMaterial({ map: new THREE.Texture(), name: 'Facial' });
+    return { mesh: new THREE.Mesh(geometry, [skin, mark]), skin, mark };
+}
+// The atlas: clear above u, v = 0.5 except a small opaque symbol in its middle.
+const atlasAlpha = (texture, u, v) => (u > 0.5 && v > 0.5 && !(Math.abs(u - 0.75) < 0.05 && Math.abs(v - 0.75) < 0.05) ? 0 : 255);
+
+test('an overlay piece on a see-through texture blends; skin it does not move is never looked at', () => {
+    const { mesh, skin, mark } = overlayMesh();
+    const changed = useOverlayAlpha(mesh, new Set([4, 5, 6, 7]), atlasAlpha);
+    assert.deepEqual(changed, ['Facial']);
+    assert.equal(mark.transparent, true);
+    assert.equal(mark.depthWrite, false);
+    assert.ok(mark.alphaTest > 0 && mark.alphaTest < 0.05, 'fully clear pixels are dropped, soft blush is kept');
+    assert.equal(skin.transparent, false);
+});
+
+test('an overlay on an opaque texture, or none at all, changes nothing', () => {
+    const { mesh, mark } = overlayMesh();
+    assert.deepEqual(useOverlayAlpha(mesh, new Set([4, 5, 6, 7]), () => 255), []);
+    assert.equal(mark.transparent, false);
+    assert.deepEqual(useOverlayAlpha(mesh, new Set(), atlasAlpha), []);
+    assert.equal(overlayMaterials(null, new Set([1]), atlasAlpha).size, 0);
+    assert.equal(OVERLAY_CLEAR_SHARE, 0.25);
 });

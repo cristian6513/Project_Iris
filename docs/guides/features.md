@@ -5,9 +5,9 @@
 IRIS OS no reemplaza a Hermes Agent. Organiza sus capacidades dentro de una
 experiencia visual con identidad, voz, memoria y varias superficies.
 
-Revisión documental del 17 de noviembre de 2026. Consulta [Estado actual](../estado-actual.md)
-para distinguir la beta 0.9.4 QA25, las mejoras de la fuente posterior y las
-comprobaciones pendientes.
+Revisión documental del 22 de noviembre de 2026. Consulta [Estado actual](../estado-actual.md)
+para distinguir beta publicada, candidato, fuente posterior y comprobaciones
+pendientes; una función en la fuente no implica que esté en el EXE instalado.
 
 ## Wizard y Hermes Doctor
 
@@ -268,6 +268,14 @@ La aplicación opcional para Windows muestra a IRIS en una ventana flotante:
 - adaptación contextual de las animaciones recibidas.
 
 Consulta [Desktop Companion](desktop-companion.md).
+
+En fuente posterior a QA27, Modo juego permite una sesión con una ventana
+autorizada, ayuda a petición y comentarios opcionales con límites/aviso de cuota.
+La fase 3 añade atajos Windows, globo desplazable y objetivo/notas/contexto temporal
+de la partida. No controla el juego. Faltan nuevo instalador y pruebas reales;
+véase el [plan](../iris_plan_modo_juego_2026-11-21.md). La
+[guía general de pruebas](../qa/iris_pruebas_funcionales_2026-11-22.html) reúne
+preguntas y recorridos de interfaz con resultados esperados; empieza pendiente.
 
 ## Vision y acceso remoto
 

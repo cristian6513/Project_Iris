@@ -1,35 +1,35 @@
 {
   "schema_version": 1,
   "packages": {
-    "conpty==1.24.260512001": {
+    "conpty==1.25.260930003": {
       "component": "hermes-runtime",
       "package": "ConPTY",
-      "version": "1.24.260512001",
+      "version": "1.25.260930003",
       "license": "MIT",
-      "source": "https://api.nuget.org/v3-flatcontainer/microsoft.windows.console.conpty/1.24.260512001/microsoft.windows.console.conpty.1.24.260512001.nupkg",
+      "source": "https://api.nuget.org/v3-flatcontainer/microsoft.windows.console.conpty/1.25.260930003/microsoft.windows.console.conpty.1.25.260930003.nupkg",
       "provenance": [
         {
           "type": "archive",
-          "url": "https://api.nuget.org/v3-flatcontainer/microsoft.windows.console.conpty/1.24.260512001/microsoft.windows.console.conpty.1.24.260512001.nupkg",
-          "archive_sha256": "f889a9272a8b257dc6d5be7525626fdb0f7ca6b5ce7e13093fc4bc979d24f484",
+          "url": "https://api.nuget.org/v3-flatcontainer/microsoft.windows.console.conpty/1.25.260930003/microsoft.windows.console.conpty.1.25.260930003.nupkg",
+          "archive_sha256": "02b07b349af66d801159bdf9e440d4a1ce78bb951f37fc8609731665afdae7ee",
           "archive_sha256_verified": true,
-          "archive_sha512": "a0ea7f679325218916810a771e43fe35d9a4d829b99612e663a038444010f327d618591907863a2ee1829a20dd498bcc352edeee1bd3a0b1ffce3ead8e96c2c7",
+          "archive_sha512": "2eea8c93daf9a13cde4677b7e483a551d490ec3923a2b3886dc9ce0c667cd4cbe65294ebff5541433ddf01d08d0b091fb91d0c96eabe1fbad2dc77acfc0d5f3b",
           "publisher_sha512_verified": true,
-          "publisher_hash_source": "https://api.nuget.org/v3/catalog0/data/2026.05.22.23.23.16/microsoft.windows.console.conpty.1.24.260512001.json",
-          "scope": "Exact byte match of winpty/conpty.dll (runtimes/win-x64/native/conpty.dll) and winpty/OpenConsole.exe (build/native/runtimes/x64/OpenConsole.exe) shipped by pywinpty 3.0.5"
+          "publisher_hash_source": "https://api.nuget.org/v3/catalog0/data/2026.10.02.21.10.18/microsoft.windows.console.conpty.1.25.260930003.json",
+          "scope": "Exact byte match of winpty/conpty.dll (runtimes/win-x64/native/conpty.dll) and winpty/OpenConsole.exe (build/native/runtimes/x64/OpenConsole.exe) shipped by pywinpty 3.1.0"
         },
         {
           "type": "git-revision",
           "url": "https://github.com/microsoft/terminal",
-          "revision": "b4e69c68620a822407d45bfbba6ee10feebc70a3",
-          "tag": "v1.24.11321.0"
+          "revision": "dc8ae365847d41f62d1ebca93815bb00959bc12f",
+          "tag": "v1.25.2733.0"
         }
       ],
       "binaries": [
         {
           "path": "runtimes/hermes/Lib/site-packages/winpty/conpty.dll",
-          "size": 109880,
-          "sha256": "c46dcd04f52b97f6a8cf53e8f547c85a821660bed18de2b3344afcd4a8389ad6",
+          "size": 119608,
+          "sha256": "feeef341d891643c62d30b6b07800bc70f0bc148f44cb8c3bee84aa557ae805a",
           "evidence": {
             "provenance_index": 0,
             "member": "runtimes/win-x64/native/conpty.dll"
@@ -38,8 +38,8 @@
       ],
       "files": [
         {
-          "path": "licenses/native/conpty-1.24.260512001/LICENSE",
-          "source_path": "runtime_native_notices/conpty-1.24.260512001/LICENSE",
+          "path": "licenses/native/conpty-1.25.260930003/LICENSE",
+          "source_path": "runtime_native_notices/conpty-1.25.260930003/LICENSE",
           "sha256": "5d177f23ecfeb0ea8e050b6a5a16355e1ae9a0b286436ca8f83ed08b3795be6b",
           "evidence": {
             "provenance_index": 1,
@@ -47,9 +47,9 @@
           }
         },
         {
-          "path": "licenses/native/conpty-1.24.260512001/NOTICE.Microsoft.Windows.Console.ConPTY.nuspec",
-          "source_path": "runtime_native_notices/conpty-1.24.260512001/NOTICE.Microsoft.Windows.Console.ConPTY.nuspec",
-          "sha256": "b061d5c3103625b8206ad8f5bc4fecb1f1568bdfb44b163de7fd309076034499",
+          "path": "licenses/native/conpty-1.25.260930003/NOTICE.Microsoft.Windows.Console.ConPTY.nuspec",
+          "source_path": "runtime_native_notices/conpty-1.25.260930003/NOTICE.Microsoft.Windows.Console.ConPTY.nuspec",
+          "sha256": "e7663d6e7b877ae5faa476e37bcdf6e01041805d9a46a2a2718b7c99bcb255fe",
           "evidence": {
             "provenance_index": 0,
             "member": "Microsoft.Windows.Console.ConPTY.nuspec"
@@ -229,8 +229,8 @@
           "archive_sha256_verified": false,
           "zip_entry_crc_verified": true,
           "build_recipe": {
-            "url": "https://raw.githubusercontent.com/OpenNMT/CTranslate2/0d8bcd362ac75ef860ef161d6f0efad0ae439ff0/python/tools/prepare_build_environment_windows.sh",
-            "revision": "0d8bcd362ac75ef860ef161d6f0efad0ae439ff0",
+            "url": "https://raw.githubusercontent.com/OpenNMT/CTranslate2/8d91aa08225004755360daa43deb62b35b1ed65d/python/tools/prepare_build_environment_windows.sh",
+            "revision": "8d91aa08225004755360daa43deb62b35b1ed65d",
             "sha256": "413d8cec729bf4348939e5d8ce6f76195814e26e35cd406dff6100703f2a8115"
           }
         },
@@ -329,8 +329,8 @@
           "archive_sha256_verified": false,
           "zip_entry_crc_verified": true,
           "build_recipe": {
-            "url": "https://raw.githubusercontent.com/OpenNMT/CTranslate2/0d8bcd362ac75ef860ef161d6f0efad0ae439ff0/python/tools/prepare_build_environment_windows.sh",
-            "revision": "0d8bcd362ac75ef860ef161d6f0efad0ae439ff0",
+            "url": "https://raw.githubusercontent.com/OpenNMT/CTranslate2/8d91aa08225004755360daa43deb62b35b1ed65d/python/tools/prepare_build_environment_windows.sh",
+            "revision": "8d91aa08225004755360daa43deb62b35b1ed65d",
             "sha256": "413d8cec729bf4348939e5d8ce6f76195814e26e35cd406dff6100703f2a8115"
           }
         },
@@ -396,8 +396,8 @@
           "revision": "64f6bcbcbab628e96f33a62c3e975f8535a7bde4",
           "tag": "v3.1.1",
           "build_recipe": {
-            "url": "https://raw.githubusercontent.com/OpenNMT/CTranslate2/0d8bcd362ac75ef860ef161d6f0efad0ae439ff0/python/tools/prepare_build_environment_windows.sh",
-            "revision": "0d8bcd362ac75ef860ef161d6f0efad0ae439ff0",
+            "url": "https://raw.githubusercontent.com/OpenNMT/CTranslate2/8d91aa08225004755360daa43deb62b35b1ed65d/python/tools/prepare_build_environment_windows.sh",
+            "revision": "8d91aa08225004755360daa43deb62b35b1ed65d",
             "sha256": "413d8cec729bf4348939e5d8ce6f76195814e26e35cd406dff6100703f2a8115"
           }
         }
@@ -405,8 +405,8 @@
       "binaries": [
         {
           "path": "runtimes/hermes/Lib/site-packages/ctranslate2/ctranslate2.dll",
-          "size": 59294720,
-          "sha256": "a26134c47079896fc046317a3aea22a64df6b63b8c51272748cd2cc406d8d668",
+          "size": 59297792,
+          "sha256": "ca1127837d032bf8217d0cbcd68e8cef1f93bda3111eff00ced98795d9e51160",
           "linkage": "static",
           "evidence": {
             "provenance_index": 0,
@@ -455,8 +455,8 @@
           "zip_entry_crc_verified": true,
           "publisher_hash_source": "https://api.nuget.org/v3/catalog0/data/2025.10.23.10.55.07/intelmkl.static.win-x64.2025.3.0.453.json",
           "build_recipe": {
-            "url": "https://raw.githubusercontent.com/OpenNMT/CTranslate2/0d8bcd362ac75ef860ef161d6f0efad0ae439ff0/python/tools/prepare_build_environment_windows.sh",
-            "revision": "0d8bcd362ac75ef860ef161d6f0efad0ae439ff0",
+            "url": "https://raw.githubusercontent.com/OpenNMT/CTranslate2/8d91aa08225004755360daa43deb62b35b1ed65d/python/tools/prepare_build_environment_windows.sh",
+            "revision": "8d91aa08225004755360daa43deb62b35b1ed65d",
             "sha256": "413d8cec729bf4348939e5d8ce6f76195814e26e35cd406dff6100703f2a8115"
           }
         },
@@ -473,8 +473,8 @@
       "binaries": [
         {
           "path": "runtimes/hermes/Lib/site-packages/ctranslate2/ctranslate2.dll",
-          "size": 59294720,
-          "sha256": "a26134c47079896fc046317a3aea22a64df6b63b8c51272748cd2cc406d8d668",
+          "size": 59297792,
+          "sha256": "ca1127837d032bf8217d0cbcd68e8cef1f93bda3111eff00ced98795d9e51160",
           "linkage": "static",
           "evidence": {
             "provenance_index": 1,

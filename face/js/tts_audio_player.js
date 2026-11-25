@@ -130,7 +130,8 @@ export class TtsAudioPlayer {
                 this._report(payload, 'playing');
             }
             if (visemes.length > 0) lipSync?.processVisemes?.(visemes);
-            else lipSync?.startAudioReactive?.(audio);
+            // Without word timings the mouth follows the audio; the text gives it its vowels.
+            else lipSync?.startAudioReactive?.(audio, { text: typeof payload.text === 'string' ? payload.text : '' });
         };
         audio.onended = () => {
             if (this.audio !== audio) return;

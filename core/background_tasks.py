@@ -225,7 +225,7 @@ def launch_context(offer: LaunchOffer, script: str, previous: dict[str, Any] | N
     """
     return (
         "REGLA DE ESTE TURNO, tareas en segundo plano (skill iris-os): antes de usar el navegador "
-        "(browser_*), la búsqueda web, o de leer varias páginas, correos o documentos, detente: no lo "
+        "(browser_exec), la búsqueda web, o de leer varias páginas, correos o documentos, detente: no lo "
         "hagas en este turno. Delega el encargo y responde enseguida, para que el usuario pueda seguir "
         "hablando contigo mientras se hace. Esto incluye buscar noticias, investigar y comparar opciones "
         "o precios. Hazlo solo con estos pasos: delegate_task no sirve aquí, porque su resultado no le "

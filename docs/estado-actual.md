@@ -1,9 +1,32 @@
 # Estado actual de IRIS OS
 
-Revisión documental: **2026-11-18**. Esta matriz distingue fuente, candidato de
+Revisión documental: **2026-11-24**. Esta matriz distingue fuente, candidato de
 QA y publicación. No sustituye los criterios del
 plan A08/F01–F16 (informe interno no distribuido) ni da por
 aprobada una instalación manual por haber pasado pruebas automáticas.
+
+## Iris OS 0.9.8 beta · QA29
+
+QA29, ID `fdc0e4cb`, reúne lo hecho desde QA26 para Windows x64. Incluye Companion 0.1.14 y
+Hermes 0.23.3, con un parche revisado. El contrato registra 458 recursos web y el catálogo
+conserva 95 animaciones.
+
+- Iris tiene doce emociones: las seis de siempre más vergüenza, cariño, emoción, confusión,
+  nervios y sueño. Cada una combina varios gestos de la cara.
+- En modelos MMD, si el modelo los trae, usa rubor, lágrimas, ojos de corazón o de estrella,
+  sudor, ZZZ y marcas «！», «？» y «……». Reconoce los nombres de esos gestos en japonés, chino e
+  inglés, y ajusta los ojos a cada modelo.
+- La boca forma las vocales al hablar y conserva un poco el gesto de la emoción.
+- Vida propia añade gestos breves en la cara: sueño, guiño, rubor y la marca de lectura.
+- IRIS v13 corrige el flequillo que atravesaba la frente. El pelo sigue la brisa aunque ella gire.
+- Companion estrena el modo juego (beta): mira solo la ventana elegida, responde con voz o texto
+  y ofrece comentarios automáticos y atajos opcionales. No graba vídeo.
+- Las manos y la cabeza son más estables con otros avatares.
+- Elegir un GLB que no es VRM muestra cómo convertirlo.
+
+Las suites del candidato pasaron con 5.489 pruebas Python y 1.685 JavaScript. El canal beta
+ofrece QA29. El instalador conserva el perfil existente. Siguen pendientes las pruebas con
+personas y la voz con una clave real.
 
 ## Iris OS 0.9.5 beta · QA26
 

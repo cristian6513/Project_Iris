@@ -3,7 +3,9 @@ export const IRIS_AVATAR_FILE = 'iris.vrm';
 // Bump with every new factory model (its hash changes in release_assets.json), so no
 // browser cache keeps showing the previous one. 11: MToon conversion of Ligera v10.
 // 12: jacket and panties on the skin's weights, the skin sealed under them removed.
-export const IRIS_AVATAR_REVISION = '12';
+// 13: head colliders fitted to her hair, one per hair group (the fringe no longer opens), and the
+// fringe swings in her head's space (it no longer slides into her forehead when she moves fast).
+export const IRIS_AVATAR_REVISION = '13';
 export const IRIS_AVATAR_URL = `/face/animations/${IRIS_AVATAR_FILE}?v=${IRIS_AVATAR_REVISION}`;
 
 export function isPmxArchive(resource) {

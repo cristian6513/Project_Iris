@@ -65,19 +65,40 @@ async def verify(repo: Path):
                 if provider == "nous":
                     from hermes_cli import anon_auth
 
-                    mock(anon_auth, "guest_enabled", return_value=False)
-                    mock(native, "_request_device_code", return_value=device)
-                    mock(native, "_poll_for_token", return_value=token)
-                    mock(
-                        native,
-                        "refresh_nous_oauth_from_state",
-                        side_effect=lambda state, **kw: state,
-                    )
-                    mock(
-                        native,
-                        "persist_nous_credentials",
-                        side_effect=lambda *a, **kw: saved.append("nous"),
-                    )
+                    # The free-tier gate: guest_allowed in Hermes 0.23, guest_enabled in 0.21.
+                    gate = "guest_allowed" if hasattr(anon_auth, "guest_allowed") else "guest_enabled"
+                    mock(anon_auth, gate, return_value=False)
+                    if importlib.util.find_spec("hermes_cli.anon_sign_in"):
+                        # Hermes 0.23: every Nous sign-in is anon_sign_in.run_sign_in, which
+                        # requests the code in auth_device_flow and polls/saves via anon_auth.
+                        from hermes_cli import auth_device_flow as device_flow
+                        from hermes_cli import auth_nous
+
+                        mock(device_flow, "_request_device_code", return_value=device)
+                        mock(anon_auth, "_poll_for_token", return_value=token)
+                        mock(
+                            auth_nous,
+                            "refresh_nous_oauth_from_state",
+                            side_effect=lambda state, **kw: state,
+                        )
+                        mock(
+                            anon_auth,
+                            "persist_nous_credentials",
+                            side_effect=lambda *a, **kw: saved.append("nous"),
+                        )
+                    else:
+                        mock(native, "_request_device_code", return_value=device)
+                        mock(native, "_poll_for_token", return_value=token)
+                        mock(
+                            native,
+                            "refresh_nous_oauth_from_state",
+                            side_effect=lambda state, **kw: state,
+                        )
+                        mock(
+                            native,
+                            "persist_nous_credentials",
+                            side_effect=lambda *a, **kw: saved.append("nous"),
+                        )
                     mock(anon_auth, "settle_after_upgrade", return_value={})
                 elif provider == "openai-codex":
                     mock(

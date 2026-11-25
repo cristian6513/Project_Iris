@@ -24,13 +24,13 @@ import { guardBloom } from './bloom_guard.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-import { AvatarManager } from './avatar.js?v=30';
-import { avatarUrl, IRIS_AVATAR_URL } from './avatar_state.js?v=5';
-import { ParticleSystem } from './particles.js?v=2';
+import { AvatarManager } from './avatar.js?v=43';
+import { avatarUrl, IRIS_AVATAR_URL } from './avatar_state.js?v=6';
+import { ParticleSystem } from './particles.js?v=3';
 import { WebSocketManager } from './websocket.js?v=4';
 import { ManualVoiceController } from './manual_voice.js?v=6';
 import { SubtitleManager } from './subtitles.js?v=1';
-import { LipSyncEngine } from './lipsync.js?v=3';
+import { LipSyncEngine } from './lipsync.js?v=4';
 
 // ── New modules ──
 import { RoomEnvironment } from './room.js?v=108';
@@ -42,8 +42,8 @@ import { PMX_FURNITURE_BOXES, addFurnitureColliders } from './furniture_collider
 import { SceneActionManager } from './scene_actions.js?v=64';
 import { getRoomAction } from './room_actions.js?v=30';
 import { FloatingBook, ThinkingCloud, DataStream, MemorySymbol } from './contextual_fx.js?v=2';
-import { IdleSystem } from './idle_system.js?v=64';
-import { SidePanel } from './panel.js?v=65';
+import { IdleSystem } from './idle_system.js?v=66';
+import { SidePanel } from './panel.js?v=75';
 import { RoomSurfaceVisibility } from './room_surface_visibility.js?v=1';
 import { normalizeRoomText, ROOM_STATUS_LABELS } from './room_labels.js?v=1';
 import { AmbientAudio } from './ambient_audio.js?v=2';
@@ -53,13 +53,13 @@ import { buildVisionSignal } from './vision_signal_policy.js?v=2';
 import { buildVisionActivity } from './vision_activity.js?v=1';
 import { VisionPresentation } from './vision_presentation.js?v=2';
 import { InboxNotice } from './inbox_notice.js?v=2';
-import { InboxVoicePlayer } from './inbox_voice.js?v=1';
+import { InboxVoicePlayer } from './inbox_voice.js?v=2';
 import { CalendarNotice } from './calendar_notice.js?v=6';
 import { AppNotice } from './app_notice.js?v=2';
 import { askIrisSender } from './app_ask_iris.js?v=3';
 import { EmotionClassifier } from './emotion_classifier.js';
 import { SpeechAnimator } from './speech_animator.js?v=5';
-import { MicroLife } from './micro_life.js?v=10';
+import { MicroLife } from './micro_life.js?v=13';
 import { HermesActivityCanvas, refreshAppCatalog } from './hermes_activity.js?v=154';
 import { loadInstalledApps } from './os_app_sources.js?v=5';
 import { openChatSurface } from './open_chat_surface.js?v=1';
@@ -72,8 +72,9 @@ import { irisConfirm } from './iris_dialog.js?v=9';
 import { cachedNotice, checkForUpdates, createUpdateNoticeStorage, rememberSnapshot, showUpdateDot } from './update_notice.js?v=2';
 import { prepareNotificationChatDraft } from './notification_chat_draft.js?v=1';
 import { AnimationDirector } from './animation_director.js?v=6';
-import { TtsAudioPlayer } from './tts_audio_player.js?v=5';
-import { SpeechPresentation } from './speech_presentation.js?v=1';
+import { TtsAudioPlayer } from './tts_audio_player.js?v=6';
+import { SpeechPresentation } from './speech_presentation.js?v=4';
+import { EMOTIONS } from './emotions.js?v=3';
 import {
     buildSurfaceReadyPayload,
     buildSurfaceStatePayload,
@@ -435,6 +436,7 @@ class IrisApp {
                 this.graphicsQuality.applyAvatarPhysics();
                 this.sceneActions?.prepareTeleport(this.renderer, this.camera);
                 this.config.avatar_vrm_path = candidate.vrmUrl === IRIS_AVATAR_URL ? '' : candidate.vrmUrl;
+                this.panel?.refreshAvatarFaces?.();
                 void (this.animationLibrary?.refresh() || this.idle.reloadManifest()).catch(error =>
                     console.warn('[avatar] Manifest loading failed:', error));
                 return previous;
@@ -565,6 +567,9 @@ class IrisApp {
         this.panel.room = this.room;           // wire room for theme switching
         this.panel.avatarZoom = this.avatarZoom;
         this.panel.roomLife = this.roomLife;
+        // The avatar panel lists what the face on stage can show (emotions.js faceGestures).
+        this.panel.avatarExpressionNames = () => (this.avatarManager?.avatar?.vrm?.expressionManager?.expressions || [])
+            .map(expression => expression.expressionName);
         this.panel._moduleRefreshers.get('settings')?.();
         this.panel.canSendMessage = () => Boolean(this.ws?.connected);
         // Cancels the background task only; «Detener» keeps stopping the current reply.
@@ -1647,7 +1652,7 @@ class IrisApp {
                 try {
                     let upload = file;
                     if (ext === 'zip') {
-                        const { preparePmxUpload } = await import('./pmx_avatar.js');
+                        const { preparePmxUpload } = await import('./pmx_avatar.js?v=10');
                         const prepared = await preparePmxUpload(file, isCurrent.signal);
                         if (!isCurrent()) return;
                         if (!prepared) {
@@ -2404,7 +2409,7 @@ class IrisApp {
         let emo = null;
         if (clip === 'wave' || clip === 'dance') emo = 'feliz';
         else if (clip === 'think')               emo = 'pensativa';
-        else if (clip === 'shy')                 emo = 'sorprendida';
+        else if (clip === 'shy')                 emo = 'avergonzada';
         if (emo) this._setEmotion(emo);
     }
 
@@ -2417,10 +2422,9 @@ class IrisApp {
         this.currentEmotion = emotion;
         this.particles?.setMood(emotion);
 
-        const emojis = { neutral:'ÁNIMO', feliz:'ALEGRÍA', triste:'TRISTEZA', pensativa:'PENSANDO', sorprendida:'SORPRESA', enojada:'ENOJO' };
         const el1 = document.getElementById('emotion-emoji');
         const el2 = document.getElementById('emotion-label');
-        if (el1) el1.textContent = emojis[emotion] || 'ÁNIMO';
+        if (el1) el1.textContent = EMOTIONS[emotion]?.label || 'ÁNIMO';
         if (el2) el2.textContent = emotion;
 
         // Drive the energy bar (was hard-pinned to 50% in CSS).
@@ -2654,15 +2658,7 @@ class IrisApp {
     _updateEmotionEnergy(emotion) {
         const bar = document.getElementById('emotion-energy-bar');
         if (!bar) return;
-        const levels = {
-            neutral:     40,
-            feliz:       75,
-            triste:      25,
-            pensativa:   55,
-            sorprendida: 90,
-            enojada:     95,
-        };
-        const pct = levels[emotion] ?? 50;
+        const pct = EMOTIONS[emotion]?.energy ?? 50;
         bar.style.width = `${pct}%`;
     }
 

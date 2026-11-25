@@ -73,3 +73,4 @@ Cargo.lock text eol=lf
 *.mp3 binary
 *.wav binary
 
+/tests/fixtures/hermes-0.21.6-windows-cp314.txt -text

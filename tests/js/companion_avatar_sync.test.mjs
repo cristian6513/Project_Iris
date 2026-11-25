@@ -102,7 +102,7 @@ function appHarness({ gate, broken = false, visible = true } = {}) {
     });
     app.speechPresentation.start({ emotion: 'feliz' });
     app.apply = method('_applyAvatarConfig', { THREE: { Scene }, AvatarManager, IdleSystem, SpeechAnimator, AnimationLibrarySync: class { start() {} async refresh() {} }, LipSyncEngine: class {},
-        companionAvatarSelection, isPmxArchive, graphicsQuality, localAnimationBase: () => '/animations', IRIS_AVATAR_FILE: 'iris.vrm', IRIS_AVATAR_REVISION: '12',
+        companionAvatarSelection, isPmxArchive, graphicsQuality, localAnimationBase: () => '/animations', IRIS_AVATAR_FILE: 'iris.vrm', IRIS_AVATAR_REVISION: '13',
         disposeCompanionAvatar: manager => { if (manager) disposed.push(manager); } });
     return { app, old, disposed, loaded, released, errors };
 }
@@ -168,7 +168,7 @@ test('failed or superseded replacements leave the visible avatar and animations 
 test("IRIS loads from the Companion's own bundle, without asking Core for the file", async () => {
     const h = appHarness({ visible: false });
     await h.app.apply({ avatar_vrm_path: '' }, () => true);
-    assert.equal(h.loaded[0].url, '/animations/iris.vrm?v=12');
+    assert.equal(h.loaded[0].url, '/animations/iris.vrm?v=13');
     assert.deepEqual(h.released, [], 'no Core asset URL was made');
     assert.equal(h.app._appliedAvatarKey, '["iris",""]');
 });
@@ -177,7 +177,7 @@ test('a model of their own that cannot load at start shows IRIS and says so, the
     const h = appHarness({ broken: true, visible: false });
     await h.app.apply(vrm, () => true);
     assert.equal(h.app.avatarManager, h.loaded[0]);
-    assert.equal(h.loaded[0].vrmUrl, '/animations/iris.vrm?v=12');
+    assert.equal(h.loaded[0].vrmUrl, '/animations/iris.vrm?v=13');
     assert.deepEqual(h.errors, ['No pude cargar tu VRM. Mostrando a IRIS.']);
     assert.equal(h.app._appliedAvatarKey, '', 'the saved model is tried again on the next change');
 });

@@ -66,6 +66,32 @@ test('the wind turns slowly and gusts between a fifth and full strength', () => 
     assert.ok(Math.atan(BREEZE_LEAN * 1.14) * DEG < 5, 'soft: a few degrees per joint at most');
 });
 
+// 2026-11-24: a wind fixed to the room blew into her face when she faced away from the camera
+// (bed, desk, window) and pressed IRIS's fringe into her forehead.
+test('the wind turns with her: facing away from the camera it still comes from her side', () => {
+    const blow = (heading) => {
+        const joint = stub('hair', 1, 0);
+        const breeze = new AvatarBreeze({ isEnabled: () => true, reducedMotion: () => false });
+        breeze.attach({ springBoneManager: { joints: [joint] } });
+        for (let i = 0; i < 300; i++) breeze.apply(1 / 60, heading);
+        const { x, y, z } = joint.settings.gravityDir;
+        return { x, y, z };
+    };
+    const ahead = blow(0);
+    assert.ok(ahead.x > 0.7 && ahead.z > 0, 'from her side and a little from behind, towards her front');
+    for (const heading of [-Math.PI / 2, Math.PI, 0.8]) {
+        const turned = blow(heading);
+        // Back in her own frame, it is the same wind.
+        const c = Math.cos(-heading), s = Math.sin(-heading);
+        const x = turned.x * c + turned.z * s, z = turned.z * c - turned.x * s;
+        assert.ok(Math.abs(x - ahead.x) < 1e-9 && Math.abs(z - ahead.z) < 1e-9 && Math.abs(turned.y - ahead.y) < 1e-9);
+    }
+    // On the bed she faces −X (heading −90°): the wind must not come at her face (+X towards her).
+    const bed = blow(-Math.PI / 2);
+    assert.ok(bed.x < 0.4, `on the bed the wind blows towards her front, not into her face (x ${bed.x.toFixed(2)})`);
+    assert.deepEqual(blow(Number.NaN), ahead, 'a missing heading is the camera-facing one');
+});
+
 test('on the native solver a single joint never leans more than ~4°, whatever its settings', () => {
     // Codex B01: stiffness 1 against an opposing gravity of 0.99 used to reach 79°.
     const cases = [
@@ -150,7 +176,7 @@ test('one saved switch for every avatar, on unless turned off', () => {
 
 test('the VRM applies it before simulating hair; the switch shows when Windows pauses it', () => {
     const avatar = readFileSync(new URL('../../face/js/avatar.js', import.meta.url), 'utf8');
-    assert.match(avatar, /this\.breeze\?\.apply\(delta\);\s*this\.vrm\?\.update\(delta\);/);
+    assert.match(avatar, /this\.breeze\?\.apply\(delta, \(this\.group\?\.rotation\.y \?\? 0\) - \(this\.restYaw \|\| 0\)\);\s*this\.vrm\?\.update\(delta\);/);
     assert.match(avatar, /autoRegisterSpringBones\(vrm\)[^]*?this\.breeze\.attach\(vrm\);/);
     assert.match(avatar, /this\.breeze\?\.detach\(\);/);
     const panel = readFileSync(new URL('../../face/js/panel.js', import.meta.url), 'utf8');

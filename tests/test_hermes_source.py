@@ -343,3 +343,126 @@ def test_a_literal_version_still_wins_over_the_pin_with_a_stamp(tmp_path):
     archive, pin = make_stamped(tmp_path, changed)
     with pytest.raises(source.HermesSourceError, match="source version"):
         source.extract_hermes_source(archive, tmp_path / "hermes", pin)
+
+
+# ── Reviewed IRIS patches (2026-11-20, Hermes 0.23.3 session-lock-resolved-provider)
+
+RUNNER = b"def settle(api):\n    settings = api['settings']\n    return settings\n"
+TURN = b"def prepare(current):\n    return current\n"
+PATCHED_RUNNER = RUNNER.replace(b"    return settings\n", b"    settings.setdefault('seen', True)\n    return settings\n")
+
+
+def _sha(payload):
+    return hashlib.sha256(payload).hexdigest()
+
+
+def patched_pin(tmp_path, files=None, *, entries=None):
+    files = {**STAMPED, "gateway/run_turn_runner.py": RUNNER, "gateway/session_api_turn.py": TURN} if files is None else files
+    archive, pin = make_stamped(tmp_path, files)
+    entries = [{
+        "path": "gateway/run_turn_runner.py", "sha256": _sha(RUNNER), "patched_sha256": _sha(PATCHED_RUNNER),
+        "replace": [{"old": "    return settings\n", "new": "    settings.setdefault('seen', True)\n    return settings\n"}],
+    }] if entries is None else entries
+    pin["source_patches"] = [{"id": "session-lock-resolved-provider", "reason": "upstream bug", "files": entries}]
+    return archive, pin
+
+
+def test_a_reviewed_patch_changes_only_its_file(tmp_path):
+    archive, pin = patched_pin(tmp_path)
+    destination = tmp_path / "hermes"
+    result = source.extract_hermes_source(archive, destination, pin)
+    assert (destination / "gateway/run_turn_runner.py").read_bytes() == PATCHED_RUNNER
+    assert (destination / "gateway/session_api_turn.py").read_bytes() == TURN
+    assert (destination / "pm/paths.py").read_bytes() == STAMPED["pm/paths.py"]
+    assert result["patches"] == ["session-lock-resolved-provider"]
+
+
+@pytest.mark.parametrize("patched", [True, False])
+def test_the_hermes_runtime_pin_keeps_exactly_its_three_fields(tmp_path, patched):
+    # QA27 build, 2026-11-21: core.runtime_descriptor and the launcher (Rust, deny_unknown_fields),
+    # including an installed QA26 verifying the update, refuse any other field in this file.
+    from core.runtime_descriptor import RuntimeDescriptorError, _object
+
+    archive, pin = patched_pin(tmp_path) if patched else make_stamped(tmp_path)
+    result = source.extract_hermes_source(archive, tmp_path / "hermes", pin)
+    assert result["patches"] == (["session-lock-resolved-provider"] if patched else [])
+    document = json.loads((tmp_path / "hermes/runtime-pin.json").read_text("utf8"))
+    assert set(document) == {"schema_version", "version", "revision"}
+    fields = {"schema_version", "version", "revision"}
+    _object(document, fields, "hermes.metadata")
+    with pytest.raises(RuntimeDescriptorError):
+        _object({**document, "iris_patches": ["x"]}, fields, "hermes.metadata")
+
+
+def test_an_upstream_change_to_a_patched_file_stops_the_build(tmp_path):
+    changed = RUNNER.replace(b"settle", b"settle_turn")
+    archive, pin = patched_pin(tmp_path, {**STAMPED, "gateway/run_turn_runner.py": changed})
+    with pytest.raises(source.HermesSourceError, match="review IRIS patch session-lock-resolved-provider"):
+        source.extract_hermes_source(archive, tmp_path / "hermes", pin)
+    assert not (tmp_path / "hermes").exists()
+    assert not list(tmp_path.glob(".hermes-source-*"))
+
+
+@pytest.mark.parametrize("old, patched, message", [
+    ("    return nothing\n", PATCHED_RUNNER, "exactly once"),
+    ("    ", PATCHED_RUNNER, "exactly once"),
+    ("    return settings\n", RUNNER + b"# other\n", "did not produce"),
+])
+def test_a_patch_must_match_once_and_give_the_reviewed_bytes(tmp_path, old, patched, message):
+    archive, pin = patched_pin(tmp_path, entries=[{
+        "path": "gateway/run_turn_runner.py", "sha256": _sha(RUNNER), "patched_sha256": _sha(patched),
+        "replace": [{"old": old, "new": "    settings.setdefault('seen', True)\n    return settings\n"}]}])
+    with pytest.raises(source.HermesSourceError, match=message):
+        source.extract_hermes_source(archive, tmp_path / "hermes", pin)
+    assert not (tmp_path / "hermes").exists()
+
+
+def test_a_patch_target_missing_upstream_stops_the_build(tmp_path):
+    archive, pin = patched_pin(tmp_path, {**STAMPED, "gateway/session_api_turn.py": TURN})
+    with pytest.raises(source.HermesSourceError, match="target missing"):
+        source.extract_hermes_source(archive, tmp_path / "hermes", pin)
+    assert not (tmp_path / "hermes").exists()
+
+
+def _entry(**changes):
+    entry = {"path": "gateway/run_turn_runner.py", "sha256": _sha(RUNNER), "patched_sha256": _sha(PATCHED_RUNNER),
+             "replace": [{"old": "    return settings\n", "new": "    x = 1\n    return settings\n"}]}
+    entry.update(changes)
+    return entry
+
+
+@pytest.mark.parametrize("mutate, message", [
+    (lambda pin: pin.update(source_patches={}), "must be a list"),
+    (lambda pin: pin["source_patches"][0].update(id="Bad Id"), "patch id"),
+    (lambda pin: pin["source_patches"].append(dict(pin["source_patches"][0], files=[_entry(path="gateway/x.py")])),
+     "duplicate"),
+    (lambda pin: pin["source_patches"][0].update(reason=" "), "needs a reason"),
+    (lambda pin: pin["source_patches"][0].update(files=[]), "changes no file"),
+    (lambda pin: pin["source_patches"][0].update(extra=1), "Invalid Hermes source patch"),
+    (lambda pin: pin["source_patches"][0]["files"][0].update(note="x"), "Invalid file entry"),
+    (lambda pin: pin["source_patches"][0].update(files=[_entry(path="skills/x/run.py")]), "unexpected path"),
+    (lambda pin: pin["source_patches"][0].update(files=[_entry(path="gateway/../setup.py")]), "unexpected path"),
+    (lambda pin: pin["source_patches"][0].update(files=[_entry(path="gateway/data.json")]), "unexpected path"),
+    (lambda pin: pin["source_patches"][0].update(files=[_entry(path="gateway/__pycache__/x.py")]), "unexpected path"),
+    (lambda pin: pin["source_patches"][0].update(files=[_entry(), _entry()]), "Two Hermes source patches"),
+    (lambda pin: pin["source_patches"][0].update(files=[_entry(sha256="ABC")]), "Invalid hashes"),
+    (lambda pin: pin["source_patches"][0].update(files=[_entry(patched_sha256=_sha(RUNNER))]), "Invalid hashes"),
+    (lambda pin: pin["source_patches"][0].update(files=[_entry(replace=[])]), "Invalid replacements"),
+    (lambda pin: pin["source_patches"][0].update(files=[_entry(replace=[{"old": "", "new": "x"}])]), "Invalid replacements"),
+    (lambda pin: pin["source_patches"][0].update(files=[_entry(replace=[{"old": "a", "new": "a"}])]), "Invalid replacements"),
+])
+def test_an_invalid_patch_spec_is_rejected_before_anything_is_written(tmp_path, mutate, message):
+    archive, pin = patched_pin(tmp_path)
+    mutate(pin)
+    with pytest.raises(source.HermesSourceError, match=message):
+        source.extract_hermes_source(archive, tmp_path / "hermes", pin)
+    assert not (tmp_path / "hermes").exists()
+
+
+def test_the_pinned_runtime_patches_are_valid_and_documented():
+    pin = json.loads((Path(__file__).resolve().parents[1] / "scripts/runtime_sources.json").read_text("utf-8"))["hermes"]
+    patches = source._validate_patches(pin)
+    for path, spec in patches.items():
+        assert path.startswith("gateway/")
+        # Every inserted block says where it comes from, so a reader of the tree can tell.
+        assert all(f"IRIS patch {spec['id']}" in new for _, new in spec["replace"])

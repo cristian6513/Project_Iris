@@ -6,18 +6,15 @@ import { VRMExpression, VRMExpressionManager, VRMExpressionMorphTargetBind, VRMH
 import { disposeAvatarTree } from './avatar_lifecycle.js?v=4';
 import { irisForm } from './iris_dialog.js?v=9';
 import { archiveKey, extensionOf, openPmxPackage, PMX_AVATAR_LIMIT, PMX_AVATAR_EXPANDED_LIMIT, PMX_PACKAGE_LIMIT } from './pmx_archive.js';
-import { useMmdAmbient } from './pmx_material.js';
+import { useMmdAmbient, useOverlayAlpha } from './pmx_material.js?v=2';
+// Brows, eyes and mouth per emotion, merged into one morph each (the loader copies the mesh per morph).
+import { emotionMouthWeight, MOUTH_SUFFIX, normalizeMorphName, PMX_EYE_CLOSING, selectExpressions } from './pmx_expressions.js?v=9';
 
 const VIRTUAL_ROOT = '/iris-mmd-assets/';
 // .sph and .spa are MMD sphere maps: BMP images, sometimes PNG ones, by another name. The
 // browser reads the image by its content.
 const MIME = { pmx: 'application/octet-stream', png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', bmp: 'image/bmp',
     sph: 'image/bmp', spa: 'image/bmp', tga: 'image/x-tga' };
-const EXPRESSION_ALIASES = {
-    blink: ['まばたき', 'blink'], aa: ['あ', 'aa', 'A'], ih: ['い', 'ih', 'I'], ou: ['う', 'ou', 'U'],
-    ee: ['え', 'ee', 'E'], oh: ['お', 'oh', 'O'], happy: ['喜び', 'にこり', 'happy'],
-    angry: ['怒り', 'angry'], sad: ['困る', 'sad'], surprised: ['びっくり', 'surprised'],
-};
 const BODY_CHAINS = [
     ['hips', 'spine', 'head'],
     ['spine', 'leftUpperArm', 'leftLowerArm', 'leftHand'],
@@ -25,28 +22,7 @@ const BODY_CHAINS = [
     ['hips', 'leftUpperLeg', 'leftLowerLeg', 'leftFoot'],
     ['hips', 'rightUpperLeg', 'rightLowerLeg', 'rightFoot'],
 ];
-const normalizeName = name => name.normalize('NFKC').toLowerCase();
-
-// The MMD loader makes a dense copy of the mesh for every morph. Iris only
-// drives these expressions. Flatten group morphs to their vertex deltas first.
-function selectExpressions(data) {
-    const morphs = data.morphs;
-    const byName = new Map(morphs.map(morph => [normalizeName(morph.name), morph]));
-    const selected = [];
-    for (const [role, aliases] of Object.entries(EXPRESSION_ALIASES)) {
-        const morph = aliases.map(alias => byName.get(normalizeName(alias)))
-            .find(candidate => candidate?.type === 1 || candidate?.type === 0);
-        if (!morph) continue;
-        const elements = morph.type === 1 ? morph.elements : morph.elements.flatMap(({ index, ratio }) => {
-            const child = morphs[index];
-            if (child?.type !== 1) return [];
-            return child.elements.map(({ index: vertex, position }) => ({ index: vertex, position: position.map(value => value * ratio) }));
-        });
-        if (elements.length) selected.push({ ...morph, name: role, type: 1, elements, elementCount: elements.length });
-    }
-    data.morphs = selected;
-    data.metadata.morphCount = selected.length;
-}
+const normalizeName = normalizeMorphName;
 
 function parsePmx(content) {
     return new Parser().parsePmx(content.buffer.slice(content.byteOffset, content.byteOffset + content.byteLength), true);
@@ -95,13 +71,23 @@ async function loadMesh(bytes) {
         const loader = new MMDLoader(manager);
         const url = VIRTUAL_ROOT + model.name;
         return await new Promise((resolve, reject) => {
-            manager.onLoad = () => mesh ? resolve(mesh) : reject(new Error('No se pudo cargar el PMX.'));
+            let overlayVertices = new Set();
+            manager.onLoad = () => {
+                if (!mesh) return reject(new Error('No se pudo cargar el PMX.'));
+                // Blush, tears and marks: see-through pieces the loader may have left opaque.
+                useOverlayAlpha(mesh, overlayVertices);
+                resolve(mesh);
+            };
             manager.onError = () => reject(new Error('No se pudo leer una textura del PMX.'));
             loader.loadPMX(url, data => {
                 if (data.metadata.vertexCount > 250_000 || data.metadata.boneCount > 2_000) {
                     throw new Error('El PMX supera el límite de vértices o huesos.');
                 }
-                selectExpressions(data);
+                const selection = selectExpressions(data);
+                const used = selection.used;
+                overlayVertices = selection.overlayVertices;
+                console.log('[PMX] expresiones:', Object.entries(used).map(([role, names]) => `${role}=${names.join('+')}`).join(' '));
+                if (Object.keys(selection.calibration ?? {}).length) console.log('[PMX] calibración de ojos:', JSON.stringify(selection.calibration));
                 mesh = loader.meshBuilder.build(data, THREE.LoaderUtils.extractUrlBase(url), undefined, reject);
                 // Ambient times texture, as in MMD: MMDLoader's flat glow greyed every dark colour.
                 useMmdAmbient(mesh.material, data.materials);
@@ -230,12 +216,29 @@ export async function loadPmxAvatar(bytes, { simulate = false } = {}) {
         const { humanoid, twins } = mapHumanoid(mesh);
         scene.add(humanoid.normalizedHumanBonesRoot);
         const expressionManager = new VRMExpressionManager();
-        for (const [role, index] of Object.entries(mesh.morphTargetDictionary ?? {})) {
-            const expression = new VRMExpression(role);
-            expression.addBind(new VRMExpressionMorphTargetBind({ primitives: [mesh], index, weight: 1 }));
-            expressionManager.registerExpression(expression);
-            scene.add(expression);
+        const expressions = new Map();
+        const expressionFor = (role) => {
+            let expression = expressions.get(role);
+            if (!expression) {
+                expression = new VRMExpression(role);
+                // Smiling eyes are already half closed: the blink gives way, as in VRM presets.
+                if (PMX_EYE_CLOSING.has(role)) expression.overrideBlink = 'blend';
+                expressionManager.registerExpression(expression);
+                scene.add(expression);
+                expressions.set(role, expression);
+            }
+            return expression;
+        };
+        // An emotion's mouth (`happyMouth`…) is a second bind of the same expression, eased while
+        // she speaks (emotionMouthWeight).
+        const mouthBinds = [];
+        for (const [name, index] of Object.entries(mesh.morphTargetDictionary ?? {})) {
+            const mouth = name.length > MOUTH_SUFFIX.length && name.endsWith(MOUTH_SUFFIX);
+            const bind = new VRMExpressionMorphTargetBind({ primitives: [mesh], index, weight: 1 });
+            expressionFor(mouth ? name.slice(0, -MOUTH_SUFFIX.length) : name).addBind(bind);
+            if (mouth) mouthBinds.push(bind);
         }
+        const speaking = () => Math.max(...['aa', 'ih', 'ou', 'ee', 'oh'].map(n => expressionManager.getValue(n) || 0));
         let physics = null;
         if (simulate && mesh.geometry.userData.MMD.rigidBodies.some(body => body.type !== 0)) {
             try {
@@ -254,6 +257,10 @@ export async function loadPmxAvatar(bytes, { simulate = false } = {}) {
             update(delta) {
                 humanoid.update();
                 followTwins(twins);
+                if (mouthBinds.length) {
+                    const weight = emotionMouthWeight(speaking());
+                    for (const bind of mouthBinds) bind.weight = weight;
+                }
                 expressionManager.update();
                 physics?.update(delta);
             },

@@ -470,7 +470,12 @@
             "emotion": "neutral",
             "strength": 0.35,
             "moments": [
-                { "from": 2.6, "to": 6, "emotion": "feliz", "strength": 0.24 }
+                {
+                    "from": 2.6,
+                    "to": 6,
+                    "emotion": "feliz",
+                    "strength": 0.24
+                }
             ],
             "eyes": {
                 "gaze": "natural",
@@ -484,7 +489,12 @@
             "emotion": "neutral",
             "strength": 0.35,
             "moments": [
-                { "from": 1.1, "to": 3.7, "emotion": "feliz", "strength": 0.3 }
+                {
+                    "from": 1.1,
+                    "to": 3.7,
+                    "emotion": "feliz",
+                    "strength": 0.3
+                }
             ],
             "eyes": {
                 "gaze": "natural",
@@ -498,7 +508,13 @@
             "emotion": "pensativa",
             "strength": 0.3,
             "moments": [
-                { "from": 1.2, "to": 4.8, "emotion": "pensativa", "strength": 0.5, "lidClosure": 0.26 }
+                {
+                    "from": 1.2,
+                    "to": 4.8,
+                    "emotion": "pensativa",
+                    "strength": 0.5,
+                    "lidClosure": 0.26
+                }
             ],
             "eyes": {
                 "gaze": "natural",
@@ -511,6 +527,12 @@
         "wave": {
             "emotion": "feliz",
             "strength": 0.48,
+            "marks": [
+                {
+                    "at": 0.4,
+                    "mark": "blush"
+                }
+            ],
             "eyes": {
                 "gaze": "natural",
                 "blinkInterval": 4,
@@ -522,6 +544,12 @@
         "wave_big": {
             "emotion": "feliz",
             "strength": 0.6,
+            "marks": [
+                {
+                    "at": 0.4,
+                    "mark": "blush"
+                }
+            ],
             "eyes": {
                 "gaze": "natural",
                 "blinkInterval": 4,
@@ -597,8 +625,14 @@
             "mouth": null
         },
         "confused": {
-            "emotion": "pensativa",
-            "strength": 0.45,
+            "emotion": "confundida",
+            "strength": 0.6,
+            "marks": [
+                {
+                    "at": 0.25,
+                    "mark": "markThink"
+                }
+            ],
             "eyes": {
                 "gaze": "natural",
                 "blinkInterval": 4,
@@ -608,7 +642,7 @@
             "mouth": null
         },
         "celebrate": {
-            "emotion": "feliz",
+            "emotion": "emocionada",
             "strength": 0.65,
             "eyes": {
                 "gaze": "natural",
@@ -668,8 +702,19 @@
             "emotion": "neutral",
             "strength": 0.35,
             "moments": [
-                { "from": 3.2, "to": 6.8, "emotion": "pensativa", "strength": 0.38, "lidClosure": 0.22 },
-                { "from": 6.8, "to": 8, "emotion": "feliz", "strength": 0.28 }
+                {
+                    "from": 3.2,
+                    "to": 6.8,
+                    "emotion": "pensativa",
+                    "strength": 0.38,
+                    "lidClosure": 0.22
+                },
+                {
+                    "from": 6.8,
+                    "to": 8,
+                    "emotion": "feliz",
+                    "strength": 0.28
+                }
             ],
             "eyes": {
                 "gaze": "natural",
@@ -735,13 +780,13 @@
             "mouth": null
         },
         "bed_lying_idle": {
-            "emotion": null,
-            "strength": 0,
+            "emotion": "somnolienta",
+            "strength": 0.55,
             "eyes": {
                 "gaze": "natural",
                 "blinkInterval": 6,
                 "blinkDuration": 0.34,
-                "lidClosure": 0.16
+                "lidClosure": 0.3
             },
             "mouth": null
         },
@@ -814,6 +859,12 @@
         "book_read_idle": {
             "emotion": null,
             "strength": 0,
+            "marks": [
+                {
+                    "at": 3.5,
+                    "mark": "markDots"
+                }
+            ],
             "eyes": {
                 "gaze": "down",
                 "blinkInterval": 5.5,
@@ -847,6 +898,12 @@
         "sofa_read_idle": {
             "emotion": null,
             "strength": 0,
+            "marks": [
+                {
+                    "at": 3.5,
+                    "mark": "markDots"
+                }
+            ],
             "eyes": {
                 "gaze": "down",
                 "blinkInterval": 5.5,
@@ -880,6 +937,12 @@
         "bed_read_idle": {
             "emotion": null,
             "strength": 0,
+            "marks": [
+                {
+                    "at": 3.5,
+                    "mark": "markDots"
+                }
+            ],
             "eyes": {
                 "gaze": "down",
                 "blinkInterval": 5.5,
@@ -1045,6 +1108,12 @@
         "stand_read_idle": {
             "emotion": null,
             "strength": 0,
+            "marks": [
+                {
+                    "at": 3.5,
+                    "mark": "markDots"
+                }
+            ],
             "eyes": {
                 "gaze": "down",
                 "blinkInterval": 5.5,
@@ -1155,6 +1224,12 @@
         "wave_2": {
             "emotion": "feliz",
             "strength": 0.48,
+            "marks": [
+                {
+                    "at": 0.4,
+                    "mark": "blush"
+                }
+            ],
             "eyes": {
                 "gaze": "natural",
                 "blinkInterval": 4,
@@ -1166,6 +1241,12 @@
         "wave_big_2": {
             "emotion": "feliz",
             "strength": 0.6,
+            "marks": [
+                {
+                    "at": 0.4,
+                    "mark": "blush"
+                }
+            ],
             "eyes": {
                 "gaze": "natural",
                 "blinkInterval": 4,
@@ -1197,7 +1278,7 @@
             "mouth": null
         },
         "celebrate_2": {
-            "emotion": "feliz",
+            "emotion": "emocionada",
             "strength": 0.65,
             "eyes": {
                 "gaze": "natural",
@@ -1208,7 +1289,7 @@
             "mouth": null
         },
         "jump": {
-            "emotion": "feliz",
+            "emotion": "emocionada",
             "strength": 0.65,
             "eyes": {
                 "gaze": "natural",
@@ -1255,7 +1336,13 @@
             "emotion": "pensativa",
             "strength": 0.3,
             "moments": [
-                { "from": 1.2, "to": 4.8, "emotion": "pensativa", "strength": 0.5, "lidClosure": 0.26 }
+                {
+                    "from": 1.2,
+                    "to": 4.8,
+                    "emotion": "pensativa",
+                    "strength": 0.5,
+                    "lidClosure": 0.26
+                }
             ],
             "eyes": {
                 "gaze": "natural",
@@ -1290,8 +1377,8 @@
             }
         },
         "shy": {
-            "emotion": "feliz",
-            "strength": 0.35,
+            "emotion": "avergonzada",
+            "strength": 0.6,
             "eyes": {
                 "gaze": "natural",
                 "blinkInterval": 3.5,
@@ -1301,7 +1388,7 @@
             "mouth": null
         },
         "scared": {
-            "emotion": "sorprendida",
+            "emotion": "nerviosa",
             "strength": 0.7,
             "eyes": {
                 "gaze": "natural",
@@ -1325,7 +1412,7 @@
             "mouth": null
         },
         "heart": {
-            "emotion": "feliz",
+            "emotion": "cariñosa",
             "strength": 0.7,
             "eyes": {
                 "gaze": "natural",
@@ -1404,6 +1491,12 @@
         "wave_cute": {
             "emotion": "feliz",
             "strength": 0.6,
+            "marks": [
+                {
+                    "at": 0.4,
+                    "mark": "blush"
+                }
+            ],
             "eyes": {
                 "gaze": "natural",
                 "blinkInterval": 3.5,
@@ -1415,6 +1508,12 @@
         "wave_flirty": {
             "emotion": "feliz",
             "strength": 0.5,
+            "marks": [
+                {
+                    "at": 0.4,
+                    "mark": "blush"
+                }
+            ],
             "eyes": {
                 "gaze": "natural",
                 "blinkInterval": 4,
@@ -1427,7 +1526,13 @@
             "emotion": "neutral",
             "strength": 0.3,
             "moments": [
-                { "from": 0.7, "to": 3.1, "emotion": "pensativa", "strength": 0.45, "lidClosure": 0.45 }
+                {
+                    "from": 0.7,
+                    "to": 3.1,
+                    "emotion": "somnolienta",
+                    "strength": 0.45,
+                    "lidClosure": 0.45
+                }
             ],
             "eyes": {
                 "gaze": "natural",
@@ -1441,7 +1546,12 @@
             "emotion": "neutral",
             "strength": 0.3,
             "moments": [
-                { "from": 1.2, "to": 4.2, "emotion": "feliz", "strength": 0.26 }
+                {
+                    "from": 1.2,
+                    "to": 4.2,
+                    "emotion": "feliz",
+                    "strength": 0.26
+                }
             ],
             "eyes": {
                 "gaze": "natural",
@@ -1455,7 +1565,12 @@
             "emotion": "neutral",
             "strength": 0.3,
             "moments": [
-                { "from": 1, "to": 5.2, "emotion": "pensativa", "strength": 0.35 }
+                {
+                    "from": 1,
+                    "to": 5.2,
+                    "emotion": "pensativa",
+                    "strength": 0.35
+                }
             ],
             "eyes": {
                 "gaze": "natural",
@@ -1479,6 +1594,12 @@
         "wave_flirty_2": {
             "emotion": "feliz",
             "strength": 0.5,
+            "marks": [
+                {
+                    "at": 0.4,
+                    "mark": "blush"
+                }
+            ],
             "eyes": {
                 "gaze": "natural",
                 "blinkInterval": 4,
@@ -1502,7 +1623,12 @@
             "emotion": "neutral",
             "strength": 0.3,
             "moments": [
-                { "from": 0.8, "to": 4.6, "emotion": "feliz", "strength": 0.3 }
+                {
+                    "from": 0.8,
+                    "to": 4.6,
+                    "emotion": "feliz",
+                    "strength": 0.3
+                }
             ],
             "eyes": {
                 "gaze": "natural",

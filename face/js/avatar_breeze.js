@@ -22,13 +22,18 @@
  * Only hair, clothing and accessories (tails and animal ears included) get the breeze: body
  * physics (breasts, buttocks, thighs, cheeks) and humanoid bones are left alone (B02). The
  * authored gravity is restored exactly when the breeze turns off.
+ *
+ * The wind turns with her (2026-11-24): `apply` takes her heading, how far she has turned from
+ * facing the camera. A wind fixed to the room blew into her face whenever she faced away from
+ * the camera (on the bed, at the desk, at the window) and pressed IRIS's fringe into her forehead.
  */
 
 // Soft by design: at the top of a gust a joint leans at most atan(0.07 × 1.14) ≈ 4.6°.
 export const BREEZE_LEAN = 0.07;
 export const BREEZE_KEY = 'IRIS.avatarBreeze.v1';
 
-// From the room's side, slightly towards the camera, so the sway reads from the front.
+// From her side, slightly from behind her (towards the camera while she faces it), so the sway
+// reads from the front.
 const HEADING = Math.atan2(0.35, 1);
 const WANDER = 0.35; // radians the direction drifts either way
 const FLUTTER = 0.14; // share of the push that ripples quickly
@@ -132,8 +137,11 @@ export class AvatarBreeze {
         return this._isEnabled() && !this._reducedMotion() && this._joints.size > 0;
     }
 
-    /** Call once per frame, before vrm.update(delta). */
-    apply(delta) {
+    /**
+     * Call once per frame, before vrm.update(delta). `heading`: her turn about the vertical, in
+     * radians, from facing the camera (the avatar group's yaw minus its rest yaw).
+     */
+    apply(delta, heading = 0) {
         const step = Number.isFinite(delta) ? Math.max(0, Math.min(0.25, delta)) : 0;
         const active = this.active;
         this._fade = active ? Math.min(1, this._fade + step / FADE_IN) : Math.max(0, this._fade - step / FADE_OUT);
@@ -143,12 +151,16 @@ export class AvatarBreeze {
         }
         this.time += step;
         const wind = windAt(this.time);
+        // Turned with her about the vertical, the way a turn of the avatar group turns +Z.
+        const turn = Number.isFinite(heading) ? heading : 0;
+        const cos = Math.cos(turn), sin = Math.sin(turn);
+        const wx = wind.x * cos + wind.z * sin, wz = wind.z * cos - wind.x * sin;
         for (const [joint, { dir, power: authored, floor, phase, calm }] of this._joints) {
             const ripple = 1 + FLUTTER * Math.sin(this.time * 5.3 + phase);
             const push = BREEZE_LEAN * floor * calm * wind.gust * ripple * this._fade;
-            const x = dir.x * authored + wind.x * push;
+            const x = dir.x * authored + wx * push;
             const y = dir.y * authored + wind.y * push;
-            const z = dir.z * authored + wind.z * push;
+            const z = dir.z * authored + wz * push;
             const power = Math.hypot(x, y, z);
             if (power > 1e-6) joint.settings.gravityDir.set(x / power, y / power, z / power);
             joint.settings.gravityPower = power;

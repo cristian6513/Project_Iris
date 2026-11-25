@@ -42,7 +42,7 @@ test('turns reach the routines by number, and the end of speech closes none', ()
         toolRunning: turn => seen.push(['tool', turn]),
         turnEnded: turn => seen.push(['ended', turn]),
     };
-    const app = { routines, _setOperationalState() {}, speechPresentation: { end() {} }, _hideSpeech() {} };
+    const app = { routines, _setOperationalState() {}, speechPresentation: { end() {} }, _hideSpeech() {}, _scheduleSpeechHide() {} };
     handle.call(app, 'turn_started', { turn: 7 });
     handle.call(app, 'tool_progress', { turn: 7 });
     handle.call(app, 'speech_end', {});

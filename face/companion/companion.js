@@ -4,13 +4,13 @@ import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 
-import { AvatarManager } from '../js/avatar.js?v=30';
-import { IRIS_AVATAR_FILE, IRIS_AVATAR_REVISION, isPmxArchive } from '../js/avatar_state.js?v=5';
+import { AvatarManager } from '../js/avatar.js?v=43';
+import { IRIS_AVATAR_FILE, IRIS_AVATAR_REVISION, isPmxArchive } from '../js/avatar_state.js?v=6';
 import { companionAvatarSelection, CompanionAvatarSync, disposeCompanionAvatar } from '../js/companion_avatar_sync.js?v=2';
 import {
     createCompanionBridge,
     localAnimationBase,
-} from '../js/companion_native_bridge.js?v=7';
+} from '../js/companion_native_bridge.js?v=8';
 import { AnimationDirector } from '../js/animation_director.js?v=6';
 import { loadAnimationContexts } from '../js/animation_context_resolver.js?v=2';
 import {
@@ -28,23 +28,25 @@ import {
 import { companionLocomotionDecision } from '../js/companion_locomotion_policy.js?v=2';
 import { CompanionBody, CompanionProps } from '../js/companion_body.js';
 import { RoomRoutines } from '../js/room_routines.js?v=7';
-import { IdleSystem } from '../js/idle_system.js?v=64';
-import { LipSyncEngine } from '../js/lipsync.js?v=3';
+import { IdleSystem } from '../js/idle_system.js?v=66';
+import { LipSyncEngine } from '../js/lipsync.js?v=4';
 import { SpeechAnimator } from '../js/speech_animator.js?v=5';
 import {
     buildSurfaceReadyPayload,
     buildSurfaceStatePayload,
     getOrCreateSurfaceId,
 } from '../js/surface_protocol.js?v=8';
-import { TtsAudioPlayer } from '../js/tts_audio_player.js?v=5';
-import { SpeechPresentation } from '../js/speech_presentation.js?v=1';
+import { TtsAudioPlayer } from '../js/tts_audio_player.js?v=6';
+import { SpeechPresentation } from '../js/speech_presentation.js?v=4';
 import { InboxNotice } from '../js/inbox_notice.js?v=2';
-import { InboxVoicePlayer } from '../js/inbox_voice.js?v=1';
+import { InboxVoicePlayer } from '../js/inbox_voice.js?v=2';
 import { WebSocketManager } from '../js/websocket.js?v=4';
 import { ManualVoiceController } from '../js/manual_voice.js?v=6';
 import { FrameLimiter } from '../js/frame_limiter.js?v=2';
 import { GraphicsQuality, avatarTextureLimit, graphicsQuality } from '../js/graphics_quality.js?v=3';
 import { ScreenSnapshotRequests } from '../js/screen_snapshot.js?v=2';
+import { mountGameMode } from '../js/game_capture.js?v=4';
+import { layoutGameBubble } from '../js/game_bubble.js?v=1';
 import { BackgroundTaskBar } from '../js/background_task_bar.js?v=3';
 
 const THEME_STORAGE_KEY = 'irisOsTheme.v1';
@@ -220,6 +222,14 @@ class IrisCompanionApp {
         this._screenSnapshots = new ScreenSnapshotRequests({
             send: result => this.ws?.send('screen_snapshot_result', result),
         });
+        this.gameMode = mountGameMode({
+            send: (type, payload) => this.ws?.send(type, payload) ?? false,
+            onText: text => { this._appendChat('IRIS', text); this._showSpeech(text); this._setOperationalState('idle'); },
+            onSilence: () => this.speechPresentation.reset(),
+            onSessionEnd: () => this._hideSpeech(),
+            onAskText: () => this._setChatOpen(true),
+            onNotice: text => this._showSpeech(text),
+        });
         // «Trabajando en …» over the avatar; its Cancelar stops the background task only.
         this._backgroundBar = new BackgroundTaskBar({
             host: this.stage, onCancel: id => this.ws?.send('background_task_cancel', { id }),
@@ -241,6 +251,7 @@ class IrisCompanionApp {
 
     async init() {
         this.bridge = await createCompanionBridge();
+        await this.gameMode.connectNative(this.bridge);
         this.config = { ...this.config, ...(this.bridge.preferences || {}) };
         await this._fetchConfig();
         this._applyIdentityAndTheme();
@@ -535,6 +546,7 @@ class IrisCompanionApp {
     }
 
     _setupControls() {
+        document.getElementById('speech-dismiss').addEventListener('click', () => this._hideSpeech());
         const startDrag = (event) => {
             if (
                 !this.bridge?.native
@@ -586,6 +598,7 @@ class IrisCompanionApp {
         if (this.bridge.native) {
             void this.bridge.onWindowEvent('iris-companion-hidden', () => {
                 void this.manualVoice.cancel();
+                this.gameMode.stop('Modo juego detenido al ocultar Companion.');
             }).catch(error => console.warn('[companion] Could not listen for native hide:', error));
         }
         this.cameraButton.addEventListener('click', () => this._toggleCamera());
@@ -645,6 +658,7 @@ class IrisCompanionApp {
             this.manualVoice?.setConnected(connected);
             if (!connected) this.animationDirector?.resetActivity();
             if (!connected) this._screenSnapshots?.cancel();
+            if (!connected) { this.gameMode?.stop('Iris se desconectó.', false); this.gameMode?.setAvailable(false); }
             if (!connected) this.routines?.connectionLost();
             if (connected) {
                 this._setOperationalState('connected');
@@ -802,6 +816,7 @@ class IrisCompanionApp {
             this.inboxVoice?.stop();
             this.inboxNotice?.close();
             this.speechPresentation.dispose();
+            this.gameMode.dispose();
             clearTimeout(this._bubbleTimer);
             this._cancelWindowWalk();
             this.ws?.disconnect();
@@ -847,6 +862,7 @@ class IrisCompanionApp {
                 void this.animationLibrary?.refresh();
                 break;
             case 'hello':
+                this.gameMode?.setAvailable(payload.game_session === true);
                 this.manualVoice?.setConversationAvailable(payload.voice_conversation === true);
                 this._setOperationalState('idle');
                 this._setWakeState({
@@ -891,7 +907,7 @@ class IrisCompanionApp {
                 this.speechPresentation.end();
                 this._setOperationalState('idle');
                 clearTimeout(this._bubbleTimer);
-                this._bubbleTimer = setTimeout(() => this._hideSpeech(), 4200);
+                this._scheduleSpeechHide();
                 break;
 
             case 'voice_unavailable':
@@ -1025,6 +1041,18 @@ class IrisCompanionApp {
 
             case 'screen_snapshot_request':
                 void this._screenSnapshots?.handle(payload || {});
+                break;
+            case 'game_session_prepared':
+                void this.gameMode.prepared(payload);
+                break;
+            case 'game_session_state':
+                this.gameMode.update(payload);
+                break;
+            case 'game_session_frame':
+                void this.gameMode.take(payload);
+                break;
+            case 'game_session_answer':
+                this.gameMode.answer(payload);
                 break;
             case 'screen_snapshot_cancel':
                 this._screenSnapshots?.cancel(payload?.request_id);
@@ -1173,16 +1201,27 @@ class IrisCompanionApp {
     }
 
     _showSpeech(text) {
-        const clean = truncateText(text);
+        const clean = truncateText(text, this.gameMode?.state.active ? 1400 : 420);
         if (!clean) return;
         clearTimeout(this._bubbleTimer);
         this.speechText.textContent = clean;
         this.speechBubble.hidden = false;
+        layoutGameBubble();
+        if (!this.speechPresentation.speaking) this._scheduleSpeechHide();
+    }
+
+    _scheduleSpeechHide() {
+        clearTimeout(this._bubbleTimer);
+        const duration = this.gameMode?.state.active
+            ? Math.min(25000, Math.max(6000, this.speechText.textContent.length * 55)) : 4200;
+        this._bubbleTimer = setTimeout(() => this._hideSpeech(), duration);
     }
 
     _hideSpeech() {
+        clearTimeout(this._bubbleTimer);
         this.speechBubble.hidden = true;
         this.speechText.textContent = '';
+        layoutGameBubble();
     }
 
     _showError(message) {
@@ -1574,6 +1613,7 @@ class IrisCompanionApp {
     }
 
     _onResize() {
+        layoutGameBubble();
         const layout = this.graphicsQuality.resize();
         if (!layout) return;
         this.camera.aspect = layout.width / layout.height;

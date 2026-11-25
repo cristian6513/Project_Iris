@@ -17,12 +17,13 @@ import { commandCenterSummary, gatewayViewFromProbe } from './command_center_sta
 import { bindRoomAtmosphereControls } from './room_atmosphere_controls.js?v=2';
 import { bindAvatarZoomControls } from './room_avatar_zoom.js?v=1';
 import { bindRoomLifeControls } from './room_routines.js?v=7';
-import { breezeEnabled, onReducedMotionChange, prefersReducedMotion, setBreezeEnabled } from './avatar_breeze.js?v=4';
+import { breezeEnabled, onReducedMotionChange, prefersReducedMotion, setBreezeEnabled } from './avatar_breeze.js?v=5';
 import { loadQRCode } from './local_qr.js';
 import { ModelSelector } from './model_selector.js?v=5';
-import { createAvatarActions } from './avatar_intent.js?v=6';
+import { createAvatarActions } from './avatar_intent.js?v=15';
 import { irisConfirm } from './iris_dialog.js?v=9';
 import { BackgroundTaskBar } from './background_task_bar.js?v=3';
+import { faceGestures } from './emotions.js?v=3';
 
 export class SidePanel {
     constructor() {
@@ -1566,9 +1567,10 @@ export class SidePanel {
                     <input type="file" id="vrm-file-input" accept=".vrm,.glb,.zip,model/gltf-binary,application/zip" style="display:none;">
                 </div>
                 <small id="quick-avatar-help" class="room-atmosphere-note" style="margin:2px 0 6px;">
-                    Elige un VRM, un GLB con un avatar VRM o un ZIP de MMD (hasta 128 MiB) con modelos PMX y sus texturas. Si hay varias variantes, puedes elegir una.
+                    Elige un archivo VRM o un ZIP de MMD con el modelo PMX y sus texturas (hasta 128 MiB). Si el ZIP trae varias versiones, eliges una.
                 </small>
                 <small id="quick-vrm-status" class="room-atmosphere-note" role="status" style="margin:0; opacity:.95;"></small>
+                <small id="quick-avatar-faces" class="room-atmosphere-note" style="margin:2px 0 6px;" hidden></small>
                 <nav class="avatar-model-sources" aria-labelledby="quick-avatar-sources-title">
                     <span id="quick-avatar-sources-title" class="room-atmosphere-note">Descargar avatares</span>
                     <div class="avatar-model-links">
@@ -1662,6 +1664,7 @@ export class SidePanel {
             },
         });
         const avatarStatus = section.querySelector('#quick-vrm-status');
+        this._avatarSection = section;
         const showAvatarStatus = message => { avatarStatus.textContent = message; };
 
         // ── Back to IRIS' own model ──
@@ -1757,6 +1760,7 @@ export class SidePanel {
         const avatarZoomControls = bindAvatarZoomControls(section.querySelector('#quick-avatar-zoom-controls'), () => this.avatarZoom);
         const roomLifeControls = bindRoomLifeControls(section.querySelector('#quick-room-life'), () => this.roomLife);
         const syncVisualSettings = () => {
+            this._showAvatarFaces(section);
             atmosphereControls.refresh();
             avatarZoomControls.refresh();
             roomLifeControls.refresh();
@@ -1780,6 +1784,24 @@ export class SidePanel {
         this._moduleRefreshers.set('settings', syncVisualSettings);
     }
 
+
+    /**
+     * The gestures the avatar on stage can show (emotions.js faceGestures): which emotions, marks and
+     * vowels its face has, so a missing blush or ZZZ is not a mystery. `avatarExpressionNames` is
+     * wired by the app.
+     */
+    _showAvatarFaces(section = this._avatarSection) {
+        const line = section?.querySelector?.('#quick-avatar-faces');
+        if (!line) return;
+        const labels = faceGestures(this.avatarExpressionNames?.() ?? []);
+        line.hidden = labels.length === 0;
+        line.textContent = labels.length ? `Gestos del modelo: ${labels.join(', ')}.` : '';
+    }
+
+    /** The avatar changed: its gestures line follows. */
+    refreshAvatarFaces() {
+        this._showAvatarFaces();
+    }
 
     /**
      * Show which model is on stage: the person's own VRM or IRIS' (an empty path).

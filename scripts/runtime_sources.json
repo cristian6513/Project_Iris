@@ -12,25 +12,25 @@
     "license": "Python-2.0"
   },
   "iris": {
-    "version": "0.9.5",
+    "version": "0.9.8",
     "pyproject_sha256": "3b152c0b2218f5df6b3f6761ca711dc1c3da5f1a2b63a321bfd0dfbcd7225c48",
     "uv_lock_sha256": "e6bab5e7c5ee9fd4ad2d30c3643deec27cc07e4a2e71d6dd20eeaa33da4b4725",
-    "wheel_sha256": "528bb8d5e54c82c33ac157909c72c923906f1a092bf1761177d53789dca22ada",
-    "wheel_filename": "iris_os-0.9.5-py3-none-any.whl"
+    "wheel_sha256": "57abba5ffd93e1843d782b28d2891dc9fc308d64ae35390e1c1c68df004d695b",
+    "wheel_filename": "iris_os-0.9.8-py3-none-any.whl"
   },
   "hermes": {
-    "version": "0.21.6",
-    "revision": "818c13be1dc4fd28987e1e881a9408224afd4535",
-    "source_archive_filename": "hermes-818c13b.tar.gz",
-    "source_archive_sha256": "9deddf1d5325361b18f2281f21c4229fe699a62eec6fb809b3a5a83e0a1e88da",
-    "source_url": "https://codeload.github.com/NousResearch/hermes-agent/tar.gz/818c13be1dc4fd28987e1e881a9408224afd4535",
-    "pyproject_sha256": "cadde2f6a92574d292103f43abf66408b1d841cd9ea332ca7f3e3dfc5dcc87fd",
-    "lock_sha256": "2bc4db483e9cba927cd7147f9ccbb09635f85bb3f1f36d6e9d51d06b65d1c67e",
+    "version": "0.23.3",
+    "revision": "caafe5389ae585ef77387a962aee05b1bcf17029",
+    "source_archive_filename": "hermes-caafe53.tar.gz",
+    "source_archive_sha256": "3dffc702249874db2e6f60d93370a8d3c11e57e3ab5ee321447969e170a51aef",
+    "source_url": "https://codeload.github.com/NousResearch/hermes-agent/tar.gz/caafe5389ae585ef77387a962aee05b1bcf17029",
+    "pyproject_sha256": "d018a56c3a520b9afeb92e2211501eb98451dd0d3658db899bc58343c8d781eb",
+    "lock_sha256": "3501084a326b186971ee09b03a202a6972019dff89dc127bf8506153d05c9b11",
     "source_hashes": {
       "LICENSE": "821556e6336796450ab852d375117b48a4887e71d255794fd6318d99982a5ab6",
-      "pyproject.toml": "cadde2f6a92574d292103f43abf66408b1d841cd9ea332ca7f3e3dfc5dcc87fd",
-      "uv.lock": "2bc4db483e9cba927cd7147f9ccbb09635f85bb3f1f36d6e9d51d06b65d1c67e",
-      "hermes_cli/__init__.py": "6a4ab05b8621ec1cd66a5abbe30fa32ed5bddddea95903036da01f0af1af94ce"
+      "pyproject.toml": "d018a56c3a520b9afeb92e2211501eb98451dd0d3658db899bc58343c8d781eb",
+      "uv.lock": "3501084a326b186971ee09b03a202a6972019dff89dc127bf8506153d05c9b11",
+      "hermes_cli/__init__.py": "980efcc4bd80193e3258b85df02262e39de771352db445c7f3cad56bf6b41eb4"
     },
     "extras": [
       "voice",
@@ -47,11 +47,41 @@
     ],
     "license": "MIT",
     "windows_overlays": [],
-    "archive_prefix": "hermes-agent-818c13be1dc4fd28987e1e881a9408224afd4535",
+    "archive_prefix": "hermes-agent-caafe5389ae585ef77387a962aee05b1bcf17029",
     "install_stamp": {
       "distribution": "iris",
       "update_mechanism": "external"
-    }
+    },
+    "source_patches": [
+      {
+        "id": "session-lock-resolved-provider",
+        "reason": "Hermes 0.23.3: the session API route never records the provider it resolved, so a confirmed model lock on a named custom provider (a providers: entry such as LM Studio or Ollama) compares the literal name with the agent's 'custom' and discards the finished turn. This records it as api_server._create_agent does. Drop it when upstream fixes the route.",
+        "files": [
+          {
+            "path": "gateway/session_api_turn.py",
+            "sha256": "463e252579b053fb9f02bb201986d502fb9c0bf432faac609ae31852aa67d034",
+            "patched_sha256": "98f90ba6ad0e5a332681470763f8b0953a21786687ebe002a4aeb71f20bf5772",
+            "replace": [
+              {
+                "old": "        gateway_session_key=None, session_id=None)\n    return model, runtime_kwargs\n",
+                "new": "        gateway_session_key=None, session_id=None)\n    # IRIS patch session-lock-resolved-provider: the provider this route resolved, for the\n    # confirmed-lock check (_create_agent records it; this route never did).\n    current['resolved_provider'] = runtime_kwargs.get('provider') or ''\n    return model, runtime_kwargs\n"
+              }
+            ]
+          },
+          {
+            "path": "gateway/run_turn_runner.py",
+            "sha256": "3843440af2cd02c925e6adebd093090d35dbec5df79d8bb627d4f60960da2c97",
+            "patched_sha256": "0ff8f2f63ba448f973780220359b4761eda85f70df1b65f900d99d6da9c34ba7",
+            "replace": [
+              {
+                "old": "    settings = api['settings']\n    try:\n        captured['usage']['runtime'] = api['adapter']._turn_runtime_metadata(\n",
+                "new": "    settings = api['settings']\n    # IRIS patch session-lock-resolved-provider: _create_agent's runtime record, which this\n    # route never made, so a named custom provider is compared by its resolved identity.\n    if not getattr(agent, '_hermes_api_runtime', None):\n        agent._hermes_api_runtime = {\n            'provider': api.get('resolved_provider') or '', 'model': getattr(agent, 'model', '') or '',\n            'route_source': settings.get('route_source') or ''}\n    try:\n        captured['usage']['runtime'] = api['adapter']._turn_runtime_metadata(\n"
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   "audio": {
     "version": "8.1.3+9.g29e619e767",
@@ -169,23 +199,23 @@
     },
     "hermes": {
       "path": "locks/hermes.txt",
-      "sha256": "9f8509f79ec66f2a879142d114110a7a197d35829ce3bf7cb97bccabf08234ba"
+      "sha256": "9ebd349f327fc0a1b603dcf2a14595deb09bb13b998d414d97c0f3ef7e1acb7f"
     }
   },
-  "license_sources_sha256": "f19dce4ab43e802b4094945d4265b0c706ba09e3d8215e53a7a00cfe35a612bb",
+  "license_sources_sha256": "8650ab24f7c8822922cf5b9c56db82ada6a19c812512516d015a6f04e3021ca2",
   "native_licenses": {
     "pending": [],
     "records": [
       {
         "component": "hermes-runtime",
         "package": "ConPTY",
-        "version": "1.24.260512001",
+        "version": "1.25.260930003",
         "license": "MIT",
         "files": [
-          "licenses/native/conpty-1.24.260512001/LICENSE",
-          "licenses/native/conpty-1.24.260512001/NOTICE.Microsoft.Windows.Console.ConPTY.nuspec"
+          "licenses/native/conpty-1.25.260930003/LICENSE",
+          "licenses/native/conpty-1.25.260930003/NOTICE.Microsoft.Windows.Console.ConPTY.nuspec"
         ],
-        "source": "https://api.nuget.org/v3-flatcontainer/microsoft.windows.console.conpty/1.24.260512001/microsoft.windows.console.conpty.1.24.260512001.nupkg"
+        "source": "https://api.nuget.org/v3-flatcontainer/microsoft.windows.console.conpty/1.25.260930003/microsoft.windows.console.conpty.1.25.260930003.nupkg"
       },
       {
         "component": "hermes-runtime",
@@ -272,7 +302,7 @@
       }
     ]
   },
-  "native_license_sources_sha256": "12cf7b994bed93e784cfceb331f5db5ee4cf5f9a39e471ff1f049d04693b7d26",
+  "native_license_sources_sha256": "a46896476043bfae30e68068d4922d92d3352cd095f5063d27ef63e5b2ca01b1",
   "local_wheels": [
     {
       "package": "av",
@@ -303,21 +333,7 @@
       "reason": "fetch-use publishes no license text (only 'MIT' in its metadata; no public repository). browser-harness 0.1.13 imports it only for the Browser Use cloud proxy (BROWSER_USE_API_KEY): plain urllib HTTP keeps working without it, but that proxy (bot detection, residential proxies, managed retries) is not shipped."
     }
   ],
-  "dependency_overrides": [
-    {
-      "runtime": "hermes",
-      "package": "edge-tts",
-      "replaces": "7.2.7",
-      "version": "7.3.1",
-      "hermes_version": "0.21.6",
-      "hermes_revision": "818c13be1dc4fd28987e1e881a9408224afd4535",
-      "upstream_lock_sha256": "551c49cdcf829421870a4c9886211ad966923e8e08b14d85710180c50778abea",
-      "lock_sha256": "9f8509f79ec66f2a879142d114110a7a197d35829ce3bf7cb97bccabf08234ba",
-      "wheel_filename": "edge_tts-7.3.1-py3-none-any.whl",
-      "wheel_sha256": "2a3c79d6235a7a736d681233823ce5492e829b43eb47beae49aa181237a8f9a4",
-      "reason": "Microsoft rejects the pinned Edge-TTS client with HTTP 403; 7.3.1 is reviewed for Hermes voice generation on Windows CPython 3.14.8."
-    }
-  ],
+  "dependency_overrides": [],
   "shell": {
     "version": "2.56.0.2",
     "filename": "iris-private-shell.zip",

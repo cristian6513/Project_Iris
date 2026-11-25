@@ -658,6 +658,24 @@ def _write_hermes_config_unlocked(
     cfg = _read_config_yaml()
     target_cfg = dict(cfg)
 
+    # Hermes 0.22+ can prune or archive ended sessions on its own. Both are off by default in
+    # 0.23.3 and Iris keeps them off: the Continuity Center lists these conversations. Written
+    # only while the user has not chosen (with the key missing, Hermes asks once when its disk
+    # runs low); an explicit choice made in Hermes is kept.
+    raw_sessions = target_cfg.get("sessions")
+    sessions_block = dict(raw_sessions) if isinstance(raw_sessions, dict) else {}
+    sessions_block.setdefault("auto_prune", False)
+    sessions_block.setdefault("auto_archive", False)
+    target_cfg["sessions"] = sessions_block
+
+    # Hermes 0.23 dropped the launch gate of Nous' free tier: with ``nous.guest`` unset, the
+    # first hosted-connector action mints an anonymous Nous identity (a portal request). Up to
+    # 0.21 that needed the desktop app's opt-in, so Iris keeps it off unless the user chose.
+    raw_nous = target_cfg.get("nous")
+    nous_block = dict(raw_nous) if isinstance(raw_nous, dict) else {}
+    nous_block.setdefault("guest", False)
+    target_cfg["nous"] = nous_block
+
     # Pull (or create) the model block, preserving any keys we don't
     # touch (e.g. ``base_url`` for custom endpoints, ``temperature``
     # if the user set one manually).
@@ -836,6 +854,47 @@ def write_hermes_config(
             api_server_key=api_server_key,
             base_url=base_url,
         )
+
+
+def ensure_nous_guest_default() -> str:
+    """Write ``nous.guest: false`` while the profile never chose, before Hermes starts.
+
+    Hermes 0.23 dropped the launch gate of Nous' free tier: with the key unset, the first
+    hosted-connector action from any entry point (a channel, a scheduled task) mints an
+    anonymous Nous identity. Up to 0.21 that needed the desktop app's opt-in, so Iris keeps it
+    off for profiles that never chose; the wizard's config write and the per-turn tool worker
+    set the same default. Codex review 2026-11-20: profiles updated from QA26 must get it
+    before the gateway or Wake server runs, not at the first Iris chat.
+
+    Returns ``written``, ``kept`` (an explicit choice), ``absent`` (no config.yaml yet: the
+    wizard's first write carries the default) or ``skipped`` (unreadable or unexpected config,
+    left untouched). Raises when a write cannot be verified.
+    """
+    with interprocess_file_lock(get_hermes_home() / ".iris-config.lock"):
+        path = get_config_yaml_path()
+        if not path.exists():
+            return "absent"
+        try:
+            import yaml  # type: ignore[import-not-found]
+
+            data = yaml.safe_load(path.read_text(encoding="utf-8"))
+        except Exception:
+            # Never rewrite what cannot be parsed: _read_config_yaml would hand back {}.
+            return "skipped"
+        data = {} if data is None else data
+        if not isinstance(data, dict):
+            return "skipped"
+        nous = data.get("nous")
+        if nous is not None and not isinstance(nous, dict):
+            return "skipped"
+        if isinstance(nous, dict) and "guest" in nous:
+            return "kept"
+        data["nous"] = {**(nous or {}), "guest": False}
+        _write_config_yaml(data)
+        written = _read_config_yaml().get("nous")
+        if not isinstance(written, dict) or written.get("guest") is not False:
+            raise RuntimeError("Hermes config.yaml did not keep nous.guest after the write.")
+        return "written"
 
 
 def read_api_server_host() -> str:

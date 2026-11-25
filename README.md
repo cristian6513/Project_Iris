@@ -7,10 +7,10 @@
 <p align="center"><strong>Una presencia visual, configurable y habitable para Hermes Agent.</strong></p>
 
 <p align="center">
-  <a href="core/version.py"><img alt="Versión 0.9.5 beta" src="https://img.shields.io/badge/version-0.9.5-ff78cb?style=flat-square"></a>
+  <a href="core/version.py"><img alt="Versión 0.9.8 beta" src="https://img.shields.io/badge/version-0.9.8-ff78cb?style=flat-square"></a>
   <a href="#estado"><img alt="Estado beta" src="https://img.shields.io/badge/estado-beta-f4c95d?style=flat-square"></a>
   <a href="pyproject.toml"><img alt="Python 3.11+" src="https://img.shields.io/badge/Python-3.11%2B-48cae4?style=flat-square&amp;logo=python&amp;logoColor=white"></a>
-  <a href="scripts/runtime_sources.json"><img alt="Hermes fijado 0.21.6" src="https://img.shields.io/badge/Hermes-0.21.6-9b5de5?style=flat-square"></a>
+  <a href="scripts/runtime_sources.json"><img alt="Hermes fijado 0.23.3" src="https://img.shields.io/badge/Hermes-0.23.3-9b5de5?style=flat-square"></a>
   <a href="LICENSE"><img alt="Licencia MIT" src="https://img.shields.io/badge/licencia-MIT-5dd39e?style=flat-square"></a>
 </p>
 
@@ -19,7 +19,7 @@ IRIS OS es una experiencia de asistente de IA local primero, impulsada por
 instalación guiada, escritorio web, identidad, memoria, voz, avatar VRM y una
 presencia flotante opcional.
 
-**Iris OS 0.9.5 beta (QA26).** Consulta el [estado actual](docs/estado-actual.md)
+**Iris OS 0.9.8 beta (QA29).** Consulta el [estado actual](docs/estado-actual.md)
 antes de probar una función o preparar un candidato. Con proveedores remotos,
 el contenido autorizado sale del equipo; «local primero» no significa offline.
 
@@ -133,7 +133,7 @@ persistencia, flujos de conversación y límites de confianza.
 | Componente | Política actual |
 | --- | --- |
 | Python | 3.11 o superior; declarado para 3.11–3.13. |
-| Hermes del paquete Windows | `0.21.6` fijado por revisión, con Python privado `3.14.8`; Iris usa Python privado `3.11.16`. |
+| Hermes del paquete Windows | `0.23.3` fijado por revisión, con Python privado `3.14.8`; Iris usa Python privado `3.11.16`. |
 | Hermes externo en desarrollo | Compatibilidad base mínima `0.19.0`, con capacidades negociadas; no garantiza los contratos avanzados de cualquier versión. |
 | Instalador de Iris | Windows 10/11 **x64**, en QA. No se acredita ARM64 por la matriz de Hermes. |
 | Linux/WSL2 y macOS | Desarrollo sujeto a dependencias y pruebas; el instalador integral de esas plataformas queda pendiente. |
@@ -173,8 +173,8 @@ un checkout, las de un instalador y la aprobación de publicación son hechos
 distintos. Hay QA real documentada de candidatos y de Google; no cubre por sí
 sola cada cambio posterior, dispositivo o proveedor.
 
-QA26 es el candidato 0.9.5 beta con Companion 0.1.11 y Hermes 0.21.6.
-Incluye mejoras de interfaz, acceso a actualizaciones y permisos, aviso visual de versiones nuevas, la voz oficial de Fish y correcciones de arranque y audio.
+QA29 es Iris 0.9.8 beta con Companion 0.1.14 y Hermes 0.23.3.
+Incluye Hermes 0.23.3 (la penúltima versión de Nous Research), doce emociones con caras más expresivas, una boca que forma las vocales al hablar, el modo juego de Companion y el flequillo de IRIS corregido.
 Consulta la [matriz vigente](docs/estado-actual.md) antes de usar un informe anterior.
 
 Para ejecutar las pruebas:

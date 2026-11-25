@@ -16,6 +16,7 @@ const SPARKLE_COUNT = 72;
 const GOLD = new THREE.Color(0xD4A017);
 const BLUE = new THREE.Color(0xA8D8EA);
 const RED = new THREE.Color(0xff4444);
+const PINK = new THREE.Color(0xff9ccf);
 
 export class ParticleSystem {
     constructor(scene) {
@@ -170,6 +171,32 @@ export class ParticleSystem {
             case 'enojada':
                 this.moodIntensity = 1.8;
                 this._setParticleColors(RED, 0.9);
+                break;
+            // The newer emotions (emotions.js), 2026-11-24.
+            case 'avergonzada':
+                this.moodIntensity = 0.8;
+                this._setParticleColors(PINK, 0.5);
+                break;
+            case 'cariñosa':
+                this.moodIntensity = 1.2;
+                this._setParticleColors(PINK, 0.8);
+                break;
+            case 'emocionada':
+                this.moodIntensity = 2.0;
+                this._setParticleColors(GOLD, 1.0);
+                this._triggerSparkles();
+                break;
+            case 'confundida':
+                this.moodIntensity = 0.9;
+                this._setParticleColors(BLUE, 0.6);
+                break;
+            case 'nerviosa':
+                this.moodIntensity = 1.5;
+                this._setParticleColors(BLUE, 0.75);
+                break;
+            case 'somnolienta':
+                this.moodIntensity = 0.4;
+                this._setParticleColors(BLUE, 0.3);
                 break;
             case 'hablando':
                 this.moodIntensity = 1.3;

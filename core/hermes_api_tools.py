@@ -1,5 +1,7 @@
 """Repair only Iris' API tool selection, using the installed Hermes resolver.
 
+The worker also keeps Nous' free-tier guest off while a profile never chose (Hermes 0.23+).
+
 Raw toolset names are not proof: ``all``, ``*`` and plugin composites can bring
 back an excluded tool. Cache only the worker's verified file hashes, by home
 and runtime; a config/env/managed-policy edit requires another verification.

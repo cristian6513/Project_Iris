@@ -102,7 +102,8 @@ const SEATS = Object.freeze({
         joins: Object.freeze({ desk_seated: Object.freeze({ clip: 'desk_type_open', at: 0 }) }),
         drape: DESK_DRAPE,
         chair: DESK_CHAIR,
-        touch: Object.freeze({ in: 'desk_type_open', loop: 'desk_type_idle', out: 'desk_type_close' }),
+        // soft: the keyboard comes in and out of reach of shorter arms (arm_reach.js softReach).
+        touch: Object.freeze({ in: 'desk_type_open', loop: 'desk_type_idle', out: 'desk_type_close', soft: true }),
     }),
     // Standing, like the shelf's book: one clip in and one out, nothing to sit on.
     stand_reading: Object.freeze({
@@ -1388,7 +1389,7 @@ export class IdleSystem {
         }
         this.avatar?.avatar?.setLyingHips?.(this._lying < 1e-3 ? 0 : this._lying, delta);
         this.avatar?.avatar?.holdHair?.(this._holdsHair());
-        this.avatar?.avatar?.setHandReach?.(this._handReachWeight());
+        this.avatar?.avatar?.setHandReach?.(this._handReachWeight(), { soft: this._handReachSoft() });
 
         // Smooth return runs even while paused (so interrupting lie_bed still
         // brings the character back upright during speech).
@@ -1518,6 +1519,17 @@ export class IdleSystem {
             }
         }
         return 0;
+    }
+
+    /** True while a clip whose touch asks for it plays: the last of the reach is eased. */
+    _handReachSoft() {
+        const name = this._vrmaPlayer?.currentName;
+        if (!name) return false;
+        for (const seat of Object.values(SEATS)) {
+            const touch = seat.prop ?? seat.touch;
+            if (touch?.soft && (name === touch.in || name === touch.loop || name === touch.out)) return true;
+        }
+        return false;
     }
 
     /** 0 with her thighs down, 1 with them raised. */
@@ -1700,6 +1712,19 @@ export class IdleSystem {
             excited:   { mood:  0.6, energy: 0.85 },
             calm:      { mood:  0.2, energy: 0.35 },
             neutral:   { mood:  0.0, energy: 0.5  },
+            // Her replies name emotions in Spanish (emotions.js); the English keys above never
+            // matched them, so her own mood did not move these (2026-11-24).
+            feliz:       { mood:  0.7, energy: 0.7  },
+            triste:      { mood: -0.7, energy: 0.25 },
+            pensativa:   { mood:  0.1, energy: 0.45 },
+            sorprendida: { mood:  0.2, energy: 0.85 },
+            enojada:     { mood: -0.4, energy: 0.8  },
+            avergonzada: { mood:  0.2, energy: 0.4  },
+            'cariñosa':  { mood:  0.7, energy: 0.5  },
+            emocionada:  { mood:  0.7, energy: 0.9  },
+            confundida:  { mood: -0.1, energy: 0.45 },
+            nerviosa:    { mood: -0.2, energy: 0.7  },
+            somnolienta: { mood:  0.1, energy: 0.15 },
         };
         const target = map[label?.toLowerCase?.()] ?? null;
         if (!target) return;

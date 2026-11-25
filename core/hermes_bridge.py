@@ -56,6 +56,7 @@ import httpx
 
 from core.animations import format_animation_catalog_for_prompt
 from core.config import IRISConfig
+from core.emotions import IRIS_EMOTIONS
 from core.hermes_runtime import keep_unusable_tools_off
 from core.model_selection import ModelSelectionService, normalize_inventory, parse_runtime
 from core.request_security import is_loopback_url, is_safe_service_url
@@ -121,7 +122,7 @@ _JSON_ENFORCEMENT = (
     "\n  1. Responde SOLO con el JSON, sin prosa antes ni después, sin markdown."
     "\n  2. Los 3 campos son OBLIGATORIOS en cada respuesta:"
     "\n     • `texto_hablado` (string) — Lo que dirás en voz alta."
-    "\n     • `emocion` (neutral|feliz|triste|pensativa|sorprendida|enojada)."
+    f"\n     • `emocion` ({'|'.join(IRIS_EMOTIONS)})."
     "\n     • `animacion_virtual` (string) — el nombre EXACTO de un clip"
     " listado en \"ANIMACIONES VRMA DISPONIBLES\" más abajo. Si no estás"
     " segura, usa `idle`. NO inventes nombres — los que no estén en esa"

@@ -208,6 +208,26 @@ CAPABILITY_DEFINITIONS: tuple[dict[str, Any], ...] = (
         ),
     },
     {
+        "id": "screen.game_session",
+        "category": "actions",
+        "category_label": "Acciones",
+        "label": "Modo juego: compartir una ventana durante la sesión",
+        "risk": "high",
+        "default_mode": "ask",
+        "hermes_tools": [],
+        "description": (
+            "Mantener abierta la ventana que elijas en Companion "
+            "y analizar una imagen cuando preguntas o si activas los comentarios automáticos."
+        ),
+        "note": (
+            "Empieza solo al activarlo y elegir una ventana. Se muestra el destino de visión "
+            "y se pide confirmación en cada sesión. No graba vídeo ni controla el juego. "
+            "El análisis usa imágenes "
+            "temporales que se eliminan al terminar o cancelar; el proveedor aplica sus políticas. "
+            "Bloquear Capturas de pantalla a petición también detiene este modo."
+        ),
+    },
+    {
         "id": "computer.control",
         "category": "actions",
         "category_label": "Acciones",

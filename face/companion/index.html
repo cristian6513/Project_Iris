@@ -7,7 +7,7 @@
     <meta name="color-scheme" content="dark">
     <title>IRIS Companion</title>
     <link rel="icon" type="image/png" href="../public/assets/os/iris-profile-icon-v1.png?v=2">
-    <link rel="stylesheet" href="./companion.css?v=9">
+    <link rel="stylesheet" href="./companion.css?v=13">
     <link rel="stylesheet" href="../css/manual_voice.css?v=5">
     <link rel="stylesheet" href="../css/iris_dialog.css?v=6">
     <script>
@@ -33,7 +33,7 @@
             <div class="identity-mark" aria-hidden="true"><span></span><i></i></div>
             <div class="identity-copy">
                 <strong id="assistant-name">IRIS</strong>
-                <span id="surface-label">Desktop presence</span>
+                <span id="surface-label">Companion</span>
             </div>
             <div class="connection-state" id="connection-state">
                 <i class="status-dot"></i>
@@ -54,8 +54,9 @@
                 <canvas id="companion-canvas"></canvas>
             </div>
             <div class="speech-bubble" id="speech-bubble" role="status" aria-live="polite" hidden>
+                <button id="speech-dismiss" class="speech-dismiss" type="button" aria-label="Ocultar texto, sin silenciar la voz" hidden>×</button>
                 <span class="speech-kicker" id="speech-kicker">IRIS</span>
-                <p id="speech-text"></p>
+                <p id="speech-text" tabindex="0" aria-label="Respuesta de Iris"></p>
             </div>
             <div class="privacy-chip" id="camera-privacy" data-analysis-state="off" hidden>
                 <video id="camera-preview" muted playsinline aria-label="Vista local de cámara"></video>
@@ -84,8 +85,155 @@
             <small id="chat-hint">Mismo agente, memoria y sesión de IRIS OS</small>
         </section>
 
+        <aside id="game-mode-panel" class="game-mode-panel" aria-labelledby="game-mode-title" data-view="start" hidden>
+            <header class="game-mode-head">
+                <button id="game-mode-back" class="game-icon-button" type="button" aria-label="Volver" hidden>
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg>
+                </button>
+                <h2 id="game-mode-title" tabindex="-1">Modo juego</h2>
+                <span id="game-mode-beta" class="game-mode-beta">Beta</span>
+                <button id="game-mode-close" class="game-icon-button" type="button" aria-label="Cerrar modo juego">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+                </button>
+            </header>
+
+            <section id="game-view-start" class="game-view" aria-label="Antes de empezar">
+                <p class="game-lede">Iris mira tu juego y te ayuda cuando le preguntas.</p>
+                <ol class="game-steps">
+                    <li><span aria-hidden="true">1</span><p><strong>Elige la ventana del juego</strong><small>Solo esa ventana, nada más.</small></p></li>
+                    <li><span aria-hidden="true">2</span><p><strong>Pregúntale</strong><small id="game-step-ask">Con «Hablar» o escribiendo en el chat.</small></p></li>
+                    <li><span aria-hidden="true">3</span><p><strong>Te responde</strong><small>En un globo encima de Iris y con su voz.</small></p></li>
+                </ol>
+                <label class="game-field">Juego
+                    <input id="game-mode-name" maxlength="120" autocomplete="off" placeholder="Se rellena al elegir la ventana">
+                </label>
+                <label class="game-switch-row">
+                    <span><strong>Sin spoilers</strong><small>No te adelanta historia ni jefes.</small></span>
+                    <input id="game-mode-spoilers" type="checkbox" role="switch" checked>
+                    <i class="game-switch" aria-hidden="true"></i>
+                </label>
+                <button id="game-mode-start" class="game-primary" type="button" disabled>
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+                    <span id="game-mode-start-label">Elegir ventana del juego</span>
+                </button>
+                <button id="game-mode-cancel" class="game-secondary" type="button" hidden>Cancelar</button>
+                <p class="game-fineprint">Cada pregunta usa tu plan de IA.</p>
+            </section>
+
+            <section id="game-view-playing" class="game-view" aria-label="Partida en curso" hidden>
+                <div id="game-mode-card" class="game-status-card" data-tone="ready">
+                    <i class="game-dot" aria-hidden="true"></i>
+                    <p><strong id="game-mode-card-title">Mirando · tu juego</strong><small id="game-mode-card-sub"></small></p>
+                </div>
+                <div class="game-ask">
+                    <button id="game-mode-ask-voice" class="game-primary" type="button">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+                        <span>Preguntar con voz</span>
+                    </button>
+                    <button id="game-mode-ask-text" class="game-secondary" type="button">Escribir una pregunta</button>
+                    <small id="game-mode-key-hint">Para preguntar sin salir del juego, activa los atajos en Más opciones.</small>
+                </div>
+                <div class="game-pair">
+                    <button id="game-mode-mute" class="game-quiet" type="button" aria-pressed="false">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path class="game-mute-x" d="m22 9-6 6M16 9l6 6"/><path class="game-mute-wave" d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>
+                        <span id="game-mode-mute-label">Silenciar</span>
+                    </button>
+                    <button id="game-mode-stop" class="game-quiet game-danger" type="button">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+                        <span>Salir</span>
+                    </button>
+                </div>
+                <div class="game-switch-row game-boxed">
+                    <span><strong id="game-mode-auto-title">Comentarios automáticos</strong><small id="game-mode-auto-summary">Apagados. Iris solo habla si le preguntas.</small></span>
+                    <button id="game-mode-auto" class="game-switch" type="button" role="switch" aria-checked="false" aria-labelledby="game-mode-auto-title" aria-describedby="game-mode-auto-summary" disabled></button>
+                </div>
+                <label class="game-field">
+                    <span>Objetivo de esta partida <small>(opcional)</small></span>
+                    <textarea id="game-mode-goal" maxlength="240" rows="2" placeholder="Ej.: vencer al jefe del puerto" disabled></textarea>
+                    <small>Se guarda solo. Se borra al salir.</small>
+                </label>
+            </section>
+
+            <section id="game-view-options" class="game-view" aria-label="Más opciones" hidden>
+                <fieldset class="game-group">
+                    <legend>Comentarios automáticos</legend>
+                    <div class="game-choice">
+                        <span id="game-interval-label">¿Cada cuánto mira?</span>
+                        <div class="game-segments game-segments-3" role="radiogroup" aria-labelledby="game-interval-label">
+                            <label><input type="radio" name="game-interval" value="90"><span>Poco<small>cada 90 s</small></span></label>
+                            <label><input type="radio" name="game-interval" value="45" checked><span>Normal<small>cada 45 s</small></span></label>
+                            <label><input type="radio" name="game-interval" value="20"><span>Mucho<small>cada 20 s</small></span></label>
+                        </div>
+                    </div>
+                    <div class="game-choice-pair">
+                        <div class="game-choice">
+                            <span id="game-limit-label">Máximo por partida</span>
+                            <div class="game-segments game-segments-3 game-segments-small" role="radiogroup" aria-labelledby="game-limit-label">
+                                <label><input type="radio" name="game-limit" value="50"><span>50</span></label>
+                                <label><input type="radio" name="game-limit" value="100" checked><span>100</span></label>
+                                <label><input type="radio" name="game-limit" value="0"><span>Sin tope</span></label>
+                            </div>
+                        </div>
+                        <div class="game-choice">
+                            <span id="game-style-label">Estilo</span>
+                            <div class="game-segments game-segments-2 game-segments-small" role="radiogroup" aria-labelledby="game-style-label">
+                                <label><input type="radio" name="game-style" value="tips" checked><span>Consejos</span></label>
+                                <label><input type="radio" name="game-style" value="chat"><span>Charla</span></label>
+                            </div>
+                        </div>
+                    </div>
+                    <small id="game-commentary-hint">Cada mirada cuenta como una consulta a tu IA.</small>
+                </fieldset>
+                <fieldset class="game-group">
+                    <legend>Atajos de teclado</legend>
+                    <label class="game-switch-row">
+                        <span><strong>Usar atajos durante la partida</strong><small>Funcionan con el juego en primer plano.</small></span>
+                        <input id="game-keys-enabled" type="checkbox" role="switch" disabled>
+                        <i class="game-switch" aria-hidden="true"></i>
+                    </label>
+                    <div class="game-key-row"><span id="game-key-help-label">Pedir ayuda</span><button id="game-key-help" class="game-key" type="button" data-key="help" aria-describedby="game-key-help-label">Ctrl + Alt + F8</button></div>
+                    <div class="game-key-row"><span id="game-key-mute-label">Silenciar</span><button id="game-key-mute" class="game-key" type="button" data-key="mute" aria-describedby="game-key-mute-label">Ctrl + Alt + F9</button></div>
+                    <div class="game-key-row"><span id="game-key-exit-label">Salir</span><button id="game-key-exit" class="game-key" type="button" data-key="exit" aria-describedby="game-key-exit-label">Ctrl + Alt + F10</button></div>
+                    <small>Toca uno y pulsa las teclas: dos de Ctrl, Alt o Shift y una letra, un número o F1–F11.</small>
+                    <p id="game-keys-status" class="game-note" role="status">Atajos globales apagados.</p>
+                </fieldset>
+                <fieldset class="game-group">
+                    <legend>Notas para Iris</legend>
+                    <label class="game-field">
+                        <small id="game-notes-help">Lo que quieras que tenga en cuenta. Se envía con cada consulta.</small>
+                        <textarea id="game-mode-notes" maxlength="800" rows="2" placeholder="Ej.: juego con Lune y Maelle; voy por el acto 2" aria-describedby="game-notes-help" disabled></textarea>
+                    </label>
+                    <div class="game-notes-foot">
+                        <small id="game-mode-memory-status">Disponible al empezar la partida.</small>
+                        <button id="game-mode-forget" class="game-quiet game-danger" type="button" disabled>Borrar ahora</button>
+                    </div>
+                </fieldset>
+            </section>
+
+            <p id="game-mode-status" class="game-note" role="status" aria-live="polite" hidden></p>
+            <button id="game-mode-more" class="game-more" type="button">
+                <span>Más opciones</span><small>comentarios, atajos, notas</small>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+            </button>
+        </aside>
+        <div id="game-mode-indicator" class="game-mode-indicator" data-tone="ready" hidden>
+            <button id="game-mode-reopen" class="game-bar-main" type="button" aria-label="Abrir los controles del modo juego">
+                <i class="game-dot" aria-hidden="true"></i>
+                <span><strong id="game-mode-label"></strong><small id="game-mode-sublabel"></small></span>
+            </button>
+            <button id="game-mode-silence" class="game-icon-button" type="button" aria-label="Silenciar">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path class="game-mute-x" d="m22 9-6 6M16 9l6 6"/><path class="game-mute-wave" d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>
+            </button>
+            <button id="game-mode-exit" class="game-icon-button game-danger" type="button" aria-label="Salir del modo juego">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+            </button>
+        </div>
+
         <nav id="companion-controls" class="signal-rail" aria-label="Controles de IRIS Companion">
             <div class="rail-rule" aria-hidden="true"><span></span></div>
+            <button id="game-mode-toggle" class="rail-button" type="button" aria-label="Abrir modo juego" aria-controls="game-mode-panel" aria-expanded="false" aria-pressed="false" disabled>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="12" rx="2"/><path d="M8 21h8M12 17v4M7 10h4M9 8v4M16 9h.01M18 12h.01"/></svg><span>Juego</span><i></i>
+            </button>
             <button id="voice-manual" class="rail-button" type="button" aria-label="Abrir micrófono de Hermes" aria-pressed="false" data-state="off" disabled>
                 <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M6 11a6 6 0 0 0 12 0M12 17v4M9 21h6"/></svg>
                 <span data-voice-label>Hablar</span>
@@ -128,6 +276,6 @@
         </div>
     </main>
     <link rel="stylesheet" href="../css/inbox.css">
-    <script type="module" src="./companion.js?v=96"></script>
+    <script type="module" src="./companion.js?v=113"></script>
 </body>
 </html>

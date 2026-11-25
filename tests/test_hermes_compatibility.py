@@ -184,3 +184,10 @@ def test_managed_launcher_wins_over_an_old_global_path_entry() -> None:
             resolved = resolve_hermes_cli()
 
     assert resolved == str(managed)
+
+
+def test_the_validated_series_skip_the_never_validated_0_22() -> None:
+    from core.hermes_compatibility import IRIS_VALIDATED_HERMES_SERIES, IRIS_VALIDATED_HERMES_VERSION
+
+    assert (0, 23) in IRIS_VALIDATED_HERMES_SERIES and (0, 22) not in IRIS_VALIDATED_HERMES_SERIES
+    assert "0.23.x" in IRIS_VALIDATED_HERMES_VERSION and "0.22" not in IRIS_VALIDATED_HERMES_VERSION

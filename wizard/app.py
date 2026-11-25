@@ -1763,6 +1763,20 @@ async def _provider_preflight(cfg: IRISConfig, existing_env: dict[str, str]) -> 
     return credentials
 
 
+async def _ensure_nous_guest_default() -> str:
+    """``wizard.hermes_config.ensure_nous_guest_default`` off the event loop; never blocks a start."""
+    from wizard.hermes_config import ensure_nous_guest_default
+
+    try:
+        result = await asyncio.to_thread(ensure_nous_guest_default)
+    except Exception as exc:  # config text can hold secrets: report the type only
+        print(f"[Hermes sync] Nous guest default not applied: {type(exc).__name__}")
+        return "failed"
+    if result == "written":
+        print("[Hermes sync] nous.guest: false (the profile had not chosen)")
+    return result
+
+
 async def _start_gateway_impl() -> JSONResponse:
     """Start Hermes' gateway in the background.
 
@@ -1783,6 +1797,11 @@ async def _start_gateway_impl() -> JSONResponse:
         # Read what's currently in ~/.hermes/.env so we only write if needed.
         existing_env = await asyncio.to_thread(read_hermes_dotenv)
         cfg = IRISConfig.load()
+        # Nous' free-tier guest stays off for a profile that never chose, before any gateway
+        # entry point (a channel, a scheduled task) can reach a hosted connector (Codex review
+        # 2026-11-20). Hermes re-reads config.yaml when it changes, so this also covers a
+        # gateway that is already up.
+        await _ensure_nous_guest_default()
         # Idempotency and port ownership come before spawning. Besides avoiding
         # a second Hermes process on a double-click, the HTTP health probe keeps
         # an unrelated process on :8642 from being mistaken for Hermes.

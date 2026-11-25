@@ -88,6 +88,7 @@
 // same Three.js instance and revision. Mixing CDN revisions breaks instanceof
 // checks and produces duplicate-engine warnings at runtime.
 import * as THREE from 'three';
+import { emotionBase } from './emotions.js?v=3';
 
 const { MathUtils } = THREE;
 
@@ -343,6 +344,7 @@ export class MicroLife {
         // State machine
         this.state = 'idle';   // 'idle' | 'speaking' | 'thinking'
         this.emotion = 'neutral';
+        this.emotionBase = 'neutral';
 
         // Gaze cascade — all world-space Vector3
         this._focusTarget = new THREE.Vector3();
@@ -474,11 +476,14 @@ export class MicroLife {
         // emotion) so contextual gestures only fire once per
         // transition. The LLM often emits the same emotion several
         // turns in a row.
+        // The newer emotions move the body, gaze and breath as their base does (emotions.js).
+        const base = emotionBase(next);
         if (next !== this._lastEmotion && this.t.enableContextualGestures) {
-            this._fireContextualGesture(this._lastEmotion, next);
+            this._fireContextualGesture(emotionBase(this._lastEmotion), base);
         }
         this._lastEmotion = next;
         this.emotion = next;
+        this.emotionBase = base;
         this._refreshState();
     }
 
@@ -564,7 +569,7 @@ export class MicroLife {
         const prevState = this.state;
         if (this._speaking) {
             this.state = 'speaking';
-        } else if (this.emotion === 'pensativa') {
+        } else if (this.emotionBase === 'pensativa') {
             this.state = 'thinking';
         } else if (this._listening) {
             this.state = 'listening';
@@ -578,7 +583,7 @@ export class MicroLife {
                 this._stabilizeEyeContact(1.4);
             }
         }
-        if (DIRECT_FOCUS_EMOTIONS.has(this.emotion)) {
+        if (DIRECT_FOCUS_EMOTIONS.has(this.emotionBase)) {
             this._stabilizeEyeContact(1.2);
         }
         // Soft nudge: if the next saccade is more than ~1.5s away,
@@ -1120,9 +1125,9 @@ export class MicroLife {
     _presenceProfile() {
         const profiles = this.t.presenceMoodScales || {};
         if (this.state === 'speaking') return profiles.speaking || {};
-        if (this.state === 'thinking' || this.emotion === 'pensativa') return profiles.thinking || {};
+        if (this.state === 'thinking' || this.emotionBase === 'pensativa') return profiles.thinking || {};
         if (this.state === 'listening') return profiles.listening || profiles.neutral || {};
-        if (this.emotion === 'feliz' || this.emotion === 'sorprendida') return profiles.happy || {};
+        if (this.emotionBase === 'feliz' || this.emotionBase === 'sorprendida') return profiles.happy || {};
         return profiles.neutral || {};
     }
 
@@ -1284,8 +1289,15 @@ export class MicroLife {
             sorprendida: { chestPitch: -0.030, shoulderLift:  0.045 },
             pensativa:   { chestPitch:  0.018, shoulderLift: -0.008 },
             neutral:     { chestPitch:  0,     shoulderLift:  0      },
+            // The newer emotions: shy curls in, excited lifts, nervous tenses, sleepy sinks.
+            avergonzada: { chestPitch:  0.030, shoulderLift:  0.030 },
+            'cariñosa':  { chestPitch: -0.015, shoulderLift:  0.010 },
+            emocionada:  { chestPitch: -0.040, shoulderLift:  0.045 },
+            confundida:  { chestPitch:  0.010, shoulderLift:  0.020 },
+            nerviosa:    { chestPitch:  0.020, shoulderLift:  0.045 },
+            somnolienta: { chestPitch:  0.050, shoulderLift: -0.030 },
         };
-        const target = POSE[this.emotion] || POSE.neutral;
+        const target = POSE[this.emotion] || POSE[this.emotionBase] || POSE.neutral;
         const presenceScale = this._presenceLayerScale('pose');
 
         // Slow transition between emotions — body language doesn't
@@ -2011,7 +2023,7 @@ export class MicroLife {
             case 'speaking': amp = this.t.breathAmpSpeaking; freq = this.t.breathFreqSpeaking; break;
             case 'thinking': amp = this.t.breathAmpThinking; freq = this.t.breathFreqThinking; break;
             default:
-                if (this.emotion === 'feliz' || this.emotion === 'sorprendida') {
+                if (this.emotionBase === 'feliz' || this.emotionBase === 'sorprendida') {
                     amp = this.t.breathAmpHappy;
                     freq = this.t.breathFreqHappy;
                 } else {

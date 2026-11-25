@@ -145,7 +145,10 @@ async def verify(repo):
         assert resolve_display_setting(cfg, "telegram", "streaming", True) is False
         assert resolve_display_setting(cfg, "api_server", "streaming", True) is True
 
-        from tools import send_message_tool as sender
+        try:
+            from gateway.outbound import send as sender  # Hermes 0.23
+        except ImportError:
+            from tools import send_message_tool as sender  # Hermes 0.21
 
         plugin_path = get_hermes_home() / "plugins/iris-messaging/__init__.py"
         plugin_spec = importlib.util.spec_from_file_location("iris_send_test", plugin_path)

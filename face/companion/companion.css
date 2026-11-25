@@ -51,6 +51,7 @@
     --companion-accent-2: #ff74d4;
     --companion-ready: #5cffad;
     --companion-danger: #ff6b88;
+    --companion-warn: #ffc45c;
     --companion-ink: #f4fbff;
     --companion-muted: #9ca9ba;
     --companion-panel: rgba(7, 10, 18, 0.88);
@@ -594,7 +595,7 @@ body[data-operational-state="speaking"] .halo-scan {
     bottom: 10px;
     min-height: 61px;
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: 5px;
     padding: 7px;
     border: 1px solid var(--companion-line);
@@ -1004,3 +1005,245 @@ body[data-reduced-motion="true"] *::after {
 .background-task-bar[data-state="unresolved"] { border-radius: 14px; align-items: flex-start; }
 .background-task-bar[data-state="unresolved"] .background-task-text { white-space: normal; overflow: visible; }
 .background-task-bar[data-state="unresolved"] .background-task-pulse { animation: none; background: var(--companion-accent-2); }
+/* Game mode: «Antes de empezar», «Jugando», «Más opciones» and the compact bar.
+ * Colours come only from the theme tokens, so Iris, Amanecer, Verde and Rosa
+ * all tint it. Open, it is a sheet over the Companion header (its own × closes
+ * it); its header and «Más opciones» stay put while the view scrolls. */
+.game-mode-panel {
+    position: absolute; z-index: 25; top: 12px; left: 12px; right: 12px;
+    max-height: calc(100% - 92px); display: flex; flex-direction: column; gap: 9px;
+    padding: 12px 14px 8px;
+    border: 1px solid var(--companion-line); border-radius: 16px 6px 16px 6px;
+    background: color-mix(in srgb, var(--companion-panel) 96%, transparent);
+    color: var(--companion-ink); box-shadow: 0 12px 32px var(--companion-shadow);
+    backdrop-filter: blur(18px); pointer-events: auto; font-size: 13px;
+}
+.game-mode-panel :is(button, input, textarea) { font: inherit; color: inherit; }
+.game-mode-panel button { cursor: pointer; }
+.game-mode-panel button:disabled { opacity: .5; cursor: default; }
+.game-mode-panel :is(p, ol, h2) { margin: 0; }
+.game-mode-panel small { font-size: 11.5px; line-height: 1.4; color: var(--companion-muted); }
+.game-mode-panel svg, .game-mode-indicator svg {
+    width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor;
+    stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+}
+.game-mode-head { flex: none; display: flex; align-items: center; gap: 8px; }
+.game-mode-head h2 {
+    flex: 1; min-width: 0; outline: none; font-family: "Syne", "Segoe UI", sans-serif; font-weight: 800;
+    font-size: clamp(16px, 4.8vw, 19px); line-height: 1.15; letter-spacing: .01em;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.game-mode-beta {
+    padding: 2px 9px; border: 1px solid color-mix(in srgb, var(--companion-accent) 50%, transparent);
+    border-radius: 999px; color: var(--companion-accent); font-size: 11px; font-weight: 600;
+}
+.game-icon-button {
+    flex: none; display: grid; place-items: center; width: 34px; height: 34px; padding: 0;
+    border: 1px solid var(--companion-line); border-radius: 10px; background: transparent;
+    color: var(--companion-muted);
+}
+.game-icon-button:hover:not(:disabled) { color: var(--companion-ink); border-color: color-mix(in srgb, var(--companion-accent) 55%, transparent); }
+.game-view {
+    flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain;
+    display: flex; flex-direction: column; gap: 9px; margin: 0 -6px; padding: 2px 6px 14px;
+    /* A soft edge tells there is more below in short windows. */
+    -webkit-mask-image: linear-gradient(to bottom, black calc(100% - 14px), transparent);
+    mask-image: linear-gradient(to bottom, black calc(100% - 14px), transparent);
+    scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--companion-accent) 35%, transparent) transparent;
+}
+.game-lede { font-size: 13.5px; line-height: 1.45; color: color-mix(in srgb, var(--companion-ink) 82%, var(--companion-muted)); }
+.game-steps { padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.game-steps li { display: flex; align-items: flex-start; gap: 10px; }
+.game-steps li > span {
+    flex: none; display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%;
+    background: color-mix(in srgb, var(--companion-accent) 15%, transparent);
+    color: var(--companion-accent); font-weight: 700; font-size: 12px;
+}
+.game-steps p, .game-switch-row > span, .game-status-card p, .game-bar-main > span {
+    display: flex; flex-direction: column; gap: 1px; min-width: 0; line-height: 1.3;
+}
+.game-steps strong { font-size: 13.5px; font-weight: 600; }
+.game-field { display: flex; flex-direction: column; gap: 5px; font-weight: 600; }
+.game-field > span small { font-weight: 400; }
+.game-field small { font-weight: 400; }
+.game-mode-panel :is(input:not([type=checkbox]):not([type=radio]), textarea) {
+    width: 100%; min-width: 0; padding: 8px 11px; border: 1px solid var(--companion-line);
+    border-radius: 10px; background: rgba(0, 0, 0, .25); font-size: 14px; font-weight: 400;
+}
+.game-mode-panel input:not([type=checkbox]):not([type=radio]) { height: 38px; }
+.game-mode-panel textarea { min-height: 54px; resize: vertical; line-height: 1.4; }
+.game-mode-panel :is(input, textarea)::placeholder { color: color-mix(in srgb, var(--companion-muted) 80%, transparent); }
+.game-mode-panel :is(input, textarea):disabled { opacity: .55; }
+/* Switches: a native checkbox (or a button with role=switch) drawn as a pill. */
+.game-switch-row { position: relative; display: flex; align-items: center; gap: 12px; cursor: pointer; }
+.game-switch-row > span { flex: 1; }
+.game-switch-row strong { font-size: 13.5px; font-weight: 600; }
+.game-switch-row input[type=checkbox] { position: absolute; opacity: 0; width: 1px; height: 1px; margin: 0; pointer-events: none; }
+.game-boxed { padding: 10px 12px; border: 1px solid var(--companion-line); border-radius: 12px; }
+.game-switch {
+    position: relative; flex: none; width: 44px; height: 26px; padding: 0; border: 0; border-radius: 999px;
+    background: color-mix(in srgb, var(--companion-muted) 28%, transparent); transition: background-color .16s ease;
+}
+.game-switch::after {
+    content: ""; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%;
+    background: var(--companion-muted); transition: transform .16s ease, background-color .16s ease;
+}
+:is(input:checked + .game-switch, .game-switch[aria-checked="true"]) { background: var(--companion-accent); }
+:is(input:checked + .game-switch, .game-switch[aria-checked="true"])::after {
+    transform: translateX(18px); background: color-mix(in srgb, var(--companion-accent) 10%, #03060c);
+}
+input:disabled + .game-switch, .game-switch:disabled { opacity: .5; }
+input:focus-visible + .game-switch { outline: 2px solid var(--companion-accent); outline-offset: 2px; }
+/* Buttons. The primary one uses the theme accent with dark text. */
+.game-primary, .game-secondary, .game-quiet {
+    display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px;
+    padding: 0 14px; border-radius: 12px; font-weight: 600; font-size: 14px; line-height: 1.2;
+}
+.game-primary {
+    flex: none; border: 0; background: var(--companion-accent); font-weight: 700;
+    color: color-mix(in srgb, var(--companion-accent) 10%, #03060c) !important;
+    box-shadow: 0 6px 18px color-mix(in srgb, var(--companion-accent) 22%, transparent);
+}
+.game-primary:hover:not(:disabled) { filter: brightness(1.08); }
+.game-secondary {
+    flex: none; min-height: 40px; border: 1px solid color-mix(in srgb, var(--companion-accent) 45%, transparent);
+    background: transparent; color: var(--companion-accent) !important;
+}
+.game-quiet { border: 1px solid var(--companion-line); background: color-mix(in srgb, var(--companion-ink) 3%, transparent); }
+.game-danger {
+    border-color: color-mix(in srgb, var(--companion-danger) 55%, transparent) !important;
+    color: color-mix(in srgb, var(--companion-danger) 70%, #ffffff) !important;
+}
+.game-fineprint { font-size: 12px; line-height: 1.4; color: var(--companion-muted); text-align: center; }
+.game-ask { display: flex; flex-direction: column; gap: 6px; }
+.game-ask > small { text-align: center; }
+.game-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.game-pair .game-quiet { min-height: 40px; }
+/* Mute buttons show a crossed speaker, or sound waves once muted («Activar voz»). */
+[data-muted="true"] .game-mute-x, :not([data-muted="true"]) > svg .game-mute-wave { display: none; }
+/* Status card and compact bar share one tone: ready, busy, muted or warn. */
+:is(.game-status-card, .game-mode-indicator) { --tone: var(--companion-ready); }
+:is(.game-status-card, .game-mode-indicator)[data-tone="busy"] { --tone: var(--companion-accent); }
+:is(.game-status-card, .game-mode-indicator)[data-tone="muted"] { --tone: var(--companion-muted); }
+:is(.game-status-card, .game-mode-indicator)[data-tone="warn"] { --tone: var(--companion-warn); }
+.game-status-card {
+    display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 12px;
+    border: 1px solid color-mix(in srgb, var(--tone) 42%, transparent);
+    background: color-mix(in srgb, var(--tone) 8%, transparent);
+}
+.game-status-card strong { font-size: 14.5px; font-weight: 700; overflow-wrap: anywhere; }
+.game-dot {
+    flex: none; width: 10px; height: 10px; border-radius: 50%; background: var(--tone);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--tone) 20%, transparent);
+}
+[data-tone="busy"] > .game-dot, [data-tone="busy"] .game-dot { animation: game-dot-pulse 1.1s ease-in-out infinite; }
+@keyframes game-dot-pulse { 50% { box-shadow: 0 0 0 7px color-mix(in srgb, var(--tone) 8%, transparent); } }
+@media (prefers-reduced-motion: reduce) { .game-dot { animation: none !important; } }
+/* Más opciones. */
+.game-group {
+    display: flex; flex-direction: column; gap: 8px; min-width: 0; margin: 0; padding: 0 0 12px;
+    border: 0; border-bottom: 1px solid color-mix(in srgb, var(--companion-accent) 16%, transparent);
+}
+.game-group:last-child { border-bottom: 0; padding-bottom: 2px; }
+.game-group legend { padding: 0 0 8px; font-size: 13.5px; font-weight: 700; color: var(--companion-accent); }
+.game-choice { display: flex; flex-direction: column; gap: 5px; min-width: 0; font-weight: 600; }
+.game-choice-pair { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 10px; }
+.game-segments {
+    display: grid; gap: 3px; padding: 3px; border-radius: 11px;
+    background: color-mix(in srgb, var(--companion-ink) 5%, transparent);
+}
+.game-segments-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.game-segments-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.game-segments label { position: relative; display: block; min-width: 0; }
+.game-segments input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; }
+.game-segments input:disabled { cursor: default; }
+.game-segments span {
+    display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 42px;
+    padding: 2px 3px; border: 1px solid transparent; border-radius: 8px; text-align: center; white-space: nowrap;
+    color: color-mix(in srgb, var(--companion-ink) 78%, var(--companion-muted)); font-weight: 600; line-height: 1.15;
+    transition: background-color .14s ease, border-color .14s ease;
+}
+.game-segments-small span { min-height: 34px; font-size: 12px; }
+.game-segments span small { font-size: 10.5px; font-weight: 400; }
+.game-segments input:checked + span {
+    border-color: color-mix(in srgb, var(--companion-accent) 60%, transparent);
+    background: color-mix(in srgb, var(--companion-accent) 15%, transparent); color: var(--companion-ink); font-weight: 700;
+}
+.game-segments input:focus-visible + span { outline: 2px solid var(--companion-accent); outline-offset: 1px; }
+.game-segments input:disabled + span { opacity: .55; }
+.game-key-row { display: flex; align-items: center; gap: 10px; }
+.game-key-row > span { flex: 1; min-width: 0; }
+.game-key {
+    flex: none; min-width: 140px; height: 34px; padding: 0 10px; border: 1px solid var(--companion-line);
+    border-radius: 9px; background: rgba(0, 0, 0, .25); font-family: Consolas, "Cascadia Mono", monospace !important;
+    font-size: 12px !important; font-weight: 600;
+}
+.game-key[data-capturing="true"] {
+    border-color: var(--companion-accent-2); color: color-mix(in srgb, var(--companion-accent-2) 55%, #ffffff);
+    background: color-mix(in srgb, var(--companion-accent-2) 10%, transparent);
+    font-family: "Outfit", "Segoe UI", sans-serif !important;
+}
+.game-note { font-size: 12px; line-height: 1.45; color: var(--companion-muted); }
+#game-mode-status { flex: none; color: color-mix(in srgb, var(--companion-ink) 80%, var(--companion-muted)); }
+.game-notes-foot { display: flex; align-items: center; gap: 10px; }
+.game-notes-foot small { flex: 1; }
+.game-notes-foot .game-quiet { min-height: 34px; font-size: 12.5px; }
+.game-more {
+    flex: none; display: flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 2px;
+    border: 0; border-top: 1px solid color-mix(in srgb, var(--companion-accent) 18%, transparent);
+    background: transparent; text-align: left;
+}
+.game-more > span { flex: 1; font-weight: 600; }
+.game-more svg { width: 16px; height: 16px; color: var(--companion-muted); }
+.game-more:hover > span { color: var(--companion-accent); }
+.game-mode-panel :is(button, textarea, input):focus-visible { outline: 2px solid var(--companion-accent); outline-offset: 2px; }
+/* The default 520 px window: the steps keep their titles and the main button stays in view. */
+@media (max-height: 620px) {
+    .game-lede, .game-steps small { display: none; }
+    .game-steps { gap: 6px; }
+    .game-steps li { align-items: center; }
+}
+.game-mode-panel :is(.game-segments input, .game-switch-row input):focus-visible { outline: none; }
+/* Compact bar: what Iris is doing, plus Silenciar and Salir without opening anything. */
+.game-mode-indicator {
+    position: absolute; z-index: 24; top: 70px; left: 12px; right: 12px; display: flex; align-items: center; gap: 6px;
+    min-height: 52px; padding: 5px 6px 5px 4px; border-radius: 14px 5px 14px 5px; pointer-events: auto;
+    border: 1px solid color-mix(in srgb, var(--tone) 45%, transparent);
+    background: color-mix(in srgb, var(--companion-panel) 96%, transparent); backdrop-filter: blur(18px);
+    box-shadow: 0 8px 22px var(--companion-shadow);
+}
+.game-bar-main {
+    flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; min-height: 40px; padding: 0 8px 0 10px;
+    border: 0; border-radius: 10px; background: transparent; color: var(--companion-ink); text-align: left; cursor: pointer; font: inherit;
+}
+.game-bar-main:hover { background: color-mix(in srgb, var(--companion-ink) 5%, transparent); }
+.game-bar-main strong { font-size: 13px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.game-bar-main small { font-size: 11px; color: var(--companion-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.game-mode-indicator .game-icon-button { width: 38px; height: 38px; color: color-mix(in srgb, var(--companion-ink) 82%, var(--companion-muted)); cursor: pointer; }
+#game-mode-panel:not([hidden]) + #game-mode-indicator { visibility: hidden; pointer-events: none; }
+.game-mode-indicator button:focus-visible { outline: 2px solid var(--companion-accent); outline-offset: 2px; }
+/* IRIS dialogs in the small Companion window: denser text, Cancel and Confirm
+ * side by side, «Más detalles» on its own row. */
+@media (max-width: 560px) {
+    .iris-dialog-backdrop { padding: 12px; }
+    .iris-dialog-backdrop .iris-dialog-title { font-size: 18px; }
+    .iris-dialog-backdrop .iris-dialog-body { padding: 14px 16px 2px; }
+    .iris-dialog-backdrop .iris-dialog-message { font-size: 15px; line-height: 1.5; text-align: left; }
+    .iris-dialog-backdrop .iris-dialog-actions { gap: 8px; padding: 14px 16px 16px; }
+    .iris-dialog-backdrop .iris-dialog-btn { flex: 1 1 0; min-width: 0; min-height: 44px; padding: 0 10px; font-size: 14px; }
+    .iris-dialog-backdrop .iris-dialog-btn[data-dialog="details"] { flex-basis: 100%; min-height: 38px; }
+}
+/* «×» hides the text of a long game answer without silencing the voice. */
+.speech-dismiss {
+    position: absolute; top: 6px; right: 6px; display: grid; place-items: center; width: 30px; height: 30px;
+    padding: 0; border: 0; border-radius: 8px; background: transparent; color: var(--companion-muted);
+    font: 600 18px/1 "Outfit", "Segoe UI", sans-serif; cursor: pointer;
+}
+.speech-dismiss:hover { color: var(--companion-ink); background: color-mix(in srgb, var(--companion-ink) 6%, transparent); }
+.speech-dismiss:focus-visible { outline: 2px solid var(--companion-accent); outline-offset: 1px; }
+/* During a session the bubble sits under the bar and the avatar moves down. */
+body[data-game-session="active"] .speech-bubble { position: fixed; z-index: 23; left: 12px; right: 12px; top: var(--game-bubble-top, 135px); max-width: none; padding-top: 14px; }
+body[data-game-session="active"] .speech-bubble p { max-height: min(28vh, 160px, var(--game-text-height,160px)); overflow-y: auto; padding-right: 8px; overflow-wrap: anywhere; }
+body[data-game-session="active"][data-game-speech="visible"] .avatar-stage { top: var(--game-avatar-top, 300px); }
+body[data-game-session="active"] .speech-kicker { padding-right: 32px; }
+body[data-controls="hidden"][data-game-session="active"] .speech-bubble:not([hidden]) { display: block; }

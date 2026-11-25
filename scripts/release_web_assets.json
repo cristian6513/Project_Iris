@@ -258,9 +258,9 @@
       "sha256": "076204cf13bbdb8ac2679f3c5a06a8932236711358cc92c862e245fcce84cb1f"
     },
     {
-      "path": "face/assets/app-Bw8ISczC.js",
-      "size": 985713,
-      "sha256": "0e42ed930fbdf5ffac645f206a6a31cb3bc5f841d4cc54b844287c1ba8e20ee9"
+      "path": "face/assets/app-BfVtIkqz.js",
+      "size": 987276,
+      "sha256": "43c3c00ceaba97c4a90dffb6b911b47f797595e0a53c68e643398156a3dcd34a"
     },
     {
       "path": "face/assets/app_model_picker-C1ZwNYgs.js",
@@ -283,9 +283,9 @@
       "sha256": "207d1dbbdc3062392ee9c1d34cb7c9247832d84b6f227a8b8fed03baa8977858"
     },
     {
-      "path": "face/assets/background_task_bar-DURgxSVq.js",
-      "size": 260252,
-      "sha256": "ea7c3fc74731726d597e6f01787d2dc4ae249413b8f22b9e73e9a9564c0b9b8d"
+      "path": "face/assets/background_task_bar-Ci3Q1F3q.js",
+      "size": 272269,
+      "sha256": "93e54817d3596350298a8989f46b4675d7aa39bb8c1416645f74867482ab7176"
     },
     {
       "path": "face/assets/bvh_retargeter-BljXQnY1.js",
@@ -298,14 +298,14 @@
       "sha256": "a21cae4728874bdbd18f21da85f823f421270abfb01928e780e4f89e942de1eb"
     },
     {
-      "path": "face/assets/companion-CnyDLh0e.css",
-      "size": 39620,
-      "sha256": "5818e1afe029ec81dd0906fb5c1d8e670ff5983cd6c6c60f48b6f5e94dd1209f"
+      "path": "face/assets/companion-B_8dCeil.js",
+      "size": 77562,
+      "sha256": "a3eefbd0c44937c0cc7afebc1a11b7cfce8902680201daef5c8361668f1b3244"
     },
     {
-      "path": "face/assets/companion-Df2ARtej.js",
-      "size": 53565,
-      "sha256": "c2f851dda88809eece5da25e73fba9116f958c9839952e674d629834718082e2"
+      "path": "face/assets/companion-DgcCitdB.css",
+      "size": 54242,
+      "sha256": "b0ba0bb076699199d056c34679fb880342f654a131f964d5e176bd6235492263"
     },
     {
       "path": "face/assets/core-0_kFspMt.js",
@@ -323,14 +323,14 @@
       "sha256": "3e05e906da66c284cd114853eff49b0c77fe04e9125d3a56cedb2833c9cb6ce7"
     },
     {
+      "path": "face/assets/face-BIocUzj3.js",
+      "size": 13985,
+      "sha256": "e38ac37c933b2b7c124c15994d75601dbd1d305f3cd6316990f6fb0e885f5a7b"
+    },
+    {
       "path": "face/assets/face-BuHUR3CQ.css",
       "size": 379953,
       "sha256": "186846a88ec90b9fa43a3d76b0645aa605ad07094f72165c5925df61a8a52435"
-    },
-    {
-      "path": "face/assets/face-v58Nkulw.js",
-      "size": 13985,
-      "sha256": "2091f307e3aba665b7c2e2d46e04c5de19f2f7a71ea4500c45f28fee9de1200d"
     },
     {
       "path": "face/assets/fbx_retargeter-BXNYJYoD.js",
@@ -423,9 +423,9 @@
       "sha256": "5d5e3734089a74707292ce8a3e186def34cd63e33879f9ac3689a8d8da9d0706"
     },
     {
-      "path": "face/assets/pmx_avatar-CBK2wg3_.js",
-      "size": 175551,
-      "sha256": "bd7dc59cd9a342c21d5641b172525bc9a96f0ec611600dca8f481efddc0a1232"
+      "path": "face/assets/pmx_avatar-8OT0rw7s.js",
+      "size": 183989,
+      "sha256": "0aebbb9c2a9d667eb3cff396fbf31e17a0e2d21b7f819e033829d002c10f9cd2"
     },
     {
       "path": "face/assets/pmx_physics-DITlML6V.js",
@@ -539,13 +539,13 @@
     },
     {
       "path": "face/companion/companion.css",
-      "size": 25302,
-      "sha256": "3fcd099ee7388b8f6637f4339603cf46c6cf4a1a997c831a432dc5dbc59e850f"
+      "size": 42010,
+      "sha256": "6eaf29f51d6a23622bdb5e24f15a9ba6ce457214177d7ccead6002ca2bb223e1"
     },
     {
       "path": "face/companion/companion.js",
-      "size": 72568,
-      "sha256": "74935ef51ca9b883df8ee749869ecdcc0a5594f20d7991a2f4227b7837a9b5c5"
+      "size": 74591,
+      "sha256": "8822e45bb5bf745ba269d690a1eb7e4235b575a883bb10157e3046fbba6cdf1a"
     },
     {
       "path": "face/companion/fonts/outfit-latin-400-normal.woff2",
@@ -579,8 +579,8 @@
     },
     {
       "path": "face/companion/index.html",
-      "size": 7686,
-      "sha256": "411a5e27972b3befa13e95724d4f3e0ab02e2b38c6930c75ceadd47d69ebf800"
+      "size": 19870,
+      "sha256": "39ea9248e46f3f4b0dbd15d55ba85f2472903458265b78f31b8d42e843499e42"
     },
     {
       "path": "face/css/async_agents.css",
@@ -675,7 +675,7 @@
     {
       "path": "face/index.html",
       "size": 41844,
-      "sha256": "fa89fbbe9695b14f4d195e0b86cd620eff25069106e856baa0c2cf4f579006d6"
+      "sha256": "e4f1e37355b4e1b365359e56a622e96f0a9dc32b660dcd7eae9bdbf933d54565"
     },
     {
       "path": "face/js/ambient_audio.js",
@@ -699,8 +699,8 @@
     },
     {
       "path": "face/js/app.js",
-      "size": 122591,
-      "sha256": "ac27df7137b3ff67f14c3f5d80d04e93a66f8b5627b0872c83c87f01b1d59e9c"
+      "size": 122632,
+      "sha256": "b1efe68a640d1ca01c158009f9e78ee89565bba8e3d94047f96846838ba579f5"
     },
     {
       "path": "face/js/app_ask_iris.js",
@@ -719,8 +719,8 @@
     },
     {
       "path": "face/js/arm_reach.js",
-      "size": 6442,
-      "sha256": "275b4630b1a512af7e56ddd19c7fd3b9d37b2e34a825b4dab8a4dba03dfd7d82"
+      "size": 8410,
+      "sha256": "ab90107c77afbb609e70e1ff920f00a89299b7778b2a26ddfc12bf5c01d04d15"
     },
     {
       "path": "face/js/async_agents_state.js",
@@ -744,8 +744,8 @@
     },
     {
       "path": "face/js/avatar.js",
-      "size": 49742,
-      "sha256": "519c05b7dd4c756683dc1f3b5a89361dd5a72a212a70193a9875d5b2f5adc9b3"
+      "size": 56301,
+      "sha256": "07574490627ad507c407d4adde924f37a16f92ad02f0f703c3c12b301b1b4e3b"
     },
     {
       "path": "face/js/avatar_activity.js",
@@ -754,13 +754,13 @@
     },
     {
       "path": "face/js/avatar_breeze.js",
-      "size": 8242,
-      "sha256": "7c9c95d9e1238f04ad8eef782d40cfc6a9965f54fb960fbaf7248cd9086cc76a"
+      "size": 9006,
+      "sha256": "d6353212c5fce4631bc6e9a3505611f5b7591d0e08a6ac5b13d76c226ce22461"
     },
     {
       "path": "face/js/avatar_intent.js",
-      "size": 5017,
-      "sha256": "24119a35a48209fb24fe5fd995fe0c1c98708455e0d5833f8a9fbd678640031a"
+      "size": 5022,
+      "sha256": "aae3e920f8a8e065fc8ddba5a65f5841b9f6668d28eb286b537e9522bc9ba419"
     },
     {
       "path": "face/js/avatar_lifecycle.js",
@@ -769,8 +769,8 @@
     },
     {
       "path": "face/js/avatar_state.js",
-      "size": 902,
-      "sha256": "0f239c85b2dc0e07127fba3dbbd9be297298eca010884a62018563f4b4ba0b75"
+      "size": 1099,
+      "sha256": "f0edab98c6bae0a14ce54cef1af921812752c12f4400c56b711cb42b198a5059"
     },
     {
       "path": "face/js/background_task_bar.js",
@@ -844,8 +844,8 @@
     },
     {
       "path": "face/js/companion_native_bridge.js",
-      "size": 5496,
-      "sha256": "b6b479231a4aea5851425cb4bc73893770e95fcf437727deb617a6f1e31662fa"
+      "size": 5693,
+      "sha256": "6644c4469928515ea098714492df93c91cff4d93b2179103d59666ddba9d240a"
     },
     {
       "path": "face/js/companion_policy.js",
@@ -883,9 +883,14 @@
       "sha256": "5f34b0e101e46f17ac17a3d6a5190f2ad85598412b90b1042e8c4a9f375655c2"
     },
     {
+      "path": "face/js/emotions.js",
+      "size": 4862,
+      "sha256": "13383c738961a8eca031473927bb60b950d4107997331fc7b5c6a47e42bbf75b"
+    },
+    {
       "path": "face/js/face_bootstrap.js",
       "size": 724,
-      "sha256": "84f097e6ce21628c27d484039c116458bceb131b70eeabeef02c0b3c58cf57a7"
+      "sha256": "e4e6b704ab085815a979a79b0013e3dcc3c61636531c6e38d1e1e608544ad68f"
     },
     {
       "path": "face/js/fbx_retargeter.js",
@@ -901,6 +906,26 @@
       "path": "face/js/furniture_colliders.js",
       "size": 4912,
       "sha256": "326a047b126cebc096844fb3c299bd9d76b4ec600cc33e5061e7ddb0b5eefe2b"
+    },
+    {
+      "path": "face/js/game_bubble.js",
+      "size": 909,
+      "sha256": "dc33159ea249acb809d19f9eed45f7478a4a2fa2c905d71f34b71b7d2128ab55"
+    },
+    {
+      "path": "face/js/game_capture.js",
+      "size": 25317,
+      "sha256": "f519679ca72100692dd8c39d07c2952f07ee46ad9279238376e86b8f52b3900e"
+    },
+    {
+      "path": "face/js/game_mode_ui.js",
+      "size": 5441,
+      "sha256": "d9429a92f686e6879b77b4eb334b44badb7d333ef0242f1df701688b51619710"
+    },
+    {
+      "path": "face/js/game_shortcuts.js",
+      "size": 4435,
+      "sha256": "7991e184298014876d5398c9344327169ca81cc9a8ec51f2caedbbbc1cbb7cf1"
     },
     {
       "path": "face/js/glb_retargeter.js",
@@ -924,8 +949,8 @@
     },
     {
       "path": "face/js/idle_system.js",
-      "size": 120248,
-      "sha256": "149cc76db9713bec52fd7979a57629046720b8441d2e59f6d90fd31b89e4c09e"
+      "size": 121622,
+      "sha256": "293f9daf6c19dc1b37136aebaed4278b871226a758235d9f0dda66895778eeed"
     },
     {
       "path": "face/js/ik.js",
@@ -950,7 +975,7 @@
     {
       "path": "face/js/inbox_voice.js",
       "size": 4344,
-      "sha256": "3d2e5f8ae40aaf3e675167f1b0efb8aa5849ffcd0b1efcde16184fa25b576dd2"
+      "sha256": "e5a0cea07963d83f8bdc4b2d89fd0a609a7637cff1de9d998ebf4aa815c50275"
     },
     {
       "path": "face/js/iris_cursor.js",
@@ -979,8 +1004,8 @@
     },
     {
       "path": "face/js/lipsync.js",
-      "size": 7353,
-      "sha256": "ccb6893ac8809b07613db81b9869caa93ac3a9321bc076f354a1b6f246f9b1f2"
+      "size": 10085,
+      "sha256": "3bc968584837ccd8270d53d5d4e69a5358fd35514459111fcbcceeb883f64b63"
     },
     {
       "path": "face/js/local_qr.js",
@@ -1009,8 +1034,8 @@
     },
     {
       "path": "face/js/micro_life.js",
-      "size": 105135,
-      "sha256": "0d4da51bdfa5cacf8478f1311766cbf58fda655ebd40c3739fb772cdea25d6f4"
+      "size": 105978,
+      "sha256": "2628afee7d1d66533dfd4965f6abbcd64784fbe9f6f82c596fcf5267ad189be7"
     },
     {
       "path": "face/js/model_catalog.js",
@@ -1179,13 +1204,13 @@
     },
     {
       "path": "face/js/panel.js",
-      "size": 141574,
-      "sha256": "929b38c79fef65a136fb95e9e5951c974cebd2b6c2090a4243393749664393d7"
+      "size": 142547,
+      "sha256": "3cb910405303a3bd9d06fce486aa0d138765a5687d2af636e0243c37bff64212"
     },
     {
       "path": "face/js/particles.js",
-      "size": 12061,
-      "sha256": "151bf9f0f767312c2ca125d4cfe59f724c575c35bb47acd15407aa1b17658b63"
+      "size": 13091,
+      "sha256": "697d7414ef51acadd750498d7fee4b1f03080dfda7b1943031d7ed8a05fe2522"
     },
     {
       "path": "face/js/player_playback_observer.js",
@@ -1199,13 +1224,18 @@
     },
     {
       "path": "face/js/pmx_avatar.js",
-      "size": 17489,
-      "sha256": "33f90e821fcfe0d5cacc16b1aae7eec1d75bf2b42e8ec898b813a89fc74d1afd"
+      "size": 18088,
+      "sha256": "2405f6271ffb64989312d180615b3a51a30bf0f46a52a0b753bae857478dc44a"
+    },
+    {
+      "path": "face/js/pmx_expressions.js",
+      "size": 15377,
+      "sha256": "e9292829581034a5c73b8a99ee005a3d4f9cb72203f7f3bf11b0b632b0305659"
     },
     {
       "path": "face/js/pmx_material.js",
-      "size": 1308,
-      "sha256": "4c1e5b7e0eca4889be72c5e28abe2bcb34d68cab3f6229f8ae3dd557ff0e6b0b"
+      "size": 5671,
+      "sha256": "b02dc15519757e63ebcc27dfd1d18e5e5fed4e036f815ea29ab2681f4eab9445"
     },
     {
       "path": "face/js/pmx_physics.js",
@@ -1219,8 +1249,8 @@
     },
     {
       "path": "face/js/pose_face.js",
-      "size": 5639,
-      "sha256": "ccc34d7634476d194c73317593748fcf01a2f43fa10db8de6712fcad958e28aa"
+      "size": 8270,
+      "sha256": "b32b701c12ba6637d8c27322d00f7df05a1502efc42643b5c68ba5fd3e77ecf6"
     },
     {
       "path": "face/js/render_settings.js",
@@ -1334,8 +1364,13 @@
     },
     {
       "path": "face/js/speech_presentation.js",
-      "size": 3661,
-      "sha256": "4cc24149624e46f8204f00fe87e15f8c185ec56954fb2dfd64565c4030d02b67"
+      "size": 3753,
+      "sha256": "21666e3536a1026b6c58e0fca2ccf231febae8e6ec9823ec7ff2854735a68043"
+    },
+    {
+      "path": "face/js/spring_collider_scale.js",
+      "size": 3077,
+      "sha256": "48e89053dad26944d901def61938e8bf1e73ac8f8bb25dda9c89a3ab93455a8f"
     },
     {
       "path": "face/js/subtitles.js",
@@ -1364,8 +1399,8 @@
     },
     {
       "path": "face/js/tts_audio_player.js",
-      "size": 6008,
-      "sha256": "ca6ab6530f60b8cdb3d52c032577d7c6dd60f37ef549da84e15eeac7ca535c11"
+      "size": 6167,
+      "sha256": "49456e8df4d50332b17aef407b6e63bf1cca05ca3bb0b8368718d1d51ba8dba7"
     },
     {
       "path": "face/js/update_notice.js",
@@ -1421,6 +1456,11 @@
       "path": "face/js/vision_tuning_panel.js",
       "size": 11313,
       "sha256": "0fe7c0be60a50dc6830f9ebbd18714cc1ffdc94d589f87898d4ad03b9da56ead"
+    },
+    {
+      "path": "face/js/vowel_track.js",
+      "size": 5093,
+      "sha256": "5872d6aa44cf9d564048b260ebb12641c315728463e059ea060d13632fd770b9"
     },
     {
       "path": "face/js/vrm_animation_loader.js",

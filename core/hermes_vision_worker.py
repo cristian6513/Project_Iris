@@ -179,7 +179,8 @@ def _without_provider_fallback() -> None:
     """A photo goes to the route the user can see, never to another provider."""
     import agent.auxiliary_client as auxiliary
 
-    def no_provider_fallback(first_err, route):
+    # Any signature: Hermes 0.23 calls the rung with ``rung_spent=`` as well.
+    def no_provider_fallback(*_args, **_kwargs):
         return None
         yield  # a generator, like the rung it replaces
 

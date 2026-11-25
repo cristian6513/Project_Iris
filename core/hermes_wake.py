@@ -467,6 +467,17 @@ class HermesWakeRuntime:
             probe.bind(("127.0.0.1", 0))
             return int(probe.getsockname()[1])
 
+    @staticmethod
+    async def _ensure_nous_guest_default() -> None:
+        """Nous' free-tier guest stays off for a profile that never chose, before ``hermes serve``
+        runs (Codex review 2026-11-20); never blocks Wake."""
+        try:
+            from wizard.hermes_config import ensure_nous_guest_default
+
+            await asyncio.to_thread(ensure_nous_guest_default)
+        except Exception as exc:  # config text can hold secrets: report the type only
+            logger.warning("Nous guest default not applied before Wake: %s", type(exc).__name__)
+
     async def ensure_gateway(self) -> None:
         if self.running and self._ready.is_set():
             return
@@ -482,6 +493,7 @@ class HermesWakeRuntime:
             repo = get_hermes_repo()
             if not command_prefix or not repo.exists():
                 raise HermesGatewayError("Hermes Agent administrado no está disponible.")
+            await self._ensure_nous_guest_default()
 
             creationflags = 0
             if os.name == "nt":

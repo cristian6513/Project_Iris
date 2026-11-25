@@ -376,6 +376,11 @@ class IRISAgent:
             prompt = SNAPSHOT_PROMPT.format(question=(user_text or "¿qué ves?")[:300])
             expected = snapshot["destination"]
         try:
+            on_analysis = snapshot.get("on_analysis") if snapshot is not None else None
+            if callable(on_analysis):
+                await on_analysis()
+                if callable(snapshot.get("authorized")) and not await snapshot["authorized"]():
+                    raise asyncio.CancelledError()
             result = await vision_model.analyze(home, images, prompt, expected=expected)
         except vision_model.VisionModelError as exc:
             vision_model.record_analysis(route["profile"], {"ok": False, "code": exc.code, **exc.route})
@@ -609,6 +614,9 @@ class IRISAgent:
                         "audio":   base64.b64encode(audio_bytes).decode("ascii"),
                         "mime":    mime,
                         "visemes": viseme_data or [],
+                        # What she says in it: without word timings (most voices
+                        # other than Edge) the face takes its vowel shapes from it.
+                        "text":    spoken_text,
                     }, wait_for_end=True, duration_s=playback_duration)
                     play_on_host = not delivered
                     if play_on_host:
