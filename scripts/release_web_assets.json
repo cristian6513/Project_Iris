@@ -258,9 +258,9 @@
       "sha256": "076204cf13bbdb8ac2679f3c5a06a8932236711358cc92c862e245fcce84cb1f"
     },
     {
-      "path": "face/assets/app-BfVtIkqz.js",
-      "size": 987276,
-      "sha256": "43c3c00ceaba97c4a90dffb6b911b47f797595e0a53c68e643398156a3dcd34a"
+      "path": "face/assets/app-ShnJdwx8.js",
+      "size": 987820,
+      "sha256": "ddfd72a0c756f8e1e6272fbfc4f10a12cd92ed04cdc240079065ab58b03e6f6f"
     },
     {
       "path": "face/assets/app_model_picker-C1ZwNYgs.js",
@@ -283,9 +283,9 @@
       "sha256": "207d1dbbdc3062392ee9c1d34cb7c9247832d84b6f227a8b8fed03baa8977858"
     },
     {
-      "path": "face/assets/background_task_bar-Ci3Q1F3q.js",
-      "size": 272269,
-      "sha256": "93e54817d3596350298a8989f46b4675d7aa39bb8c1416645f74867482ab7176"
+      "path": "face/assets/background_task_bar-xpunN6tL.js",
+      "size": 272614,
+      "sha256": "038bf8f29d8348aebdc87cc9b1a494dd2eece571204dc4d5e3bd7864d848aa40"
     },
     {
       "path": "face/assets/bvh_retargeter-BljXQnY1.js",
@@ -298,14 +298,14 @@
       "sha256": "a21cae4728874bdbd18f21da85f823f421270abfb01928e780e4f89e942de1eb"
     },
     {
-      "path": "face/assets/companion-B_8dCeil.js",
-      "size": 77562,
-      "sha256": "a3eefbd0c44937c0cc7afebc1a11b7cfce8902680201daef5c8361668f1b3244"
-    },
-    {
       "path": "face/assets/companion-DgcCitdB.css",
       "size": 54242,
       "sha256": "b0ba0bb076699199d056c34679fb880342f654a131f964d5e176bd6235492263"
+    },
+    {
+      "path": "face/assets/companion-JIrU7j1j.js",
+      "size": 77562,
+      "sha256": "079ee2fbd93abc1ab92b021f8c4afe723cfd9738e25165860f7b9741df30679b"
     },
     {
       "path": "face/assets/core-0_kFspMt.js",
@@ -323,9 +323,9 @@
       "sha256": "3e05e906da66c284cd114853eff49b0c77fe04e9125d3a56cedb2833c9cb6ce7"
     },
     {
-      "path": "face/assets/face-BIocUzj3.js",
+      "path": "face/assets/face-BT8uXbWI.js",
       "size": 13985,
-      "sha256": "e38ac37c933b2b7c124c15994d75601dbd1d305f3cd6316990f6fb0e885f5a7b"
+      "sha256": "e335b2079ab62f7ee776900d00dbca08a1f81ddfbc125c3ffe7205ffa2c5539f"
     },
     {
       "path": "face/assets/face-BuHUR3CQ.css",
@@ -423,19 +423,19 @@
       "sha256": "5d5e3734089a74707292ce8a3e186def34cd63e33879f9ac3689a8d8da9d0706"
     },
     {
-      "path": "face/assets/pmx_avatar-8OT0rw7s.js",
-      "size": 183989,
-      "sha256": "0aebbb9c2a9d667eb3cff396fbf31e17a0e2d21b7f819e033829d002c10f9cd2"
+      "path": "face/assets/pmx_avatar-fjrxRvGE.js",
+      "size": 185320,
+      "sha256": "be5fa9fe0b6c96ecf7a5505d8bc5313992e3d6628c34a2f9be74b0320d123626"
     },
     {
-      "path": "face/assets/pmx_physics-DITlML6V.js",
-      "size": 4596,
-      "sha256": "3c5d6b460c290bff699601d18c94ba434c0f51463f5aa7ad436fa6e259157643"
+      "path": "face/assets/pmx_physics-w2lprxah.js",
+      "size": 5260,
+      "sha256": "34bafff4d240955fd59a5f8a46ee75a2fd55fdab211f0732a847126281493675"
     },
     {
-      "path": "face/assets/pmx_physics_worker-C_ye2-x7.js",
-      "size": 307690,
-      "sha256": "7869be82e8da7392b4d85c2700f6a1a4b43349b929b8371bb22bdbe912751a45"
+      "path": "face/assets/pmx_physics_worker-i_qpG6Ac.js",
+      "size": 309343,
+      "sha256": "69f49beacbf444992100b65dbea41623b162702e777fdcf362697bea89b0d6fd"
     },
     {
       "path": "face/assets/preload-helper-Z5bpiab9.js",
@@ -545,7 +545,7 @@
     {
       "path": "face/companion/companion.js",
       "size": 74591,
-      "sha256": "8822e45bb5bf745ba269d690a1eb7e4235b575a883bb10157e3046fbba6cdf1a"
+      "sha256": "6026c065f1d1ad6cfca421956e8108b41ebb1662daf46e1b10c5f46a09270e37"
     },
     {
       "path": "face/companion/fonts/outfit-latin-400-normal.woff2",
@@ -580,7 +580,7 @@
     {
       "path": "face/companion/index.html",
       "size": 19870,
-      "sha256": "39ea9248e46f3f4b0dbd15d55ba85f2472903458265b78f31b8d42e843499e42"
+      "sha256": "0ec93212afe66851cb4e3f42fe0b0617171346c3107b43b0cf8c2e3afe1a19a3"
     },
     {
       "path": "face/css/async_agents.css",
@@ -675,7 +675,7 @@
     {
       "path": "face/index.html",
       "size": 41844,
-      "sha256": "e4f1e37355b4e1b365359e56a622e96f0a9dc32b660dcd7eae9bdbf933d54565"
+      "sha256": "3798b9e1766d37bf38e39169338c3815bf8defae07f0f1ebafbdca3815d8888d"
     },
     {
       "path": "face/js/ambient_audio.js",
@@ -699,8 +699,8 @@
     },
     {
       "path": "face/js/app.js",
-      "size": 122632,
-      "sha256": "b1efe68a640d1ca01c158009f9e78ee89565bba8e3d94047f96846838ba579f5"
+      "size": 123232,
+      "sha256": "3841c14ae3836ec3ac668b5caf0f71645d712ec39bd9e41ba354cc69d98bc6cc"
     },
     {
       "path": "face/js/app_ask_iris.js",
@@ -744,8 +744,8 @@
     },
     {
       "path": "face/js/avatar.js",
-      "size": 56301,
-      "sha256": "07574490627ad507c407d4adde924f37a16f92ad02f0f703c3c12b301b1b4e3b"
+      "size": 56521,
+      "sha256": "02a176de7330ab73ea70ae909cb042371a47215dad385705f514cd3c5cd23653"
     },
     {
       "path": "face/js/avatar_activity.js",
@@ -760,7 +760,7 @@
     {
       "path": "face/js/avatar_intent.js",
       "size": 5022,
-      "sha256": "aae3e920f8a8e065fc8ddba5a65f5841b9f6668d28eb286b537e9522bc9ba419"
+      "sha256": "3590e4c339ed20082d70fa3842d6f8119664bbb7d2d29ec48b9e6262814d0db9"
     },
     {
       "path": "face/js/avatar_lifecycle.js",
@@ -890,7 +890,7 @@
     {
       "path": "face/js/face_bootstrap.js",
       "size": 724,
-      "sha256": "e4e6b704ab085815a979a79b0013e3dcc3c61636531c6e38d1e1e608544ad68f"
+      "sha256": "f0b3edaf7f1e56be0cde7d84cd9eef20e11d9b22c93497a42c40615097470f71"
     },
     {
       "path": "face/js/fbx_retargeter.js",
@@ -904,8 +904,8 @@
     },
     {
       "path": "face/js/furniture_colliders.js",
-      "size": 4912,
-      "sha256": "326a047b126cebc096844fb3c299bd9d76b4ec600cc33e5061e7ddb0b5eefe2b"
+      "size": 6204,
+      "sha256": "684f0850935bbf35c967a1e5dd35465003dc267d1f013a64515f1cca039f23d9"
     },
     {
       "path": "face/js/game_bubble.js",
@@ -949,8 +949,8 @@
     },
     {
       "path": "face/js/idle_system.js",
-      "size": 121622,
-      "sha256": "293f9daf6c19dc1b37136aebaed4278b871226a758235d9f0dda66895778eeed"
+      "size": 123372,
+      "sha256": "74faf737363dbd7aed84b04479c14f7d6e31029ae42be456c88537e8be2edef0"
     },
     {
       "path": "face/js/ik.js",
@@ -1205,7 +1205,7 @@
     {
       "path": "face/js/panel.js",
       "size": 142547,
-      "sha256": "3cb910405303a3bd9d06fce486aa0d138765a5687d2af636e0243c37bff64212"
+      "sha256": "09817cfb736e87fc0f16c2edd29d4ae6ca2e02a363edd62af20f950918aa1be5"
     },
     {
       "path": "face/js/particles.js",
@@ -1224,13 +1224,13 @@
     },
     {
       "path": "face/js/pmx_avatar.js",
-      "size": 18088,
-      "sha256": "2405f6271ffb64989312d180615b3a51a30bf0f46a52a0b753bae857478dc44a"
+      "size": 21235,
+      "sha256": "07cf4aae48873629ef85f101965fcd4ea5e9894cec066d076d8e62a181c31a2d"
     },
     {
       "path": "face/js/pmx_expressions.js",
-      "size": 15377,
-      "sha256": "e9292829581034a5c73b8a99ee005a3d4f9cb72203f7f3bf11b0b632b0305659"
+      "size": 15888,
+      "sha256": "586eeb49c9e5fc6f4463e1440a596e8fdad45ab2dab284b0be6fbd49fa768100"
     },
     {
       "path": "face/js/pmx_material.js",
@@ -1239,13 +1239,13 @@
     },
     {
       "path": "face/js/pmx_physics.js",
-      "size": 11262,
-      "sha256": "371c2ed945c6cea5ee670ab3fd83f41c50fc3d6c6aa2f372be21cfd7951be394"
+      "size": 14120,
+      "sha256": "7c9f63edea40c98ede9d0d720d6d26b5a6a681934f64da0bebb31d34dbd36e0e"
     },
     {
       "path": "face/js/pmx_physics_worker.js",
-      "size": 11432,
-      "sha256": "fd92c400e4f6b7e0fe1ac9a9bec07f3c1e2b75008b4d975166e62266305d3367"
+      "size": 16013,
+      "sha256": "964cfbb14f5345094f39152846223168532682f9229f076d7a1a5c952e50c91f"
     },
     {
       "path": "face/js/pose_face.js",

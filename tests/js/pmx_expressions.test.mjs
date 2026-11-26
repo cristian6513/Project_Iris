@@ -123,6 +123,24 @@ test('a model with Chinese names (Aplaybox) gets its emotions too', () => {
     assert.deepEqual(used.sweat, ['流汗']);
 });
 
+test('a model taken from a game (B_ brows, E_ eyes, M_ mouth) blinks and gets its emotions', () => {
+    // 2026-11-25: only its vowels matched, so it never blinked and its emotions barely showed.
+    const used = selectExpressions(model(vertex('E_Close'), vertex('あ'), vertex('B_Happy'), vertex('E_Blephar'),
+        vertex('M_Smile_L'), vertex('M_Smile_R'), vertex('B_Sad'), vertex('E_Sad'), vertex('垂れ目'), vertex('M_Ennui_L'),
+        vertex('M_Ennui_R'), vertex('B_Anger'), vertex('E_Anger'), vertex('M_Anger'), vertex('E_Stare'), vertex('B_Up_Add'),
+        vertex('お'), vertex('B_AH_R'), vertex('Pupil_Scale'))).used;
+    assert.deepEqual(used.blink, ['E_Close']);
+    assert.deepEqual(used.happy, ['B_Happy', 'E_Blephar', 'M_Smile_L', 'M_Smile_R']);
+    // Its own sad eyes before the generic droopy ones.
+    assert.deepEqual(used.sad, ['B_Sad', 'E_Sad', 'M_Ennui_L', 'M_Ennui_R']);
+    assert.deepEqual(used.angry, ['B_Anger', 'E_Anger', 'M_Anger']);
+    assert.deepEqual(used.surprised, ['E_Stare', 'B_Up_Add', 'お']);
+    assert.deepEqual(used.relaxed, ['E_Blephar', 'M_Smile_L', 'M_Smile_R']);
+    assert.deepEqual(used.dubious, ['B_AH_R']);
+    assert.deepEqual(used.smirk, ['M_Smile_R']);
+    assert.deepEqual(used.smallPupils, ['Pupil_Scale']);
+});
+
 test('a model converted from VRoid (Fcl_… names) gets its emotions too', () => {
     const used = selectExpressions(model(vertex('Fcl_EYE_Close'), vertex('Fcl_MTH_A'), vertex('Fcl_MTH_I'), vertex('Fcl_ALL_Joy'),
         vertex('Fcl_ALL_Angry'), vertex('Fcl_ALL_Sorrow'), vertex('Fcl_ALL_Surprised'), vertex('Fcl_ALL_Fun'))).used;

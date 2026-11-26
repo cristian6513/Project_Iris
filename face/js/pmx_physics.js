@@ -11,6 +11,17 @@ const FURNITURE_SIZE = 10;     // centre xyz, turn xyzw, half extents xyz, in th
 const HOLD_EASE = 0.2;
 const HOLD_EASE_STEPS = 20;
 const bounded = value => Number.isFinite(value) && Math.abs(value) <= 1e6;
+// MMD modellers set huge masses on purpose: a 2026-11-25 model hangs its hair chains from 4.7e13 at
+// the root down to 1.3e6, with 錘 (weights) at the tips. The 1e6 bound on every number turned off all
+// of that model's physics, and simulated as they are such masses break Ammo's precision: the hair
+// stretched into a curtain over her face. They are simulated at SIM_MASS, still far heavier than
+// their springs (the test models weigh at most 2000), and the hair keeps its modelled shape.
+const MAX_MASS = 1e15;
+const SIM_MASS = 1e6;
+// How far the front of a skirt leans forward while she sits (radians): 50 degrees, the user's pick
+// on Lily, Denia and Feixue (2026-11-25); IRIS' own front panels turn 52 (seat_drape.js).
+const DRAPE_ANGLE = 50 * Math.PI / 180;
+const validMass = value => Number.isFinite(value) && value <= MAX_MASS;
 
 /**
  * The room's furniture (world boxes, furniture_colliders.js) in the PMX mesh's own space, where its
@@ -64,7 +75,7 @@ const validVector = value => Array.isArray(value) && value.length === 3 && value
 function validPhysics(bodies, joints, boneCount) {
     if (bodies.length > MAX_BODIES || joints.length > MAX_JOINTS) return false;
     return bodies.every(body =>
-        bodyNumbers.every(key => bounded(body[key]) && body[key] >= 0)
+        bodyNumbers.every(key => (key === 'weight' ? validMass(body[key]) : bounded(body[key])) && body[key] >= 0)
         && [0, 1, 2].includes(body.type) && [0, 1, 2].includes(body.shapeType)
         && Number.isInteger(body.boneIndex) && body.boneIndex >= -1 && body.boneIndex < boneCount
         && Number.isInteger(body.groupIndex) && body.groupIndex >= 0 && body.groupIndex < 16
@@ -77,8 +88,32 @@ function validPhysics(bodies, joints, boneCount) {
     );
 }
 
-/** `modelled`: each bone's [position, quaternion] as the PMX has it, before the arms go to the T-pose. */
-export async function createPmxPhysics(mesh, humanoid, modelled = null) {
+/**
+ * Her thighs: the bodies that follow an upper leg (or its twin chain, pmx_avatar.js followTwins)
+ * down to the knee, as indices into `bodies`. Seated they are level and lift her skirt: the worker
+ * leans the skirt's joints forward then, so it lies on them (setDrape).
+ */
+export function thighBodies(bodies, bones, humanoid, twins = []) {
+    const twinOf = new Map(twins.flatMap(([a, b]) => [[a, b], [b, a]]));
+    const both = part => ['left', 'right'].flatMap(side => {
+        const node = humanoid.humanBones[side + part]?.node;
+        return node ? [node, twinOf.get(node)].filter(Boolean) : [];
+    });
+    const tops = new Set(both('UpperLeg'));
+    const knees = new Set(both('LowerLeg'));
+    const onThigh = bone => {
+        for (let up = bone; up; up = up.parent) {
+            if (knees.has(up)) return false;
+            if (tops.has(up)) return true;
+        }
+        return false;
+    };
+    return bodies.flatMap((body, index) => (body.type === 0 && onThigh(bones[body.boneIndex]) ? [index] : []));
+}
+
+/** `modelled`: each bone's [position, quaternion] as the PMX has it, before the arms go to the T-pose.
+ * `twins`: the leg chains that turn together (pmx_avatar.js mapHumanoid). */
+export async function createPmxPhysics(mesh, humanoid, modelled = null, twins = []) {
     const { rigidBodies, constraints } = mesh.geometry.userData.MMD;
     const bones = mesh.skeleton.bones;
     if (!validPhysics(rigidBodies, constraints, bones.length)) {
@@ -86,8 +121,11 @@ export async function createPmxPhysics(mesh, humanoid, modelled = null) {
     }
 
     const human = new Set(Object.values(humanoid.humanBones).map(bone => bone.node));
-    const bodies = rigidBodies.map(body => body.type !== 0 && human.has(bones[body.boneIndex])
-        ? { ...body, type: 0 } : body);
+    const bodies = rigidBodies.map(body => ({
+        ...body,
+        weight: Math.min(body.weight, SIM_MASS),
+        type: body.type !== 0 && human.has(bones[body.boneIndex]) ? 0 : body.type,
+    }));
     const dynamic = [...new Set(bodies.filter(body => body.type !== 0 && body.boneIndex >= 0).map(body => body.boneIndex))];
     if (!dynamic.length) return null;
     const parents = new Map(bones.map((bone, index) => [bone, index]));
@@ -101,13 +139,15 @@ export async function createPmxPhysics(mesh, humanoid, modelled = null) {
     const underHead = bone => { for (let up = bone.parent; up; up = up.parent) if (up === headBone) return true; return false; };
     const hair = new Set(headBone ? dynamic.filter(index => underHead(bones[index])) : []);
     const eased = { position: bones[0].position.clone(), quaternion: bones[0].quaternion.clone() };
+    const thighs = thighBodies(bodies, bones, humanoid, twins);
     let hold = false;
+    let drape = 0;
     let easing = 0;
     // Heavy models may run at half rate in «Ahorro» (graphics_quality.js, through setRate).
     const heavy = bodies.length > 300 || constraints.length > 500;
     let hz = 65;
     let step = 1 / hz;
-    const worker = new Worker(new URL('./pmx_physics_worker.js', import.meta.url), { type: 'module' });
+    const worker = new Worker(new URL('./pmx_physics_worker.js?v=3', import.meta.url), { type: 'module' });
     let transforms = new Float32Array(bones.length * TRANSFORM_SIZE);
     let pending = 0;
     let epoch = 0;
@@ -183,7 +223,7 @@ export async function createPmxPhysics(mesh, humanoid, modelled = null) {
         worker.postMessage({
             kind: 'init', assets: new URL(ASSETS, document.baseURI).href,
             parents: bones.map(bone => parents.get(bone.parent) ?? -1),
-            transforms, bodies, constraints, step, head,
+            transforms, bodies, constraints, step, head, thighs, drapeAngle: DRAPE_ANGLE,
         }, [transforms.buffer]);
         transforms = new Float32Array(bones.length * TRANSFORM_SIZE);
     });
@@ -214,7 +254,7 @@ export async function createPmxPhysics(mesh, humanoid, modelled = null) {
             mesh.updateWorldMatrix(true, false);
             const placed = furniture ? furnitureInMeshSpace(furniture, mesh.matrixWorld) : null;
             worker.postMessage({
-                kind: 'step', transforms, delta: steps * step, step, reset: needsReset, epoch, furniture: placed, hold,
+                kind: 'step', transforms, delta: steps * step, step, reset: needsReset, epoch, furniture: placed, hold, drape,
             }, [transforms.buffer]);
             transforms = null;
             needsReset = false;
@@ -229,6 +269,15 @@ export async function createPmxPhysics(mesh, humanoid, modelled = null) {
             hold = on;
             if (on) easing = HOLD_EASE_STEPS;
         },
+        /**
+         * How far her skirt rests over her thighs: 0 standing, 1 seated (the seat's drape curve,
+         * as IRIS' own skirt, avatar.js setSeatDrape). The worker leans the joints that hang the
+         * skirt from her hips forward by that much (pmx_physics_worker.js findDrape): pushed up by
+         * her level thighs, its chains went out sideways and the cloth between them stretched into
+         * long triangles (2026-11-25). The user chose this over letting the skirt hang through.
+         */
+        setDrape(weight) { drape = Number.isFinite(weight) ? Math.min(1, Math.max(0, weight)) : 0; },
+        get drape() { return drape; },
         reset() { needsReset = true; pending = 0; epoch++; },
         dispose,
     };

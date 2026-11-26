@@ -517,7 +517,7 @@ export class VRMAvatar {
                 const load = async () => {
                     const response = await fetch(url, { cache: 'no-store' });
                     if (!response.ok) throw new Error('No se pudo leer el ZIP MMD guardado.');
-                    const { loadPmxAvatar } = await import('./pmx_avatar.js?v=10');
+                    const { loadPmxAvatar } = await import('./pmx_avatar.js?v=17');
                     const vrm = await loadPmxAvatar(new Uint8Array(await response.arrayBuffer()), { simulate: true });
                     await onModel({ scene: vrm.scene, userData: { vrm }, animations: [] });
                 };
@@ -774,6 +774,11 @@ export class VRMAvatar {
     /** How far her skirt rests over her thighs: 0 standing, 1 seated. */
     setSeatDrape(weight) {
         if (!this.vrm) return;
+        // A PMX avatar leans its skirt's joints forward in its own physics (pmx_physics.js setDrape).
+        if (this.vrm.pmxPhysics) {
+            this.vrm.pmxPhysics.setDrape?.(weight);
+            return;
+        }
         if (this._seatDrape?.vrm !== this.vrm) {
             this._seatDrape = new SeatDrape(this.vrm);
             this._seatDrape.vrm = this.vrm;

@@ -38,6 +38,26 @@ export const PMX_FURNITURE_BOXES = Object.freeze(FURNITURE_BOXES.map(box => box.
     ? Object.freeze({ ...box, min: [box.min[0], box.max[1] - 0.08, box.min[2]] })
     : box));
 
+// While she sits on a piece of furniture, a PMX avatar's physics leaves out the box she sits on
+// (IdleSystem.seatFurniture(), the seats' `frees`; App._furnishSeat):
+// - the desk's top (Lily, 2026-11-25): seated, her waist is above it (skirt top about -0.11 against
+//   -0.16) and her thighs only 7 cm under the slab; the chair rides her belly to the front edge,
+//   and the slab caught her lap's skirt and waist ribbons and pushed them out on top, where their
+//   stiff joints held them, stretched over the desk to the keyboard. Clearing only the front strip
+//   still left a ribbon's tip on it. A sleeve that dips while she types sinks into the top's 14 cm
+//   and looks as if it rests on it;
+// - the sofa's seat and the bed (a game-ripped model, the same day): her lap comes down into the box
+//   and a scarf's ends were pushed out sideways and stayed there, stiff, like wings.
+// Without the box they sink into the cushion or hang under the desk. Lying on the bed keeps it.
+const withoutCache = new Map();
+export function pmxFurnitureWithout(names) {
+    const key = (names ?? []).join(',');
+    if (!withoutCache.has(key)) {
+        withoutCache.set(key, Object.freeze(PMX_FURNITURE_BOXES.filter(box => !names?.includes(box.name))));
+    }
+    return withoutCache.get(key);
+}
+
 /**
  * A box as a spring-bone collider shape. The joints test their tails in world space, so the box
  * is too, whatever the collider's own matrix. Inside it (grown by the joint's radius), a tail goes

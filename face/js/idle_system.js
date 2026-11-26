@@ -32,7 +32,8 @@ const WALK_CLIP_SPEED = WALK_CLIP_SPEEDS.walk;
 
 // Seats with clips of their own: `trigger` sits her into the loop, `standUp` plays her out.
 // `drape` is how far the skirt rests over her thighs: while held, and at [second, weight]
-// through each clip, following the thighs as they rise and fall. `joins` takes her here
+// through each clip, following the thighs as they rise and fall (IRIS' panels, seat_drape.js, and
+// a PMX skirt's joints, pmx_physics.js setDrape). `joins` takes her here
 // straight from another seat, by a clip from second `at`, with no need to get up first.
 // `prop` is what she holds: the clips it comes `in` and goes `out` with and its `loop`, the
 // second she `take`s and `release`s it, and how it `open`s and `close`s.
@@ -65,6 +66,18 @@ const HAIR_HOLD_FROM = 0.02;
 // her shins through some 85 degrees.
 const PRONE_EXIT_FADE = 0.6;
 
+// What a PMX avatar's clothes leave out of their physics while she sits on it (furniture_colliders.js
+// box names; app.js _furnishSeat). Sitting down, her lap comes down into the seat's box and what
+// hangs beside it (a scarf's ends, ribbons, a skirt) was pushed out sideways and stayed there, stiff,
+// like wings (2026-11-25); the desk's top caught her lap's cloth as the chair rolled in. Without the
+// box it sinks into the cushion. On the bed the mattress stays out until she stands, lying and face
+// down too: under her it pushed her skirt and bows out on top of it like wings, worst on skirts like
+// Denia's, and put back under her cloth it would throw it out (the user's pick, 2026-11-25). Her
+// hair, held to her head on her back (pmx_physics.js holdHair), needs no mattress.
+const SOFA_FREES = Object.freeze(['sofa_seat']);
+const BED_FREES = Object.freeze(['bed']);
+const DESK_FREES = Object.freeze(['desk']);
+
 const SEATS = Object.freeze({
     sofa_seated: Object.freeze({
         sit: 'sofa_sit_down',
@@ -75,6 +88,7 @@ const SEATS = Object.freeze({
             sofa_tablet: Object.freeze({ clip: 'sofa_tablet_close', at: 0, drape: [[0, 1]] }),
         }),
         drape: SOFA_DRAPE,
+        frees: SOFA_FREES,
     }),
     sofa_reading: Object.freeze({
         sit: 'sofa_sit_down',
@@ -84,6 +98,7 @@ const SEATS = Object.freeze({
         base: 'sofa_seated',
         joins: Object.freeze({ sofa_seated: Object.freeze({ clip: 'sofa_read_open', at: 0 }) }),
         drape: SOFA_DRAPE,
+        frees: SOFA_FREES,
         prop: Object.freeze({ ...READ_SEATED, in: 'sofa_read_open', loop: 'sofa_read_idle', out: 'sofa_read_close' }),
     }),
     desk_seated: Object.freeze({
@@ -92,6 +107,7 @@ const SEATS = Object.freeze({
         joins: Object.freeze({ desk_typing: Object.freeze({ clip: 'desk_type_close', at: 0, drape: [[0, 1]] }) }),
         drape: DESK_DRAPE,
         chair: DESK_CHAIR,
+        frees: DESK_FREES,
     }),
     desk_typing: Object.freeze({
         sit: 'desk_sit_down',
@@ -102,6 +118,7 @@ const SEATS = Object.freeze({
         joins: Object.freeze({ desk_seated: Object.freeze({ clip: 'desk_type_open', at: 0 }) }),
         drape: DESK_DRAPE,
         chair: DESK_CHAIR,
+        frees: DESK_FREES,
         // soft: the keyboard comes in and out of reach of shorter arms (arm_reach.js softReach).
         touch: Object.freeze({ in: 'desk_type_open', loop: 'desk_type_idle', out: 'desk_type_close', soft: true }),
     }),
@@ -133,6 +150,7 @@ const SEATS = Object.freeze({
         base: 'sofa_seated',
         joins: Object.freeze({ sofa_seated: Object.freeze({ clip: 'sofa_tablet_open', at: 0 }) }),
         drape: SOFA_DRAPE,
+        frees: SOFA_FREES,
         prop: Object.freeze({ ...USE_TABLET, in: 'sofa_tablet_open', loop: 'sofa_tablet_idle', out: 'sofa_tablet_close' }),
     }),
     bed_tablet: Object.freeze({
@@ -143,6 +161,7 @@ const SEATS = Object.freeze({
         base: 'bed_seated',
         joins: Object.freeze({ bed_seated: Object.freeze({ clip: 'bed_tablet_open', at: 0 }) }),
         drape: BED_EDGE_DRAPE,
+        frees: BED_FREES,
         prop: Object.freeze({ ...USE_TABLET, in: 'bed_tablet_open', loop: 'bed_tablet_idle', out: 'bed_tablet_close' }),
     }),
     bed_reading: Object.freeze({
@@ -153,6 +172,7 @@ const SEATS = Object.freeze({
         base: 'bed_seated',
         joins: Object.freeze({ bed_seated: Object.freeze({ clip: 'bed_read_open', at: 0 }) }),
         drape: BED_EDGE_DRAPE,
+        frees: BED_FREES,
         prop: Object.freeze({ ...READ_SEATED, in: 'bed_read_open', loop: 'bed_read_idle', out: 'bed_read_close' }),
     }),
     book_reading: Object.freeze({
@@ -174,6 +194,7 @@ const SEATS = Object.freeze({
             bed_tablet: Object.freeze({ clip: 'bed_tablet_close', at: 0, drape: [[0, 1]] }),
         }),
         drape: BED_EDGE_DRAPE,
+        frees: BED_FREES,
     }),
     bed_lying: Object.freeze({
         sit: 'bed_lie_down',
@@ -186,6 +207,7 @@ const SEATS = Object.freeze({
         // How far her back rests on the bed, as her hips tip back from upright to flat
         // (LyingHips in lying_hips.js). Same shape as `drape`. `rests`: on what, once held.
         lies: BED_LYING_LIES,
+        frees: BED_FREES,
         rests: 'back',
     }),
     // Face down, her feet swinging (Tripo's two takes in one loop). She lies down on her back
@@ -200,6 +222,7 @@ const SEATS = Object.freeze({
         joins: Object.freeze({ bed_lying: Object.freeze({ clip: 'bed_roll_prone', at: 0, drape: [[0, 0]], lies: [[0, 1]] }) }),
         drape: BED_LYING_DRAPE,
         lies: BED_LYING_LIES,
+        frees: BED_FREES,
         rests: 'front',
     }),
     // On the edge of the desk, swinging her legs (Tripo's take). No clip takes her up there:
@@ -1492,6 +1515,18 @@ export class IdleSystem {
         return this.isSeated();
     }
 
+    /**
+     * The furniture a PMX avatar's clothes leave out while she sits on it (`frees`): from the first
+     * frame of sitting down to the last of getting up, and while she is on the seat.
+     */
+    seatFurniture() {
+        const name = this._vrmaPlayer?.currentName;
+        for (const seat of Object.values(SEATS)) {
+            if (seat.frees && (name === seat.sit || name === seat.stand)) return seat.frees;
+        }
+        return SEATS[this.currentPose]?.frees ?? null;
+    }
+
     /** Where a clip has the desk chair, 1 out and 0 home, or null if no clip is moving it. */
     chairPlace() {
         const player = this._vrmaPlayer;
@@ -1547,16 +1582,15 @@ export class IdleSystem {
     }
 
     /**
-     * Lying on her back, a PMX avatar's hair keeps its modelled shape (pmx_physics.js holdHair):
-     * its stiff joints arced it over the mattress or caught it under her. Face down it rests on
-     * her back and falls free; the desk edge's `lies` only lifts her hips.
+     * Lying on the bed, a PMX avatar's hair keeps its modelled shape (pmx_physics.js holdHair): on
+     * her back its stiff joints arced it over the mattress or caught it under her. Face down it fell
+     * free over the mattress; with the mattress out of her physics on the bed (`frees`, 2026-11-25)
+     * it fell through the bed and hung under it, so it is held face down too, over her back. The
+     * desk edge's `lies` only lifts her hips.
      */
     _holdsHair() {
         const seat = SEATS[this.currentPose];
-        if (seat?.teleport || !(this._lyingWeight() > HAIR_HOLD_FROM)) return false;
-        if (seat?.rests !== 'front') return true;
-        const name = this._vrmaPlayer?.currentName;
-        return name === seat.sit || name === seat.closes || name === seat.stand;
+        return !seat?.teleport && this._lyingWeight() > HAIR_HOLD_FROM;
     }
 
     /** 0 upright, 1 with her back on the bed. */

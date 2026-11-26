@@ -192,3 +192,6 @@ Desktop.ini
 
 # Página de IRIS OS: salida del build de producción (se regenera con pagina-iris/scripts/build.mjs)
 /pagina-iris/build/
+
+# Script local de publicación (commit, push, release y canal beta); no se sube
+/publicar_release.py

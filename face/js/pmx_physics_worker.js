@@ -10,6 +10,10 @@ const KINEMATIC = 2;
 const NO_CONTACT_RESPONSE = 4;
 const ACTIVE = 1;
 const NEVER_SLEEPS = 4;
+// A skirt joint's chain hangs no higher than this over her thighs' bodies (MMD units, about 36 cm:
+// waist yes, chest no), and leans only if it hangs at least this far in front (cosine round her).
+const DRAPE_REACH = 4.5;
+const DRAPE_FRONT = 0.05;
 let physics, mesh, zero, inertia, solver, defaultSplitImpulse;
 let dynamic = [];
 let furniture = [];
@@ -19,6 +23,12 @@ let place = null;
 let hair = [];
 let hairBones = [];
 let holding = false;
+// The joints that hang her skirt from her hips, in front of her thighs, and how far they lean
+// forward while she sits (findDrape, drape).
+let drapeJoints = [];
+let drapeAngle = 0;
+let draped = 0;
+let drapeTurn = null;
 
 function transformOf(Ammo, boxes, o) {
     place ??= { form: new Ammo.btTransform(), origin: new Ammo.btVector3(0, 0, 0), turn: new Ammo.btQuaternion(0, 0, 0, 1) };
@@ -104,6 +114,81 @@ function findHair(parents, head) {
         const bone = mesh.skeleton.bones[index];
         return { bone, position: bone.position.clone(), quaternion: bone.quaternion.clone() };
     });
+}
+
+// Turns as [x, y, z, w], for the joints' frames: a × b (b first, then a), and a vector into a turned frame.
+const turnTimes = (a, b) => [
+    a[3] * b[0] + a[0] * b[3] + a[1] * b[2] - a[2] * b[1],
+    a[3] * b[1] - a[0] * b[2] + a[1] * b[3] + a[2] * b[0],
+    a[3] * b[2] + a[0] * b[1] - a[1] * b[0] + a[2] * b[3],
+    a[3] * b[3] - a[0] * b[0] - a[1] * b[1] - a[2] * b[2],
+];
+const turnAbout = (axis, angle) => {
+    const s = Math.sin(angle / 2);
+    return [axis[0] * s, axis[1] * s, axis[2] * s, Math.cos(angle / 2)];
+};
+const intoFrame = (turn, v) => turnTimes(turnTimes([-turn[0], -turn[1], -turn[2], turn[3]], [...v, 0]), turn).slice(0, 3);
+const turnOf = q => [q.x(), q.y(), q.z(), q.w()];
+const spotOf = rb => {
+    const o = rb.body.getCenterOfMassTransform().getOrigin();
+    return [o.x(), o.y(), o.z()];
+};
+
+/**
+ * Seated, her level thighs lift a skirt's chains further than their joints turn: pushed from below
+ * they went out sideways and up, and the cloth between them stretched into long triangles
+ * (2026-11-25, every PMX tested, in Blender's own MMD physics as well). As IRIS' skirt does
+ * (seat_drape.js), the joints that hang the skirt from her hips lean forward while she sits, so her
+ * thighs carry it on top: by `angle`, times how far in front of her the chain hangs (the cosine
+ * round her, as modelled, facing +z). Their limits, springs and stiffness stay the model's.
+ *
+ * A skirt joint here: a body that follows a bone (her hips) holding a physics body her thighs meet
+ * that is not hair, no higher than a little over her thighs (`thighs`: pmx_physics.js thighBodies).
+ * Only the joint's frame on its first body can be turned (Ammo's getFrameOffsetA): held by the
+ * physics body, the turn goes the other way.
+ */
+function findDrape(thighIndices, angle) {
+    const thighs = (thighIndices ?? []).map(index => physics.bodies[index]).filter(rb => rb?.params.type === 0);
+    drapeJoints = [];
+    drapeAngle = Number.isFinite(angle) ? angle : 0;
+    if (!thighs.length || !drapeAngle) return;
+    const ofHair = new Set(hair.map(({ rb }) => rb));
+    const met = thighs.reduce((groups, rb) => groups | rb.params.groupTarget, 0);
+    const spots = thighs.map(spotOf);
+    const centre = [0, 2].map(axis => spots.reduce((sum, spot) => sum + spot[axis], 0) / spots.length);
+    const top = Math.max(...spots.map(spot => spot[1])) + DRAPE_REACH;
+    const skirt = rb => rb.params.type !== 0 && !ofHair.has(rb) && (met & (1 << rb.params.groupIndex));
+    for (const joint of physics.constraints ?? []) {
+        const { bodyA, bodyB } = joint;
+        const heldByA = bodyA.params.type === 0;
+        if (heldByA === (bodyB.params.type === 0)) continue;
+        const chain = heldByA ? bodyB : bodyA;
+        if (!skirt(chain)) continue;
+        const [x, y, z] = spotOf(chain);
+        if (y > top) continue;
+        const round = Math.atan2(x - centre[0], z - centre[1]);
+        const front = Math.cos(round);
+        if (front <= DRAPE_FRONT) continue;
+        // Turning the hanging chain towards where it hangs from: about (-cos, 0, sin) in her space.
+        const axis = intoFrame(turnOf(bodyA.body.getCenterOfMassTransform().getRotation()), [-Math.cos(round), 0, Math.sin(round)]);
+        drapeJoints.push({
+            joint, axis, share: front * (heldByA ? 1 : -1),
+            rest: turnOf(joint.constraint.getFrameOffsetA().getRotation()),
+        });
+    }
+}
+
+/** 0 standing, 1 seated (the seat's drape curve, idle_system.js `drape`). */
+function drape(weight) {
+    weight = Math.min(1, Math.max(0, Number(weight) || 0));
+    if (Math.abs(weight - draped) < 1e-3 && (weight > 0 || draped === 0)) return;
+    draped = weight;
+    drapeTurn ??= new globalThis.Ammo.btQuaternion(0, 0, 0, 1);
+    for (const { joint, axis, share, rest } of drapeJoints) {
+        const [x, y, z, w] = turnTimes(turnAbout(axis, drapeAngle * share * weight), rest);
+        drapeTurn.setValue(x, y, z, w);
+        joint.constraint.getFrameOffsetA().setRotation(drapeTurn);
+    }
 }
 
 /**
@@ -210,6 +295,7 @@ self.onmessage = async ({ data }) => {
             inertia = new globalThis.Ammo.btVector3(0, 0, 0);
             dynamic = [...new Set(data.bodies.filter(body => body.type !== 0 && body.boneIndex >= 0).map(body => body.boneIndex))];
             findHair(data.parents, data.head);
+            findDrape(data.thighs, data.drapeAngle);
             self.postMessage({ ready: true });
             return;
         }
@@ -221,6 +307,7 @@ self.onmessage = async ({ data }) => {
             if (holding) poseHair();
             if (!data.hold && holding && hairClear()) releaseHair();
         }
+        if (drapeJoints.length) drape(data.drape);
         if (data.reset) {
             physics.reset();
             for (const { body, params } of physics.bodies) {

@@ -13,7 +13,9 @@
  * when sad, a pout when angry, and a ！ or ？ mark that pops up when she is surprised or thinking.
  *
  * Names are compared after NFKC and lower case: にこり２ matches にこり2 and ｷﾘｯ matches キリッ.
- * English names at the end of a part are for models authored with VRM-style morphs.
+ * English names at the end of a part are for models authored with VRM-style morphs. Models taken
+ * from games keep the game's own names (B_ brows, E_ eyes, M_ mouth: B_Happy, E_Close, M_Smile_L):
+ * measured on one on 2026-11-25, where only the vowels matched and she never blinked.
  */
 
 const one = (...names) => names.map(name => [name]);
@@ -30,40 +32,40 @@ export const PMX_EXPRESSION_RECIPES = Object.freeze({
     // Each list: the Japanese MMD name first, then Chinese (simplified and traditional, common on
     // Aplaybox), then English and VRoid's «Fcl_…» names (models converted from VRoid). A whole-face
     // morph (微笑, smile, Fcl_ALL_Joy) sits in one part only, so it is never added twice.
-    blink: [{ weight: 1, options: one('まばたき', '眨眼', '闭眼', '閉眼', 'blink', 'fcl_eye_close', 'eye_close') }],
+    blink: [{ weight: 1, options: one('まばたき', '眨眼', '闭眼', '閉眼', 'blink', 'fcl_eye_close', 'eye_close', 'e_close') }],
     aa: [{ weight: 1, options: one('あ', '啊', '阿', 'aa', 'a', 'fcl_mth_a') }],
     ih: [{ weight: 1, options: one('い', '咿', '伊', 'ih', 'i', 'fcl_mth_i') }],
     ou: [{ weight: 1, options: one('う', '呜', '嗚', '乌', 'ou', 'u', 'fcl_mth_u') }],
     ee: [{ weight: 1, options: one('え', '诶', '欸', 'ee', 'e', 'fcl_mth_e') }],
     oh: [{ weight: 1, options: one('お', '哦', '噢', 'oh', 'o', 'fcl_mth_o') }],
     happy: [
-        { weight: 0.8, options: one('にこり', 'にこり2', '开心', '開心', '高兴', '高興', '微笑', 'happy', 'joy', 'smile', 'fcl_all_joy') },
-        { weight: 0.7, closes: 0.9, options: one('笑い', '笑い目', '喜び', '笑眼', '眯眼笑', 'fcl_eye_joy') },
-        { weight: 0.9, mouth: true, options: [['口角上げ'], ['口角上げ左', '口角上げ右'], ['右口角上げ', '左口角上げ'], ['にやり'], ['嘴角上扬'], ['嘴角上揚'], ['fcl_mth_joy']] },
+        { weight: 0.8, options: one('にこり', 'にこり2', '开心', '開心', '高兴', '高興', '微笑', 'happy', 'joy', 'smile', 'fcl_all_joy', 'b_happy') },
+        { weight: 0.7, closes: 0.9, options: one('笑い', '笑い目', '喜び', '笑眼', '眯眼笑', 'fcl_eye_joy', 'e_blephar') },
+        { weight: 0.9, mouth: true, options: [['口角上げ'], ['口角上げ左', '口角上げ右'], ['右口角上げ', '左口角上げ'], ['にやり'], ['嘴角上扬'], ['嘴角上揚'], ['fcl_mth_joy'], ['m_smile_l', 'm_smile_r']] },
         { weight: 0.35, overlay: true, options: one('照れ', '照れ2', 'facered', '脸红', '臉紅', '红晕', '紅暈') },   // a soft blush
     ],
     sad: [
-        { weight: 0.9, options: one('困る', '悲し', '难过', '難過', '伤心', '傷心', '悲伤', '悲傷', 'sad', 'sorrow', 'fcl_all_sorrow') },
-        { weight: 0.6, options: one('悲しい目', 'たれ目', '垂れ目', '垂眼', 'fcl_eye_sorrow') },
-        { weight: 0.7, mouth: true, options: [['口角下げ'], ['口角下げ左', '口角下げ右'], ['右口角下げ', '左口角下げ'], ['∧'], ['嘴角下垂'], ['fcl_mth_sorrow']] },
+        { weight: 0.9, options: one('困る', '悲し', '难过', '難過', '伤心', '傷心', '悲伤', '悲傷', 'sad', 'sorrow', 'fcl_all_sorrow', 'b_sad') },
+        { weight: 0.6, options: one('悲しい目', 'e_sad', 'たれ目', '垂れ目', '垂眼', 'fcl_eye_sorrow') },
+        { weight: 0.7, mouth: true, options: [['口角下げ'], ['口角下げ左', '口角下げ右'], ['右口角下げ', '左口角下げ'], ['∧'], ['嘴角下垂'], ['fcl_mth_sorrow'], ['m_ennui_l', 'm_ennui_r']] },
         { weight: 0.6, overlay: true, options: one('涙', '泪', '眼泪', '眼淚', '流泪', '流淚', 'tear', 'tears') },   // teary eyes
     ],
     angry: [
-        { weight: 0.9, options: one('怒り', '生气', '生氣', '愤怒', '憤怒', '怒眉', 'angry', 'fcl_all_angry') },
-        { weight: 0.5, options: one('キリッ', 'じと目', '眯眼', 'fcl_eye_angry') },
-        { weight: 0.6, mouth: true, options: [['∧'], ['口角下げ'], ['口角下げ左', '口角下げ右'], ['右口角下げ', '左口角下げ'], ['嘴角下垂'], ['fcl_mth_angry']] },
+        { weight: 0.9, options: one('怒り', '生气', '生氣', '愤怒', '憤怒', '怒眉', 'angry', 'fcl_all_angry', 'b_anger') },
+        { weight: 0.5, options: one('キリッ', 'じと目', '眯眼', 'fcl_eye_angry', 'e_anger') },
+        { weight: 0.6, mouth: true, options: [['∧'], ['口角下げ'], ['口角下げ左', '口角下げ右'], ['右口角下げ', '左口角下げ'], ['嘴角下垂'], ['fcl_mth_angry'], ['m_anger'], ['m_ennui_l', 'm_ennui_r']] },
         // A pout: puffed cheeks (もぐもぐ, «chewing», puffs them too), or pouting lips.
         { weight: 0.6, mouth: true, options: one('頬を膨', 'ぷくー', 'もぐもぐ', '鼓腮', '鼓嘴', '(○｀ε´○)', '嘟嘴', 'pout', 'puff') },
     ],
     surprised: [
-        { weight: 0.85, options: one('びっくり', '見開く', '惊讶', '驚訝', '吃惊', '吃驚', '瞪眼', 'surprised', 'surprise', 'fcl_all_surprised') },
-        { weight: 0.8, options: [['上'], ['上左', '上右'], ['眉毛上'], ['挑眉'], ['fcl_brw_surprised']] },
+        { weight: 0.85, options: one('びっくり', '見開く', '惊讶', '驚訝', '吃惊', '吃驚', '瞪眼', 'surprised', 'surprise', 'fcl_all_surprised', 'e_stare') },
+        { weight: 0.8, options: [['上'], ['上左', '上右'], ['眉毛上'], ['挑眉'], ['fcl_brw_surprised'], ['b_up_add']] },
         { weight: 0.4, mouth: true, options: one('お', 'ワ', 'あ', '哦', 'o') },
     ],
     relaxed: [
         { weight: 0.6, closes: 1, options: one('なごみ', '放松', '放鬆', 'relaxed', 'fcl_all_fun') },
-        { weight: 0.35, closes: 0.9, options: one('笑い', '笑い目', '笑眼', 'fcl_eye_joy') },
-        { weight: 0.25, mouth: true, options: [['口角上げ'], ['口角上げ左', '口角上げ右'], ['右口角上げ', '左口角上げ'], ['嘴角上扬'], ['嘴角上揚']] },
+        { weight: 0.35, closes: 0.9, options: one('笑い', '笑い目', '笑眼', 'fcl_eye_joy', 'e_blephar') },
+        { weight: 0.25, mouth: true, options: [['口角上げ'], ['口角上げ左', '口角上げ右'], ['右口角上げ', '左口角上げ'], ['嘴角上扬'], ['嘴角上揚'], ['m_smile_l', 'm_smile_r']] },
     ],
     // Marks that float by the head for a moment when an emotion arrives (avatar.js EMOTION_MARKS):
     // ！ when she is surprised, ？ (or ……) when she thinks. NFKC turns ！？ into !?.
@@ -86,12 +88,12 @@ export const PMX_EXPRESSION_RECIPES = Object.freeze({
     sweat: [{ weight: 1, overlay: true, options: one('汗', '冷や汗', '汗1', '流汗', '冷汗', 'sweat') }],
     zzz: [{ weight: 1, overlay: true, options: one('zzz', 'すやすや', '睡觉', '睡覺', '睡眠', 'sleep') }],
     // One brow, not both (2026-11-24): a single raised or puzzled brow reads as doubt.
-    dubious: [{ weight: 0.9, options: [['怪訝右'], ['上右'], ['右上'], ['怪訝左'], ['上左'], ['左上'], ['怪訝'], ['疑惑'], ['困惑'], ['困る'], ['fcl_brw_sorrow']] }],
+    dubious: [{ weight: 0.9, options: [['怪訝右'], ['上右'], ['右上'], ['怪訝左'], ['上左'], ['左上'], ['怪訝'], ['疑惑'], ['困惑'], ['困る'], ['fcl_brw_sorrow'], ['b_ah_r']] }],
     // One mouth corner up: the awkward, lopsided smile of nerviosa.
-    smirk: [{ weight: 1, mouth: true, options: one('右口角上げ', '口角上げ右', '口角上げ2右', '左口角上げ', '口角上げ左', '口角上げ2左', 'にやり', '嘴角上扬右', '嘴角上扬左') }],
+    smirk: [{ weight: 1, mouth: true, options: one('右口角上げ', '口角上げ右', '口角上げ2右', '左口角上げ', '口角上げ左', '口角上げ2左', 'にやり', '嘴角上扬右', '嘴角上扬左', 'm_smile_r') }],
     // One eye shut for a moment (avatar.js EMOTION_PULSES): cariñosa winks.
     wink: [{ weight: 1, options: one('ウィンク', 'ウィンク２', 'ウィンク右', 'ｳｨﾝｸ２右', '眨左眼', '眨右眼', '单眨眼', 'wink', 'fcl_eye_close_r', 'fcl_eye_close_l') }],
-    smallPupils: [{ weight: 1, options: one('瞳小', '瞳小さ', '瞳孔缩小', '瞳孔縮小', '小瞳', 'fcl_eye_small') }],
+    smallPupils: [{ weight: 1, options: one('瞳小', '瞳小さ', '瞳孔缩小', '瞳孔縮小', '小瞳', 'fcl_eye_small', 'pupil_scale') }],
 });
 
 // The relaxed recipe takes なごみ or, without it, softly smiling eyes: one eye shape, not both.
@@ -202,7 +204,8 @@ export function eyeClosure(data, byName, morphs) {
     const bones = data.bones ?? [], vertices = data.vertices ?? [];
     const find = names => bones.find(bone => names.includes(normalizeMorphName(bone.name)))?.position;
     const eyes = [find(EYE_BONES.left), find(EYE_BONES.right)].filter(Boolean);
-    const blink = byName.get(normalizeMorphName('まばたき')) ?? byName.get('blink') ?? byName.get('眨眼') ?? byName.get('fcl_eye_close');
+    const blink = byName.get(normalizeMorphName('まばたき')) ?? byName.get('blink') ?? byName.get('眨眼') ?? byName.get('fcl_eye_close')
+        ?? byName.get('e_close');
     if (eyes.length !== 2 || !blink || !vertices.length) return null;
     const gap = Math.abs(eyes[0][0] - eyes[1][0]);
     if (!(gap > 0)) return null;

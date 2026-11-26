@@ -50,17 +50,17 @@
                 "name": "IRIS OS",
                 "alternateName": "IRIS",
                 "description": "Asistente de IA con voz, memoria, avatar 3D y un escritorio propio, que funciona en tu PC.",
-                "disambiguatingDescription": "Asistente de IA de escritorio con avatar VRM, voz, memoria y un escritorio propio en tu equipo; integra Hermes Agent, de Nous Research, como motor de IA.",
+                "disambiguatingDescription": "Asistente de IA de escritorio con avatar 3D (VRM o MMD), voz, memoria y un escritorio propio en tu equipo; integra Hermes Agent, de Nous Research, como motor de IA.",
                 "applicationCategory": "UtilitiesApplication",
                 "operatingSystem": "Windows 10, Windows 11 (64 bits)",
-                "softwareVersion": "0.9.2",
+                "softwareVersion": "0.9.8",
                 "license": "https://opensource.org/licenses/MIT",
                 "isAccessibleForFree": true,
                 "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
                 "featureList": [
                     "Voz: habla con IRIS y escúchala responder",
                     "Memoria e identidad propias",
-                    "Avatar 3D VRM y habitación",
+                    "Avatar 3D con doce emociones; también tu propio avatar VRM o MMD (PMX)",
                     "Escritorio IRIS OS con apps y temas",
                     "Desktop Companion para Windows",
                     "Micrófono, cámara y red apagados hasta que tú los permitas"
@@ -176,7 +176,7 @@
 
         <main class="home" id="home">
             <section class="hero" aria-labelledby="hero-title">
-                <span class="hero-kicker"><i></i>Beta en desarrollo · v0.9.2</span>
+                <span class="hero-kicker"><i></i>Beta en desarrollo · v0.9.8</span>
                 <h1 id="hero-title"><span class="h1-iris">IRIS</span><span class="h1-os">OS</span></h1>
                 <p class="lede">Una IA que puedes ver, escuchar y hacer tuya.</p>
                 <p class="sub">IRIS combina voz, memoria, avatar, herramientas y un escritorio propio, y funciona en tu PC. El acceso público todavía está en preparación.</p>
@@ -186,7 +186,7 @@
                 </div>
                 <ul class="hero-chips" aria-label="Datos técnicos">
                     <li><b>Gratis</b></li>
-                    <li><b>Hermes</b> 0.21</li>
+                    <li><b>Hermes</b> 0.23</li>
                     <li><b>Windows</b> 10/11</li>
                     <li><b>Local</b> primero</li>
                     <li><b>MIT</b></li>
@@ -315,7 +315,7 @@
             <ol class="layers">
                 <li><span><strong>El motor de IA</strong> conecta los modelos con sus herramientas y servicios.<small>Hermes Agent · modelos · tools · skills</small></span></li>
                 <li><span><strong>IRIS Core</strong> le da identidad, memoria y voz.<small>identidad · memoria · STT/TTS · superficies</small></span></li>
-                <li><span><strong>IRIS OS</strong> la convierte en un escritorio con avatar que puedes ver.<small>escritorio · avatar VRM · apps</small></span></li>
+                <li><span><strong>IRIS OS</strong> la convierte en un escritorio con avatar que puedes ver.<small>escritorio · avatar VRM o MMD · apps</small></span></li>
                 <li><span><strong>El wizard</strong> lo prepara todo según tu equipo.<small>detecta SO, GPU y proveedor, y prepara el motor de IA</small></span></li>
             </ol>
 
@@ -352,12 +352,12 @@
                     <section class="card feat" data-accent="magenta">
                         <span class="os-icon"><svg><use href="#i-cube"/></svg></span>
                         <h3>Avatar y habitación</h3>
-                        <p>Un avatar 3D con emociones y gestos, en una habitación que cambia con el tema.</p>
+                        <p>IRIS tiene su propio avatar 3D, con doce emociones y una boca que forma las vocales al hablar. También puedes usar tu propio avatar VRM o un modelo MMD (PMX), en una habitación que cambia con el tema.</p>
                     </section>
                     <section class="card feat" data-accent="amber">
                         <span class="os-icon"><svg><use href="#i-companion"/></svg></span>
                         <h3>Desktop Companion</h3>
-                        <p>IRIS en una ventana flotante de Windows, presente mientras trabajas.</p>
+                        <p>IRIS en una ventana flotante de Windows, presente mientras trabajas. Con el modo juego (beta), mira la ventana de un juego que elijas y te ayuda cuando le preguntas.</p>
                         <button class="feat-link" type="button" data-open="companion">Conocerlo <svg class="ico"><use href="#i-arrow"/></svg></button>
                     </section>
                 </div>
@@ -496,6 +496,7 @@
                         <li>Visible solo cuando tú lo decides.</li>
                         <li>Muestra en todo momento si te escucha, piensa o habla.</li>
                         <li>Puede moverse por el escritorio, si lo activas.</li>
+                        <li>Modo juego (beta): mira solo la ventana que eliges y no graba vídeo.</li>
                         <li>Micrófono y cámara siempre a la vista.</li>
                         <li>Instalación recuperable si algo falla.</li>
                     </ul>
@@ -579,11 +580,11 @@
         <article class="app" id="estado" data-app="estado" data-title="Estado" data-subtitle="Beta y compatibilidad" data-icon="activity" data-accent="cyan" data-size="m" data-group="discover" data-next="comunidad">
             <p class="kicker">IRIS OS / Estado</p>
             <h2 class="app-title">Beta en desarrollo, camino al lanzamiento.</h2>
-            <p class="lede">La beta 0.9.2 está en pruebas. El lanzamiento público llegará cuando todo esté validado con hardware y cuentas reales.</p>
+            <p class="lede">La beta 0.9.8 está en pruebas. El lanzamiento público llegará cuando todo esté validado con hardware y cuentas reales.</p>
 
             <div class="stat-row">
-                <div class="card" data-accent="cyan"><b>0.9.2</b><span>versión beta actual</span></div>
-                <div class="card" data-accent="magenta"><b>2.900+</b><span>pruebas automatizadas en Python y JavaScript</span></div>
+                <div class="card" data-accent="cyan"><b>0.9.8</b><span>versión beta actual</span></div>
+                <div class="card" data-accent="magenta"><b>12</b><span>emociones que IRIS muestra en su cara</span></div>
                 <div class="card" data-accent="amber"><b>2</b><span>sistemas verificados en CI: Windows y Linux</span></div>
             </div>
 
@@ -592,7 +593,8 @@
                 <thead><tr><th>Componente</th><th>Política actual</th></tr></thead>
                 <tbody>
                     <tr><td>Windows</td><td>Windows 10 u 11 de 64 bits (x64).</td></tr>
-                    <tr><td>Incluido</td><td>Python y el motor de IA (Hermes Agent 0.21): no tienes que instalarlos.</td></tr>
+                    <tr><td>Incluido</td><td>Python y el motor de IA (Hermes Agent 0.23): no tienes que instalarlos.</td></tr>
+                    <tr><td>Avatares</td><td>IRIS viene incluida. También puedes usar un avatar VRM o un ZIP de MMD con el modelo PMX y sus texturas.</td></tr>
                     <tr><td>WebView2</td><td>Suele venir con Windows. Si falta, el instalador te avisa y te lleva a la descarga de Microsoft.</td></tr>
                     <tr><td>GPU</td><td>Opcional; sin ella se recomienda un proveedor remoto.</td></tr>
                     <tr><td>Companion</td><td>Incluido, Windows x64.</td></tr>
@@ -639,7 +641,11 @@
                 </section>
                 <section class="card" data-accent="magenta">
                     <h3>¿Qué motor de IA usa IRIS?</h3>
-                    <p>IRIS OS es un proyecto independiente que integra Hermes Agent, de Nous Research, como motor de IA. Hermes ejecuta el trabajo del agente, con sus modelos, herramientas y sesiones; IRIS aporta la identidad, la voz, la memoria, el avatar y el escritorio. No es un fork de Hermes.</p>
+                    <p>IRIS OS es un proyecto independiente que integra Hermes Agent, de Nous Research, como motor de IA. Hermes ejecuta el trabajo del agente, con sus modelos, herramientas y sesiones; IRIS aporta la identidad, la voz, la memoria, el avatar y el escritorio. No es un fork de Hermes. La beta incluye Hermes Agent 0.23.</p>
+                </section>
+                <section class="card" data-accent="cyan">
+                    <h3>¿Puedo usar mi propio avatar?</h3>
+                    <p>Sí. Además de IRIS, puedes cargar un avatar VRM, por ejemplo de VRoid Studio, o un ZIP de MMD con el modelo PMX y sus texturas. IRIS usa los gestos de cara que traiga el modelo para sus emociones y mueve la boca al hablar. Respeta siempre la licencia de cada modelo.</p>
                 </section>
                 <section class="card" data-accent="cyan">
                     <h3>¿Cuándo puedo instalarla?</h3>
@@ -744,6 +750,8 @@
                 <li><span class="rm-status" data-status="beta">En la beta</span><div><strong>Calendario y Correo</strong><p>Lectura de Google Calendar y Gmail, recordatorios y funciones de IA opcionales.</p></div></li>
                 <li><span class="rm-status" data-status="beta">En la beta</span><div><strong>Automatizaciones</strong><p>Tareas que habilitas tú y resultados que puedes revisar en la Bandeja.</p></div></li>
                 <li><span class="rm-status" data-status="beta">En la beta</span><div><strong>Iris Store y apps propias</strong><p>Instalación, actualización y retirada de paquetes locales, con widgets y funciones para Iris.</p></div></li>
+                <li><span class="rm-status" data-status="beta">En la beta</span><div><strong>Tu propio avatar y doce emociones</strong><p>Avatares VRM y MMD (PMX), caras que combinan varios gestos y una boca que forma las vocales.</p></div></li>
+                <li><span class="rm-status" data-status="beta">En la beta</span><div><strong>Modo juego en Companion</strong><p>IRIS mira la ventana del juego que eliges y responde a lo que le preguntas.</p></div></li>
             </ul>
 
             <h4>Lo que viene después</h4>

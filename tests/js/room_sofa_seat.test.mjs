@@ -663,7 +663,7 @@ test('her hips take IRIS\' place only while her back rests on the bed', () => {
     assert.equal(idle._lyingWeight(), 0, 'seated on the sofa');
 });
 
-test('a PMX avatar\'s hair is held to her head while she lies on her back, not face down or on the desk edge', () => {
+test('a PMX avatar\'s hair is held to her head while she lies on the bed, on her back or face down, not on the desk edge', () => {
     const { idle, player } = seatFixture();
     const held = [];
     idle.avatar.avatar.holdHair = on => held.push(on);
@@ -679,13 +679,14 @@ test('a PMX avatar\'s hair is held to her head while she lies on her back, not f
     assert.equal(idle._holdsHair(), true, 'on her back');
     clip('bed_roll_supine', 0.3);
     assert.equal(idle._holdsHair(), true, 'rolled back onto her back');
-    // Face down her hair rests on her back: free, from the roll onto her front until she rolls back.
+    // Face down too: with the mattress out of her physics on the bed, free hair fell through it and
+    // hung under the bed (2026-11-25). Held, it keeps its modelled shape over her back.
     idle.currentPose = 'bed_prone';
     clip('bed_lie_down', 4.8);
     assert.equal(idle._holdsHair(), true, 'on her back first');
     for (const name of ['bed_roll_prone', 'bed_prone_idle']) {
         clip(name, 0.5);
-        assert.equal(idle._holdsHair(), false, name);
+        assert.equal(idle._holdsHair(), true, name);
     }
     clip('bed_roll_supine', 0.3);
     assert.equal(idle._holdsHair(), true, 'rolling back before she gets up');
@@ -1268,14 +1269,46 @@ test('use_pc rolls the chair back as she comes, sits her and starts typing', () 
 test('the chair moves with the clips, on the frames she rides it', () => {
     const { idle, clip } = chairFixture();
     assert.equal(idle.chairPlace(), null);
+    assert.equal(idle.seatFurniture(), null);
     for (const [time, place] of [[2, 1], [2.567, 1], [3.267, 0.5], [3.967, 0], [4.2, 0]]) {
         clip('desk_sit_down', time);
         assert.ok(Math.abs(idle.chairPlace() - place) < 1e-3, `sitting at ${time}`);
+        // A PMX avatar's waist ribbons hang under the desk's front from here (app.js _furnishSeat).
+        assert.deepEqual(idle.seatFurniture(), ['desk'], `at the chair, sitting at ${time}`);
     }
     for (const [time, place] of [[0, 0], [0.834, 0.5], [1.5, 1], [3, 1]]) {
         clip('desk_stand_up', time);
         assert.ok(Math.abs(idle.chairPlace() - place) < 1e-3, `rising at ${time}`);
+        assert.deepEqual(idle.seatFurniture(), ['desk'], `at the chair, rising at ${time}`);
     }
+});
+
+test("seated on the sofa or the bed a PMX avatar's clothes leave that box out, and on the bed until she stands", () => {
+    // A scarf's ends were pushed out of the seat sideways and stayed there like wings (2026-11-25).
+    const { idle, clip } = chairFixture();
+    clip('sofa_sit_down', 1);
+    assert.deepEqual(idle.seatFurniture(), ['sofa_seat'], 'sitting down on the sofa');
+    clip('sofa_stand_up', 1);
+    assert.deepEqual(idle.seatFurniture(), ['sofa_seat'], 'getting up');
+    clip('bed_sit_down', 1);
+    assert.deepEqual(idle.seatFurniture(), ['bed'], 'sitting on the bed');
+    for (const pose of ['sofa_seated', 'sofa_reading', 'sofa_tablet']) {
+        idle.currentPose = pose; clip('idle', 0);
+        assert.deepEqual(idle.seatFurniture(), ['sofa_seat'], pose);
+    }
+    for (const pose of ['bed_seated', 'bed_reading', 'bed_tablet']) {
+        idle.currentPose = pose; clip('idle', 0);
+        assert.deepEqual(idle.seatFurniture(), ['bed'], pose);
+    }
+    // Lying and face down too: under her the mattress pushed her skirt out like wings, and put back
+    // under her cloth it would throw it out (the user's pick, 2026-11-25). Her hair is held on her back.
+    for (const [pose, name] of [['bed_lying', 'bed_lie_down'], ['bed_lying', 'bed_lying_idle'], ['bed_prone', 'bed_roll_prone'],
+        ['bed_prone', 'bed_prone_idle'], ['bed_lying', 'bed_roll_supine'], ['bed_lying', 'bed_get_up'], [null, 'bed_get_up']]) {
+        idle.currentPose = pose; clip(name, 1);
+        assert.deepEqual(idle.seatFurniture(), ['bed'], `${pose} ${name}`);
+    }
+    idle.currentPose = null; clip('walk', 0);
+    assert.equal(idle.seatFurniture(), null, 'standing');
 });
 
 test('the chair waits until she has left its way, then rolls home', () => {

@@ -51,6 +51,16 @@ test('a twin without a parent is left alone', () => {
     assert.equal(twin.quaternion.w, 1);
 });
 
+test('each leg is one chain, all control bones or all D bones, chosen by the skin they carry', () => {
+    // A model taken from a game (2026-11-25) weighs its knees 0 on both chains (the calf skin hangs
+    // from game bones under the control knee): bone by bone it mixed 左足D with 左ひざ, which hangs
+    // from 左足, and was refused. Lily, Pearl and both Feixue variants keep the D chain they had.
+    assert.match(loader, /const skin = key => legs\.reduce\(\(sum, leg\) => sum \+ \(weights\.get\(leg\[key\]\) \?\? 0\), 0\);/);
+    assert.match(loader, /const useDeform = legs\.every\(leg => leg\.deform\) && skin\('deform'\) > skin\('control'\);/);
+    assert.match(loader, /raw\[side \+ part\] = useDeform \? deform : \(control \?\? deform\);/);
+    assert.doesNotMatch(loader, /\(weights\.get\(deform\) \?\? 0\) > \(weights\.get\(control\) \?\? 0\)/, 'no bone-by-bone choice');
+});
+
 test('the PMX avatar collects the twin legs and turns them before the physics step', () => {
     assert.match(loader, /if \(control && deform\) twins\.push\(/);
     assert.match(loader, /return \{ humanoid, twins \};/);

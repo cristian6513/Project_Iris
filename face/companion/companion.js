@@ -4,7 +4,7 @@ import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 
-import { AvatarManager } from '../js/avatar.js?v=43';
+import { AvatarManager } from '../js/avatar.js?v=49';
 import { IRIS_AVATAR_FILE, IRIS_AVATAR_REVISION, isPmxArchive } from '../js/avatar_state.js?v=6';
 import { companionAvatarSelection, CompanionAvatarSync, disposeCompanionAvatar } from '../js/companion_avatar_sync.js?v=2';
 import {
@@ -28,7 +28,7 @@ import {
 import { companionLocomotionDecision } from '../js/companion_locomotion_policy.js?v=2';
 import { CompanionBody, CompanionProps } from '../js/companion_body.js';
 import { RoomRoutines } from '../js/room_routines.js?v=7';
-import { IdleSystem } from '../js/idle_system.js?v=66';
+import { IdleSystem } from '../js/idle_system.js?v=72';
 import { LipSyncEngine } from '../js/lipsync.js?v=4';
 import { SpeechAnimator } from '../js/speech_animator.js?v=5';
 import {

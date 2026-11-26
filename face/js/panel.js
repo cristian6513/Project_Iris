@@ -20,7 +20,7 @@ import { bindRoomLifeControls } from './room_routines.js?v=7';
 import { breezeEnabled, onReducedMotionChange, prefersReducedMotion, setBreezeEnabled } from './avatar_breeze.js?v=5';
 import { loadQRCode } from './local_qr.js';
 import { ModelSelector } from './model_selector.js?v=5';
-import { createAvatarActions } from './avatar_intent.js?v=15';
+import { createAvatarActions } from './avatar_intent.js?v=21';
 import { irisConfirm } from './iris_dialog.js?v=9';
 import { BackgroundTaskBar } from './background_task_bar.js?v=3';
 import { faceGestures } from './emotions.js?v=3';

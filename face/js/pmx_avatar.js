@@ -8,7 +8,7 @@ import { irisForm } from './iris_dialog.js?v=9';
 import { archiveKey, extensionOf, openPmxPackage, PMX_AVATAR_LIMIT, PMX_AVATAR_EXPANDED_LIMIT, PMX_PACKAGE_LIMIT } from './pmx_archive.js';
 import { useMmdAmbient, useOverlayAlpha } from './pmx_material.js?v=2';
 // Brows, eyes and mouth per emotion, merged into one morph each (the loader copies the mesh per morph).
-import { emotionMouthWeight, MOUTH_SUFFIX, normalizeMorphName, PMX_EYE_CLOSING, selectExpressions } from './pmx_expressions.js?v=9';
+import { emotionMouthWeight, MOUTH_SUFFIX, normalizeMorphName, PMX_EYE_CLOSING, selectExpressions } from './pmx_expressions.js?v=10';
 
 const VIRTUAL_ROOT = '/iris-mmd-assets/';
 // .sph and .spa are MMD sphere maps: BMP images, sometimes PNG ones, by another name. The
@@ -158,10 +158,17 @@ function mapHumanoid(mesh) {
         for (const [part, name] of Object.entries({ Eye: '目', Shoulder: '肩', UpperArm: '腕', LowerArm: 'ひじ', Hand: '手首' })) {
             raw[side + part] = find(prefix + name, side + part);
         }
-        for (const [part, name] of Object.entries({ UpperLeg: '足', LowerLeg: 'ひざ', Foot: '足首' })) {
-            const control = find(prefix + name, side + part);
-            const deform = find(prefix + name + 'D');
-            raw[side + part] = (weights.get(deform) ?? 0) > (weights.get(control) ?? 0) ? deform : control;
+        // One chain per leg, all control bones or all «D» bones, so each bone hangs from the one before
+        // it. A model taken from a game (2026-11-25) keeps its calf skin on its own bones under the
+        // control knee: both knees weighed 0, and choosing bone by bone mixed 左足D with 左ひざ, which
+        // hangs from 左足, and the model was refused. The chain with more skin is moved; its twins
+        // turn with it, so skin on either chain follows.
+        const legs = Object.entries({ UpperLeg: '足', LowerLeg: 'ひざ', Foot: '足首' }).map(([part, name]) =>
+            ({ part, control: find(prefix + name, side + part), deform: find(prefix + name + 'D') }));
+        const skin = key => legs.reduce((sum, leg) => sum + (weights.get(leg[key]) ?? 0), 0);
+        const useDeform = legs.every(leg => leg.deform) && skin('deform') > skin('control');
+        for (const { part, control, deform } of legs) {
+            raw[side + part] = useDeform ? deform : (control ?? deform);
             if (control && deform) twins.push(raw[side + part] === deform ? [deform, control] : [control, deform]);
         }
         for (const [finger, mmd] of Object.entries({ Index: '人指', Middle: '中指', Ring: '薬指', Little: '小指' })) {
@@ -202,6 +209,50 @@ export function followTwins(twins) {
     }
 }
 
+const _grantTurn = new THREE.Quaternion();
+
+/**
+ * The model's grant bones (付与) IRIS can follow: a bone that copies part of another's turn, as
+ * MMD does every frame. A shoulder pad turns with half the arm, a necklace with the neck, a game
+ * dancer's waist ring with the invisible physics skirt that bends it (2026-11-25): left rigid, the
+ * ring stood up in front of her legs as she sat and stood on end as she lay. Left out: what holds
+ * the humanoid (MMD's waist cancel undoes the hips' turn under the legs, which the clips need), the
+ * leg twins (followTwins), bones the physics moves, local and position-only grants. MMDLoader
+ * sorts them parents first.
+ */
+export function grantedBones(mesh, humanoid, twins = []) {
+    const { grants = [], rigidBodies = [] } = mesh.geometry.userData.MMD ?? {};
+    const bones = mesh.skeleton.bones;
+    const human = Object.values(humanoid.humanBones).map(bone => bone?.node).filter(Boolean);
+    const twinned = new Set(twins.flat());
+    const simulated = new Set(rigidBodies.filter(body => body.type !== 0).map(body => bones[body.boneIndex]).filter(Boolean));
+    const holdsHuman = bone => human.some(node => {
+        for (let up = node; up; up = up.parent) if (up === bone) return true;
+        return false;
+    });
+    return grants.flatMap(({ index, parentIndex, ratio, affectRotation, isLocal }) => {
+        const target = bones[index], source = bones[parentIndex];
+        if (!target || !source || target === source || !affectRotation || isLocal || !Number.isFinite(ratio)) return [];
+        if (twinned.has(target) || simulated.has(target) || holdsHuman(target)) return [];
+        return [{ target, source, ratio, rest: target.quaternion.clone() }];
+    });
+}
+
+/** Each granted bone: its rest turn, then its source's turn with the angle times the ratio. */
+export function applyGrants(granted) {
+    for (const { target, source, ratio, rest } of granted) {
+        const q = source.quaternion;
+        const sign = q.w < 0 ? -1 : 1;
+        const w = Math.min(1, sign * q.w);
+        const s = Math.sqrt(Math.max(0, 1 - w * w));
+        target.quaternion.copy(rest);
+        if (s < 1e-6) continue;
+        const half = Math.acos(w) * ratio;
+        const k = sign * Math.sin(half) / s;
+        target.quaternion.multiply(_grantTurn.set(q.x * k, q.y * k, q.z * k, Math.cos(half)));
+    }
+}
+
 export async function loadPmxAvatar(bytes, { simulate = false } = {}) {
     const mesh = await loadMesh(bytes);
     const scene = new THREE.Group();
@@ -214,6 +265,7 @@ export async function loadPmxAvatar(bytes, { simulate = false } = {}) {
         // The rigid bodies were placed on the bones as modelled: physics starts from that pose.
         const modelled = mesh.skeleton.bones.map(bone => [bone.position.clone(), bone.quaternion.clone()]);
         const { humanoid, twins } = mapHumanoid(mesh);
+        const granted = grantedBones(mesh, humanoid, twins);
         scene.add(humanoid.normalizedHumanBonesRoot);
         const expressionManager = new VRMExpressionManager();
         const expressions = new Map();
@@ -242,8 +294,8 @@ export async function loadPmxAvatar(bytes, { simulate = false } = {}) {
         let physics = null;
         if (simulate && mesh.geometry.userData.MMD.rigidBodies.some(body => body.type !== 0)) {
             try {
-                const { createPmxPhysics } = await import('./pmx_physics.js');
-                physics = await createPmxPhysics(mesh, humanoid, modelled);
+                const { createPmxPhysics } = await import('./pmx_physics.js?v=5');
+                physics = await createPmxPhysics(mesh, humanoid, modelled, twins);
             } catch (error) {
                 console.warn('[PMX] No se pudieron iniciar las físicas.', error);
             }
@@ -257,6 +309,7 @@ export async function loadPmxAvatar(bytes, { simulate = false } = {}) {
             update(delta) {
                 humanoid.update();
                 followTwins(twins);
+                applyGrants(granted);
                 if (mouthBinds.length) {
                     const weight = emotionMouthWeight(speaking());
                     for (const bind of mouthBinds) bind.weight = weight;

@@ -12,11 +12,11 @@
     "license": "Python-2.0"
   },
   "iris": {
-    "version": "0.9.8",
+    "version": "0.9.9",
     "pyproject_sha256": "3b152c0b2218f5df6b3f6761ca711dc1c3da5f1a2b63a321bfd0dfbcd7225c48",
     "uv_lock_sha256": "e6bab5e7c5ee9fd4ad2d30c3643deec27cc07e4a2e71d6dd20eeaa33da4b4725",
-    "wheel_sha256": "57abba5ffd93e1843d782b28d2891dc9fc308d64ae35390e1c1c68df004d695b",
-    "wheel_filename": "iris_os-0.9.8-py3-none-any.whl"
+    "wheel_sha256": "a0e0baf3d310371a60b086d4a17ab5d908f94ee849c4250196cd379c01be3a18",
+    "wheel_filename": "iris_os-0.9.9-py3-none-any.whl"
   },
   "hermes": {
     "version": "0.23.3",

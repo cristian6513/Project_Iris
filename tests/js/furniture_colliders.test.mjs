@@ -8,7 +8,7 @@ const threeUrl = new URL('../../companion/node_modules/three/build/three.module.
 const THREE = await import(threeUrl);
 const source = readFileSync(new URL('../../face/js/furniture_colliders.js', import.meta.url), 'utf8')
     .replace("from 'three'", `from '${threeUrl}'`);
-const { FURNITURE_BOXES, PMX_FURNITURE_BOXES, FurnitureBoxShape, addFurnitureColliders } = await import('data:text/javascript;base64,' + Buffer.from(source).toString('base64'));
+const { FURNITURE_BOXES, PMX_FURNITURE_BOXES, pmxFurnitureWithout, FurnitureBoxShape, addFurnitureColliders } = await import('data:text/javascript;base64,' + Buffer.from(source).toString('base64'));
 const { furnitureInMeshSpace } = await import(new URL('../../face/js/pmx_physics.js', import.meta.url).href);
 
 const bed = FURNITURE_BOXES.find(box => box.name === 'bed');
@@ -48,6 +48,22 @@ test('the PMX sofa supports cloth at the cushion without blocking ribbons undern
         assert.deepEqual(box.min, [original.min[0], original.max[1] - 0.08, original.min[2]]);
         assert.ok(box.min[1] > original.min[1]);
     }
+});
+
+test('seated, a PMX avatar leaves out only the box she sits on, so the cloth by her lap sinks into it', () => {
+    // The desk top caught her lap's cloth as the chair rode her in; the sofa seat and the bed pushed a
+    // scarf's ends out sideways like wings (2026-11-25).
+    for (const name of ['desk', 'sofa_seat', 'bed']) {
+        const boxes = pmxFurnitureWithout([name]);
+        assert.deepEqual(boxes.map(box => box.name), PMX_FURNITURE_BOXES.map(box => box.name).filter(other => other !== name), name);
+        for (const box of boxes) assert.equal(box, PMX_FURNITURE_BOXES.find(other => other.name === box.name));
+        assert.equal(pmxFurnitureWithout([name]), boxes, 'built once');
+    }
+    assert.ok(pmxFurnitureWithout(['desk']).some(box => box.name === 'desk_back'), 'the raised back stays');
+    assert.ok(pmxFurnitureWithout(['sofa_seat']).some(box => box.name === 'sofa_back'), 'the sofa back stays');
+    assert.deepEqual(pmxFurnitureWithout(null).map(box => box.name), PMX_FURNITURE_BOXES.map(box => box.name), 'standing: all of it');
+    // A VRM's spring colliders keep all the furniture.
+    assert.ok(['desk', 'sofa_seat', 'bed'].every(name => FURNITURE_BOXES.some(box => box.name === name)));
 });
 
 // A VRM's spring bones as three-vrm keeps them: joints with collider groups, and a manager that

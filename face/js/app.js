@@ -24,7 +24,7 @@ import { guardBloom } from './bloom_guard.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-import { AvatarManager } from './avatar.js?v=43';
+import { AvatarManager } from './avatar.js?v=49';
 import { avatarUrl, IRIS_AVATAR_URL } from './avatar_state.js?v=6';
 import { ParticleSystem } from './particles.js?v=3';
 import { WebSocketManager } from './websocket.js?v=4';
@@ -38,12 +38,12 @@ import { bindRoomAtmosphereControls } from './room_atmosphere_controls.js?v=2';
 import { ConversationCamera, ROOM_DETAIL_PRESETS, frameRoomPreset } from './room_framing.js?v=7';
 import { RoomAvatarZoom } from './room_avatar_zoom.js?v=1';
 import { RoomLife, RoomRoutines } from './room_routines.js?v=7';
-import { PMX_FURNITURE_BOXES, addFurnitureColliders } from './furniture_colliders.js?v=2';
+import { PMX_FURNITURE_BOXES, addFurnitureColliders, pmxFurnitureWithout } from './furniture_colliders.js?v=6';
 import { SceneActionManager } from './scene_actions.js?v=64';
 import { getRoomAction } from './room_actions.js?v=30';
 import { FloatingBook, ThinkingCloud, DataStream, MemorySymbol } from './contextual_fx.js?v=2';
-import { IdleSystem } from './idle_system.js?v=66';
-import { SidePanel } from './panel.js?v=75';
+import { IdleSystem } from './idle_system.js?v=72';
+import { SidePanel } from './panel.js?v=82';
 import { RoomSurfaceVisibility } from './room_surface_visibility.js?v=1';
 import { normalizeRoomText, ROOM_STATUS_LABELS } from './room_labels.js?v=1';
 import { AmbientAudio } from './ambient_audio.js?v=2';
@@ -343,6 +343,19 @@ class IrisApp {
         const vrm = this.avatarManager?.avatar?.vrm;
         addFurnitureColliders(vrm);
         vrm?.pmxPhysics?.setFurniture?.(PMX_FURNITURE_BOXES);
+        this._pmxFreed = '';
+    }
+
+    /** While she sits on a piece of furniture, a PMX avatar's clothes leave its box out (furniture_colliders.js). */
+    _furnishSeat() {
+        if (!this.room) return;
+        const frees = this.idle?.seatFurniture?.() ?? null;
+        const key = frees ? frees.join(',') : '';
+        if (key === this._pmxFreed) return;
+        const physics = this.avatarManager?.avatar?.vrm?.pmxPhysics;
+        if (!physics) return;
+        physics.setFurniture(pmxFurnitureWithout(frees));
+        this._pmxFreed = key;
     }
 
     applyAvatarStageLift() {
@@ -1652,7 +1665,7 @@ class IrisApp {
                 try {
                     let upload = file;
                     if (ext === 'zip') {
-                        const { preparePmxUpload } = await import('./pmx_avatar.js?v=10');
+                        const { preparePmxUpload } = await import('./pmx_avatar.js?v=17');
                         const prepared = await preparePmxUpload(file, isCurrent.signal);
                         if (!isCurrent()) return;
                         if (!prepared) {
@@ -2566,6 +2579,7 @@ class IrisApp {
         this.lipSync.update(dt);
         this.animationDirector?.updateActivity();
         this.idle?.update(dt, t);
+        this._furnishSeat?.();
         this.room?.update(dt, t);
         this.sceneActions?.update(dt, t);
         this.roomRoutines?.update();

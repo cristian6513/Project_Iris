@@ -1,9 +1,28 @@
 # Estado actual de IRIS OS
 
-Revisión documental: **2026-11-24**. Esta matriz distingue fuente, candidato de
+Revisión documental: **2026-11-26**. Esta matriz distingue fuente, candidato de
 QA y publicación. No sustituye los criterios del
 plan A08/F01–F16 (informe interno no distribuido) ni da por
 aprobada una instalación manual por haber pasado pruebas automáticas.
+
+## Iris OS 0.9.9 beta · QA30
+
+QA30, ID `dfc4d12a`, mejora los avatares MMD (PMX) para Windows x64. Incluye Companion 0.1.15 y
+Hermes 0.23.3 con el mismo parche revisado que QA29. El contrato registra 458 recursos web y
+el catálogo conserva 95 animaciones.
+
+- Carga más modelos MMD: piernas que el modelo trae dos veces, física con masas muy grandes y más
+  nombres de gestos de cara.
+- Sentada, la falda de un avatar MMD se apoya sobre los muslos, como la de IRIS, en el sofá, la
+  silla del escritorio, el borde de la mesa y la cama. Ya no se abre en picos.
+- Bufandas, cintas y lazos ya no se quedan tiesos hacia los lados en los muebles, y en la silla
+  del escritorio la ropa ya no se estira sobre la mesa.
+- En la cama, acostada o boca abajo, la ropa ya no se abre sobre el colchón. Boca abajo, el pelo
+  queda sobre la espalda.
+- Las piezas que el modelo ata a otro hueso (giros heredados) lo siguen: hombreras, collares.
+
+Las suites del candidato pasaron con 5.490 pruebas Python y 1.702 JavaScript. El motor de
+IA no cambia respecto a QA29. Siguen pendientes las pruebas con personas y la voz con una clave real.
 
 ## Iris OS 0.9.8 beta · QA29
 
