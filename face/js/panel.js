@@ -24,6 +24,7 @@ import { createAvatarActions } from './avatar_intent.js?v=21';
 import { irisConfirm } from './iris_dialog.js?v=9';
 import { BackgroundTaskBar } from './background_task_bar.js?v=3';
 import { faceGestures } from './emotions.js?v=3';
+import { setTouchSoundsEnabled, touchSoundsEnabled } from './touch_sounds.js?v=1';
 
 export class SidePanel {
     constructor() {
@@ -1635,6 +1636,10 @@ export class SidePanel {
                     <button id="btn-ambient" class="setting-btn">OFF</button>
                 </div>
                 <div class="setting-row">
+                    <label for="btn-touch-sounds" title="Un «pop» suave al picar sus cachetes y un sonido al soltar un estirón. Siguen el volumen de abajo.">Sonidos de mimos</label>
+                    <button id="btn-touch-sounds" class="setting-btn" aria-pressed="true">ON</button>
+                </div>
+                <div class="setting-row">
                     <label>Volumen</label>
                     <input type="range" id="ambient-volume" min="0" max="100" value="15" class="setting-range">
                 </div>
@@ -1751,6 +1756,21 @@ export class SidePanel {
         onReducedMotionChange(renderBreeze);
         renderBreeze();
 
+        // Touch sounds (touch_sounds.js): on unless switched off, saved for next time.
+        const touchSoundsButton = section.querySelector('#btn-touch-sounds');
+        const renderTouchSounds = () => {
+            if (!touchSoundsButton) return;
+            const on = touchSoundsEnabled();
+            touchSoundsButton.textContent = on ? 'ON' : 'OFF';
+            touchSoundsButton.classList.toggle('active', on);
+            touchSoundsButton.setAttribute('aria-pressed', String(on));
+        };
+        touchSoundsButton?.addEventListener('click', () => {
+            setTouchSoundsEnabled(!touchSoundsEnabled());
+            renderTouchSounds();
+        });
+        renderTouchSounds();
+
         // Volume slider
         section.querySelector('#ambient-volume')?.addEventListener('input', (e) => {
             if (this.ambientAudio) this.ambientAudio.setVolume(e.target.value / 100);
@@ -1770,6 +1790,7 @@ export class SidePanel {
                 themeSelect.value = roomTheme;
             }
             renderBreeze();
+            renderTouchSounds();
             const ambientButton = section.querySelector('#btn-ambient');
             const enabled = Boolean(this.ambientAudio?.enabled);
             if (ambientButton) {

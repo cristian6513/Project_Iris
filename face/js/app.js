@@ -24,18 +24,20 @@ import { guardBloom } from './bloom_guard.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-import { AvatarManager } from './avatar.js?v=49';
-import { avatarUrl, IRIS_AVATAR_URL } from './avatar_state.js?v=6';
-import { ParticleSystem } from './particles.js?v=3';
+import { AvatarManager } from './avatar.js?v=51';
+import { avatarUrl, IRIS_AVATAR_URL } from './avatar_state.js?v=7';
+import { ParticleSystem } from './particles.js?v=4';
+import { TouchReactions } from './touch_reactions.js?v=2';
+import { TouchSounds } from './touch_sounds.js?v=1';
 import { WebSocketManager } from './websocket.js?v=4';
-import { ManualVoiceController } from './manual_voice.js?v=6';
+import { ManualVoiceController } from './manual_voice.js?v=7';
 import { SubtitleManager } from './subtitles.js?v=1';
 import { LipSyncEngine } from './lipsync.js?v=4';
 
 // ── New modules ──
 import { RoomEnvironment } from './room.js?v=108';
 import { bindRoomAtmosphereControls } from './room_atmosphere_controls.js?v=2';
-import { ConversationCamera, ROOM_DETAIL_PRESETS, frameRoomPreset } from './room_framing.js?v=7';
+import { ConversationCamera, ROOM_DETAIL_PRESETS, frameRoomPreset } from './room_framing.js?v=8';
 import { RoomAvatarZoom } from './room_avatar_zoom.js?v=1';
 import { RoomLife, RoomRoutines } from './room_routines.js?v=7';
 import { PMX_FURNITURE_BOXES, addFurnitureColliders, pmxFurnitureWithout } from './furniture_colliders.js?v=6';
@@ -43,8 +45,8 @@ import { SceneActionManager } from './scene_actions.js?v=64';
 import { getRoomAction } from './room_actions.js?v=30';
 import { FloatingBook, ThinkingCloud, DataStream, MemorySymbol } from './contextual_fx.js?v=2';
 import { IdleSystem } from './idle_system.js?v=72';
-import { SidePanel } from './panel.js?v=82';
-import { RoomSurfaceVisibility } from './room_surface_visibility.js?v=1';
+import { SidePanel } from './panel.js?v=83';
+import { RoomSurfaceVisibility } from './room_surface_visibility.js?v=2';
 import { normalizeRoomText, ROOM_STATUS_LABELS } from './room_labels.js?v=1';
 import { AmbientAudio } from './ambient_audio.js?v=2';
 import { CameraMocap } from './camera_mocap.js?v=4';
@@ -60,7 +62,7 @@ import { askIrisSender } from './app_ask_iris.js?v=3';
 import { EmotionClassifier } from './emotion_classifier.js';
 import { SpeechAnimator } from './speech_animator.js?v=5';
 import { MicroLife } from './micro_life.js?v=13';
-import { HermesActivityCanvas, refreshAppCatalog } from './hermes_activity.js?v=154';
+import { HermesActivityCanvas, refreshAppCatalog } from './hermes_activity.js?v=155';
 import { loadInstalledApps } from './os_app_sources.js?v=5';
 import { openChatSurface } from './open_chat_surface.js?v=1';
 import { SnapshotPrompt, SnapshotRequests } from './vision_snapshot.js?v=4';
@@ -338,6 +340,12 @@ class IrisApp {
         return head.getWorldPosition(this._focusPoint).toArray();
     }
 
+    /** Her head in the world, written into `target`, for the sparkles to burst around (particles.js); null before she loads. */
+    _sparkleAnchor(target) {
+        const head = this.avatarManager?.avatar?.vrm?.humanoid?.getRawBoneNode?.('head');
+        return head ? head.getWorldPosition(target) : null;
+    }
+
     _furnishAvatar() {
         if (!this.room) return;
         const vrm = this.avatarManager?.avatar?.vrm;
@@ -437,6 +445,22 @@ class IrisApp {
         this.applyAvatarStageLift();
         this._furnishAvatar();
         this.graphicsQuality.applyAvatarPhysics();
+        // Petting her head and poking her cheeks (touch_reactions.js). A press that lands on her
+        // head or face is a touch in any view; the «Mimos» mode adds the close-up camera. Their
+        // sounds follow the room's «Volumen» slider and the «Sonidos de mimos» switch.
+        this.touchSounds = new TouchSounds({
+            volume: () => this.ambientAudio?.volume ?? 0.15,
+            reduced: () => document.documentElement.dataset.irisReducedMotion === 'true'
+                || Boolean(window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches),
+        });
+        this.touchReactions = new TouchReactions({
+            canvas: this.renderer.domElement,
+            camera: this.camera,
+            getAvatar: () => this.avatarManager?.avatar,
+            sounds: this.touchSounds,
+            onMood: (emotion) => this._touchMood(emotion),
+            onTouch: () => { if (this.roomRoutines) this.roomRoutines.quietSince = this.roomRoutines.now(); },
+        });
         this._avatarSwap = new AvatarSwapCoordinator({
             create: url => new AvatarManager(new THREE.Scene(), url, IRIS_AVATAR_URL, { textureLimit }),
             commit: candidate => {
@@ -469,7 +493,7 @@ class IrisApp {
         });
 
         // 5. Particles (ambient)
-        this.particles = new ParticleSystem(this.scene);
+        this.particles = new ParticleSystem(this.scene, { getAnchor: target => this._sparkleAnchor(target) });
         this.particles.init();
 
         // 6. Contextual FX
@@ -512,7 +536,8 @@ class IrisApp {
                     reducedMotion: reducedMotion(),
                     visible: document.visibilityState === 'visible'
                         && !document.body.classList.contains('IRIS-workbench-focus'),
-                    exploring: this.inspectorMode,
+                    // While she is being petted she stays where she is.
+                    exploring: this.inspectorMode || this.touchReactions?.active === true,
                     activity: this.animationDirector?.activity.state ?? 'idle',
                 }),
             });
@@ -794,6 +819,10 @@ class IrisApp {
         });
         document.getElementById('inspect-top-toggle')?.addEventListener('click', () => {
             this._toggleInspectorMode();
+        });
+        document.getElementById('touch-top-toggle')?.addEventListener('click', () => this._toggleTouchMode());
+        window.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && this.touchReactions?.active) this._toggleTouchMode(false);
         });
         this._setupInspectPresetButtons();
         this._setupRoomHotspotButtons();
@@ -1098,7 +1127,36 @@ class IrisApp {
         return true;
     }
 
+    /**
+     * «Mimos»: the camera comes close to her face, so petting her head and touching her cheeks
+     * are easy, and she stays where she is. Explore and Mimos never run together.
+     */
+    _toggleTouchMode(on = !this.touchReactions?.active) {
+        if (!this.touchReactions) return;
+        if (on && this.inspectorMode) this._toggleInspectorMode();
+        this.touchReactions.setActive(on);
+        const toggle = document.getElementById('touch-top-toggle');
+        toggle?.classList.toggle('active-mode', on);
+        toggle?.setAttribute('aria-pressed', String(on));
+        if (on) this.subtitles?.show('Mimos: acaricia su cabeza o toca sus cachetes. Esc para salir.', 4200);
+    }
+
+    /** Touch moods go through the emotion system, without covering one the agent gave her. */
+    _touchMood(emotion) {
+        const current = this.speechPresentation?.emotion ?? 'neutral';
+        if (emotion) {
+            if (current !== 'neutral' && current !== this._touchEmotion) return;
+            this._touchEmotion = emotion;
+            this._setEmotion(emotion);
+        } else if (this._touchEmotion) {
+            const ours = current === this._touchEmotion;
+            this._touchEmotion = null;
+            if (ours) this._setEmotion('neutral');
+        }
+    }
+
     _toggleInspectorMode() {
+        if (!this.inspectorMode && this.touchReactions?.active) this._toggleTouchMode(false);
         this.inspectorMode = !this.inspectorMode;
         this.renderer?.domElement?.classList?.toggle('iris-orbit-cursor', this.inspectorMode);
         this.avatarZoom?.setExploring(this.inspectorMode);
@@ -1665,7 +1723,7 @@ class IrisApp {
                 try {
                     let upload = file;
                     if (ext === 'zip') {
-                        const { preparePmxUpload } = await import('./pmx_avatar.js?v=17');
+                        const { preparePmxUpload } = await import('./pmx_avatar.js?v=18');
                         const prepared = await preparePmxUpload(file, isCurrent.signal);
                         if (!isCurrent()) return;
                         if (!prepared) {
@@ -2494,9 +2552,14 @@ class IrisApp {
             const transitioning = this._updateInspectCameraTransition();
             if (!transitioning) this.orbitControls.update();
         } else {
-            // Normal: subtle automatic drift, or the view of the spot she goes to.
-            this.conversationCamera?.update(dt, t, this.sceneActions?.framedSpot?.()?.view, this._cameraFocus());
+            // Normal: subtle automatic drift, or the view of the spot she goes to. On a narrow
+            // screen that view may open the lens; «Mimos» closes it again for her face.
+            this.conversationCamera?.update(dt, t, this.sceneActions?.framedSpot?.()?.view, this._cameraFocus(),
+                this.touchReactions?.closeUp?.blend ?? 0);
+            // «Mimos»: from that view to her face, and back.
+            this.touchReactions?.updateCamera(dt, { reducedMotion: window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches });
         }
+        this.touchReactions?.update();
 
         // Local emotion classification feeds context without copying the face.
         const mocapResult = this.mocap?.latest?.();

@@ -163,6 +163,7 @@ siguiente respuesta sin reiniciar Core; no activa el micrófono.
 - animaciones procedurales y [95 clips de fábrica](iris-animations.md);
 - lectura/tablet con objetos, visitas a muebles y ventana;
 - [Vida propia y teletransporte](room.md#vida-propia), con prioridades de conversación y movimiento reducido;
+- [mimos](room.md#mimos): acariciar su cabeza y picar o estirar sus cachetes, con reacciones y sonidos suaves (QA31);
 - FPS y calidad gráfica configurables en Ajustes → Rendimiento;
 - acciones de escena;
 - cámara y percepción local opcionales;
@@ -243,6 +244,15 @@ F16 añade en fuente **Transcribir mientras hablo**, una opción del perfil STT
 de Hermes. Los parciales son provisionales y solo se muestra/envía al chat un
 resultado final. Si el proveedor no admite directo, se conserva la transcripción
 final habitual. Está incluida en QA16 y requiere su QA real con micrófono/proveedor.
+Con el transcriptor local de Hermes no hay texto en vivo (solo con OpenAI, xAI o
+ElevenLabs), y el panel lo avisa.
+
+Desde QA31, **Idioma al hablar** (Ajustes y panel de voz, español por defecto)
+indica a Hermes en qué idioma transcribir; antes, lo dicho en español podía salir
+en inglés o vacío. En el panel de voz, el idioma y la casilla van plegados en
+**Opciones avanzadas**. Al terminar cada captura, IRIS cierra el micrófono:
+Windows deja de mostrarlo en uso (antes quedaba abierto, sin grabar, hasta
+cerrar Iris). Detalle en [Micrófono manual y Wake](manual-voice.md).
 
 Antes de sintetizar una respuesta, IRIS omite emojis y marcas de formato visual,
 sustituye las barras invertidas por espacios y lee el texto de los enlaces.
@@ -265,7 +275,11 @@ La aplicación opcional para Windows muestra a IRIS en una ventana flotante:
 - estados de idle, escucha, pensamiento, habla y error;
 - movimiento opcional por el escritorio;
 - controles visibles de micrófono y cámara;
-- adaptación contextual de las animaciones recibidas.
+- adaptación contextual de las animaciones recibidas;
+- mimos: tocar sus cachetes y acariciarla; doble clic sobre su cabeza para acercarse (QA31).
+
+Desde QA31, el panel de voz del Companion funciona: antes, Core rechazaba sus
+peticiones de voz por venir de otra ventana y la casilla quedaba bloqueada.
 
 Consulta [Desktop Companion](desktop-companion.md).
 

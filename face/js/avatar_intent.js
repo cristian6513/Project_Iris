@@ -80,7 +80,7 @@ export function createAvatarActions({ fetchImpl, dispatch, reserve = () => null,
             let data, modelLabel;
             try {
                 if (pmx) {
-                    const { preparePmxUpload } = await import('./pmx_avatar.js?v=17');
+                    const { preparePmxUpload } = await import('./pmx_avatar.js?v=18');
                     const prepared = await preparePmxUpload(file, intent.signal);
                     if (!intent.isCurrent()) {
                         intent.release();

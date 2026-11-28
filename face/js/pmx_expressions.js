@@ -94,14 +94,29 @@ export const PMX_EXPRESSION_RECIPES = Object.freeze({
     // One eye shut for a moment (avatar.js EMOTION_PULSES): cariñosa winks.
     wink: [{ weight: 1, options: one('ウィンク', 'ウィンク２', 'ウィンク右', 'ｳｨﾝｸ２右', '眨左眼', '眨右眼', '单眨眼', 'wink', 'fcl_eye_close_r', 'fcl_eye_close_l') }],
     smallPupils: [{ weight: 1, options: one('瞳小', '瞳小さ', '瞳孔缩小', '瞳孔縮小', '小瞳', 'fcl_eye_small', 'pupil_scale') }],
+    // Touch reactions (touch_reactions.js, 2026-11-27). Puffed cheeks when poked or annoyed: the
+    // model's own puff, or, the user's find in Blender on Lily, (○｀ε´○) with もぐもぐ together.
+    // Mouth parts, so the puff gives way while she speaks. Models without any get the shader's.
+    cheekPuff: [
+        { weight: 1, mouth: true, options: one('頬を膨', '頬膨らみ', 'ぷくー', 'ぷく', '鼓腮', '鼓脸', '鼓臉', 'cheekpuff', 'cheek_puff', 'puff') },
+        { weight: 1, mouth: true, options: one('(○｀ε´○)') },
+        { weight: 0.6, mouth: true, options: one('もぐもぐ') },
+    ],
+    // A half-lidded glare as she calms down, the «><» of a flinch, an anger mark, one eye per side.
+    jitome: [{ weight: 1, options: one('じと目', 'ジト目', 'じと目2', '半目', '半眼', '死鱼眼', '死魚眼') }],
+    squeeze: [{ weight: 1, options: one('はぅ', 'はう', '><', '>_<', 'ぎゅっ', '闭眼xx') }],
+    markAnger: [{ weight: 1, overlay: true, options: one('怒りマーク', '💢', '#', '青筋', 'td_veins', 'angermark', 'anger_mark') }],
+    winkLeft: [{ weight: 1, options: one('ウィンク', 'ウィンク2', 'fcl_eye_close_l', 'wink_l', 'winkleft', 'blink_l') }],
+    winkRight: [{ weight: 1, options: one('ウィンク右', 'ウィンク2右', 'fcl_eye_close_r', 'wink_r', 'winkright', 'blink_r') }],
 });
 
 // The relaxed recipe takes なごみ or, without it, softly smiling eyes: one eye shape, not both.
-const EXCLUSIVE = Object.freeze({ relaxed: [[0, 1]] });
+// A model with its own puff (頬を膨) does not add the pout and chewing on top.
+const EXCLUSIVE = Object.freeze({ relaxed: [[0, 1]], cheekPuff: [[0, 1], [0, 2]] });
 
 // Expressions that close the eyes on their own: the blink fades while they show (VRM's
 // overrideBlink 'blend'), or a blink on top of smiling eyes would push the lids through.
-export const PMX_EYE_CLOSING = Object.freeze(new Set(['happy', 'relaxed']));
+export const PMX_EYE_CLOSING = Object.freeze(new Set(['happy', 'relaxed', 'squeeze']));
 
 export const normalizeMorphName = name => String(name ?? '').normalize('NFKC').toLowerCase();
 // The second morph of a role with mouth parts: `happyMouth` beside `happy`.

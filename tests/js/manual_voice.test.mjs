@@ -2,8 +2,12 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { randomUUID } from 'node:crypto';
+import * as stt from '../../face/js/stt_language.js';
 
 const source = readFileSync(new URL('../../face/js/manual_voice.js', import.meta.url), 'utf8');
+// manual_voice.js runs here as a plain function; its one import (stt_language.js) is passed in.
+const IMPORT = /^import \{ ([^}]+) \} from '\.\/stt_language\.js\?v=\d+';$/m;
+const imported = source.match(IMPORT)[1].split(',').map(name => name.trim());
 const flush = () => new Promise(resolve => setImmediate(resolve));
 function element() {
     const children = new Map();
@@ -18,17 +22,19 @@ function harness({ sendConversation = null, openPermissions = null, openVoiceSet
     const document = { ...element(), hidden: false, body: { append() {} },
         createElement: element, querySelector: () => null, documentElement: element() };
     const window = element(), button = element(), calls = [], notices = [];
-    const Class = new Function('document', 'window', 'crypto',
-        source.replace('export class', 'class') + '\nreturn ManualVoiceController;')(document, window, { randomUUID });
+    const Class = new Function('document', 'window', 'crypto', ...imported,
+        source.replace(IMPORT, '').replace('export class', 'class') + '\nreturn ManualVoiceController;')(
+        document, window, { randomUUID }, ...imported.map(name => stt[name]));
     let revision = 0;
-    const h = { document, window, button, calls, notices, replies: [], server: { state: 'off', busy: false, revision, settings: { streaming: false } } };
+    const settings = { streaming: false, language: 'es', language_saved: false, live_text: false, language_override: '' };
+    const h = { document, window, button, calls, notices, replies: [], server: { state: 'off', busy: false, revision, settings } };
     h.ui = new Class({ button, sendConversation, openPermissions, openVoiceSettings, notice: text => notices.push(text), fetchImpl: async (url, options) => {
         calls.push({ url, options });
         if (options.method === 'POST') {
             if (h.replies.length) return h.replies.shift()();
             const body = JSON.parse(options.body);
             if (url.endsWith('/settings')) {
-                h.server.settings = { streaming: body.streaming };
+                h.server.settings = { ...h.server.settings, ...body, ...('language' in body ? { language_saved: true } : {}) };
                 return { ok: true, json: async () => h.server.settings };
             }
             h.server = { ...body, settings: h.server.settings, revision: ++revision,
@@ -318,4 +324,81 @@ test('cancel suppresses partials immediately while the server is still closing',
     assert.equal(h.ui.partial,'');
     done({ok:true,json:async()=>({...h.ui.state,state:'off',busy:false,revision:100})}); await cancelling;
     assert.equal(h.ui.partial,'');
+});
+
+test('the language and the streaming box are folded under «Opciones avanzadas»', () => {
+    const html = harness().ui.panel.innerHTML;
+    const open = html.indexOf('<details class="voice-advanced">'), close = html.indexOf('</details>');
+    assert.ok(open > 0 && close > open, 'a details block, closed by default (no «open»)');
+    assert.match(html.slice(open, close), /^<details class="voice-advanced"><summary>Opciones avanzadas<\/summary>/);
+    for (const control of ['data-stt-language', 'data-stt-language-note', 'data-streaming', 'data-streaming-hint']) {
+        const at = html.indexOf(control);
+        assert.ok(at > open && at < close, `${control} is inside it`);
+    }
+    assert.ok(html.indexOf('data-confirm') > close, '«Hablar ahora» stays outside, always visible');
+});
+
+test('Idioma al hablar shows the profile value and saves only the language', async () => {
+    const h = harness();
+    const select = h.ui.panel.querySelector('[data-stt-language]');
+    assert.equal(select.disabled, true); // nothing confirmed from Core yet
+    h.ui.setConnected(true); await flush(); h.ui.toggle();
+    assert.equal(select.value, 'es');
+    assert.equal(select.disabled, false);
+    assert.match(select.innerHTML, /<option value="es">Español<\/option>/);
+    assert.match(select.innerHTML, /<option value="">Detección automática<\/option>/);
+    assert.match(h.ui.panel.querySelector('[data-stt-language-note]').textContent, /próxima grabación/);
+    select.value = 'fr'; select.listeners.change(); await flush();
+    assert.deepEqual(h.posts().map(c => [c.url, JSON.parse(c.options.body)]), [['/api/hermes-voice/settings', { language: 'fr' }]]);
+    assert.equal(select.value, 'fr');
+    assert.equal(h.ui.streaming, false);
+    assert.equal(h.ui.panel.hidden, false);
+});
+
+test('a failed language save keeps the confirmed value, shows why and blocks capture meanwhile', async () => {
+    const h = harness(); h.ui.setConnected(true); await flush(); h.ui.toggle();
+    const select = h.ui.panel.querySelector('[data-stt-language]');
+    let done; h.replies.push(() => new Promise(resolve => { done = resolve; }));
+    select.value = 'de'; select.listeners.change();
+    assert.equal(h.ui.confirmButton.disabled, true); assert.equal(select.disabled, true);
+    await h.ui.start(); assert.equal(h.posts().length, 1); // no capture while saving
+    done({ ok: false, json: async () => ({ detail: [{ msg: 'Input should be es, en…' }] }) }); await flush(); await flush();
+    assert.equal(select.value, 'es');
+    assert.match(h.ui.failure, /No se pudo guardar la opción de transcripción/);
+    assert.equal(h.posts().length, 1);
+});
+
+test('a language from the profile outside the list is shown as is, escaped', async () => {
+    const h = harness();
+    h.server.settings = { ...h.server.settings, language: 'ko<b>', language_saved: true };
+    h.ui.setConnected(true); await flush();
+    const select = h.ui.panel.querySelector('[data-stt-language]');
+    assert.equal(select.value, 'ko<b>');
+    assert.match(select.innerHTML, /^<option value="ko&lt;b&gt;">ko&lt;b&gt; \(de tu perfil\)<\/option>/);
+});
+
+test('the streaming box tells the truth about local STT', async () => {
+    const h = harness(); h.ui.setConnected(true); await flush(); h.ui.toggle();
+    const hint = h.ui.panel.querySelector('[data-streaming-hint]');
+    assert.match(hint.textContent, /transcriptor local no hay texto en vivo: solo con OpenAI, xAI o ElevenLabs/);
+    assert.equal(h.ui.streamingInput.disabled, false); // still the person's choice
+    h.server.settings = { ...h.server.settings, live_text: true };
+    await h.ui.refresh();
+    assert.match(hint.textContent, /también para la activación por voz/);
+    h.server.settings = { streaming: false, error: 'No se pudo leer la configuración STT de Hermes.' };
+    await h.ui.refresh();
+    assert.match(hint.textContent, /también para la activación por voz/);
+    assert.equal(h.ui.panel.querySelector('[data-stt-language]').disabled, true);
+});
+
+test('the language cannot change during a capture or a Hey Hermes take', async () => {
+    const h = harness(); h.ui.setConnected(true); await flush(); await h.ui.start();
+    const select = h.ui.panel.querySelector('[data-stt-language]');
+    assert.equal(select.disabled, true);
+    select.value = 'en'; select.listeners.change(); await flush();
+    assert.deepEqual(h.posts().map(c => c.url), ['/api/hermes-voice/runtime']);
+    assert.equal(select.value, 'es');
+    const idle = harness(); idle.ui.setConnected(true); await flush();
+    idle.ui.showWakeState({ state: 'detected', capture_id: 'wake-one' });
+    assert.equal(idle.ui.panel.querySelector('[data-stt-language]').disabled, true);
 });

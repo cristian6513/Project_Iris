@@ -7,7 +7,7 @@
 <p align="center"><strong>Una presencia visual, configurable y habitable para Hermes Agent.</strong></p>
 
 <p align="center">
-  <a href="core/version.py"><img alt="Versión 0.9.9 beta" src="https://img.shields.io/badge/version-0.9.9-ff78cb?style=flat-square"></a>
+  <a href="core/version.py"><img alt="Versión 0.9.10 beta" src="https://img.shields.io/badge/version-0.9.10-ff78cb?style=flat-square"></a>
   <a href="#estado"><img alt="Estado beta" src="https://img.shields.io/badge/estado-beta-f4c95d?style=flat-square"></a>
   <a href="pyproject.toml"><img alt="Python 3.11+" src="https://img.shields.io/badge/Python-3.11%2B-48cae4?style=flat-square&amp;logo=python&amp;logoColor=white"></a>
   <a href="scripts/runtime_sources.json"><img alt="Hermes fijado 0.23.3" src="https://img.shields.io/badge/Hermes-0.23.3-9b5de5?style=flat-square"></a>
@@ -19,7 +19,7 @@ IRIS OS es una experiencia de asistente de IA local primero, impulsada por
 instalación guiada, escritorio web, identidad, memoria, voz, avatar VRM y una
 presencia flotante opcional.
 
-**Iris OS 0.9.9 beta (QA30).** Consulta el [estado actual](docs/estado-actual.md)
+**Iris OS 0.9.10 beta (QA31).** Consulta el [estado actual](docs/estado-actual.md)
 antes de probar una función o preparar un candidato. Con proveedores remotos,
 el contenido autorizado sale del equipo; «local primero» no significa offline.
 
@@ -173,8 +173,8 @@ un checkout, las de un instalador y la aprobación de publicación son hechos
 distintos. Hay QA real documentada de candidatos y de Google; no cubre por sí
 sola cada cambio posterior, dispositivo o proveedor.
 
-QA30 es Iris 0.9.9 beta con Companion 0.1.15 y Hermes 0.23.3.
-Incluye Hermes 0.23.3 (la penúltima versión de Nous Research), más avatares MMD compatibles, una falda que se apoya sobre los muslos al sentarse, la cama sin ropa abierta en alas y los giros heredados de cada modelo (hombreras, collares).
+QA31 es Iris 0.9.10 beta con Companion 0.1.16 y Hermes 0.23.3.
+Incluye Hermes 0.23.3 con dos parches revisados, los mimos (acariciar a Iris y picar sus cachetes), la voz en el Companion, el idioma al hablar con español por defecto, la cámara en pantallas verticales y el micrófono que se libera al terminar de escuchar.
 Consulta la [matriz vigente](docs/estado-actual.md) antes de usar un informe anterior.
 
 Para ejecutar las pruebas:

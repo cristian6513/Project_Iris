@@ -12,11 +12,11 @@
     "license": "Python-2.0"
   },
   "iris": {
-    "version": "0.9.9",
+    "version": "0.9.10",
     "pyproject_sha256": "3b152c0b2218f5df6b3f6761ca711dc1c3da5f1a2b63a321bfd0dfbcd7225c48",
     "uv_lock_sha256": "e6bab5e7c5ee9fd4ad2d30c3643deec27cc07e4a2e71d6dd20eeaa33da4b4725",
-    "wheel_sha256": "a0e0baf3d310371a60b086d4a17ab5d908f94ee849c4250196cd379c01be3a18",
-    "wheel_filename": "iris_os-0.9.9-py3-none-any.whl"
+    "wheel_sha256": "bf45023c5093ef578763d652a64c8fe23a8129679f1a0c9ad2688fcb0d479610",
+    "wheel_filename": "iris_os-0.9.10-py3-none-any.whl"
   },
   "hermes": {
     "version": "0.23.3",
@@ -76,6 +76,34 @@
               {
                 "old": "    settings = api['settings']\n    try:\n        captured['usage']['runtime'] = api['adapter']._turn_runtime_metadata(\n",
                 "new": "    settings = api['settings']\n    # IRIS patch session-lock-resolved-provider: _create_agent's runtime record, which this\n    # route never made, so a named custom provider is compared by its resolved identity.\n    if not getattr(agent, '_hermes_api_runtime', None):\n        agent._hermes_api_runtime = {\n            'provider': api.get('resolved_provider') or '', 'model': getattr(agent, 'model', '') or '',\n            'route_source': settings.get('route_source') or ''}\n    try:\n        captured['usage']['runtime'] = api['adapter']._turn_runtime_metadata(\n"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "release-microphone-on-voice-off",
+        "reason": "Hermes 0.23.3: voice.toggle off (IRIS sends it after every capture, cancel and conversation turn) only cancels the continuous recorder, and AudioRecorder keeps its sounddevice input stream open for its lifetime (a macOS CoreAudio workaround), so Windows lists Hermes' python.exe as using the microphone until the process exits. This closes that stream on toggle off, as the classic CLI's /voice off already does (shutdown()); macOS keeps upstream's lifetime stream. Drop it when upstream releases the recorder on voice off.",
+        "files": [
+          {
+            "path": "hermes_cli/voice.py",
+            "sha256": "54275dbdd02126407e1dec79296a831c664cb78ca17009677d871abe122f339f",
+            "patched_sha256": "097cc8c007811741e32b8001abf5ca60684702e96a633cda3419af4cfd9e0469",
+            "replace": [
+              {
+                "old": "def is_continuous_active() -> bool:\n    \"\"\"Whether a continuous voice loop is currently running.\"\"\"\n    with _continuous_lock:\n        return _continuous_active\n",
+                "new": "def is_continuous_active() -> bool:\n    \"\"\"Whether a continuous voice loop is currently running.\"\"\"\n    with _continuous_lock:\n        return _continuous_active\n\n\ndef release_microphone() -> None:\n    \"\"\"IRIS patch release-microphone-on-voice-off: close the idle continuous recorder's input\n    stream, as the CLI's ``/voice off`` does (``_disable_voice_mode`` -> ``shutdown()``).\n\n    ``AudioRecorder`` keeps its stream open between takes (a macOS CoreAudio workaround) and\n    ``stop_continuous()`` only cancels, so with voice mode off the OS still lists the process\n    as using the microphone until it exits. macOS keeps that lifetime stream. A capture that\n    is live again is left alone; the next one builds a new recorder (and stream).\n    \"\"\"\n    global _continuous_recorder\n    if sys.platform == \"darwin\":\n        return\n    with _continuous_lock:\n        if _continuous_active:\n            return\n        rec, _continuous_recorder = _continuous_recorder, None\n    if rec is not None:\n        _safe_call(rec.shutdown, warn=\"failed to release the microphone: %s\")\n"
+              }
+            ]
+          },
+          {
+            "path": "tui_gateway/methods_voice.py",
+            "sha256": "a65b73284aae8fd96abb3e6807d8955cceeed303abf23535ad6fd418dae6bf39",
+            "patched_sha256": "454748fbc070dc937ab75d3a49002d5c8ac5c57469f8a891f01275a258707ed6",
+            "replace": [
+              {
+                "old": "        except Exception as e:\n            logger.warning(\"voice: stop_continuous failed during toggle off: %s\", e)\n        _set_voice_tts(False)  # TTS is toggled independently later\n",
+                "new": "        except Exception as e:\n            logger.warning(\"voice: stop_continuous failed during toggle off: %s\", e)\n        # IRIS patch release-microphone-on-voice-off: stop_continuous() only cancels and the\n        # recorder keeps its input stream open, so the OS showed the microphone in use with\n        # voice mode off. Close it here, like the CLI's /voice off (macOS keeps it open).\n        try:\n            from hermes_cli.voice import release_microphone\n            release_microphone()\n        except ImportError:\n            pass\n        except Exception as e:\n            logger.warning(\"voice: releasing the microphone failed during toggle off: %s\", e)\n        _set_voice_tts(False)  # TTS is toggled independently later\n"
               }
             ]
           }

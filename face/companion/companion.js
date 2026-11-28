@@ -4,8 +4,10 @@ import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 
-import { AvatarManager } from '../js/avatar.js?v=49';
-import { IRIS_AVATAR_FILE, IRIS_AVATAR_REVISION, isPmxArchive } from '../js/avatar_state.js?v=6';
+import { AvatarManager } from '../js/avatar.js?v=51';
+import { TouchReactions } from '../js/touch_reactions.js?v=2';
+import { TouchSounds } from '../js/touch_sounds.js?v=1';
+import { IRIS_AVATAR_FILE, IRIS_AVATAR_REVISION, isPmxArchive } from '../js/avatar_state.js?v=7';
 import { companionAvatarSelection, CompanionAvatarSync, disposeCompanionAvatar } from '../js/companion_avatar_sync.js?v=2';
 import {
     createCompanionBridge,
@@ -41,7 +43,7 @@ import { SpeechPresentation } from '../js/speech_presentation.js?v=4';
 import { InboxNotice } from '../js/inbox_notice.js?v=2';
 import { InboxVoicePlayer } from '../js/inbox_voice.js?v=2';
 import { WebSocketManager } from '../js/websocket.js?v=4';
-import { ManualVoiceController } from '../js/manual_voice.js?v=6';
+import { ManualVoiceController } from '../js/manual_voice.js?v=7';
 import { FrameLimiter } from '../js/frame_limiter.js?v=2';
 import { GraphicsQuality, avatarTextureLimit, graphicsQuality } from '../js/graphics_quality.js?v=3';
 import { ScreenSnapshotRequests } from '../js/screen_snapshot.js?v=2';
@@ -50,6 +52,11 @@ import { layoutGameBubble } from '../js/game_bubble.js?v=1';
 import { BackgroundTaskBar } from '../js/background_task_bar.js?v=3';
 
 const THEME_STORAGE_KEY = 'irisOsTheme.v1';
+// «Mimos» on the desktop (touch_reactions.js): how far beside her head a press still counts, in
+// pixels, and how long the close-up waits for a touch before it goes back on its own.
+const COMPANION_TOUCH_TOLERANCE = 16;
+const COMPANION_CLOSE_UP_IDLE_MS = 25000;
+const COMPANION_CLOSE_UP_HINT = 'Mimos: acaricia su cabeza o toca sus cachetes. Esc o «Volver» para alejarte.';
 const THEME_DEFAULT = Object.freeze({
     accent: '#73f7ff',
     accent2: '#ff74d4',
@@ -143,6 +150,7 @@ class IrisCompanionApp {
         this.viewToggle = document.getElementById('toggle-companion-controls');
         this.viewSensorStatus = document.getElementById('companion-sensor-status');
         this.viewFeedback = document.getElementById('companion-view-feedback');
+        this.touchBack = document.getElementById('touch-back');
 
         this.surfaceId = getOrCreateSurfaceId('desktop_companion');
         this.config = { avatar_vrm_path: '', visual_theme: 'iris' };
@@ -257,6 +265,20 @@ class IrisCompanionApp {
         this._applyIdentityAndTheme();
         this._setupViewToggle();
         this._setupThree();
+        // Clicking her head or cheeks on the desktop is a touch (touch_reactions.js); a press
+        // anywhere else still moves the window. Her head is small here: a press that misses it by
+        // a little still counts, and a double click on it brings her face close («Mimos»).
+        this.touchSounds = new TouchSounds({ reduced: () => document.body.dataset.reducedMotion === 'true' });
+        this.touch = new TouchReactions({
+            canvas: this.canvas,
+            camera: this.camera,
+            getAvatar: () => this.avatarManager?.avatar,
+            sounds: this.touchSounds,
+            tolerance: COMPANION_TOUCH_TOLERANCE,
+            onMood: (emotion) => this._touchMood(emotion),
+            onTouch: () => this._onTouch(),
+            onDoubleTouch: () => { if (!this.touch.active) this._setTouchCloseUp(true); },
+        });
         this._setupRoutines();
 
         // Transport and privacy controls must become truthful immediately.
@@ -509,6 +531,8 @@ class IrisCompanionApp {
         this.camera = new THREE.PerspectiveCamera(44, 1, 0.1, 100);
         this.camera.position.set(0.34, 1.38, 4.8);
         this.camera.lookAt(0.08, 0.68, 0);
+        // Where the «Mimos» close-up comes back to.
+        this._cameraHome = { position: this.camera.position.clone(), quaternion: this.camera.quaternion.clone() };
 
         this.renderer = new THREE.WebGLRenderer({
             canvas: this.canvas,
@@ -619,8 +643,11 @@ class IrisCompanionApp {
             });
         });
         window.addEventListener('keydown', (event) => {
-            if (event.key === 'Escape' && !this.chatPanel.hidden) this._setChatOpen(false);
+            if (event.key !== 'Escape') return;
+            if (!this.chatPanel.hidden) this._setChatOpen(false);
+            else if (this.touch?.active) this._setTouchCloseUp(false);
         });
+        this.touchBack?.addEventListener('click', () => this._setTouchCloseUp(false));
         document.body.addEventListener('pointerenter', () => {
             this._pointerHovered = true;
             this._cancelWindowWalk();
@@ -644,7 +671,8 @@ class IrisCompanionApp {
                 life: this.quietMode ? 'off' : this.life,
                 reducedMotion: document.body.dataset.reducedMotion === 'true',
                 visible: document.visibilityState !== 'hidden',
-                exploring: false,
+                // In the «Mimos» close-up she stays where she is, as in the room.
+                exploring: this.touch?.active === true,
                 activity: this.animationDirector?.activity.state ?? 'idle',
             }),
         });
@@ -1620,6 +1648,58 @@ class IrisCompanionApp {
         this.camera.updateProjectionMatrix();
     }
 
+    /** A touch on her: activity for Core, and the first one says how to see her up close. */
+    _onTouch() {
+        this._markInteraction();
+        this._touchSeenAt = performance.now();
+        if (!this.touch?.active && !this._touchHintShown) {
+            this._touchHintShown = true;
+            this._showTouchHint('Doble clic en su cabeza para verla de cerca.');
+        }
+    }
+
+    _showTouchHint(text) {
+        clearTimeout(this._viewFeedbackTimer);
+        this.viewFeedback.textContent = text;
+        this.viewFeedback.hidden = false;
+        this._viewFeedbackTimer = setTimeout(() => { this.viewFeedback.hidden = true; }, 4200);
+    }
+
+    /**
+     * The Companion's «Mimos» close-up: the camera comes to her face so her head and cheeks are
+     * easy to touch. «Volver», Esc, or a while without touching her take it back; a press away
+     * from her still moves the window.
+     */
+    _setTouchCloseUp(on) {
+        if (!this.touch || this.touch.active === Boolean(on)) return;
+        this.touch.setActive(on);
+        document.body.dataset.touchCloseUp = on ? 'true' : 'false';
+        if (this.touchBack) this.touchBack.hidden = !on;
+        if (on) {
+            this._cancelWindowWalk();
+            this._touchSeenAt = performance.now();
+            this._showTouchHint(COMPANION_CLOSE_UP_HINT);
+        } else if (!this.viewFeedback.hidden && this.viewFeedback.textContent === COMPANION_CLOSE_UP_HINT) {
+            // Back to her usual framing: the close-up's hint goes with it.
+            clearTimeout(this._viewFeedbackTimer);
+            this.viewFeedback.hidden = true;
+        }
+    }
+
+    /** Touch moods go through the emotion system, without covering one the agent gave her. */
+    _touchMood(emotion) {
+        const current = this.speechPresentation?.emotion ?? 'neutral';
+        if (emotion) {
+            if (current !== 'neutral' && current !== this._touchEmotion) return;
+            this._touchEmotion = emotion;
+            this.speechPresentation?.setEmotion(emotion);
+        } else if (this._touchEmotion) {
+            const ours = current === this._touchEmotion;
+            this._touchEmotion = null;
+            if (ours) this.speechPresentation?.setEmotion('neutral');
+        }
+    }
+
     _animate() {
         this.inboxVoice?.sync();
         this._animationFrame = requestAnimationFrame(() => this._animate());
@@ -1656,6 +1736,15 @@ class IrisCompanionApp {
             avatar.vrm.lookAt.autoUpdate = !avatar.animationOwnsBlink
                 && avatar.poseFacialProfile?.eyes?.gaze === 'natural';
         }
+        // «Mimos» close-up: from her usual framing to her face and back, every frame from home.
+        if (this.touch && (this.touch.active || this.touch.closeUp.blend > 0)) {
+            if (this.touch.active && performance.now() - (this._touchSeenAt ?? 0) > COMPANION_CLOSE_UP_IDLE_MS) this._setTouchCloseUp(false);
+            this.camera.position.copy(this._cameraHome.position);
+            this.camera.quaternion.copy(this._cameraHome.quaternion);
+            this.touch.updateCamera(delta, { reducedMotion: document.body.dataset.reducedMotion === 'true' });
+            if (this.touch.closeUp.blend <= 0) this.camera.updateMatrixWorld();
+        }
+        this.touch?.update();
         this.avatarManager?.finalizeFrame(delta);
         this.composer?.render();
     }

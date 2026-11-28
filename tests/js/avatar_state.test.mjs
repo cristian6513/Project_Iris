@@ -6,8 +6,8 @@ import { avatarUrl, IRIS_AVATAR_FILE, IRIS_AVATAR_REVISION, IRIS_AVATAR_URL } fr
 test("without a model of the person's own, IRIS' factory VRM shows", () => {
     assert.equal(IRIS_AVATAR_FILE, 'iris.vrm');
     // Versioned, so a new factory model never comes from an old cache (11: MToon).
-    assert.equal(IRIS_AVATAR_REVISION, '13');
-    assert.equal(IRIS_AVATAR_URL, '/face/animations/iris.vrm?v=13');
+    assert.equal(IRIS_AVATAR_REVISION, '14');
+    assert.equal(IRIS_AVATAR_URL, '/face/animations/iris.vrm?v=14');
     assert.equal(avatarUrl({}), IRIS_AVATAR_URL);
     assert.equal(avatarUrl({ avatar_vrm_path: '   ' }), IRIS_AVATAR_URL);
     assert.equal(avatarUrl({}, '/bundle/iris.vrm'), '/bundle/iris.vrm', 'the Companion passes its own copy');

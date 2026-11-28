@@ -44,7 +44,7 @@ const server = http.createServer((req, res) => {
     if (p === '/' || p === '/companion') {
         res.writeHead(200, { 'Content-Type': 'text/html' }); res.end(html(p === '/companion')); return;
     }
-    if (!/^\/face\/(css\/[^/]+\.css|js\/manual_voice\.js|companion\/companion\.css|companion\/fonts\/[\w.-]+\.woff2)$/.test(p)) {
+    if (!/^\/face\/(css\/[^/]+\.css|js\/(manual_voice|stt_language)\.js|companion\/companion\.css|companion\/fonts\/[\w.-]+\.woff2)$/.test(p)) {
         res.writeHead(404); res.end(); return;
     }
     const f = path.join(root, p);

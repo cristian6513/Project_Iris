@@ -116,6 +116,34 @@ el control funciona durante la sesión y lo avisa. No usa la webcam ni captura i
 
 Comprobación fechada: acercamiento del avatar (informe interno no distribuido).
 
+## Mimos
+
+Desde QA31. **Mimos**, arriba junto a **Explorar**, acerca la cámara a su cara.
+También se puede tocar su cabeza o su cara en la vista normal, sin entrar al modo.
+
+- **Acariciar:** mantén el clic sobre su cabeza y mueve el ratón. Al rato se
+  pone cariñosa. Acariciar no hace ruido.
+- **Picar:** un clic corto en un cachete lo hunde un poco y rebota, con un «pop»
+  suave. Muchos seguidos la enojan (cachetes inflados) y luego se calma.
+- **Estirar:** arrastra un cachete y suéltalo: vuelve con una nota corta.
+- **Salir:** Esc o **Mimos** otra vez.
+
+Funciona con IRIS, con VRM propios y con PMX: un PMX usa sus propios gestos de
+cara (cachetes inflados, rubor) cuando los trae. El modelo de IRIS no se modifica;
+la deformación se calcula al dibujar. Los sonidos siguen el control **Volumen** y
+se apagan en **Sonidos de mimos** (Configuración rápida); con **Reducir movimiento**
+suenan más bajo. En el Companion, la cara se toca directamente y el doble clic
+sobre su cabeza la acerca. Detalle: mimos (informe interno no distribuido).
+
+## Pantallas estrechas
+
+En una pantalla vertical o estrecha, la cámara de cada lugar (escritorio, sofá,
+cama, ventana) se aleja para que quepa el mismo encuadre, pero nunca más allá de
+las paredes, el techo o el suelo: si no le alcanza, abre un poco el ángulo. Antes
+de QA31, en un monitor vertical la vista quedaba vacía cuando Iris iba al
+escritorio a trabajar. La vista Iso de Explorar mira desde fuera a propósito.
+Detalle: cámara vertical (informe interno no distribuido).
+
 ## Ánimo y voz
 
 El indicador de ánimo cambia al empezar la respuesta,

@@ -5,7 +5,7 @@ export const IRIS_AVATAR_FILE = 'iris.vrm';
 // 12: jacket and panties on the skin's weights, the skin sealed under them removed.
 // 13: head colliders fitted to her hair, one per hair group (the fringe no longer opens), and the
 // fringe swings in her head's space (it no longer slides into her forehead when she moves fast).
-export const IRIS_AVATAR_REVISION = '13';
+export const IRIS_AVATAR_REVISION = '14';
 export const IRIS_AVATAR_URL = `/face/animations/${IRIS_AVATAR_FILE}?v=${IRIS_AVATAR_REVISION}`;
 
 export function isPmxArchive(resource) {

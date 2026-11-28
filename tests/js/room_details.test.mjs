@@ -60,11 +60,12 @@ test('detail views target the furniture, not the empty space above it', () => {
     assert.ok(ROOM_DETAIL_PRESETS.sofaView.position[2]>ROOM_DETAIL_PRESETS.sofaView.target[2]);
 });
 
-test('portrait framing preserves target and FOV without mutating saved presets', () => {
+test('portrait framing preserves the target without mutating saved presets', () => {
     for(const p of Object.values(ROOM_DETAIL_PRESETS)){
         const before=JSON.stringify(p),wide=frameRoomPreset(p,1.5),narrow=frameRoomPreset(p,390/844);
-        assert.deepEqual(wide.position,p.position);assert.deepEqual(narrow.target,p.target);
-        assert.equal(narrow.fov,p.fov);assert.ok(narrow.position[2]>wide.position[2]);
+        assert.deepEqual(wide.position,p.position);assert.equal(wide.fov,p.fov);assert.deepEqual(narrow.target,p.target);
+        // Backs off, as far as the room allows; a wider lens makes up the rest (room_camera_bounds.test.mjs).
+        assert.ok(narrow.position[2]>wide.position[2]);assert.ok(narrow.fov>=p.fov);
         narrow.target[0]=999;assert.equal(JSON.stringify(p),before);
     }
 });

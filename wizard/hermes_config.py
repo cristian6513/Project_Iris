@@ -897,6 +897,52 @@ def ensure_nous_guest_default() -> str:
         return "written"
 
 
+_WHISPER_LANGUAGE = re.compile(r"[a-z]{2,3}")
+
+
+def ensure_stt_language_default(language: str) -> str:
+    """Write ``stt.language: <IRIS language>`` while the profile never chose one.
+
+    Hermes 0.23's built-in defaults carry ``stt.language: en``, and an unset key inherits it, so
+    every recording was decoded as English: Spanish speech came back translated or, as
+    low-confidence segments, dropped (user log 2026-11-27: 19 of 19 clips ``lang=en``). An
+    explicit ``stt.language`` in config.yaml (even ``""`` for auto-detect) is the person's choice
+    and is kept; per-provider ``stt.<provider>.language`` still overrides it in Hermes.
+
+    Returns ``written``, ``kept``, ``absent`` (no config.yaml yet) or ``skipped`` (no usable
+    language, or an unreadable or unexpected config left untouched). Raises when a write cannot
+    be verified.
+    """
+    language = str(language or "").strip().lower()
+    if not _WHISPER_LANGUAGE.fullmatch(language):
+        return "skipped"
+    with interprocess_file_lock(get_hermes_home() / ".iris-config.lock"):
+        path = get_config_yaml_path()
+        if not path.exists():
+            return "absent"
+        try:
+            import yaml  # type: ignore[import-not-found]
+
+            data = yaml.safe_load(path.read_text(encoding="utf-8"))
+        except Exception:
+            # Never rewrite what cannot be parsed: _read_config_yaml would hand back {}.
+            return "skipped"
+        data = {} if data is None else data
+        if not isinstance(data, dict):
+            return "skipped"
+        stt = data.get("stt")
+        if stt is not None and not isinstance(stt, dict):
+            return "skipped"
+        if isinstance(stt, dict) and "language" in stt:
+            return "kept"
+        data["stt"] = {**(stt or {}), "language": language}
+        _write_config_yaml(data)
+        written = _read_config_yaml().get("stt")
+        if not isinstance(written, dict) or written.get("language") != language:
+            raise RuntimeError("Hermes config.yaml did not keep stt.language after the write.")
+        return "written"
+
+
 def read_api_server_host() -> str:
     """Return the configured ``API_SERVER_HOST`` from .env.
 

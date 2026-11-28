@@ -30,15 +30,20 @@ import uuid
 from collections import deque
 from collections.abc import Awaitable, Callable
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any, Literal, get_args
 from urllib.parse import quote
 
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from core.config import IRISConfig
 from core.capability_permissions import CapabilityPermissionStore
+from core.companion_auth import (
+    COMPANION_TOKEN_HEADER,
+    is_tauri_companion_origin,
+    is_valid_companion_token,
+)
 from core.hermes_voice import ManualVoiceCapture, partial_text
 from core.file_lock import interprocess_file_lock
 from core.hermes_runtime import (
@@ -133,25 +138,101 @@ def _write_yaml_document(data: dict[str, Any]) -> None:
             temporary.unlink(missing_ok=True)
 
 
-def read_voice_streaming_settings() -> dict[str, Any]:
-    """Expose only the native opt-in, never STT keys, endpoints or credentials."""
-    raw = _load_yaml_document().get("stt", {})
+# The languages IRIS offers for speech-to-text (face/js/stt_language.js lists the same ones);
+# "" is Hermes' auto-detect. Spanish is IRIS' own language and the default shown.
+SttLanguage = Literal["es", "en", "pt", "fr", "de", "it", "ja", ""]
+STT_LANGUAGE_CHOICES: tuple[str, ...] = get_args(SttLanguage)
+STT_DEFAULT_LANGUAGE = "es"
+# Hermes 0.23.3 opens live STT (stt.streaming) only for these providers, with their own key
+# (tools/transcription_streaming.py STREAMING_PROVIDERS). Local faster-whisper, the default when
+# stt.provider is unset, and the managed Nous gateway never give partial text.
+_LIVE_STT_PROVIDERS = frozenset({"openai", "xai", "elevenlabs"})
+_SHOWN_LANGUAGE_MAX_LENGTH = 32
+
+
+def _stt_section(document: dict[str, Any]) -> dict[str, Any]:
+    raw = document.get("stt")
+    if raw is None:  # absent, or an empty ``stt:`` that Hermes also treats as no section
+        return {}
     if not isinstance(raw, dict):
         raise ValueError("La sección stt de Hermes debe ser un objeto; no se modificó.")
-    value = raw.get("streaming", False)
+    return raw
+
+
+def _shown_language(value: Any) -> str:
+    # YAML null or a non-string is no hint for Hermes either: it auto-detects.
+    return value.strip()[:_SHOWN_LANGUAGE_MAX_LENGTH] if isinstance(value, str) else ""
+
+
+def _voice_settings(stt: dict[str, Any]) -> dict[str, Any]:
+    """What the voice dialog and Ajustes show: never STT keys, endpoints or the provider name.
+
+    ``language`` is the explicit ``stt.language``, or IRIS' language while the profile has none
+    (``ensure_stt_language_default`` writes that one before ``hermes serve``). ``live_text`` says
+    whether the configured provider can show text while you speak. ``language_override`` is a
+    per-provider ``stt.<provider>.language``, which wins over ``stt.language`` in Hermes.
+    """
+    value = stt.get("streaming", False)
     enabled = value is True or (isinstance(value, str) and value.strip().lower() in {"true", "1", "yes", "on"}) or value == 1
-    return {"streaming": bool(enabled)}
+    saved = "language" in stt
+    language = _shown_language(stt.get("language")) if saved else (iris_stt_language() or STT_DEFAULT_LANGUAGE)
+    provider = stt.get("provider")
+    provider = provider.strip().lower() if isinstance(provider, str) else ""
+    active = {"": "local", "nous": "openai"}.get(provider, provider)
+    section = stt.get(active)
+    override = ""
+    if isinstance(section, dict):
+        keys = ("language", "language_code") if active == "elevenlabs" else ("language",)
+        override = next((_shown_language(section[key]) for key in keys if _shown_language(section.get(key))), "")
+    return {
+        "streaming": bool(enabled),
+        "language": language,
+        "language_saved": saved,
+        "live_text": provider in _LIVE_STT_PROVIDERS,
+        "language_override": override,
+    }
+
+
+def read_voice_streaming_settings() -> dict[str, Any]:
+    """Expose only the options IRIS shows, never STT keys, endpoints or credentials."""
+    return _voice_settings(_stt_section(_load_yaml_document()))
+
+
+def configure_voice_settings(*, streaming: bool | None = None, language: str | None = None) -> dict[str, Any]:
+    """Merge-only write of ``stt.streaming`` and/or ``stt.language``; every other key stays.
+
+    A saved language is explicit, so ``ensure_stt_language_default`` keeps it on later starts.
+    Hermes re-reads config.yaml for each recording, so nothing has to restart.
+    """
+    if language is not None and language not in STT_LANGUAGE_CHOICES:
+        raise ValueError("Ese idioma de transcripción no está disponible.")
+    with interprocess_file_lock(get_hermes_config_path().parent / ".iris-config.lock"):
+        document = _load_yaml_document()
+        stt = dict(_stt_section(document))
+        if streaming is not None:
+            stt["streaming"] = streaming
+        if language is not None:
+            stt["language"] = language
+        document["stt"] = stt
+        _write_yaml_document(document)
+    return _voice_settings(stt)
 
 
 def configure_voice_streaming(enabled: bool) -> dict[str, Any]:
-    with interprocess_file_lock(get_hermes_config_path().parent / ".iris-config.lock"):
-        document = _load_yaml_document()
-        raw = document.get("stt", {})
-        if not isinstance(raw, dict):
-            raise ValueError("La sección stt de Hermes debe ser un objeto; no se modificó.")
-        document["stt"] = {**raw, "streaming": enabled}
-        _write_yaml_document(document)
-    return {"streaming": enabled}
+    return configure_voice_settings(streaming=enabled)
+
+
+_STT_LANGUAGE_CODE = re.compile(r"([A-Za-z]{2,3})(?:[-_][A-Za-z0-9]{2,8})?")
+
+
+def iris_stt_language() -> str:
+    """IRIS' conversation language (``IRISConfig.language``) as a Whisper code (``es``), or ""."""
+    try:
+        language = str(IRISConfig.load().language or "").strip()
+    except Exception:
+        return ""
+    match = _STT_LANGUAGE_CODE.fullmatch(language)
+    return match.group(1).lower() if match else ""
 
 
 def infer_wake_mode(wake: dict[str, Any]) -> str:
@@ -478,6 +559,20 @@ class HermesWakeRuntime:
         except Exception as exc:  # config text can hold secrets: report the type only
             logger.warning("Nous guest default not applied before Wake: %s", type(exc).__name__)
 
+    @staticmethod
+    async def _ensure_stt_language_default() -> None:
+        """Hermes hears IRIS' language: its 0.23 defaults set ``stt.language: en`` (user log
+        2026-11-27: Spanish speech came back in English or empty). Never blocks voice."""
+        language = iris_stt_language()
+        if not language:
+            return
+        try:
+            from wizard.hermes_config import ensure_stt_language_default
+
+            await asyncio.to_thread(ensure_stt_language_default, language)
+        except Exception as exc:  # config text can hold secrets: report the type only
+            logger.warning("STT language not applied before voice: %s", type(exc).__name__)
+
     async def ensure_gateway(self) -> None:
         if self.running and self._ready.is_set():
             return
@@ -494,6 +589,7 @@ class HermesWakeRuntime:
             if not command_prefix or not repo.exists():
                 raise HermesGatewayError("Hermes Agent administrado no está disponible.")
             await self._ensure_nous_guest_default()
+            await self._ensure_stt_language_default()
 
             creationflags = 0
             if os.name == "nt":
@@ -938,6 +1034,7 @@ class HermesWakeRuntime:
                     # cannot get stuck between two UI states.
                     await self._restore_wake_after_turn()
             else:
+                await self._release_voice_after_empty_take()
                 status = self._rpc_object(
                     "wake.status",
                     await self.request("wake.status", {}, timeout=20.0),
@@ -950,10 +1047,28 @@ class HermesWakeRuntime:
         if event_type == "voice.status":
             reported = str(payload.get("state") or self.state)
             if reported == "idle":
+                # Idle while the take is still pending: it ended without words.
+                ended_empty = bool(self._wake_capture_id)
                 self._wake_capture_id = ""
                 self._wake_partial = ""
+                if ended_empty:
+                    await self._release_voice_after_empty_take()
             self.state = "listening" if reported == "idle" and self.listening else reported
         await self._emit(event_type, payload)
+
+    async def _release_voice_after_empty_take(self) -> None:
+        """Turn voice off after a wake take without words (best-effort).
+
+        Hermes leaves voice mode on after such a take, and its recorder keeps the microphone
+        open until voice.toggle off: Windows showed it in use even after Wake was turned off.
+        """
+        try:
+            self._rpc_object(
+                "voice.toggle",
+                await self.request("voice.toggle", {"action": "off"}, timeout=15.0),
+            )
+        except Exception as exc:
+            logger.warning("Hermes voice release after an empty wake take failed: %s", exc)
 
     async def _restore_wake_after_turn(self) -> None:
         """Best-effort cleanup where one failing RPC cannot skip the next."""
@@ -1076,7 +1191,34 @@ class HermesWakeRuntimeUpdate(BaseModel):
     active: bool
 
 
-def _enforce_local_request(request: Request) -> None:
+def _is_paired_companion(request: Request) -> bool:
+    """Recognise the packaged IRIS Companion and nothing else.
+
+    Its Tauri webview (``http://tauri.localhost``) calls Core on 127.0.0.1, so
+    WebView2 marks the request ``Sec-Fetch-Site: cross-site`` and its Origin can
+    never be same-origin with Core. It proves itself with the private pairing
+    token instead. The token is checked here again, not only in Core's HTTP
+    middleware, because the Wizard mounts this router too.
+    """
+    headers = getattr(request, "headers", {})
+    peer = getattr(getattr(request, "client", None), "host", "")
+    host = getattr(getattr(request, "url", None), "hostname", None)
+    if not (is_loopback_host(peer) and is_loopback_host(host)):
+        return False
+    if not is_tauri_companion_origin(headers.get("origin", "")):
+        return False
+    return is_valid_companion_token(headers.get(COMPANION_TOKEN_HEADER.lower(), "").strip())
+
+
+def _enforce_local_request(request: Request, *, allow_companion: bool = False) -> None:
+    """Refuse microphone control from anything but a local IRIS surface.
+
+    ``allow_companion`` admits the paired Companion (see ``_is_paired_companion``)
+    on the manual-voice routes its UI uses. Every other caller, and every other
+    route, keeps the browser checks below unchanged.
+    """
+    if allow_companion and _is_paired_companion(request):
+        return
     headers = getattr(request, "headers", {})
     if headers.get("sec-fetch-site", "").casefold() == "cross-site":
         raise HTTPException(status_code=403, detail="La escucha de Hermes no acepta solicitudes cross-site.")
@@ -1254,13 +1396,21 @@ class HermesVoiceUpdate(BaseModel):
 
 
 class HermesVoiceSettings(BaseModel):
+    """One or both STT options; each can be saved on its own (checkbox, language list)."""
     model_config = ConfigDict(extra="forbid")
-    streaming: bool = Field(strict=True)
+    streaming: bool | None = Field(default=None, strict=True)
+    language: SttLanguage | None = None
+
+    @model_validator(mode="after")
+    def _one_option(self) -> "HermesVoiceSettings":
+        if self.streaming is None and self.language is None:
+            raise ValueError("Indica streaming o language.")
+        return self
 
 
 @router.post("/api/hermes-voice/settings")
 async def update_hermes_voice_settings(payload: HermesVoiceSettings, request: Request) -> dict[str, Any]:
-    _enforce_local_request(request)
+    _enforce_local_request(request, allow_companion=True)
     runtime = _runtime_from(request)
     if runtime is None:
         raise HTTPException(status_code=409, detail="El runtime de voz todavía no está listo.")
@@ -1268,7 +1418,7 @@ async def update_hermes_voice_settings(payload: HermesVoiceSettings, request: Re
             or runtime.state in {"arming", "detected", "recording", "transcribing", "processing"}):
         raise HTTPException(status_code=409, detail="Termina o cancela la intervención antes de cambiar la transcripción.")
     try:
-        return configure_voice_streaming(payload.streaming)
+        return configure_voice_settings(streaming=payload.streaming, language=payload.language)
     except (ValueError, OSError) as exc:
         # YAML diagnostics may echo the offending line, including an API key.
         raise HTTPException(status_code=422, detail=(
@@ -1279,7 +1429,7 @@ async def update_hermes_voice_settings(payload: HermesVoiceSettings, request: Re
 
 @router.get("/api/hermes-voice/status")
 async def get_hermes_voice_status(request: Request) -> dict[str, Any]:
-    _enforce_local_request(request)
+    _enforce_local_request(request, allow_companion=True)
     runtime = _runtime_from(request)
     if runtime is None:
         raise HTTPException(status_code=409, detail="IRIS Core aún no inició el runtime de voz de Hermes.")
@@ -1292,7 +1442,7 @@ async def get_hermes_voice_status(request: Request) -> dict[str, Any]:
 
 @router.post("/api/hermes-voice/runtime")
 async def update_hermes_voice_runtime(payload: HermesVoiceUpdate, request: Request) -> JSONResponse:
-    _enforce_local_request(request)
+    _enforce_local_request(request, allow_companion=True)
     runtime = _runtime_from(request)
     if runtime is None:
         raise HTTPException(status_code=409, detail="IRIS Core aún no inició el runtime de voz de Hermes.")

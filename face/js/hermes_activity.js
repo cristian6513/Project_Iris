@@ -43,6 +43,7 @@ import { irisAlert, irisConfirm, irisChoice, irisForm } from './iris_dialog.js?v
 import { formatUpdateSize, systemUpdateDialog, systemUpdateProgress } from './system_update_view.js?v=1';
 import { askIrisPreview, askIrisRequest, askIrisTrust } from './app_ask_iris.js?v=3';
 import { appNoticeModes } from './app_notice.js?v=2';
+import { SttLanguageField, saveSttSettings, sttLanguageLabel, sttSettingsReady } from './stt_language.js?v=1';
 
 /** The routine form: name, schedule and what Hermes must do (all three required). */
 function routineForm(title, values, confirmLabel) {
@@ -453,6 +454,10 @@ export class HermesActivityCanvas {
         this._wakeSettingsLoading = false;
         this._wakeSettingsError = '';
         this._wakeSettingsDirty = false;
+        this._sttSettings = null; // «Idioma al hablar»: Hermes stt.language via /api/hermes-voice/*
+        this._sttSettingsBusy = '';
+        this._sttSettingsError = '';
+        this._sttSettingsSaved = false;
         this._companionSettings = {
             companion_always_on_top: true,
             companion_scale: 1,
@@ -1329,6 +1334,7 @@ ${this._moduleViewsHtml()}
                              <button type="button" data-settings-jump="settings-apps">Aplicaciones</button>
                             <button type="button" data-settings-jump="settings-companion">Companion</button>
                             <button type="button" data-settings-jump="settings-voice">Activación por voz</button>
+                            <button type="button" data-settings-jump="settings-stt">Idioma al hablar</button>
                         </nav>
                         <div class="os-advanced-grid">
                             <section class="os-theme-card os-system-update-zone" id="settings-system">
@@ -1479,6 +1485,16 @@ ${this._moduleViewsHtml()}
                                     <button type="button" data-voice-action="save">Guardar</button>
                                 </div>
                                 <div class="os-status-line os-voice-save-status">Sin cambios pendientes.</div>
+                            </section>
+                            <section class="os-theme-card os-stt-settings" id="settings-stt" style="display:grid; gap:10px;">
+                                <header><span>Idioma al hablar</span><strong class="os-update-pill" data-stt-settings-pill>…</strong></header>
+                                <p>El idioma en que se transcribe lo que le dices a Iris por micrófono: aquí, en el Companion y con «Hey Hermes».</p>
+                                <label class="os-voice-phrase-field">
+                                    <span>Idioma</span>
+                                    <select data-stt-field="language" aria-describedby="settings-stt-note"></select>
+                                    <small id="settings-stt-note" data-stt-language-note></small>
+                                </label>
+                                <div class="os-status-line os-stt-save-status" role="status" aria-live="polite">Comprobando…</div>
                             </section>
                         </div>
                     </div>
@@ -1705,6 +1721,13 @@ ${this._moduleViewsHtml()}
             }
             this._markCompanionSettingsDirty();
         });
+        const sttSelect = this.panel.querySelector('[data-stt-field="language"]');
+        if (sttSelect) {
+            this._sttLanguageField = new SttLanguageField({ select: sttSelect,
+                note: this.panel.querySelector('[data-stt-language-note]'),
+                onChoose: (language) => { void this._saveSttLanguage(language); } });
+            this._renderSttSettings();
+        }
         window.addEventListener('IRIS:hermes-wake-state', (ev) => {
             this._wakeRuntime = { ...this._wakeRuntime, ...(ev.detail || {}) };
             this._renderWakeSettings();
@@ -2319,6 +2342,65 @@ ${this._moduleViewsHtml()}
             this._wakeSettingsLoading = false;
             this._renderWakeSettings();
         }
+    }
+
+    /** «Idioma al hablar» reads Hermes' STT settings (never keys) from the voice runtime. */
+    async _loadSttSettings() {
+        if (this._sttSettingsBusy) return;
+        this._sttSettingsBusy = 'loading';
+        this._sttSettingsError = '';
+        this._sttSettingsSaved = false;
+        this._renderSttSettings();
+        try {
+            const response = await fetch('/api/hermes-voice/status', { cache: 'no-store' });
+            const data = await this._responseJson(response, 'Idioma al hablar');
+            this._sttSettings = data.settings || null;
+            this._sttSettingsError = data.settings?.error || '';
+        } catch (error) {
+            this._sttSettingsError = error?.message || 'No pude leer el idioma de la transcripción.';
+        } finally {
+            this._sttSettingsBusy = '';
+            this._renderSttSettings();
+        }
+    }
+
+    async _saveSttLanguage(language) {
+        if (this._sttSettingsBusy || !sttSettingsReady(this._sttSettings)) { this._renderSttSettings(); return; }
+        this._sttSettingsBusy = 'saving';
+        this._sttSettingsError = '';
+        this._sttSettingsSaved = false;
+        this._renderSttSettings();
+        try {
+            const saved = await saveSttSettings((...args) => fetch(...args), { language });
+            this._sttSettings = { ...this._sttSettings, ...saved };
+            this._sttSettingsSaved = true;
+        } catch (error) {
+            this._sttSettingsError = error?.message || 'No pude guardar el idioma de la transcripción.';
+        } finally {
+            this._sttSettingsBusy = '';
+            this._renderSttSettings();
+        }
+    }
+
+    _renderSttSettings() {
+        const card = this.panel?.querySelector('.os-stt-settings');
+        if (!card || !this._sttLanguageField) return;
+        const settings = this._sttSettings;
+        const ready = sttSettingsReady(settings);
+        this._sttLanguageField.render(settings, { disabled: Boolean(this._sttSettingsBusy) });
+        const pill = card.querySelector('[data-stt-settings-pill]');
+        if (pill) pill.textContent = this._sttSettingsBusy
+            ? 'SYNC'
+            : !ready ? (this._sttSettingsError ? 'ERROR' : '…') : (settings.language || 'auto').toUpperCase();
+        const status = card.querySelector('.os-stt-save-status');
+        if (status) status.textContent = this._sttSettingsBusy === 'saving'
+            ? 'Guardando…'
+            : this._sttSettingsBusy
+                ? 'Comprobando…'
+                : this._sttSettingsError
+                    || (this._sttSettingsSaved && ready
+                        ? `Guardado: ${sttLanguageLabel(settings.language)}. Se usa desde la próxima grabación.`
+                        : ready ? 'Vale para todo lo que Iris escucha con este perfil.' : '');
     }
 
     _wakeNameFromPhrase(value = '') {
@@ -3646,6 +3728,7 @@ ${this._moduleViewsHtml()}
                         this._systemUpdateResume = this._checkSystemUpdates(false, { resumeOnly: true });
                     }
                     this._loadWakeSettings();
+                    this._loadSttSettings();
                     void this._renderSettings?.load();
                     this._loadCompanionSettings();
                     this._loadCompanionLifecycle();

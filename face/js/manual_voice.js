@@ -1,3 +1,7 @@
+import { SttLanguageField, liveTextNote, saveSttSettings } from './stt_language.js?v=1';
+
+const STREAMING_HINT = 'Opción de este perfil, también para la activación por voz. Puede enviar audio al proveedor STT mientras hablas. Si no admite directo o falla, se intenta la transcripción final habitual.';
+
 /** Local controls for Hermes microphone capture. */
 export class ManualVoiceController {
     constructor({ button, fetchImpl = (...args) => fetch(...args), notice = () => {}, onState = () => {},
@@ -28,6 +32,7 @@ export class ManualVoiceController {
         this.discardPartials = false;
         this.wakeCapture = '';
         this.streaming = false;
+        this.sttSettings = null;
         this.settingsReady = false;
         this.settingsPending = false;
         this.consented = false;
@@ -38,8 +43,12 @@ export class ManualVoiceController {
         this.panel.setAttribute('aria-label', 'Hablar con IRIS');
         this.panel.innerHTML = `<strong>VOZ · HERMES</strong><p role="status" aria-live="polite"></p>
             <small>El audio usa la transcripción de Hermes, local o remota según tu configuración.</small>
+            <details class="voice-advanced"><summary>Opciones avanzadas</summary>
+            <label class="voice-language-option"><span>Idioma al hablar</span><select data-stt-language></select></label>
+            <small data-stt-language-note></small>
             <label class="voice-streaming-option"><input type="checkbox" data-streaming> Transcribir mientras hablo</label>
-            <small data-streaming-hint>Opción de este perfil, también para la activación por voz. Puede enviar audio al proveedor STT mientras hablas. Si no admite directo o falla, se intenta la transcripción final habitual.</small>
+            <small data-streaming-hint></small>
+            </details>
             <aside class="voice-partial" hidden><small>TRANSCRIPCIÓN PROVISIONAL · aún no enviada</small><p data-partial></p></aside>
             <div><button type="button" data-confirm>Hablar ahora</button><button type="button" data-converse hidden>Iniciar conversación</button><button type="button" data-cancel>Cancelar</button></div>`;
         document.body.append(this.panel);
@@ -48,6 +57,9 @@ export class ManualVoiceController {
         this.converseButton = this.panel.querySelector('[data-converse]');
         this.cancelButton = this.panel.querySelector('[data-cancel]');
         this.streamingInput = this.panel.querySelector('[data-streaming]');
+        this.streamingHint = this.panel.querySelector('[data-streaming-hint]');
+        this.languageField = new SttLanguageField({ select: this.panel.querySelector('[data-stt-language]'),
+            note: this.panel.querySelector('[data-stt-language-note]'), onChoose: (language) => { void this.saveLanguage(language); } });
         this.partialBox = this.panel.querySelector('.voice-partial');
         this.partialMessage = this.panel.querySelector('[data-partial]');
         this.streamingInput.addEventListener('change', () => { void this.saveStreaming(this.streamingInput.checked); });
@@ -154,17 +166,25 @@ export class ManualVoiceController {
         this.render();
     }
 
-    async saveStreaming(enabled) {
+    saveStreaming(enabled) { return this.saveSettings({ streaming: !!enabled }); }
+
+    /** «Idioma al hablar» (stt_language.js): Hermes uses it from the next recording. */
+    saveLanguage(language) { return this.saveSettings({ language }); }
+
+    async saveSettings(changes) {
         if (!this.settingsReady || this.state.busy || this.settingsPending || this.pending) { this.render(); return; }
         this.settingsPending = true; this.failure = ''; this.render();
         try {
-            const response = await this.fetch('/api/hermes-voice/settings', { method: 'POST',
-                headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ streaming: !!enabled }) });
-            const result = await response.json();
-            if (!response.ok || typeof result.streaming !== 'boolean') throw Error(typeof result.detail === 'string' ? result.detail : 'No se pudo guardar la opción de transcripción.');
-            this.streaming = result.streaming;
+            this.applySettings({ ...this.sttSettings, ...await saveSttSettings(this.fetch, changes) });
         } catch (error) { this.failure = error.message; await this.refresh(); }
         finally { this.settingsPending = false; this.render(); }
+    }
+
+    applySettings(settings) {
+        this.sttSettings = settings;
+        this.settingsReady = !settings.error;
+        this.streaming = settings.streaming === true;
+        if (settings.error) this.failure = settings.error;
     }
 
     async refresh() {
@@ -172,11 +192,7 @@ export class ManualVoiceController {
             const response = await this.fetch('/api/hermes-voice/status', { cache: 'no-store' });
             if (response.ok) {
                 const result = await response.json();
-                if (result.settings) {
-                    this.settingsReady = !result.settings.error;
-                    this.streaming = result.settings.streaming === true;
-                    if (result.settings.error) this.failure = result.settings.error;
-                }
+                if (result.settings) this.applySettings(result.settings);
                 this.apply(result);
             }
         } catch { /* No capture is started by a status read. */ }
@@ -397,8 +413,11 @@ export class ManualVoiceController {
             this.converseButton.hidden = !this.conversationAvailable || !this.confirming;
             this.converseButton.disabled = this.confirmButton.disabled;
         }
+        const settingsLocked = !this.settingsReady || busy || this.pending || this.settingsPending || !this.connected || !!this.wakeCapture;
         this.streamingInput.checked = this.streaming;
-        this.streamingInput.disabled = !this.settingsReady || busy || this.pending || this.settingsPending || !this.connected || !!this.wakeCapture;
+        this.streamingInput.disabled = settingsLocked;
+        this.streamingHint.textContent = liveTextNote(this.sttSettings) || STREAMING_HINT;
+        this.languageField.render(this.sttSettings, { disabled: settingsLocked });
         this.partialBox.hidden = !this.partial;
         this.partialMessage.textContent = this.partial;
         this.cancelButton.textContent = this.confirming || (own && busy && state !== 'processing') ? 'Cancelar' : 'Cerrar';

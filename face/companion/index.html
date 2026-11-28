@@ -7,8 +7,8 @@
     <meta name="color-scheme" content="dark">
     <title>IRIS Companion</title>
     <link rel="icon" type="image/png" href="../public/assets/os/iris-profile-icon-v1.png?v=2">
-    <link rel="stylesheet" href="./companion.css?v=13">
-    <link rel="stylesheet" href="../css/manual_voice.css?v=5">
+    <link rel="stylesheet" href="./companion.css?v=15">
+    <link rel="stylesheet" href="../css/manual_voice.css?v=6">
     <link rel="stylesheet" href="../css/iris_dialog.css?v=6">
     <script>
         if (new URLSearchParams(location.search).has('preview')) {
@@ -53,6 +53,10 @@
             <div class="avatar-shell">
                 <canvas id="companion-canvas"></canvas>
             </div>
+            <button id="touch-back" class="touch-back" type="button" hidden title="Volver a verla entera (Esc)">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+                <span>Volver</span>
+            </button>
             <div class="speech-bubble" id="speech-bubble" role="status" aria-live="polite" hidden>
                 <button id="speech-dismiss" class="speech-dismiss" type="button" aria-label="Ocultar texto, sin silenciar la voz" hidden>×</button>
                 <span class="speech-kicker" id="speech-kicker">IRIS</span>
@@ -276,6 +280,6 @@
         </div>
     </main>
     <link rel="stylesheet" href="../css/inbox.css">
-    <script type="module" src="./companion.js?v=123"></script>
+    <script type="module" src="./companion.js?v=125"></script>
 </body>
 </html>

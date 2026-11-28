@@ -1,4 +1,4 @@
 """Single source of truth for the IRIS OS release version."""
 
-__version__ = "0.9.9"
+__version__ = "0.9.10"
 

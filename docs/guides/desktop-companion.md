@@ -7,7 +7,8 @@ reemplaza la interfaz completa y no es necesario para utilizar Hermes.
 
 ## Estado actual
 
-Revisión documental del 17 de noviembre de 2026. **QA25 incluye Companion
+Revisión documental del 28 de noviembre de 2026. **QA31 incluye Companion
+0.1.16**, con los mimos y el panel de voz arreglado. **QA25 incluyó Companion
 0.1.10**, con la vista Solo avatar y la conversación por voz. El ojo de Solo avatar
 se comprobó en WebView2; la conversación con micrófono y altavoces reales sigue pendiente.
 Consulta [Estado actual](../estado-actual.md) para identificar tu versión.
@@ -139,6 +140,15 @@ la presentación anterior.
 cancelarla. Desde QA25, **Iniciar conversación** permite varios
 turnos y deja **Terminar** visible incluso en Solo avatar. La activación por
 voz se administra en los ajustes de IRIS OS. [Micrófono manual y Wake](manual-voice.md).
+
+Desde QA31, **VOZ · HERMES** funciona en el Companion: **Transcribir mientras
+hablo**, **Idioma al hablar** (en **Opciones avanzadas**) y **Hablar ahora**. Antes,
+Core rechazaba esas peticiones y la casilla quedaba bloqueada.
+
+**Mimos (QA31):** pica o estira sus cachetes y acaricia su cabeza directamente.
+Doble clic sobre su cabeza para acercarte; **Volver**, Esc o 25 segundos sin
+tocarla la devuelven. Arrastrar la ventana sigue funcionando. Ver
+[mimos](room.md#mimos).
 
 Sin un modelo propio, el Companion muestra a IRIS desde su propio paquete, también
 antes de que responda Core. Si el modelo propio no carga al arrancar, muestra a IRIS

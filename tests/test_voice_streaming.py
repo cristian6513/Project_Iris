@@ -191,13 +191,15 @@ def config_path(tmp_path, monkeypatch):
     path = tmp_path / 'hermes' / 'config.yaml'
     path.parent.mkdir()
     monkeypatch.setattr(wake, 'get_hermes_config_path', lambda: path)
+    monkeypatch.setattr(wake, 'iris_stt_language', lambda: 'es')  # never the PC's IRIS profile
     return path
 
 
 def test_config_read_is_passive_and_missing_defaults_off(config_path):
     runtime, _ = runtime_fixture()
     response = asyncio.run(wake.get_hermes_voice_status(request_fixture(runtime)))
-    assert response['settings'] == {'streaming': False}
+    assert response['settings'] == {'streaming': False, 'language': 'es', 'language_saved': False,
+                                    'live_text': False, 'language_override': ''}
     assert not config_path.exists()
     runtime.request.assert_not_awaited()
 
@@ -210,7 +212,7 @@ def test_config_merge_preserves_provider_secrets_wake_and_unknown_keys(config_pa
     response = asyncio.run(wake.update_hermes_voice_settings(wake.HermesVoiceSettings(streaming=enabled), request_fixture(runtime)))
     source['stt']['streaming'] = enabled
     assert yaml.safe_load(config_path.read_text(encoding='utf-8')) == source
-    assert response == {'streaming': enabled}
+    assert response['streaming'] is enabled and response['live_text'] is True
     status = asyncio.run(wake.get_hermes_voice_status(request_fixture(runtime)))
     assert status['settings'] == response
     assert 'private' not in json.dumps(status) and 'openai' not in json.dumps(status)

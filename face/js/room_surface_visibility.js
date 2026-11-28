@@ -1,6 +1,6 @@
 // Room controls and the workbench are siblings. Never make their shared root inert.
 const ROOM_CONTROLS = '#action-buttons, #room-selector, #pose-menu, #vrma-uploader, '
-    + '#inspect-top-toggle, #emotion-display, .inspect-room-hud, '
+    + '#inspect-top-toggle, #touch-top-toggle, #emotion-display, .inspect-room-hud, '
     + '.panel-toggle-btn, .side-panel, #panel-backdrop';
 
 export class RoomSurfaceVisibility {

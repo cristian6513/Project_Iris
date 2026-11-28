@@ -8,7 +8,7 @@ import { irisForm } from './iris_dialog.js?v=9';
 import { archiveKey, extensionOf, openPmxPackage, PMX_AVATAR_LIMIT, PMX_AVATAR_EXPANDED_LIMIT, PMX_PACKAGE_LIMIT } from './pmx_archive.js';
 import { useMmdAmbient, useOverlayAlpha } from './pmx_material.js?v=2';
 // Brows, eyes and mouth per emotion, merged into one morph each (the loader copies the mesh per morph).
-import { emotionMouthWeight, MOUTH_SUFFIX, normalizeMorphName, PMX_EYE_CLOSING, selectExpressions } from './pmx_expressions.js?v=10';
+import { emotionMouthWeight, MOUTH_SUFFIX, normalizeMorphName, PMX_EYE_CLOSING, selectExpressions } from './pmx_expressions.js?v=11';
 
 const VIRTUAL_ROOT = '/iris-mmd-assets/';
 // .sph and .spa are MMD sphere maps: BMP images, sometimes PNG ones, by another name. The

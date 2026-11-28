@@ -18,9 +18,95 @@ const BLUE = new THREE.Color(0xA8D8EA);
 const RED = new THREE.Color(0xff4444);
 const PINK = new THREE.Color(0xff9ccf);
 
+// The sparkles burst around her head (2026-11-26). They used to fill a 2x2 box at the scene
+// origin, so in the room (Iris on the bed at x≈3.1, say) they floated in the middle of it.
+export const SPARKLE_SPREAD = {
+    // Around the head, in world units: outside her face, out to beside her shoulders.
+    innerRadius: 0.22, outerRadius: 0.6,
+    // From her chest to just above her hair.
+    below: 0.45, above: 0.3,
+};
+// Where they burst before an avatar has loaded: the middle of the old box.
+const SPARKLE_DEFAULT_ANCHOR = new THREE.Vector3(0, 1, 0);
+// How quickly they catch up when she moves while they are lit (per second).
+const SPARKLE_FOLLOW_RATE = 4;
+// Closer to the camera than this they stop growing: in video 6's close shots (camera 1 to 1.8
+// from her face) one passing in front of her would otherwise cover her eye.
+export const SPARKLE_NEAREST = 1.5;
+
+/**
+ * A soft round dot. Without a map PointsMaterial draws each point as a flat square, and near the
+ * camera the gold sparkles read as orange squares (video 6, 2026-11-26). White, with the fall-off
+ * in alpha, so the material colour still tints it. Null where there is no canvas (Node).
+ */
+export function createSparkleTexture(doc = globalThis.document, size = 64) {
+    const canvas = doc?.createElement?.('canvas');
+    if (!canvas) return null;
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext?.('2d');
+    if (!ctx) return null;
+    const r = size / 2;
+    const glow = ctx.createRadialGradient(r, r, 0, r, r, r);
+    glow.addColorStop(0, 'rgba(255,255,255,1)');
+    glow.addColorStop(0.18, 'rgba(255,255,255,0.9)');
+    glow.addColorStop(0.42, 'rgba(255,255,255,0.32)');
+    glow.addColorStop(0.72, 'rgba(255,255,255,0.06)');
+    glow.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = glow;
+    ctx.fillRect(0, 0, size, size);
+    return new THREE.CanvasTexture(canvas);
+}
+
+/**
+ * PointsMaterial has one `size` for every point and ignores a per-vertex size attribute. This
+ * multiplies `size` by the per-point `attribute`, and with `nearest` measures the distance
+ * shrink from no closer than that (both lines are three 0.170's points.glsl). If a later three
+ * changes a line, that part is left out instead of breaking the frame.
+ */
+export function scalePointsPerVertex(material, { attribute = 'sparkleScale', nearest = 0 } = {}) {
+    const sizeLine = 'gl_PointSize = size;';
+    const shrinkLine = 'if ( isPerspective ) gl_PointSize *= ( scale / - mvPosition.z );';
+    material.onBeforeCompile = (shader) => {
+        let vertex = shader.vertexShader;
+        if (vertex.includes(sizeLine)) {
+            vertex = `attribute float ${attribute};\n` + vertex.replace(sizeLine, `gl_PointSize = size * ${attribute};`);
+        } else {
+            console.warn(`particles.js: no «${sizeLine}» in this three's points shader; the sparkles keep one size.`);
+        }
+        if (nearest > 0 && vertex.includes(shrinkLine)) {
+            vertex = vertex.replace(shrinkLine,
+                `if ( isPerspective ) gl_PointSize *= ( scale / max( - mvPosition.z, ${nearest.toFixed(4)} ) );`);
+        } else if (nearest > 0) {
+            console.warn('particles.js: no distance shrink line in this three\'s points shader; near sparkles are not capped.');
+        }
+        shader.vertexShader = vertex;
+    };
+    material.customProgramCacheKey = () => `points-scaled-by-${attribute}-nearest-${nearest}`;
+    return material;
+}
+
+/** One sparkle's place around the anchor: a ring outside her face, from her chest to above her hair. */
+export function sparkleOffset(random = Math.random, spread = SPARKLE_SPREAD) {
+    const angle = random() * Math.PI * 2;
+    const radius = spread.innerRadius + random() * (spread.outerRadius - spread.innerRadius);
+    return [
+        Math.cos(angle) * radius,
+        -spread.below + random() * (spread.below + spread.above),
+        Math.sin(angle) * radius,
+    ];
+}
+
 export class ParticleSystem {
-    constructor(scene) {
+    /**
+     * @param {THREE.Scene} scene
+     * @param {{getAnchor?: (target: THREE.Vector3) => THREE.Vector3|null}} options - where the
+     *   sparkles burst: her head in the world, written into `target`; null before she loads
+     */
+    constructor(scene, { getAnchor = () => null } = {}) {
         this.scene = scene;
+        this.getAnchor = getAnchor;
+        this._anchor = new THREE.Vector3();
         this.points = null;
         this.pointsSecondary = null;
         this.auraRing = null;
@@ -117,34 +203,46 @@ export class ParticleSystem {
     }
 
     _createSparkles() {
-        // Sparkle particles for active states
+        // Sparkle particles for active states. Positions are offsets from her head: the Points
+        // object itself is moved to the head when they burst (_triggerSparkles).
         const sparkleGeo = new THREE.BufferGeometry();
         const sparklePos = new Float32Array(SPARKLE_COUNT * 3);
-        const sparkleSizes = new Float32Array(SPARKLE_COUNT);
+        const sparkleScales = new Float32Array(SPARKLE_COUNT);
 
         for (let i = 0; i < SPARKLE_COUNT; i++) {
-            sparklePos[i * 3] = (Math.random() - 0.5) * 2;
-            sparklePos[i * 3 + 1] = Math.random() * 2 - 0.5;
-            sparklePos[i * 3 + 2] = (Math.random() - 0.5) * 2;
-            sparkleSizes[i] = 0;
+            sparklePos.set(sparkleOffset(), i * 3);
+            sparkleScales[i] = 0;
         }
 
         sparkleGeo.setAttribute('position', new THREE.BufferAttribute(sparklePos, 3));
-        sparkleGeo.setAttribute('size', new THREE.BufferAttribute(sparkleSizes, 1));
+        // Read by the shader through scalePointsPerVertex: PointsMaterial alone ignores it.
+        sparkleGeo.setAttribute('sparkleScale', new THREE.BufferAttribute(sparkleScales, 1));
 
-        const sparkleMat = new THREE.PointsMaterial({
+        const sparkleMat = scalePointsPerVertex(new THREE.PointsMaterial({
             size: 0.06,
             color: GOLD,
+            map: createSparkleTexture(),
             transparent: true,
             opacity: 0,
             blending: THREE.AdditiveBlending,
             depthWrite: false,
             sizeAttenuation: true,
-        });
+        }), { nearest: SPARKLE_NEAREST });
 
         this.sparkles = new THREE.Points(sparkleGeo, sparkleMat);
+        this.sparkles.visible = false;
         this.scene.add(this.sparkles);
-        this._sparkleBasePositions = new Float32Array(sparklePos);
+    }
+
+    /** Her head in the world now, or the old box's middle before an avatar has loaded. */
+    _sparkleAnchor() {
+        let anchor = null;
+        try {
+            anchor = this.getAnchor(this._anchor);
+        } catch (error) {
+            console.warn('particles.js: no anchor for the sparkles:', error);
+        }
+        return anchor ? this._anchor.copy(anchor) : this._anchor.copy(SPARKLE_DEFAULT_ANCHOR);
     }
 
     setMood(emotion) {
@@ -223,16 +321,18 @@ export class ParticleSystem {
 
     _triggerSparkles() {
         if (!this.sparkles) return;
-        const positions = this.sparkles.geometry.attributes.position.array;
-        const sizes = this.sparkles.geometry.attributes.size.array;
+        const geometry = this.sparkles.geometry;
+        const positions = geometry.attributes.position.array;
+        const scales = geometry.attributes.sparkleScale.array;
         for (let i = 0; i < SPARKLE_COUNT; i++) {
-            positions[i * 3] = this._sparkleBasePositions[i * 3] + (Math.random() - 0.5) * 0.5;
-            positions[i * 3 + 1] = Math.random() * 2;
-            positions[i * 3 + 2] = this._sparkleBasePositions[i * 3 + 2] + (Math.random() - 0.5) * 0.5;
-            sizes[i] = 0.5 + Math.random() * 1.5;
+            positions.set(sparkleOffset(), i * 3);
+            scales[i] = 0.5 + Math.random() * 1.5;
         }
-        this.sparkles.geometry.attributes.position.needsUpdate = true;
-        this.sparkles.geometry.attributes.size.needsUpdate = true;
+        geometry.attributes.position.needsUpdate = true;
+        geometry.attributes.sparkleScale.needsUpdate = true;
+        geometry.computeBoundingSphere();
+        this.sparkles.position.copy(this._sparkleAnchor());
+        this.sparkles.visible = true;
         this.sparkles.material.opacity = 0.8;
         this._sparkleTimer = 0;
     }
@@ -322,13 +422,14 @@ export class ParticleSystem {
             if (this._sparkleTimer > 1.5) {
                 // Fade out sparkles
                 this.sparkles.material.opacity = Math.max(0, this.sparkles.material.opacity - delta * 2);
-                const sizes = this.sparkles.geometry.attributes.size.array;
+                const scales = this.sparkles.geometry.attributes.sparkleScale.array;
                 for (let i = 0; i < SPARKLE_COUNT; i++) {
-                    sizes[i] = Math.max(0, sizes[i] - delta * 2);
+                    scales[i] = Math.max(0, scales[i] - delta * 2);
                 }
-                this.sparkles.geometry.attributes.size.needsUpdate = true;
+                this.sparkles.geometry.attributes.sparkleScale.needsUpdate = true;
                 if (this.sparkles.material.opacity <= 0.001) {
                     this.sparkles.material.opacity = 0;
+                    this.sparkles.visible = false;
                     this._sparkleTimer = undefined;
                     return;
                 }
@@ -336,6 +437,10 @@ export class ParticleSystem {
         }
 
         if (this.sparkles.material.opacity <= 0.001) return;
+
+        // Lit, they go with her: a walk carries them along, the head's small sways are smoothed out.
+        const follow = 1 - Math.exp(-SPARKLE_FOLLOW_RATE * Math.max(0, delta));
+        this.sparkles.position.lerp(this._sparkleAnchor(), follow);
 
         // Floating sparkle motion
         const positions = this.sparkles.geometry.attributes.position.array;

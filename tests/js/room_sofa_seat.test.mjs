@@ -437,10 +437,14 @@ test('the avatar zoom closes in on her head, not on the middle of the view', () 
 test('a narrow window backs the seat view off, and leaving Explorar resets it at once', () => {
     const { camera, view } = cameraFixture(0.9);
     for (let t = 0; t < 3.1; t += 1 / 30) view.update(1 / 30, 0, seat.view);
-    assert.ok(camera.position.z > seat.view.position[2] + 1, 'further back than in 16:9');
+    assert.ok(camera.position.z > seat.view.position[2], 'further back than in 16:9');
+    // No further than the home camera (z 4.95): a wider lens makes up the rest.
+    assert.equal(camera.position.z, 4.95);
+    assert.ok(camera.fov > 45);
     view.reset();
     view.update(1 / 30, 0, undefined);
     assert.deepEqual(camera.position.toArray(), [0.34, 1.38, 4.95]);
+    assert.equal(camera.fov, 45);
 });
 
 const bed = ROOM_HOTSPOTS.bedLieSpot;

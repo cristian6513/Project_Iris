@@ -27,6 +27,8 @@ motor está disponible. IRIS no mantiene un segundo detector paralelo.
 - botón/estado visible mientras está armada;
 - comprobación de motor, dispositivo, STT y TTS;
 - pausa durante la respuesta para evitar autoactivación;
+- micrófono cerrado al terminar cada captura manual o de Wake (desde QA31; antes
+  Hermes lo dejaba abierto, sin grabar, hasta cerrar Iris);
 - nueva sesión u orden solo después de detectar la frase;
 - chat escrito siempre disponible como alternativa.
 
@@ -180,7 +182,9 @@ autoarranque del Gateway. La aplicación:
 - no debe capturar micrófono por una restricción de cámara;
 - debe mostrar estados de escucha y error;
 - debe validar los artefactos antes de reparar/instalar;
-- no debe aceptar páginas o comandos de orígenes arbitrarios.
+- no debe aceptar páginas o comandos de orígenes arbitrarios;
+- usa la voz manual solo con su token de emparejamiento y desde el mismo equipo;
+  sigue sujeto al permiso del micrófono (QA31).
 
 ## Actualizaciones
 

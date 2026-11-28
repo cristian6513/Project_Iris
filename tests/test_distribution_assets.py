@@ -277,7 +277,7 @@ def test_iris_avatar_ships_pinned_with_its_own_licence():
     contract = load_contract()
     avatar = contract["avatar"]
     assert avatar == {"filename": "iris.vrm", "license": "LICENSE-IRIS-VRM.txt",
-                      "sha256": "2c12afd9b24b8df26dd78b674d35aa2787ee3a2d14b1076e993c54e15251b323"}
+                      "sha256": "0424e0566e7782d885e1e8c3b76ac10184dfa360b1c52bf3017eb508c4b0d445"}
     assets = prepare_assets(ROOT / "face" / "animations", contract)
     assert hashlib.sha256(assets["iris.vrm"]).hexdigest() == avatar["sha256"]
     assert "NO forma parte de la licencia MIT" in assets["LICENSE-IRIS-VRM.txt"].decode("utf-8")

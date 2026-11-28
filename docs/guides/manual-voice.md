@@ -14,9 +14,11 @@ No es necesario que Hermes reconozca «Hey Iris» para usar el botón manual.
 
 1. En Capability & Permission Center, deja **Micrófono** en **Preguntar** si
    quieres autorizarlo mediante una acción explícita. **Denegar** bloquea Hablar.
-2. Pulsa **Hablar**. El panel explica el destino del audio y permite elegir
-   **Transcribir mientras hablo**. Pulsa **Hablar ahora** para abrir el micrófono
-   en esa intervención; cambiar la opción no empieza una grabación.
+2. Pulsa **Hablar**. El panel explica el destino del audio. En **Opciones
+   avanzadas** (plegado al abrir) se eligen **Idioma al hablar** y **Transcribir
+   mientras hablo**. Pulsa **Hablar ahora**
+   para abrir el micrófono en esa intervención; cambiar una opción no empieza una
+   grabación.
 3. Habla normalmente. Hermes termina la captura al detectar silencio; puedes
    pulsar el mismo botón, ahora **Enviar**, para terminarla antes.
 4. **Cancelar** o **Escape** descartan la intervención pendiente. Ocultar o
@@ -94,7 +96,13 @@ de la QA instalada del candidato usado. La entrega por voz de resultados de tare
 - La transcripción utiliza el proveedor STT configurado en Hermes: **puede ser
   local o remoto**. No debe confundirse con la detección local de Wake.
 - Una ventana no puede detener la captura manual de otra. Las peticiones están
-  restringidas al equipo local y sus orígenes admitidos.
+  restringidas al equipo local y sus orígenes admitidos. El Companion emparejado
+  entra con su token, desde el mismo equipo (QA31); Wake se sigue controlando
+  desde IRIS OS.
+- Al terminar cada captura, IRIS apaga el modo de voz y Hermes cierra el
+  micrófono, con el parche revisado `release-microphone-on-voice-off` (en macOS,
+  Hermes lo mantiene abierto por un fallo de CoreAudio). Antes de QA31, Windows lo
+  mostraba en uso hasta cerrar Iris, aunque entre capturas no se grababa nada.
 - Si Wake ya estaba activo, se pausa durante la intervención y puede reanudarse
   al terminar. Si estaba apagado, Hablar no lo activa. Apagar Wake desde ajustes
   durante la intervención impide su reanudación.
@@ -109,10 +117,26 @@ La disponibilidad final depende del micrófono, permisos del sistema, instalaci�
 de voz de Hermes y configuración/credenciales STT. La reparación de Wake no
 sustituye la configuración de STT. Consulta la [guía oficial de voz de Hermes](https://hermes-agent.nousresearch.com/docs/user-guide/features/voice-mode).
 
+## Idioma al hablar
+
+El panel de voz (IRIS OS y Companion) y **Ajustes → Idioma al hablar** guardan
+`stt.language` en el perfil de Hermes: Español, English, Português, Français,
+Deutsch, Italiano, 日本語 o **Detección automática** (`""`). Sin un valor guardado
+se muestra el idioma de IRIS (español), el mismo que Core escribe antes de
+`hermes serve` si el perfil no eligió ninguno; un valor elegido no se vuelve a
+tocar. Hermes relee `config.yaml` en cada grabación: el cambio vale desde la
+siguiente, sin reiniciar. Un `stt.<proveedor>.language` del perfil manda sobre
+esta opción y el panel lo avisa. No se puede cambiar durante una toma.
+
+Con el transcriptor local (faster-whisper, el de Hermes cuando `stt.provider`
+falta o es `local`) no hay texto en vivo: Hermes 0.23.3 solo lo abre con OpenAI,
+xAI o ElevenLabs con su propia clave. El panel lo dice junto a la casilla.
+
 ## Verificación y entrega
 
-Las regresiones están en `tests/test_manual_voice.py`, `tests/test_voice_streaming.py` y
-`tests/js/manual_voice.test.mjs`. `scripts/verify_manual_voice.mjs` comprueba
+Las regresiones están en `tests/test_manual_voice.py`, `tests/test_voice_streaming.py`,
+`tests/test_hermes_stt_settings.py`, `tests/js/manual_voice.test.mjs` y
+`tests/js/stt_language.test.mjs`. `scripts/verify_manual_voice.mjs` comprueba
 consentimiento, envío, cancelación y encaje visual en ambas superficies con una
 API simulada; no activa sensores ni usa cuentas reales.
 

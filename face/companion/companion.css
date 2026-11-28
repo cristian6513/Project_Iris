@@ -391,6 +391,33 @@ body > .voice-conversation-bar { bottom: 78px; }
     touch-action: none;
 }
 
+/* «Mimos» close-up (double click on her head): the way back. */
+.touch-back {
+    position: absolute;
+    z-index: 9;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 12px 6px 8px;
+    border: 1px solid var(--companion-line);
+    border-radius: 999px;
+    background: var(--companion-panel);
+    color: var(--companion-ink);
+    font: inherit;
+    font-size: 12px;
+    cursor: pointer;
+    pointer-events: auto;
+    box-shadow: 0 4px 14px var(--companion-shadow);
+}
+.touch-back[hidden] { display: none; }
+.touch-back svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.touch-back:hover { border-color: var(--companion-accent); }
+.touch-back:focus-visible { outline: 2px solid var(--companion-accent); outline-offset: 2px; }
+body[data-touch-close-up="true"] .speech-bubble { top: 52px; }
+
 .presence-halo {
     position: absolute;
     left: 50%;
@@ -1119,8 +1146,9 @@ input:focus-visible + .game-switch { outline: 2px solid var(--companion-accent);
 .game-ask > small { text-align: center; }
 .game-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 .game-pair .game-quiet { min-height: 40px; }
-/* Mute buttons show a crossed speaker, or sound waves once muted («Activar voz»). */
-[data-muted="true"] .game-mute-x, :not([data-muted="true"]) > svg .game-mute-wave { display: none; }
+/* Mute buttons show the voice as it is: sound waves while Iris speaks, a crossed speaker once
+   muted. The label and aria-label still name the action («Silenciar» / «Activar voz»). */
+[data-muted="true"] > svg .game-mute-wave, :not([data-muted="true"]) > svg .game-mute-x { display: none; }
 /* Status card and compact bar share one tone: ready, busy, muted or warn. */
 :is(.game-status-card, .game-mode-indicator) { --tone: var(--companion-ready); }
 :is(.game-status-card, .game-mode-indicator)[data-tone="busy"] { --tone: var(--companion-accent); }

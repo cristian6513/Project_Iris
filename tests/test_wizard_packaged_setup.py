@@ -47,7 +47,7 @@ REVIEWED = {
     ("GET", "/api/hermes-wake/settings"), ("POST", "/api/hermes-wake/settings"),
     ("POST", "/api/hermes-wake/runtime"), ("GET", "/api/hermes-voice/status"),
     ("POST", "/api/hermes-voice/runtime"),
-    # F16: edits the profile's stt.streaming only; no install/update or capture.
+    # F16: edits the profile's stt.streaming and stt.language only; no install/update or capture.
     ("POST", "/api/hermes-voice/settings"),
     ("GET", "/api/companion/lifecycle"), ("POST", "/api/companion/install"),
     ("POST", "/api/companion/autostart"), ("POST", "/api/companion/launch"), ("POST", "/api/companion/stop"),

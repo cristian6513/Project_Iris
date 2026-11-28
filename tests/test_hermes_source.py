@@ -462,7 +462,13 @@ def test_an_invalid_patch_spec_is_rejected_before_anything_is_written(tmp_path, 
 def test_the_pinned_runtime_patches_are_valid_and_documented():
     pin = json.loads((Path(__file__).resolve().parents[1] / "scripts/runtime_sources.json").read_text("utf-8"))["hermes"]
     patches = source._validate_patches(pin)
+    # Each reviewed patch and the files it may change; a new one is added here on review.
+    assert {path: spec["id"] for path, spec in patches.items()} == {
+        "gateway/session_api_turn.py": "session-lock-resolved-provider",
+        "gateway/run_turn_runner.py": "session-lock-resolved-provider",
+        "hermes_cli/voice.py": "release-microphone-on-voice-off",
+        "tui_gateway/methods_voice.py": "release-microphone-on-voice-off",
+    }
     for path, spec in patches.items():
-        assert path.startswith("gateway/")
         # Every inserted block says where it comes from, so a reader of the tree can tell.
         assert all(f"IRIS patch {spec['id']}" in new for _, new in spec["replace"])

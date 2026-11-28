@@ -1,9 +1,28 @@
 # Estado actual de IRIS OS
 
-Revisión documental: **2026-11-26**. Esta matriz distingue fuente, candidato de
+Revisión documental: **2026-11-28**. Esta matriz distingue fuente, candidato de
 QA y publicación. No sustituye los criterios del
 plan A08/F01–F16 (informe interno no distribuido) ni da por
 aprobada una instalación manual por haber pasado pruebas automáticas.
+
+## Iris OS 0.9.10 beta · QA31
+
+QA31, ID `5369fea0`, para Windows x64. Incluye Companion 0.1.16 y Hermes 0.23.3 con dos parches
+revisados: el de QA29 y uno nuevo que cierra el micrófono al terminar cada grabación. El contrato
+registra 463 recursos web y el catálogo conserva 95 animaciones.
+
+- Mimos: se puede acariciar la cabeza de Iris y picar o estirar sus cachetes, con sonidos suaves.
+  En el Companion, doble clic sobre su cabeza para acercarse.
+- La voz funciona en el Companion: «Transcribir mientras hablo» y «Hablar ahora» ya no se
+  bloquean.
+- «Idioma al hablar» en Ajustes y en las opciones avanzadas del diálogo de voz, con español por
+  defecto. Antes, el transcriptor entendía lo dicho en español como inglés.
+- En pantallas verticales, la cámara ya no sale de la habitación cuando Iris va al escritorio.
+- Al terminar de escuchar, Iris libera el micrófono: Windows ya no lo marca como en uso.
+- Ojos de IRIS v14 y destellos redondos junto a su cabeza al hablar.
+
+Las suites del candidato pasaron con 5.673 pruebas Python y 1.780 JavaScript. Siguen pendientes
+la revisión de Codex, las pruebas con personas y la voz con una clave real.
 
 ## Iris OS 0.9.9 beta · QA30
 

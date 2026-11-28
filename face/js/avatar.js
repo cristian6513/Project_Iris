@@ -15,11 +15,12 @@ import { useKTX2 } from './ktx2_support.js?v=2';
 import { autoRegisterSpringBones } from './auto_springbones.js';
 import { AvatarBreeze } from './avatar_breeze.js?v=5';
 import { scaleHairColliders } from './spring_collider_scale.js?v=1';
+import { closeGazeWithLids } from './lid_gaze.js?v=1';
 import { IKSolver } from './ik.js';
 import { PoseFace, NaturalBlink, VRM_EMOTION_PRESETS, EMOTION_LIDS } from './pose_face.js?v=3';
 import { canonicalEmotion } from './emotions.js?v=3';
 import { VRMAnimationPlayer } from './vrm_animation_loader.js?v=10';
-import { isPmxArchive } from './avatar_state.js?v=6';
+import { isPmxArchive } from './avatar_state.js?v=7';
 
 // A mark that floats by her head for a moment when an emotion arrives, on avatars that have one
 // (MMD's ！ and ？ symbols, built in pmx_expressions.js): it pops in, holds, then fades.
@@ -179,6 +180,8 @@ export class VRMAvatar {
         this._poseFace = new PoseFace();
         this.poseFacialProfile = null;
         this.poseFaceSpeaking = false;
+        // Set by TouchReactions (touch_reactions.js): { apply(avatar, delta), restore() }.
+        this.touch = null;
         // A soft breeze over the hair and clothing spring bones (avatar_breeze.js).
         this.breeze = new AvatarBreeze();
 
@@ -397,6 +400,8 @@ export class VRMAvatar {
                             // her eyes are 0.75 away from theirs and a close camera culled them.
                             vrm.scene.traverse((obj) => { if (obj.isMesh) obj.frustumCulled = false; });
                             this.vrm = vrm;
+                            // Her eyes turn back to the centre as her lids close (lid_gaze.js).
+                            closeGazeWithLids(vrm);
                             this.group.visible = false;
                             await loadAndScale(vrm.scene, true);
                             this.group.visible = true;
@@ -517,7 +522,7 @@ export class VRMAvatar {
                 const load = async () => {
                     const response = await fetch(url, { cache: 'no-store' });
                     if (!response.ok) throw new Error('No se pudo leer el ZIP MMD guardado.');
-                    const { loadPmxAvatar } = await import('./pmx_avatar.js?v=17');
+                    const { loadPmxAvatar } = await import('./pmx_avatar.js?v=18');
                     const vrm = await loadPmxAvatar(new Uint8Array(await response.arrayBuffer()), { simulate: true });
                     await onModel({ scene: vrm.scene, userData: { vrm }, animations: [] });
                 };
@@ -879,10 +884,14 @@ export class VRMAvatar {
             if (this._headAnim?.over) this._applyHeadAnim();
             this._armReach?.apply();
             this._poseFace?.apply(this, delta);
+            // Petting and cheek pokes (touch_reactions.js): over every other face and head writer,
+            // given back right after vrm.update.
+            this.touch?.apply(this, delta);
             // The wind turns with her, so it never blows into her face (avatar_breeze.js).
             this.breeze?.apply(delta, (this.group?.rotation.y ?? 0) - (this.restYaw || 0));
             this.vrm?.update(delta);
         } finally {
+            this.touch?.restore();
             this._restoreHeadClip?.();
             this._armReach?.restore();
             this._lyingHips?.restoreLegs();
